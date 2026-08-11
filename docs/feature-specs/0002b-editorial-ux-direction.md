@@ -89,5 +89,6 @@ Revert commit docs-only và bỏ prototype thử nghiệm. Không cần migratio
 ## 12. Bằng chứng hoàn thành
 
 - Commit checkpoint: `97ab9fc` (`docs: define editorial UX direction`).
+- Brand mark checkpoint: `dde4196` (`docs(brand): add original AI for Boss mark`).
 - Product Owner acceptance: yêu cầu điều chỉnh theo tinh thần Hermes Agent ngày 2026-08-11.
 - Reviewer: Codex self-review; independent visual/brand review còn thiếu.
