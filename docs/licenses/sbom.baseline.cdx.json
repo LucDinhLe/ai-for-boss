@@ -1,0 +1,114 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:8f4ebed6-6f2d-4b28-a9ac-1b6612b0952f",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-08-10T17:00:00Z",
+    "component": {
+      "type": "application",
+      "bom-ref": "pkg:generic/ai-for-boss@0.0.0-dev",
+      "name": "AI for Boss",
+      "version": "0.0.0-dev",
+      "properties": [
+        {
+          "name": "aifb:scope",
+          "value": "Feature 0.2 direct release-train baseline; not a release SBOM"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "application",
+      "bom-ref": "pkg:npm/openclaw@2026.7.1-2",
+      "name": "openclaw",
+      "version": "2026.7.1-2",
+      "purl": "pkg:npm/openclaw@2026.7.1-2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "c9c177c8f71b8cde9b50f79a531e8c87abf37b58505a80f7093ff059c983edaf316871c745468095aabe945c4c1dfd6cb0480e0d50308e5cd8aa9dadc24619ee"
+        }
+      ]
+    },
+    {
+      "type": "framework",
+      "bom-ref": "pkg:generic/node@24.19.0",
+      "name": "Node.js",
+      "version": "24.19.0",
+      "purl": "pkg:generic/node@24.19.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647"
+        }
+      ]
+    },
+    {
+      "type": "framework",
+      "bom-ref": "pkg:npm/electron@43.3.0",
+      "name": "electron",
+      "version": "43.3.0",
+      "purl": "pkg:npm/electron@43.3.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "9cb96fbb45858dfb56b12693915d81fdce0d0ee241b294f25eef2f29243abcbbc5b7cb86dcd80de3d2cb29c5dd7705f41aa56f0100e17225a9fb8c4e7537617b"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "pkg:npm/pnpm@11.2.2",
+      "name": "pnpm",
+      "version": "11.2.2",
+      "purl": "pkg:npm/pnpm@11.2.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "36e6621fad506178936455e70247b8808ef4ec25797a9f437a93281a020484e2607f6a469a22e982987c3dbb8866e3071514ab10a4a1749e06edcd1ec118436f"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:generic/ai-for-boss@0.0.0-dev",
+      "dependsOn": [
+        "pkg:npm/openclaw@2026.7.1-2",
+        "pkg:generic/node@24.19.0",
+        "pkg:npm/electron@43.3.0",
+        "pkg:npm/pnpm@11.2.2"
+      ]
+    }
+  ]
+}

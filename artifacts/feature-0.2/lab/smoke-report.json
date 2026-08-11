@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-08-11T06:35:08Z",
+  "lab": "AIForBossLab",
+  "containment": {
+    "windowsDriveMounted": false,
+    "windowsInteropEnabled": false,
+    "smokeNetworkNamespace": "isolated-no-network"
+  },
+  "versions": {
+    "node": "v24.19.0",
+    "pnpm": "11.2.2",
+    "openclawPackage": "2026.7.1-2",
+    "openclawCli": "OpenClaw 2026.7.1-2 (0790d9f)"
+  },
+  "checks": {
+    "openclawVersion": "pass",
+    "openclawHelp": "pass",
+    "gatewayHelp": "pass",
+    "dependencyTreeGenerated": "pass",
+    "baselineCycloneDxSbom": "repo-artifact",
+    "transitiveLicenseInventoryGenerated": "pass"
+  },
+  "limitations": [
+    "No provider authentication or model call was performed.",
+    "Gateway help was checked; Gateway RPC readiness was not tested.",
+    "This WSL2 lab is not a product sandbox decision."
+  ]
+}

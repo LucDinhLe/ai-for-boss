@@ -49,3 +49,23 @@ Các quyết định sau tiếp tục theo Decision Register của Rulebook:
 - Telemetry và support upload trước Cổng 5.
 - Giá và license thương mại trước Cổng 5.
 - Control plane provider trước Cổng 7.
+
+## D-0006. Release train stable bị chặn một phần
+
+- Ngày: 2026-08-11
+- Owner: Codex kỹ thuật; cần Product Owner và senior/security reviewer trước khi promote
+- Nhãn: `GATED_HYPOTHESIS`
+- Trạng thái: Chấp nhận làm candidate, chưa promote
+- Quyết định: Khóa OpenClaw `2026.7.1-2`, Node `24.19.0`, Electron `43.3.0` và pnpm `11.2.2` trong candidate manifest. OpenClaw, Node và pnpm đã qua smoke test trong lab WSL2 không credential; Electron hiện mới khóa metadata.
+- Hệ quả: Candidate không được gọi là release train hoàn chỉnh vì `@openclaw/gateway-client@2026.7.1-2` và `@openclaw/gateway-protocol@2026.7.1-2` trả npm E404. Không ghép beta `2026.8.1-beta.1` vào stable và không mở Feature 0.3.
+- Phương án bị loại: Dùng dist-tag động; dùng snapshot nghiên cứu `2026.8.1`; ghép OpenClaw stable với Gateway packages beta; coi gói `0.0.0` placeholder là production.
+
+## D-0007. WSL2 chỉ là phòng thử nghiệm Feature 0.2
+
+- Ngày: 2026-08-11
+- Owner: Lê Đình Lực cho phép cài thử; Codex thiết kế containment
+- Nhãn: `TECHNICAL_DECISION`
+- Trạng thái: Chấp nhận cho lab, không áp dụng làm sandbox sản phẩm
+- Quyết định: Trên Windows Home, dùng distro WSL2 riêng `AIForBossLab`, tắt Windows drive automount và interop, không dùng credential, chạy smoke trong network namespace không mạng rồi terminate distro.
+- Hệ quả: Giảm khả năng package thử nghiệm chạm dữ liệu host nhưng không chứng minh sandbox đa nền tảng. Quyết định sản phẩm vẫn thuộc Feature 0.6.
+- Phương án bị loại: Windows Sandbox vì Windows Home không hỗ trợ; cài OpenClaw trực tiếp vào profile host; dùng profile OpenClaw/AI Coworker hiện có.

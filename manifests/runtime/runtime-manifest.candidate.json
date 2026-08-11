@@ -1,0 +1,145 @@
+{
+  "$schema": "./runtime-manifest.schema.json",
+  "schemaVersion": "1.0.0",
+  "productVersion": "0.0.0-dev",
+  "releaseTrainId": "oc-2026.7.1-2-candidate.1",
+  "generatedAt": "2026-08-11T13:18:42+07:00",
+  "status": "blocked",
+  "components": [
+    {
+      "name": "openclaw",
+      "version": "2026.7.1-2",
+      "role": "runtime",
+      "status": "locked",
+      "source": "https://registry.npmjs.org/openclaw/-/openclaw-2026.7.1-2.tgz",
+      "integrity": "sha512-ycF3yPcbjN6bUPeaUx6Mh6vze1hQWoD3CT/wWcmD7a8xaHHHRUaAlaq+lFxMHf1ssEgODVAwjlzYqp2twkYZ7g==",
+      "license": "MIT",
+      "notes": "Stable latest dist-tag captured from npm on 2026-08-11; package, CLI help and Gateway help smoke tests passed without credentials."
+    },
+    {
+      "name": "node",
+      "version": "24.19.0",
+      "role": "runtime",
+      "status": "locked",
+      "source": "https://nodejs.org/dist/v24.19.0/",
+      "integrity": "sha256-14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647",
+      "license": "MIT",
+      "notes": "Krypton LTS; satisfies OpenClaw >=24.15.0 <25 engine constraint."
+    },
+    {
+      "name": "electron",
+      "version": "43.3.0",
+      "role": "desktop-shell",
+      "status": "locked",
+      "source": "https://registry.npmjs.org/electron/-/electron-43.3.0.tgz",
+      "integrity": "sha512-nLlvu0WFjftWsSaTkV2B/c4NDuJBspTyXu8vKSQ6vLvFt8uG3NgN49LLKcXddwX0GqVvAQDhciWp+4xOdTdhew==",
+      "license": "MIT",
+      "notes": "Metadata pin only; Electron application and platform artifacts begin in Feature 0.4."
+    },
+    {
+      "name": "pnpm",
+      "version": "11.2.2",
+      "role": "package-manager",
+      "status": "locked",
+      "source": "https://registry.npmjs.org/pnpm/-/pnpm-11.2.2.tgz",
+      "integrity": "sha512-NuZiH61QYXiTZFXnAke4gI707CV5ep9DepMoGgIEhOJgf2pGmiLpgph8PbuIZuMHFRSrEKShdJ4G7c0ewRhDbw==",
+      "license": "MIT",
+      "notes": "Exact packageManager declared by openclaw 2026.7.1-2."
+    },
+    {
+      "name": "@openclaw/gateway-client",
+      "version": null,
+      "role": "gateway-client",
+      "status": "unavailable-upstream",
+      "source": "https://www.npmjs.com/package/@openclaw/gateway-client",
+      "integrity": null,
+      "license": null,
+      "notes": "Version 2026.7.1-2 returns npm E404; only beta train versions are published. Stable OpenClaw must not be mixed with a beta client."
+    },
+    {
+      "name": "@openclaw/gateway-protocol",
+      "version": null,
+      "role": "gateway-protocol",
+      "status": "unavailable-upstream",
+      "source": "https://www.npmjs.com/package/@openclaw/gateway-protocol",
+      "integrity": null,
+      "license": null,
+      "notes": "Version 2026.7.1-2 returns npm E404; only beta train versions are published. Stable OpenClaw must not be mixed with a beta protocol package."
+    }
+  ],
+  "platforms": [
+    {
+      "os": "windows",
+      "architecture": "x64",
+      "status": "experimental",
+      "hardRequirements": [
+        "Windows 10 or newer inherited from Electron 43",
+        "x64 CPU",
+        "Release artifact size plus temporary and rollback space; exact bytes wait for Feature 0.4"
+      ],
+      "artifact": null,
+      "evidence": [
+        "Feature 0.2 WSL2 containment lab on Windows x64 is test evidence only",
+        "Native desktop artifact has not been built"
+      ]
+    },
+    {
+      "os": "windows",
+      "architecture": "arm64",
+      "status": "unsupported",
+      "hardRequirements": [],
+      "artifact": null,
+      "evidence": []
+    },
+    {
+      "os": "macos",
+      "architecture": "arm64",
+      "status": "unsupported",
+      "hardRequirements": [
+        "macOS 12 Monterey or newer inherited from Electron 43"
+      ],
+      "artifact": null,
+      "evidence": []
+    },
+    {
+      "os": "macos",
+      "architecture": "x64",
+      "status": "unsupported",
+      "hardRequirements": [
+        "macOS 12 Monterey or newer inherited from Electron 43"
+      ],
+      "artifact": null,
+      "evidence": []
+    },
+    {
+      "os": "linux",
+      "architecture": "x64",
+      "status": "experimental",
+      "hardRequirements": [
+        "Distribution compatibility is not yet selected",
+        "Node 24.19.0 runtime requirements"
+      ],
+      "artifact": null,
+      "evidence": [
+        "Ubuntu 24.04 LTS under WSL2 is a lab host, not a supported desktop target"
+      ]
+    },
+    {
+      "os": "linux",
+      "architecture": "arm64",
+      "status": "unsupported",
+      "hardRequirements": [],
+      "artifact": null,
+      "evidence": []
+    }
+  ],
+  "capabilities": [
+    "OpenClaw CLI metadata smoke test without provider authentication"
+  ],
+  "knownLimitations": [
+    "Gateway client and protocol packages do not have a stable 2026.7.1-2 publication, so the release train is not locked.",
+    "No AI for Boss application or installer artifact exists yet.",
+    "No provider authentication, model call, Gateway RPC contract or cross-platform desktop test is included.",
+    "The WSL2 lab is not the Feature 0.6 product sandbox decision."
+  ]
+}

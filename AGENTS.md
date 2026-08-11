@@ -22,9 +22,11 @@ Stop if any required file is missing, its governance hash fails, or the requeste
 
 ## Current scope
 
-The project is at **Gate 0, Feature 0.1 — Repo Governance**.
+The project is at **Gate 0, Feature 0.2 — Lock Release Train**.
 
-Do not add application code, dependencies, OAuth, embedded Gateway, provider connectors, installer logic or production configuration during Feature 0.1.
+This feature may research, pin and smoke-test upstream runtime artifacts, define the runtime manifest schema, and create the baseline SBOM/license inventory. It may create a disposable local lab that uses fake or empty data.
+
+Do not add desktop application code, OAuth, provider connectors, installer/updater logic, production configuration, host execution, embedded production Gateway supervision or real credentials during Feature 0.2. The local lab is test containment evidence only; the product sandbox decision remains Feature 0.6.
 
 ## Build discipline
 

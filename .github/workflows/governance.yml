@@ -20,3 +20,11 @@ jobs:
       - name: Run governance validation
         shell: pwsh
         run: ./scripts/validate-governance.ps1
+
+      - name: Set up pinned Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+
+      - name: Validate runtime manifest
+        run: node ./scripts/validate-runtime-manifest.mjs

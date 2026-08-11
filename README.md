@@ -6,9 +6,9 @@ AI for Boss là phần mềm AI coworker dành cho chủ doanh nghiệp. Sản p
 
 ## Trạng thái
 
-Dự án đã xác minh **Cổng 0, Feature 0.1 — Repo Governance**. Feature kế tiếp theo Master Plan là 0.2, khóa release train; feature này chưa được mở trong commit hiện tại.
+Dự án đang ở **Cổng 0, Feature 0.2 — Khóa release train**. OpenClaw `2026.7.1-2`, Node `24.19.0` và pnpm `11.2.2` đã qua smoke test không credential trong lab WSL2 riêng trên Windows x64. Electron `43.3.0` đã được khóa ở mức metadata.
 
-Hiện repo chỉ chứa nền móng quản trị, tài liệu kiến trúc và kiểm tra tự động. Chưa có bộ cài, OAuth, Gateway nhúng hoặc bản phát hành cho người dùng thật.
+Feature 0.2 đang bị chặn bởi upstream: `@openclaw/gateway-client` và `@openclaw/gateway-protocol` chưa có bản stable cùng `2026.7.1-2`. Vì vậy chưa có release train hoàn chỉnh, bộ cài, OAuth, Gateway nhúng hoặc bản phát hành cho người dùng thật. Lab WSL2 chỉ là bằng chứng thử nghiệm và không phải sandbox sản phẩm.
 
 ## Nguyên tắc triển khai
 
@@ -26,6 +26,8 @@ Hiện repo chỉ chứa nền móng quản trị, tài liệu kiến trúc và 
 4. [Decision Log](DECISIONS.md)
 5. [Risk Register](RISKS.md)
 6. [Mẫu Feature Spec](docs/feature-specs/TEMPLATE.md)
+7. [Feature 0.2](docs/feature-specs/0002-lock-release-train.md)
+8. [Báo cáo smoke test Feature 0.2](docs/testing/FEATURE-0.2-WINDOWS-WSL2-SMOKE.md)
 
 ## Kiểm tra governance
 
@@ -33,6 +35,7 @@ Chạy trên PowerShell 7 hoặc Windows PowerShell:
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\validate-governance.ps1
+node .\scripts\validate-runtime-manifest.mjs
 ```
 
 `ExecutionPolicy Bypass` chỉ áp dụng cho tiến trình kiểm tra này, không thay đổi chính sách PowerShell toàn máy.

@@ -30,10 +30,11 @@ Dùng Conventional Commits:
 
 ## Kiểm thử
 
-Mỗi pull request phải chạy kiểm tra governance hiện có và test của feature. Khi chưa có product runtime, Feature 0.1 chỉ dùng:
+Mỗi pull request phải chạy kiểm tra governance hiện có và test của feature. Trong Feature 0.2, chạy:
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\validate-governance.ps1
+node .\scripts\validate-runtime-manifest.mjs
 ```
 
 ## Bí mật và dữ liệu
