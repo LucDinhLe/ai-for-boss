@@ -16,7 +16,7 @@
     "typecheck": "corepack pnpm --filter @aifb/desktop typecheck",
     "test": "node --test tests/contract/*.test.mjs tests/unit/*.test.mjs",
     "package:desktop": "corepack pnpm run build && node scripts/package-desktop.mjs",
-    "validate:desktop": "node scripts/validate-feature-0.4.mjs",
+    "validate:desktop": "node scripts/validate-feature-0.4.mjs && node scripts/validate-feature-0.5.mjs",
     "verify": "corepack pnpm run lint && corepack pnpm run typecheck && corepack pnpm run test && corepack pnpm run build && corepack pnpm run validate:desktop"
   },
   "devDependencies": {

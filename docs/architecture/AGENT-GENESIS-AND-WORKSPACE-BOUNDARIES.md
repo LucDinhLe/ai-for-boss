@@ -178,7 +178,7 @@ Nghi thức là hội thoại ngắn, không phải bảng hỏi dài. Người 
 | 0.2 | Khóa template/CLI capability của release train; ghi drift upstream |
 | 0.3 | Data flow, threat model, capability manifest và source-of-truth cho Agent Home/project grant |
 | 0.4 | App shell có màn trạng thái onboarding giả lập, chưa dùng credential thật |
-| 0.5 | IPC/file policy, redaction, release test policy và recovery contract |
+| 0.5 | State machine/UI preview, resume idempotent, fail-closed và security test policy bằng dữ liệu giả; chưa ghi Agent Home |
 | 0.6 | Chứng minh project grant và sandbox trên từng OS |
 | 1.x | Supervisor/Gateway/identity sync trên Windows bằng dữ liệu giả hoặc tài khoản test |
 | 2.2 | Onboarding và khai sinh Agent chính |

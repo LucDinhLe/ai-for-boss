@@ -29,6 +29,7 @@ Thang mức độ: `Critical`, `High`, `Medium`, `Low`.
 | R-023 | One-time claim hoặc remote pairing bị dùng lại/chiếm trước | High | Open | Platform/Security | Headless Cổng 4 | Credential hết hạn nhanh, single-use, bind đúng instance/device, rate limit, revoke và audit |
 | R-024 | Capability inventory v1 ở family-level có thể bỏ sót drift RPC/provider/plugin/channel cụ thể | High | Open | OpenClaw Adapter/QA | Cổng 3 và mọi upgrade | Cổng 3 sinh inventory chi tiết; CI chạy protocol/capability/plugin diff và fail khi item chưa phân loại |
 | R-025 | Tài liệu contract bị hiểu nhầm thành control bảo mật đã triển khai | Critical | Open — release blocking | Product/Engineering/Security | Mọi cổng | Mọi capability Feature 0.3 khóa `advertisable: false`; tách evidence level; chỉ test thực thi và review độc lập mới được promote |
+| R-026 | Prototype First-run bị hiểu nhầm là kết nối model hoặc Agent Genesis thật | High | Mitigated in prototype, untested with users | Product/UX/Security | Feature 0.5 và Cổng 2 | Gắn nhãn dữ liệu giả/mô phỏng; CSP offline; fixture `live:false`; state trong bộ nhớ; task draft-only và Advisor pending-runtime |
 
 ## Luật cập nhật
 

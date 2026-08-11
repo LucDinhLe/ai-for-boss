@@ -152,3 +152,13 @@ Các lệnh cấm trộn beta và coi placeholder là production vẫn giữ ngu
 - Quyết định: Desktop shell dùng Electron `43.3.0`, React `19.2.8`, Vite `8.2.1` và TypeScript `6.0.3`; renderer nhận một safe summary qua preload read-only. `@electron/packager` chỉ tạo bundle `experimental-internal` theo OS/architecture runner.
 - Hệ quả: CI ba OS chứng minh build/package contract, không chứng minh thiết bị được hỗ trợ. Artifact phải có inventory, ASAR allowlist, `signed: false`, `distributable: false`; installer, updater, signing và support matrix vẫn thuộc Cổng 4.
 - Phương án bị loại: Cho renderer đọc manifest/filesystem; preload IPC tổng quát; gọi CI artifact là bản cài; dùng pnpm hoặc dependency động trên từng máy.
+
+## D-0016. Feature 0.5 kiểm chứng first-run sớm bằng dữ liệu giả
+
+- Ngày: 2026-08-11
+- Owner: Lê Đình Lực
+- Nhãn: `PRODUCT_DECISION`
+- Trạng thái: Chấp nhận cho Feature 0.5
+- Quyết định: Feature 0.5 triển khai vertical slice hành trình ba bước trong app shell để kiểm chứng Worth-Building sớm. Security baseline tiếp tục là acceptance gate của cùng feature; kết nối/runtime thật vẫn theo Cổng 1–2.
+- Hệ quả: Người dùng thử có thể đi qua ba bước bằng fixture được gắn nhãn rõ. State machine giữ contract Agent Genesis, resume idempotent và fail closed, nhưng không ghi Agent Home, không xóa `BOOTSTRAP.md` thật, không gọi Gateway/OAuth/model và không được tính là implementation production của Feature 2.2/2.6.
+- Phương án bị loại: Chờ xong Gateway/OAuth mới kiểm chứng UX; hoặc tạo kết nối giả nhưng trình bày như đã hoạt động thật.

@@ -38,6 +38,10 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Workspace pnpm khóa exact dependency, Vite build, Electron package, artifact inventory và ASAR content allowlist.
 - CI matrix tạo artifact `experimental-internal` riêng trên Windows, macOS và Linux bằng Node `24.19.0` và pnpm `11.2.2`.
 - 8 phép thử Feature 0.4 cho contract generator, Electron security boundary, CSP và renderer IPC allowlist; tổng suite tăng lên 30 test.
+- Đặc tả Feature 0.5 cho first-run vertical slice ba bước bằng dữ liệu giả, với Agent Genesis resume idempotent/fail-closed và Advisor hai checkpoint giữ trạng thái chưa có runtime.
+- State machine First-run khóa ba fixture `live:false`, Genesis promotion theo thứ tự staging/validation/readback/identity sync/snapshot/health rồi mới mô phỏng xóa bootstrap.
+- Giao diện ba bước Việt/Anh cho kiểm tra shell, kết nối mô phỏng, khai sinh Agent preview và task draft-only với permission/budget preview.
+- Unit, contract và validator Feature 0.5 cho Unicode, input rỗng/quá dài, double submit, snapshot lỗi, CSP offline và preload read-only.
 
 ### Changed
 
@@ -47,6 +51,7 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Concept **La bàn quyết định** chuyển sang trạng thái rejected; icon production để feature thương hiệu sau.
 - Rulebook lên 1.2 và Master Execution Plan lên 1.1 để thêm parity gate, hành trình ba bước và Headless track.
 - Rulebook lên 1.3 và Master Execution Plan lên 1.2 để dùng external-app WebSocket RPC contract mà OpenClaw stable thực sự hỗ trợ.
+- Rulebook lên 1.4 và Master Execution Plan lên 1.3 để kiểm chứng first-run sớm trong Feature 0.5 mà không mở Gateway/OAuth hoặc làm yếu các cổng production.
 - Script package gọi pnpm qua Corepack để không phụ thuộc bản toàn cục trên máy; TypeScript khóa `6.0.3` theo dải peer support của `typescript-eslint`.
 - Governance scan bỏ qua `node_modules`, `dist` và `out` sinh lại được, đồng thời yêu cầu toàn bộ hồ sơ Feature 0.4.
 
@@ -65,6 +70,8 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 ### Verified
 
+- Feature 0.5 đạt 47/47 test toàn repo, governance, lint, typecheck, Vite build, validator 0.4/0.5, Windows package/ASAR allowlist và dependency audit local.
+- Visual QA Feature 0.5 đạt ở 1440×900 và 1024×768 sau khi đổi serif ưu tiên sang Times New Roman để sửa lỗi tách dấu tiếng Việt của Georgia trên Chrome/Windows.
 - Audit đóng Feature 0.3 xác nhận chuỗi tài liệu không còn ghi release train
   `Chưa khóa` hoặc liệt kê Feature 0.3 như việc còn chờ.
 - Governance validation đạt trên máy local và GitHub Actions.

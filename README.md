@@ -6,7 +6,9 @@ AI for Boss là phần mềm AI coworker dành cho chủ doanh nghiệp. Sản p
 
 ## Trạng thái
 
-Dự án đã local-verify **Cổng 0, Feature 0.4 — App shell và CI đa nền tảng**.
+Dự án đã local-verify **Cổng 0, Feature 0.5 — First-run journey ba bước** từ
+commit Feature 0.4 đã xác minh `58c5283`. Cross-platform CI của Feature 0.5,
+human usability và senior platform/security review vẫn đang chờ.
 OpenClaw `2026.7.1-2`, Node `24.19.0`, Electron `43.3.0` và pnpm `11.2.2`
 được khóa theo release train. Desktop shell Electron/React đã build và package
 được trên Windows x64; CI Windows, macOS và Linux đã xanh trên draft PR #4.
@@ -18,6 +20,10 @@ Feature 0.3 đã ánh xạ 23 nhóm capability, 9 auth mode, 9 nguồn sự th�
 Bản package hiện là `experimental-internal`, chưa ký và không phân phối. Nó
 không phải installer, chưa chứa OpenClaw runtime, Supervisor, OAuth, Gateway,
 model call, Agent Genesis hoặc tool thật.
+
+Feature 0.5 chỉ dùng ba fixture model `live:false`, state trong bộ nhớ và task
+`draft-only`. Genesis có preview fail-closed/resume idempotent; Advisor giữ
+`pending-runtime`. Đây là bằng chứng UX nội bộ, chưa phải kết nối hoặc Agent thật.
 
 ## Nguyên tắc triển khai
 
@@ -53,6 +59,8 @@ model call, Agent Genesis hoặc tool thật.
 22. [Audit Feature 0.3](docs/release/FEATURE-0.3-AUDIT.md)
 23. [Feature 0.4 — App shell và CI đa nền tảng](docs/feature-specs/0004-app-shell-cross-platform-ci.md)
 24. [Audit Feature 0.4](docs/release/FEATURE-0.4-AUDIT.md)
+25. [Feature 0.5 — First-run journey](docs/feature-specs/0005-first-run-journey.md)
+26. [Audit Feature 0.5](docs/release/FEATURE-0.5-AUDIT.md)
 
 ## Kiểm tra governance
 
@@ -66,6 +74,7 @@ corepack pnpm install --frozen-lockfile
 corepack pnpm verify
 corepack pnpm package:desktop
 node .\scripts\validate-feature-0.4.mjs --require-artifact
+node .\scripts\validate-feature-0.5.mjs
 ```
 
 `ExecutionPolicy Bypass` chỉ áp dụng cho tiến trình kiểm tra này, không thay đổi chính sách PowerShell toàn máy.

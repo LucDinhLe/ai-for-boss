@@ -137,7 +137,7 @@ Mỗi trạng thái phải có text hoặc icon; màu không được là tín h
 | Feature | Đầu ra |
 |---|---|
 | 0.4 | App shell và token nền; navigation giả lập, chưa nối runtime thật |
-| 0.5 | Accessibility, CSP, IPC state và visual regression policy |
+| 0.5 | First-run vertical slice, accessibility, CSP/IPC state và visual regression policy bằng dữ liệu giả |
 | 2.1 | Design system Việt/Anh và component states |
 | 2.2 | Welcome, onboarding, kết nối và Agent Genesis |
 | 2.3 | Session, chat, history, attachment và artifact |

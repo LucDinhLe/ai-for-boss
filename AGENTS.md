@@ -22,10 +22,10 @@ Stop if any required file is missing, its governance hash fails, or the requeste
 
 ## Current scope
 
-**Gate 0, Feature 0.4 — App shell and cross-platform CI is complete with local
-and three-OS CI evidence.** Independent senior platform/security review remains
-a Gate 0 requirement. The next permitted feature is **0.5 — First-run journey**,
-opened in a new one-feature session with its own active Feature Spec.
+**Gate 0, Feature 0.5 — First-run journey is active** from the verified Feature
+0.4 commit `58c5283`. Independent senior platform/security review remains a
+Gate 0 requirement. The active Feature Spec is
+`docs/feature-specs/0005-first-run-journey.md`.
 
 Feature 0.4 contains the Electron shell, sandboxed renderer, minimal preload
 boundary, honest placeholder state and experimental CI package matrix. It
@@ -33,7 +33,7 @@ consumes the Feature 0.3 capability/source/threat contracts.
 
 Do not add live OAuth/provider implementations, production Gateway supervision,
 installer/updater release logic, host execution, sensitive browser actions,
-real credentials or product sandbox claims during Feature 0.4. The sandbox
+real credentials or product sandbox claims during Feature 0.5. The sandbox
 decision remains Feature 0.6.
 
 ## Build discipline
