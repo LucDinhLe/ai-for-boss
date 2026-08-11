@@ -5,7 +5,7 @@
 - Cổng: 0
 - Owner kỹ thuật: Codex; chờ senior platform/security reviewer trước khi qua Cổng 0
 - Product Owner: Lê Đình Lực
-- Trạng thái: Local verified; chờ CI ba hệ điều hành
+- Trạng thái: Complete với local và CI ba hệ điều hành
 - Ngày mở: 2026-08-11
 
 ## 2. Mục tiêu vận hành
@@ -105,7 +105,7 @@ giao diện phải ghi rõ đây là internal shell, chưa phải bản cài cho
 - [x] Mọi model/Gateway/Advisor/tool state đều ghi là preview hoặc chưa kết nối.
 - [x] Lint, typecheck, build, unit/contract/security tests và secret scan đạt local.
 - [x] Package local tạo app bundle cùng inventory `experimental-internal`.
-- [ ] CI tạo artifact thử nghiệm trên Windows, macOS và Linux bằng Node
+- [x] CI tạo artifact thử nghiệm trên Windows, macOS và Linux bằng Node
   `24.19.0`, pnpm `11.2.2`.
 - [x] CI không gọi provider, không dùng credential và không phát hành release.
 - [x] README, AGENTS, CHANGELOG, DECISIONS, RISKS và audit được cập nhật.
@@ -139,8 +139,10 @@ service, credential, registry entry, database hoặc user profile cần phục h
 
 ## 14. Bằng chứng hoàn thành
 
-- Commit: chờ checkpoint sau self-review.
+- Commit: `592ee74` (feature) và `974cdc7` (Windows CI encoding fix).
 - Kết quả test: local `pnpm verify` đạt; 30/30 test; package Windows x64 và
-  ASAR allowlist đạt; npm audit không có lỗ hổng đã biết. CI ba OS chờ push.
+  ASAR allowlist đạt; npm audit không có lỗ hổng đã biết. Draft PR #4 đạt 4/4
+  check trên Windows, macOS, Linux và governance.
 - Reviewer: Codex self-review; senior platform/security review còn là Cổng 0.
-- Product Owner acceptance: chờ nghiệm thu Feature 0.4.
+- Product Owner acceptance: đã cho phép triển khai và tiếp tục theo kế hoạch;
+  nghiệm thu sản phẩm công khai vẫn thuộc các cổng sau.

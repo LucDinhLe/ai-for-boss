@@ -22,10 +22,10 @@ Stop if any required file is missing, its governance hash fails, or the requeste
 
 ## Current scope
 
-**Gate 0, Feature 0.4 — App shell and cross-platform CI is local-verified and
-awaiting the three-OS CI result.** Independent senior platform/security review
-remains a Gate 0 requirement. Feature 0.5 must not start until Feature 0.4 CI is
-green and its audit records that evidence.
+**Gate 0, Feature 0.4 — App shell and cross-platform CI is complete with local
+and three-OS CI evidence.** Independent senior platform/security review remains
+a Gate 0 requirement. The next permitted feature is **0.5 — First-run journey**,
+opened in a new one-feature session with its own active Feature Spec.
 
 Feature 0.4 contains the Electron shell, sandboxed renderer, minimal preload
 boundary, honest placeholder state and experimental CI package matrix. It

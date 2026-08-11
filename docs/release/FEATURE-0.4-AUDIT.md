@@ -2,7 +2,7 @@
 
 Ngày kiểm tra: 2026-08-11  
 Phạm vi: Feature 0.4  
-Trạng thái: **Local verified; cross-platform CI pending**
+Trạng thái: **Verified local và cross-platform CI**
 
 ## Kết luận
 
@@ -11,9 +11,9 @@ hướng Editorial Calm và quy trình đóng gói bundle thử nghiệm. Shell 
 trạng thái trung thực; OAuth, Gateway, model, Agent Genesis, Advisor runtime và
 tool vẫn bị khóa.
 
-Feature 0.4 chưa được coi là hoàn tất cho tới khi ma trận CI Windows, macOS và
-Linux chạy xanh bằng Node `24.19.0` và pnpm `11.2.2`. Artifact chưa ký, không có
-installer và không được phân phối cho người dùng.
+Ma trận CI Windows, macOS và Linux đã chạy xanh bằng Node `24.19.0` và pnpm
+`11.2.2` trên draft PR #4. Artifact chưa ký, không có installer và không được
+phân phối cho người dùng.
 
 ## Bằng chứng local
 
@@ -28,6 +28,8 @@ installer và không được phân phối cho người dùng.
 | ASAR allowlist | 13 mục; chỉ `dist`, `electron`, `generated`, `package.json` |
 | Process smoke | `.exe` tạo bốn tiến trình Electron phản hồi rồi được dừng sạch |
 | Visual smoke | 1440×900 và 1024×768; không tràn ngang; Việt/Anh và sáng/tối đạt |
+| CI ba OS | Windows 1 phút; macOS 55 giây; Linux 53 giây; cả ba đạt |
+| Governance CI | Đạt trong 25 giây; tổng PR 4/4 check |
 
 Máy local dùng Node `24.18.0`, thấp hơn một patch so với release train. Đây là
 bằng chứng phát triển phụ; CI Node `24.19.0` mới là bằng chứng chuẩn.
@@ -50,9 +52,16 @@ Feature không thu thập hoặc truyền dữ liệu. Mọi file sinh nằm tro
 `node_modules`, `apps/desktop/dist` hoặc `out`; không tạo service, registry key,
 profile người dùng hay migration. Rollback là revert commit và xóa output sinh.
 
+## Bằng chứng CI
+
+- Draft PR: `https://github.com/LucDinhLe/ai-for-boss/pull/4`
+- Desktop workflow run: `31510826127`
+- Governance workflow run: `31510826122`
+- Windows đã xác nhận test fixture dùng PowerShell 7 để giữ UTF-8; lỗi thử đầu
+  bằng Windows PowerShell 5.1 được ghi nhận và sửa ở commit `974cdc7`.
+
 ## Việc còn chặn
 
-- Ma trận CI ba hệ điều hành chưa có kết quả trên commit của Feature 0.4.
 - Senior platform/security review vẫn là điều kiện Cổng 0.
 - Windows/macOS/Linux chưa có ký số, notarization, installer, update/rollback
   và test trên thiết bị thật; R-007 và R-016 tiếp tục mở.
@@ -60,5 +69,6 @@ profile người dùng hay migration. Rollback là revert commit và xóa output
 
 ## Quyết định audit
 
-Cho phép commit và mở PR Feature 0.4 để lấy bằng chứng CI. Chưa cho phép merge,
-phát hành hoặc mở Feature 0.5 trước khi CI xanh và hồ sơ này được cập nhật.
+Feature 0.4 đạt tiêu chí kỹ thuật và mở Feature 0.5 trong phiên riêng. Draft PR
+tiếp tục không merge cho tới khi có review theo governance. Không cho phép phát
+hành hoặc dùng artifact nội bộ làm bằng chứng hỗ trợ thiết bị.

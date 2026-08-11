@@ -76,6 +76,7 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Feature 0.3 validator đạt 23 capability, 9 auth mode, 9 nguồn sự thật, 8 data flow và 14 threat; tổng contract suite đạt 22/22, gồm guard trạng thái governance.
 - Local Feature 0.4 đạt lint, typecheck, Vite build, 30/30 test, dependency audit, Windows x64 package và process/visual smoke ở 1440×900 cùng 1024×768.
 - Windows ASAR có 13 mục allowlist, SHA-256 `773b901aeefc4d027b217798ce9ad70dcf75da7383a229fc6b3a8a23306a160b`; không có source, `node_modules` hoặc source map.
+- Draft PR #4 đạt 4/4 check: package Windows, macOS, Linux và governance trên Node `24.19.0`/pnpm `11.2.2`; lỗi mã hóa Windows PowerShell 5.1 ban đầu được sửa bằng PowerShell 7.
 
 ### Unblocked
 
@@ -83,4 +84,4 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 ### Blocked
 
-- CI Feature 0.4 ba hệ điều hành còn chờ; chưa có Supervisor, AI for Boss Gateway Adapter, sandbox sản phẩm, installer, updater hoặc signing identity; chưa được phát hành cho người dùng.
+- Chưa có Supervisor, AI for Boss Gateway Adapter, sandbox sản phẩm, installer, updater hoặc signing identity; chưa được phát hành cho người dùng.
