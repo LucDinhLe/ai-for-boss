@@ -6,7 +6,7 @@
 - Loại: Governance amendment, docs-only
 - Product Owner: Lê Đình Lực
 - Owner thực hiện: Codex
-- Trạng thái: Implemented, pending commit/review
+- Trạng thái: Implemented, committed; pending independent review
 - Ngày mở: 2026-08-11
 - Giới hạn: Không mở Feature 0.3 và không thay đổi trạng thái blocked của Feature 0.2
 
@@ -73,7 +73,7 @@ Dự án có một bộ yêu cầu có thể kiểm thử cho nghi thức khai s
 - [x] Governance hash được cập nhật sau thay đổi.
 - [x] Validation bắt buộc sự tồn tại của các tài liệu mới.
 - [x] Git diff, whitespace, secret/link/hash validation và manual review cuối đạt.
-- [ ] Có commit checkpoint hoàn tác được.
+- [x] Có commit checkpoint hoàn tác được.
 
 ## 9. Kiểm thử
 
@@ -103,6 +103,6 @@ Revert commit docs-only sẽ khôi phục hash lock cũ và xóa các tài liệ
 
 ## 13. Bằng chứng hoàn thành
 
-- Commit checkpoint: điền sau khi validation cuối đạt.
+- Commit checkpoint: `0e15c77` (`docs: define agent genesis and release readiness`).
 - Reviewer: Codex self-review; cần Claude Code/senior/security review độc lập theo yêu cầu Product Owner.
 - Product Owner acceptance: đã đồng ý tiến hành vá ngày 2026-08-11.
