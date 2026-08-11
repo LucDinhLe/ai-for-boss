@@ -22,6 +22,11 @@ Thang mức độ: `Critical`, `High`, `Medium`, `Low`.
 | R-016 | Chưa có owner, tài khoản và quy trình code-signing/notarization cho ba nền tảng | High | Open — release blocking | Product Owner + Release/Legal | Trước Cổng 4 | Không phát hành unsigned; chốt Windows signing, Apple Developer ownership và Linux signing bằng ADR |
 | R-017 | Linux không có Electron autoUpdater tích hợp, dễ tạo update/rollback không nhất quán | High | Open | Release/Platform | Cổng 4 | Chọn package-manager hoặc signed update flow riêng và chạy update/rollback test trên distro hỗ trợ |
 | R-018 | Giao diện học từ đối thủ có thể bị hiểu là sao chép nhận diện hoặc trade dress | High | Mitigated by design, untested | Product/Design/Legal | Feature 0.4 và trước Cổng 4 | Design token/copy/asset riêng; provenance; visual comparison; trademark và legal review trước phát hành |
+| R-019 | Sản phẩm đủ feature nhưng không đơn giản, đẹp hoặc đáng tin hơn benchmark | Critical | Open — product blocking | Product Owner + Product Design | Cổng 2 và trước public release | Worth-Building Gate; human test; independent visual review; dừng mở rộng sau hai vòng không đạt |
+| R-020 | Remote access của Always-on làm lộ Gateway, credential hoặc dữ liệu doanh nghiệp | Critical | Open | Platform/Security | Feature 0.3, 0.6 và Headless Cổng 4 | Gateway loopback-only; Tailscale/SSH trước; TLS/ingress review; one-time claim; device revoke; pentest |
+| R-021 | Shared host làm lẫn dữ liệu khách hoặc session ID bị dùng như tenant boundary | Critical | Mitigated by architecture, untested | Platform/Security | Headless Cổng 4 và Cổng 7 | Một instance/cell đầy đủ cho mỗi khách/biên tin cậy; cross-tenant test; không shared Gateway |
+| R-022 | Always-on tăng chi phí và trách nhiệm vận hành vượt khả năng đội hiện tại | High | Open | Product Owner + Operations | Trước Headless pilot | Khách sở hữu hạ tầng; provider-neutral ADR; monitoring/backup/support owner; chưa mở SaaS hoặc Kubernetes |
+| R-023 | One-time claim hoặc remote pairing bị dùng lại/chiếm trước | High | Open | Platform/Security | Headless Cổng 4 | Credential hết hạn nhanh, single-use, bind đúng instance/device, rate limit, revoke và audit |
 
 ## Luật cập nhật
 

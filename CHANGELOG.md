@@ -20,6 +20,15 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Hướng thiết kế Editorial Calm: nền giấy ấm, serif/sans, copper và ba panel theo ngữ cảnh; giữ nhận diện độc lập với sản phẩm tham chiếu.
 - Prototype tương tác có welcome/session, Việt/Anh, light/dark, model theo phiên, Advisor, Gateway, Browser, tệp và Trung tâm điều khiển.
 - Concept mark vector **La bàn quyết định** cùng app tile riêng, thay biểu tượng robot/AI tham chiếu trong prototype.
+- Audit competitive parity đối chiếu AICoworker, phân biệt rõ implementation, prototype, planned và missing.
+- Hành trình ba bước từ tải/cài tới giao việc đầu tiên cùng Cổng Worth-Building có chỉ số usability/visual cụ thể.
+- Advisor hai checkpoint: phản biện kế hoạch trước thực thi và kiểm tra đầu cuối trước bàn giao.
+- Kiến trúc Always-on single-tenant trên Linux, remote access riêng tư, health, auto-restart, backup và rollback.
+
+### Changed
+
+- Concept **La bàn quyết định** chuyển sang trạng thái rejected; icon production để feature thương hiệu sau.
+- Rulebook lên 1.2 và Master Execution Plan lên 1.1 để thêm parity gate, hành trình ba bước và Headless track.
 
 ### Security
 

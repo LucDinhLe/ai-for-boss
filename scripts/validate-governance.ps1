@@ -20,6 +20,7 @@ $requiredFiles = @(
   'docs/feature-specs/0002-lock-release-train.md',
   'docs/feature-specs/0002a-agent-genesis-packaging-readiness.md',
   'docs/feature-specs/0002b-editorial-ux-direction.md',
+  'docs/feature-specs/0002c-competitive-parity-three-step-headless.md',
   'docs/testing/FEATURE-0.2-WINDOWS-WSL2-SMOKE.md',
   'docs/architecture/AGENT-GENESIS-AND-WORKSPACE-BOUNDARIES.md',
   'docs/ux/EDITORIAL-DESIGN-DIRECTION.md',
@@ -27,6 +28,7 @@ $requiredFiles = @(
   'docs/brand/assets/ai-for-boss-mark.svg',
   'docs/brand/assets/ai-for-boss-app-icon.svg',
   'docs/release/PRODUCT-READINESS-AUDIT-2026-08-11.md',
+  'docs/release/COMPETITIVE-PARITY-AND-HEADLESS-AUDIT-2026-08-11.md',
   'docs/licenses/inventory.json',
   'docs/licenses/sbom.baseline.cdx.json',
   'docs/licenses/THIRD_PARTY_NOTICES.md',
@@ -39,6 +41,7 @@ $requiredFiles = @(
   'docs/governance/AI-FOR-BOSS-MASTER-EXECUTION-PLAN.md',
   'docs/governance/FINAL-AUDIT-2026-08-11.md',
   'docs/governance/GOVERNANCE-CHANGE-2026-08-11-AGENT-GENESIS.md',
+  'docs/governance/GOVERNANCE-CHANGE-2026-08-11-PARITY-HEADLESS.md',
   'docs/governance/GOVERNANCE-LOCK.json'
 )
 

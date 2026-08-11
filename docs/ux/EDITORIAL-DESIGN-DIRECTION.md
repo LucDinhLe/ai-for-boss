@@ -26,7 +26,7 @@ Tham chiếu trải nghiệm là cách Hermes Agent tạo nhịp thị giác b�
 - Icon chức năng dùng bộ icon nguồn mở đã kiểm tra license và thể hiện hành động phổ quát.
 - Brand mark sản phẩm tương lai phải có hồ sơ nguồn gốc, license và trademark review trước public release.
 - Mọi màu, khoảng cách, typography và nội dung UI được định nghĩa bằng token riêng của AI for Boss.
-- Concept mark v1 dùng monogram `A` âm trong khối `B`, tên nội bộ **La bàn quyết định**; nguồn SVG và quy tắc nằm tại [`docs/brand`](../brand/README.md).
+- Icon/brand mark cuối chưa được chốt. Concept **La bàn quyết định** đã bị Product Owner từ chối và không được dùng làm nhận diện phát hành. Prototype hiện còn concept bị loại và phải chuyển sang placeholder trung tính trước vòng usability/visual test tiếp theo.
 
 ## 4. Kiến trúc ba panel
 
@@ -50,6 +50,16 @@ Agent Home không xuất hiện tại đây; đường dẫn hệ thống chỉ 
 - Composer cho phép đính kèm, chọn model theo phiên, nhập giọng nói và gửi.
 - Hành động nhạy cảm không thực thi từ composer; chúng tạo yêu cầu trong Hộp phê duyệt.
 
+### First run — ba bước thay cho màn hình rỗng
+
+First run giữ chất lượng Editorial Calm nhưng phải dẫn dắt rõ ba chặng:
+
+1. **Tải và cài** do website/installer hoàn thành và xác minh.
+2. **Kết nối và khai sinh** gồm ngôn ngữ, mode Thiết bị cá nhân/Always-on, provider live probe và Agent Genesis.
+3. **Giao việc đầu tiên** bằng composer hoặc workflow mẫu, với permission/budget progressive disclosure.
+
+Sau first run, Welcome quay về trạng thái nhẹ, tập trung vào composer. Onboarding không biến thành dashboard kỹ thuật hoặc chuỗi biểu mẫu dài.
+
 ### Panel phải — Ngữ cảnh sống
 
 Panel phải chỉ hiển thị một trong ba bề mặt theo công việc hiện tại:
@@ -58,7 +68,7 @@ Panel phải chỉ hiển thị một trong ba bề mặt theo công việc hi�
 2. **Trình duyệt:** browser profile của Agent, nguồn đang đọc và quyền hiện hành.
 3. **Tệp:** preview artifact cùng provenance và trạng thái Advisor.
 
-Agent Loop chạy nền mặc định. Advisor xuất hiện trong tiến trình khi phản biện kế hoạch hoặc kiểm tra đầu cuối, đúng hai checkpoint đã chốt.
+Agent Loop chạy nền mặc định. Advisor xuất hiện trong tiến trình khi phản biện kế hoạch hoặc kiểm tra đầu cuối, đúng hai checkpoint đã chốt. Plan gate phải hiển thị quyết định `approve`, `revise`, `clarify` hoặc `blocked`; final gate hiển thị tiêu chí đạt/chưa đạt, bằng chứng và khuyến nghị bàn giao. Người dùng có thể override hoặc tắt Advisor, nhưng trạng thái chưa review và audit phải rõ.
 
 ## 5. Thanh trên và Trung tâm điều khiển
 
@@ -93,6 +103,7 @@ Trung tâm điều khiển chứa:
 - Không gian dự án available/read-only/read-write/unavailable.
 - Browser idle/running/approval-required/blocked.
 - Artifact draft/advisor-pending/approved/failed.
+- Deployment local/always-on; remote connected/reconnecting/offline/claim-expired.
 
 Mỗi trạng thái phải có text hoặc icon; màu không được là tín hiệu duy nhất.
 
@@ -116,6 +127,10 @@ Mỗi trạng thái phải có text hoặc icon; màu không được là tín h
 8. Không có tài sản nhận diện sao chép từ sản phẩm tham chiếu.
 9. Light/dark, Việt/Anh và breakpoint chính đạt visual regression test.
 10. Usability test với người không kỹ thuật hoàn thành tác vụ đầu mà không cần terminal.
+11. 90% người thử mục tiêu hoàn thành ba bước và bắt đầu tác vụ đầu trong năm phút; 80% tìm đúng composer trong năm giây.
+12. Người thử giải thích đúng model, Advisor, dữ liệu nào rời máy và hành động nào đang chờ duyệt.
+13. Independent visual review chấm hierarchy, clarity và perceived trust cao hơn AICoworker, learnability không thấp hơn.
+14. Cùng một session UX hoạt động với runtime local và Always-on; lỗi remote không biến thành thuật ngữ Gateway trên luồng chính.
 
 ## 9. Phân bổ theo feature
 
@@ -130,10 +145,11 @@ Mỗi trạng thái phải có text hoặc icon; màu không được là tín h
 | 2.5 | Đội Agent và phối hợp nhiều Agent |
 | 2.6 | Advisor states và review provenance |
 | 2.7 | Hộp phê duyệt, pause và emergency stop |
+| 4.x Headless | Mode selector, remote claim, connection/recovery states và Web Client responsive |
 
 ## 10. Ngoài phạm vi của bản chốt này
 
 - Chưa phải code production hoặc Electron shell.
-- Chưa chốt font thương mại, logo cuối, motion system hoặc installer visuals.
+- Chưa chốt font thương mại, icon/logo cuối, motion system hoặc installer visuals.
 - Chưa chứng minh runtime, Gateway, Browser hoặc capability thật.
 - Chưa thay đổi thứ tự cổng trong `AGENTS.md`.

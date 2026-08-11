@@ -2,7 +2,7 @@
 
 Ngày chốt: 2026-08-11  
 Chủ sản phẩm: Lê Đình Lực  
-Phiên bản tài liệu: 1.1 sau audit độc lập  
+Phiên bản tài liệu: 1.2 sau audit competitive parity và Always-on  
 Trạng thái: Nguồn quyết định duy nhất trước khi build
 
 ## 0. Hiệu lực
@@ -38,6 +38,18 @@ Lợi thế cốt lõi:
 6. Triển khai cho lớp học và doanh nghiệp bằng cấu hình, không tạo một app riêng cho từng người.
 7. An toàn theo kiến trúc, không dựa vào lời nhắc model tự kiềm chế.
 
+### Cổng Worth-Building
+
+AI for Boss chỉ đáng tiếp tục tới public release khi vừa đạt parity cốt lõi với sản phẩm tham chiếu, vừa chứng minh khác biệt có giá trị. Điều kiện bắt buộc:
+
+- Tải, cài, kết nối/khai sinh và giao việc đầu tiên thành một hành trình ba bước, không terminal, config file hoặc sao chép callback.
+- 90% người thử mục tiêu bắt đầu được tác vụ đầu trong tối đa năm phút; ít nhất 80% tìm đúng nơi giao việc trong năm giây và hiểu đúng model, Advisor, dữ liệu rời máy cùng hành động cần duyệt.
+- Independent visual review chấm AI for Boss cao hơn AICoworker về hierarchy, clarity và perceived trust; không thấp hơn về learnability. Hướng Editorial Calm phải có bản sắc riêng, không sao chép Hermes.
+- Advisor phát hiện lỗi có ý nghĩa ở cả kế hoạch và kết quả, đồng thời giảm rework hoặc tổng token so với chỉ review đầu cuối.
+- Không còn capability cốt lõi đang quảng cáo ở trạng thái `Missing` hoặc `Prototype only`.
+
+Nếu sau hai vòng prototype và usability test vẫn không đạt, dự án dừng mở rộng tính năng. Product Owner quyết định thu hẹp khác biệt, dùng sản phẩm có sẵn hoặc bổ sung đội chịu trách nhiệm trước khi tiếp tục.
+
 ## 2. Mười hai luật bất khả nhượng
 
 ### Luật 1. Một bộ cài hoàn chỉnh
@@ -45,6 +57,14 @@ Lợi thế cốt lõi:
 Mỗi gói phát hành mang theo phiên bản OpenClaw, Node runtime, Supervisor, migration, recovery và dependency đã khóa. Máy khách không tải package kỹ thuật trong lần mở đầu.
 
 AI for Boss dùng profile, tiến trình, cổng, credential và thư mục dữ liệu riêng. Cài, gỡ hoặc cập nhật một bản OpenClaw độc lập trên máy không ảnh hưởng AI for Boss.
+
+Hành trình cốt lõi bắt buộc có đúng ba chặng người dùng nhận biết:
+
+1. **Tải và cài:** website đề xuất artifact; installer xác minh, cài runtime và tự kiểm tra AI Engine.
+2. **Kết nối và khai sinh:** chọn ngôn ngữ/mode, kết nối ít nhất một model, live probe và hoàn tất Agent Genesis.
+3. **Giao việc:** mô tả mục tiêu, xem phần quyền/ngân sách cần thiết rồi nhận kế hoạch, tiến trình và artifact.
+
+Các thao tác kỹ thuật bên trong không được biến thành bước người dùng. Mỗi lỗi phải giữ người dùng ở đúng chặng và có đường retry/rollback rõ ràng.
 
 ### Luật 2. Đa nền tảng theo ma trận phát hành
 
@@ -167,6 +187,13 @@ Advisor là lớp kiểm tra tùy chọn của từng phiên. Người dùng có
 Advisor mặc định chỉ đọc và bình luận. Advisor không nhận thêm quyền so với worker, không tự thực thi sửa đổi và không được âm thầm biến output chưa đạt thành “đã duyệt”.
 
 Advisor chạy bằng một session/agent review riêng với mutating tool, memory write, message send, exec và browser action bị deny. Nó chỉ nhận gói tối thiểu gồm yêu cầu, output cần kiểm, bằng chứng đã chọn, rubric và giới hạn chi phí. Output của worker được đánh dấu là dữ liệu không tin cậy, không được biến thành instruction của Advisor. Mọi thao tác sửa sau review là một task mới cần quyền riêng.
+
+Khi được bật, Advisor tham gia tại hai checkpoint nền:
+
+1. **Phản biện kế hoạch trước thực thi:** đọc mục tiêu, ràng buộc, draft plan, dữ liệu/tool/quyền dự kiến và ngân sách; trả `approve`, `revise`, `clarify` hoặc `blocked`. Worker chưa được thực hiện mutation hoặc tool nhạy cảm khi chưa `approve`, trừ khi người dùng override có audit.
+2. **Kiểm tra đầu cuối trước bàn giao:** so artifact và bằng chứng với mục tiêu, tiêu chí hoàn thành, phạm vi, rủi ro cùng chi phí; trả khuyến nghị bàn giao hoặc yêu cầu sửa.
+
+Tắt Advisor không làm policy hay Approval Inbox yếu đi. Giao diện phải ghi rõ phiên/kết quả chưa qua hai checkpoint và audit lại việc tắt hoặc override.
 
 Kết quả review tối thiểu có cấu trúc:
 
@@ -323,6 +350,15 @@ AI for Boss Desktop
               ├── Browser profile riêng
               └── Workspace được cấp quyền
 
+AI for Boss Always-on, mode triển khai riêng
+  ├── Desktop/Web Client dùng cùng Adapter contract
+  └── Host Linux riêng của khách hoặc biên tin cậy
+        ├── Private ingress hoặc HTTPS/TLS đã audit
+        ├── AI for Boss Headless Supervisor
+        ├── OpenClaw Gateway loopback-only
+        ├── Service user, volume và credential riêng
+        └── Health, auto-restart, backup và rollback
+
 Control Plane tùy chọn trong tương lai
   ├── Identity, license và enrollment
   ├── Signed policy và connector allowlist
@@ -331,6 +367,8 @@ Control Plane tùy chọn trong tương lai
 ```
 
 Electron/React là lựa chọn bản đầu vì tương thích với hệ Node/TypeScript của OpenClaw và thuận lợi cho Windows, macOS, Linux. Quyết định này đi cùng các điều kiện bắt buộc về sandbox, IPC, ký mã và cập nhật.
+
+Always-on không phải shared SaaS Gateway. Mỗi khách hoặc nhóm thực sự cùng biên tin cậy có một instance hoàn chỉnh. Bản đầu ưu tiên một VPS Linux riêng trong tài khoản khách; dùng Tailscale/SSH trước, HTTPS remote sau threat model. Kubernetes hoặc OpenClaw Fleet chỉ được mở khi nhu cầu vận hành chứng minh cần và trạng thái experimental của upstream đã được chấp nhận bằng ADR.
 
 ### Nguồn sự thật
 
@@ -502,6 +540,7 @@ Mọi phiên build tuân thủ:
 - Backup/restore, diagnostics an toàn và auto-update có rollback.
 - Chế độ Cơ bản và Nâng cao để phủ capability OpenClaw.
 - Ba gói công việc đầu dành cho chủ doanh nghiệp.
+- Mode Always-on trên Linux cho một khách hoặc một biên tin cậy, có remote access riêng tư, auto-restart, backup/restore và signed update trước khi được quảng cáo.
 
 ### Để sau bản đầu
 
@@ -561,7 +600,7 @@ Chỉ qua cổng khi toàn bộ test Gateway đạt và một người không k�
 - Model theo phiên, agent, Advisor, ngân sách, permission preview và Approval Inbox.
 - Data & Recovery, System Health và ba workflow cho chủ doanh nghiệp.
 
-Chỉ qua cổng khi ít nhất 10 người không kỹ thuật hoàn thành ba luồng cốt lõi, không ai phải mở terminal hay sao chép callback OAuth. Mục tiêu 90% làm tác vụ đầu trong năm phút là chỉ số đề xuất; Đại ca chốt nó trong Pilot Charter trước khi tuyển người test.
+Chỉ qua cổng khi ít nhất 10 người không kỹ thuật hoàn thành hành trình ba bước cùng ba luồng cốt lõi, không ai phải mở terminal hay sao chép callback OAuth. Ít nhất 90% bắt đầu tác vụ đầu trong năm phút; ít nhất 80% tìm đúng nơi giao việc trong năm giây và giải thích đúng model, Advisor, dữ liệu rời máy cùng hành động chờ duyệt. Advisor plan/final benchmark và independent visual review phải đạt Cổng Worth-Building.
 
 ### Cổng 3. Phủ capability OpenClaw
 
@@ -586,6 +625,8 @@ Chỉ qua cổng khi không có capability tương thích biến mất vô lý v
 - Installer preflight, first-run smoke test và Compatibility ID sạch dữ liệu cá nhân.
 - Staged updater và rollback trên từng nền tảng.
 - Website không quét phần cứng sâu, không cài helper và không coi user-agent là bằng chứng. Installer chạy local mới xác minh manifest và dung lượng thực tế.
+- Headless Linux x64 trước, ARM64 khi dependency hỗ trợ; một instance riêng cho mỗi khách/biên tin cậy, non-root service, Gateway loopback-only, private ingress, claim một lần, health, auto-restart, backup/restore và signed update.
+- Desktop và Always-on dùng cùng capability manifest, policy, Advisor contract và OpenClaw release train; capability khác nhau theo platform phải hiển thị rõ.
 
 Chỉ qua cổng khi test matrix đạt, cài mới/update/uninstall/restore đạt và bản sai kiến trúc bị chặn bằng thông báo dễ hiểu.
 
@@ -638,6 +679,17 @@ Chỉ qua cổng khi tenant isolation, quyền, backup, audit và incident respo
 8. Cổng bị chiếm tạo retry có giới hạn; test xác nhận không dùng `--force` và không giết process lạ.
 9. Exit `78`, shutdown event, reconnect gap và stdout/stderr backpressure được xử lý bằng test.
 
+### Always-on và remote access
+
+1. Cài mới trên Linux host sạch bằng service user không phải root; Gateway chỉ nghe loopback.
+2. One-time claim hết hạn, dùng lại hoặc trỏ sai instance đều bị chặn.
+3. Tailscale/SSH reconnect khôi phục history, in-flight run và approval; mất transport không tạo task trùng.
+4. Reboot, service crash, OOM và update lỗi phục hồi checkpoint hoặc rollback, không chạy lặp schedule/mutation.
+5. Hai instance khách không đọc credential, workspace, channel, session hoặc backup của nhau.
+6. Backup mã hóa, restore staging và rollback được chạy thử trên host mới.
+7. HTTPS ingress nếu bật phải đạt TLS, origin, auth, rate-limit và penetration tests; Gateway không được public trực tiếp.
+8. Remote Browser, host exec và tool nhạy cảm giữ disabled cho tới khi sandbox, egress và approval suite đạt.
+
 ### Dữ liệu và quyền
 
 1. Hai tài khoản hoặc hai runtime không thấy dữ liệu của nhau.
@@ -686,7 +738,8 @@ Các mục dưới đây không chặn Feature 0.1. Chúng phải được chố
 | Cách dùng tên và nhãn hiệu OpenClaw ngoài câu `Built on OpenClaw` | Đại ca sau legal review | Trước Cổng 6 | Chỉ attribution chữ, không dùng logo hoặc tuyên bố endorsement |
 | Giá, license thương mại và cơ chế kích hoạt | Đại ca | Trước Cổng 5 | Không có thanh toán hoặc khóa người dùng |
 | Nhà cung cấp control plane | Đại ca sau đề xuất kỹ thuật | Trước Cổng 7 | Chưa có control plane |
-| Chính sách remote access | Đại ca sau threat model | Trước Cổng 3 | Gateway loopback-only; remote browser tắt |
+| Provider/kiểu đóng gói Always-on | Đại ca sau ADR kỹ thuật và chi phí | Trước Headless Cổng 4 | VPS Linux riêng trong tài khoản khách; chưa khóa hãng |
+| Chính sách remote access | Đại ca sau threat model | Trước Headless Cổng 4 | Gateway loopback-only; Tailscale/SSH; remote browser tắt |
 | Sandbox local, sandbox từ xa hay native OS | Đại ca sau Feature 0.6 | Trước Cổng 1 cho exec; trước Cổng 3 cho full capability | Host exec/elevated và browser nhạy cảm bị tắt |
 | Retention, telemetry và support upload | Đại ca cùng legal/security | Trước Cổng 5 | Telemetry và upload tắt; dữ liệu local |
 | Cơ chế recovery key cho `.aifb` | Đại ca sau prototype UX | Trước Cổng 3 | Chưa cho xuất full backup portable |

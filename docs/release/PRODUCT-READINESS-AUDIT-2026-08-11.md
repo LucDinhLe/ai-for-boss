@@ -17,6 +17,8 @@ Blocker gần nhất vẫn tồn tại tại thời điểm audit:
 
 Do đó Feature 0.2 tiếp tục ở trạng thái `blocked upstream`. Bản vá hiện tại chỉ hoàn thiện yêu cầu, kiến trúc và đường phát hành; không tạo executable giả vờ hoàn chỉnh.
 
+Audit competitive parity bổ sung cùng ngày xác nhận sản phẩm cũng chưa đạt hành trình ba bước, benchmark thị giác hoặc Headless implementation. Xem [Competitive parity, ba bước và Always-on](COMPETITIVE-PARITY-AND-HEADLESS-AUDIT-2026-08-11.md).
+
 ## 2. Những gì đã có
 
 | Lớp | Bằng chứng hiện tại | Trạng thái |
@@ -75,12 +77,24 @@ Windows x64 là platform chứng minh đầu tiên. ARM64, macOS và Linux chỉ
 - Permission preview, Approval Inbox và emergency stop.
 - Dữ liệu & Phục hồi, System Health và Chẩn đoán nâng cao.
 - Tiếng Việt/Anh, sáng/tối, bàn phím và accessibility.
+- Hành trình ba bước từ tải/cài, kết nối/khai sinh tới giao việc đầu tiên.
+- Advisor phản biện kế hoạch trước thực thi và kiểm tra đầu cuối trước bàn giao.
+- Worth-Building Gate gồm human usability, independent visual review và benchmark token/rework.
 
 ### 3.5. Phủ capability OpenClaw
 
 Mỗi capability phải có trạng thái, quyền, failure behavior và test. Advanced mode không được biến thành một nút mở terminal để bù cho phần chưa làm.
 
 Các nhóm còn thiếu toàn bộ implementation: provider/model, agent/sub-agent, memory, tool, browser, skill, plugin, MCP, channel, schedule, heartbeat, node, media, speech, diagnostics, backup và update.
+
+### 3.6. Mode Always-on
+
+- Headless Supervisor trên Linux bằng non-root service user.
+- Một runtime/Gateway riêng cho mỗi khách hoặc biên tin cậy.
+- Gateway loopback-only; Tailscale/SSH trước, HTTPS remote sau audit.
+- One-time claim, device pairing/revoke, auto-restart, backup/restore và signed update.
+- Cross-tenant, reboot, reconnect, claim-reuse, ingress và restore tests.
+- Chưa chọn provider cloud; mặc định là VPS riêng trong tài khoản khách.
 
 ## 4. Nghĩa vụ đóng gói theo nền tảng
 
@@ -226,11 +240,12 @@ Mỗi OS/architecture được quảng cáo cần runner sạch và ít nhất m
 3. Thuê hoặc chỉ định một desktop/platform engineer senior chịu trách nhiệm.
 4. Làm Windows x64 technical spike với Supervisor/Gateway Adapter.
 5. Hoàn thành onboarding, Agent Genesis, session/model/Advisor và recovery tối thiểu.
-6. Test ít nhất 10 người không kỹ thuật với dữ liệu giả.
+6. Test ít nhất 10 người không kỹ thuật với dữ liệu giả; đạt hành trình ba bước và Cổng Worth-Building.
 7. Chọn và mua/thiết lập code-signing; build installer Windows x64 đã ký.
 8. Private alpha 20–30 người, có support và incident owner.
 9. Mở macOS/Linux theo dependency và máy test, không mở đồng thời bằng lời hứa.
-10. Pentest, legal review, signed release, staged rollout rồi mới public download.
+10. Spike Headless Linux single-tenant, remote access và restore trước khi quảng cáo Always-on.
+11. Pentest, legal review, signed release, staged rollout rồi mới public download.
 
 Đường này ưu tiên một bản Windows x64 có bằng chứng trước. Mục tiêu đa nền tảng vẫn giữ nguyên, nhưng mỗi platform được mở bằng test và chữ ký riêng.
 

@@ -95,7 +95,27 @@ Các quyết định sau tiếp tục theo Decision Register của Rulebook:
 - Ngày: 2026-08-11
 - Owner: Lê Đình Lực
 - Nhãn: `PRODUCT_DECISION`
-- Trạng thái: Concept được tạo, chờ duyệt hình ảnh
-- Quyết định: Thay biểu tượng robot/AI tham chiếu bằng mark vector gốc. Khối `B` đại diện Boss; khoảng âm hình `A` đại diện AI và hướng lên như kim la bàn; hai khoang gợi Worker và Advisor.
-- Hệ quả: SVG là nguồn gốc cho UI và app tile. Bản ICO/ICNS/PNG sẽ được sinh trong feature packaging, không chỉnh tay thành nhiều nguồn khác nhau.
-- Rào chắn: Không dùng robot, não, mắt, antenna, tia lấp lánh hoặc asset của AI Coworker/Hermes Agent; phải qua visual similarity và trademark review trước public release.
+- Trạng thái: Rejected
+- Quyết định: Product Owner từ chối concept ghép `B` với khoảng âm `A`; icon cuối được tách sang feature thương hiệu sau.
+- Hệ quả: Hai SVG chỉ giữ làm hồ sơ concept bị loại, không được dùng cho app, installer, website hoặc public release. Prototype phải dùng placeholder trung tính cho tới khi icon mới được duyệt.
+- Phương án bị loại: Tiếp tục tinh chỉnh cùng cấu trúc monogram A/B.
+
+## D-0011. Cổng Worth-Building và hành trình ba bước
+
+- Ngày: 2026-08-11
+- Owner: Lê Đình Lực
+- Nhãn: `PRODUCT_DECISION`
+- Trạng thái: Chấp nhận
+- Quyết định: AI for Boss phải đưa người phổ thông từ tải/cài, qua kết nối/khai sinh, tới giao việc đầu tiên trong ba bước; chỉ tiếp tục public release khi đạt parity cốt lõi, visual/usability benchmark và khác biệt Advisor hai checkpoint.
+- Hệ quả: 90% người thử mục tiêu bắt đầu tác vụ đầu trong năm phút; 80% tìm đúng nơi giao việc trong năm giây và hiểu model/Advisor/data egress/approval. Sau hai vòng prototype/test không đạt, dừng mở rộng feature để Product Owner chọn lại hướng.
+- Phương án bị loại: Dùng prototype đẹp hoặc danh sách feature làm bằng chứng sản phẩm đã cạnh tranh.
+
+## D-0012. Always-on dùng instance riêng theo biên tin cậy
+
+- Ngày: 2026-08-11
+- Owner: Lê Đình Lực chốt nhu cầu; provider cụ thể tiếp tục `DEFERRED`
+- Nhãn: `PRODUCT_DECISION`
+- Trạng thái: Chấp nhận kiến trúc mục tiêu, chưa triển khai
+- Quyết định: Bổ sung mode Always-on chạy trên host Linux riêng do khách sở hữu/thuê. Mỗi khách hoặc nhóm thật sự cùng biên tin cậy dùng một runtime/Gateway hoàn chỉnh; không shared Gateway hoặc session-ID tenancy.
+- Hệ quả: Gateway loopback-only; Tailscale/SSH là default trước khi HTTPS remote được audit. Cần non-root service, one-time claim, device pairing/revoke, health, auto-restart, backup/restore, signed update và remote security tests.
+- Phương án bị loại: Shared multi-tenant Gateway; công khai Gateway ra Internet; khóa provider cloud trước ADR; bắt đầu bằng Kubernetes/Fleet experimental.

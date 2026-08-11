@@ -6,7 +6,7 @@
 - Loại: Product design amendment, docs-only
 - Product Owner: Lê Đình Lực
 - Owner thực hiện: Codex
-- Trạng thái: Implemented, committed; pending independent visual review
+- Trạng thái: UX direction implemented; brand mark rejected; pending independent visual review
 - Ngày mở: 2026-08-11
 - Giới hạn: Không mở Feature 0.3 hoặc viết desktop application code
 
@@ -21,7 +21,7 @@ AI for Boss có một hướng thiết kế độc lập, sáng, sang và dễ d
 - Chốt Agent Loop chạy nền, panel phải chỉ hiển thị hoạt động, Browser hoặc tệp.
 - Chốt Advisor/Gateway/pause/stop/model theo phiên ở đúng ngữ cảnh.
 - Chốt rào chắn sở hữu trí tuệ và visual-regression acceptance.
-- Thiết kế mark vector gốc thay thế biểu tượng robot/AI của sản phẩm tham chiếu.
+- Tạo concept mark vector để thử; concept này đã bị Product Owner từ chối và không được chuyển sang production.
 - Tạo prototype tương tác Việt/Anh, light/dark và hai trạng thái welcome/session trong vùng visualization riêng.
 
 ## 4. Ngoài phạm vi
@@ -65,7 +65,8 @@ AI for Boss có một hướng thiết kế độc lập, sáng, sang và dễ d
 - [x] Prototype giữ ba panel, model theo phiên, Advisor, Gateway, Browser, tệp, Agent team, phê duyệt và cài đặt.
 - [x] Agent Loop không hiển thị thành checklist; progress là hoạt động theo ngữ cảnh.
 - [x] Prototype có welcome/session, Việt/Anh và light/dark.
-- [x] Có SVG mark/app tile gốc và prototype không còn dùng biểu tượng robot cho AI for Boss.
+- [x] Prototype không còn dùng biểu tượng robot của sản phẩm tham chiếu.
+- [ ] Icon/brand mark cuối được duyệt; concept v1 đã bị từ chối và phải thay bằng placeholder trước test tiếp theo.
 - [x] JavaScript compile; ID/reference/panel/translation scan đạt.
 - [ ] Có independent visual review ở kích thước desktop và mobile.
 - [x] Có commit checkpoint hoàn tác được.
@@ -89,6 +90,6 @@ Revert commit docs-only và bỏ prototype thử nghiệm. Không cần migratio
 ## 12. Bằng chứng hoàn thành
 
 - Commit checkpoint: `97ab9fc` (`docs: define editorial UX direction`).
-- Brand mark checkpoint: `dde4196` (`docs(brand): add original AI for Boss mark`).
+- Brand mark checkpoint lịch sử: `dde4196`; concept bị Product Owner từ chối ngày 2026-08-11 và không phải nguồn production.
 - Product Owner acceptance: yêu cầu điều chỉnh theo tinh thần Hermes Agent ngày 2026-08-11.
 - Reviewer: Codex self-review; independent visual/brand review còn thiếu.
