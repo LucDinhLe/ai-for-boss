@@ -1,7 +1,9 @@
 # Audit Feature 0.3 — Capability và threat model
 
-Ngày: 2026-08-11  
-Nhánh: `feature/0.3-capability-threat-model`  
+Ngày: 2026-08-11
+
+Nhánh: `feature/0.3-capability-threat-model`
+
 Phạm vi dữ liệu: tài liệu công khai của release train và fixture giả, không credential
 
 ## 1. Kết quả

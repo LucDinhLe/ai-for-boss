@@ -120,7 +120,7 @@ Quay về commit cuối của Feature 0.2 hoặc revert commit Feature 0.3. Toà
 
 ## 14. Bằng chứng hoàn thành
 
-- Commit: checkpoint Feature 0.3 ghi sau khi full suite đạt; xem lịch sử nhánh `feature/0.3-capability-threat-model`.
+- Commit checkpoint: `555659c` (`feat(governance): define capability and threat contracts`).
 - Kết quả test: Feature 0.3 validator đạt 23 capability, 9 auth mode, 9 nguồn, 8 flow và 14 threat; contract suite 19/19, governance, runtime validation, secret scan và whitespace đạt.
 - Reviewer: Codex self-review và source-path audit 58/58; bắt buộc senior platform/security review trước khi qua Cổng 0/pilot thật.
 - Product Owner acceptance: Product Owner cho phép triển khai bước tiếp theo ngày 2026-08-11.

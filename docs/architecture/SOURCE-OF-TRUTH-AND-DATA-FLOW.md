@@ -1,6 +1,7 @@
 # Nguồn sự thật và luồng dữ liệu
 
-Ngày khóa: 2026-08-11  
+Ngày khóa: 2026-08-11
+
 Phạm vi: Feature 0.3, release train `oc-2026.7.1-2-locked.1`
 
 ## 1. Luật kiến trúc

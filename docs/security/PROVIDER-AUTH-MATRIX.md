@@ -1,7 +1,9 @@
 # Ma trận xác thực provider
 
-Ngày khóa: 2026-08-11  
-Release train: `oc-2026.7.1-2-locked.1`  
+Ngày khóa: 2026-08-11
+
+Release train: `oc-2026.7.1-2-locked.1`
+
 Nguồn máy đọc được: [auth-support.manifest.json](../../manifests/providers/auth-support.manifest.json)
 
 ## 1. Kết quả

@@ -1,7 +1,9 @@
 # Threat model AI for Boss
 
-Ngày khóa: 2026-08-11  
-Phạm vi: Feature 0.3, release train `oc-2026.7.1-2-locked.1`  
+Ngày khóa: 2026-08-11
+
+Phạm vi: Feature 0.3, release train `oc-2026.7.1-2-locked.1`
+
 Phương pháp: STRIDE kết hợp abuse case dành cho AI Agent
 
 ## 1. Kết luận điều hành

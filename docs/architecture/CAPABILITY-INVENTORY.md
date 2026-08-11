@@ -1,7 +1,9 @@
 # Capability inventory v1
 
-Ngày khóa: 2026-08-11  
-Release train: `oc-2026.7.1-2-locked.1`  
+Ngày khóa: 2026-08-11
+
+Release train: `oc-2026.7.1-2-locked.1`
+
 Nguồn máy đọc được: [openclaw-2026.7.1-2.capability-manifest.json](../../manifests/capabilities/openclaw-2026.7.1-2.capability-manifest.json)
 
 ## 1. Cách đọc trạng thái
