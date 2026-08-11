@@ -187,6 +187,33 @@ Người dùng được tạo, sửa, nhân bản và lưu nhiều agent. Mỗi 
 
 Model của từng phiên được phép ghi đè model mặc định. Output của agent khác vẫn là dữ liệu cần kiểm tra, không tự trở thành nguồn đáng tin cậy.
 
+#### Nghi thức khai sinh Agent
+
+Lần cài đầu tạo Agent chính và mỗi lần người dùng tạo Agent mới đều phải giữ nghi thức bootstrapping tương thích với release train OpenClaw đã khóa:
+
+1. Tạo workspace và `agentDir` riêng cho Agent bằng contract chính thức.
+2. Seed đúng bộ file của phiên bản đã khóa: `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md` và `BOOTSTRAP.md`.
+3. Lượt tương tác thật đầu tiên hỏi ngắn gọn về tên, vai trò hoặc bản chất, giọng điệu, emoji/avatar, cách xưng hô với người dùng, ưu tiên và ranh giới. Không biến nghi thức thành biểu mẫu kỹ thuật dài.
+4. Ghi kết quả vào `IDENTITY.md`, `USER.md` và `SOUL.md`, rồi đồng bộ phần danh tính hiển thị qua RPC/CLI chính thức của OpenClaw, không sửa state nội bộ.
+5. Chỉ xóa `BOOTSTRAP.md` sau khi ghi staging, kiểm tra schema/nội dung, đọc lại, đồng bộ danh tính và health check đều đạt. Nếu app hoặc Gateway dừng giữa chừng, giữ `BOOTSTRAP.md` và tiếp tục idempotent ở lần mở sau.
+6. Không tạo `memory/` trước khi bootstrap hoàn tất vì OpenClaw có thể coi workspace đã được cấu hình và bỏ qua nghi thức. Sau khi hoàn tất mới khởi tạo daily memory hoặc `MEMORY.md` khi thực sự cần.
+7. `HEARTBEAT.md` mặc định để trống hoặc chỉ có comment; người dùng chủ động bật công việc nền sau khi hiểu chi phí và quyền.
+
+Xóa `BOOTSTRAP.md` chỉ kết thúc nghi thức trong workspace đang hoạt động. Chức năng **Khai sinh lại Agent** phải là hành động riêng có xác nhận, snapshot và khả năng quay lui; app không được tự tái tạo `BOOTSTRAP.md` sau restart thông thường.
+
+#### Agent Home và Không gian dự án
+
+AI for Boss phải phân biệt rõ hai khái niệm trong dữ liệu và giao diện:
+
+- **Agent Home:** workspace OpenClaw riêng chứa danh tính, quy tắc, memory và file bootstrap của đúng một Agent. `agentDir`, session store và auth profile của mỗi Agent cũng phải riêng, không dùng chung với Agent khác.
+- **Không gian dự án:** thư mục doanh nghiệp do người dùng chọn, ví dụ `D:\Happy Training`, chứa tài liệu và artifact công việc. Đây không mặc nhiên là Agent Home.
+
+Nhiều Agent chỉ được cùng đọc hoặc ghi một Không gian dự án khi người dùng cấp quyền rõ ràng theo `none`, `read-only` hoặc `read-write`. Việc cấp quyền phải đi qua workspace/sandbox contract đã kiểm thử; không dùng symlink, hardlink hoặc đường dẫn tuyệt đối để lách biên. Không đặt nhiều bộ `IDENTITY.md`, `SOUL.md`, `USER.md` hoặc memory vào cùng một workspace OpenClaw.
+
+Tên hiển thị ở panel trái phải dùng nhãn **Dự án** hoặc **Không gian dự án**. Đường dẫn thật, quyền hiện hành và Agent đang được cấp quyền phải xem được trong thông tin dự án. Agent Home chỉ xuất hiện trong Chẩn đoán nâng cao để người dùng phổ thông không phải thao tác file hệ thống.
+
+Không được lưu API key, OAuth token, cookie, mật khẩu hoặc Gateway credential trong file Markdown thuộc Agent Home hay Không gian dự án.
+
 ### Luật 9. Hai tầng giao diện, một bộ năng lực
 
 Chế độ Cơ bản dùng ngôn ngữ phổ thông:
@@ -459,11 +486,13 @@ Mọi phiên build tuân thủ:
 ### Phải có
 
 - Bộ cài độc lập và Gateway vô hình.
+- Nghi thức khai sinh Agent ở lần cài đầu và mỗi lần tạo Agent mới; `BOOTSTRAP.md` chỉ bị xóa sau kiểm tra thành công.
 - Windows, macOS, Linux theo release matrix.
 - Tiếng Việt và tiếng Anh.
 - Trung tâm kết nối provider.
 - Phiên làm việc chọn model riêng.
 - Tạo và quản lý nhiều agent.
+- Agent Home, `agentDir`, session và auth profile tách biệt; Không gian dự án được cấp quyền riêng.
 - Advisor bật/tắt theo phiên.
 - Workspace, artifact, file preview và lịch sử.
 - Policy, permission preview và Approval Inbox.

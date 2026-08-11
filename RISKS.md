@@ -16,6 +16,11 @@ Thang mức độ: `Critical`, `High`, `Medium`, `Low`.
 | R-010 | Advisor bị worker output thao túng | High | Open | Platform/Security | Cổng 2-3 | Session review riêng, read-only, schema và adversarial test |
 | R-011 | Gateway client/protocol stable cùng OpenClaw chưa được upstream phát hành | High | Open — blocking | Platform + Product Owner | Feature 0.2 | Giữ manifest `blocked`; không ghép beta với stable; kiểm tra lại dist-tag có kiểm soát |
 | R-012 | WSL2 lab chia sẻ kernel host và có mạng trong lúc tải dependency | Medium | Open | Platform/Security | Feature 0.6 | Không mount ổ Windows, tắt interop, không dùng credential, smoke trong network namespace không mạng và terminate sau test |
+| R-013 | Nhiều Agent dùng chung workspace làm ghi đè identity, memory hoặc file bootstrap | High | Mitigated by design, untested | Platform/Product | Feature 0.3 và 2.5 | Agent Home, `agentDir`, session và auth profile tách riêng; project grant riêng |
+| R-014 | Bootstrap bị xóa hoặc workspace bị coi là configured khi dữ liệu mới ghi một phần | High | Open | Platform | Feature 2.2 và 2.5 | Staging, readback, identity sync, health check; không tạo `memory/` sớm; crash resume idempotent |
+| R-015 | Bootstrap/template/identity contract thay đổi giữa các OpenClaw release | High | Open | OpenClaw Adapter/Platform | Feature 0.2-0.3 và mọi upgrade | Khóa template cùng release train; contract diff và regression test trước promote |
+| R-016 | Chưa có owner, tài khoản và quy trình code-signing/notarization cho ba nền tảng | High | Open — release blocking | Product Owner + Release/Legal | Trước Cổng 4 | Không phát hành unsigned; chốt Windows signing, Apple Developer ownership và Linux signing bằng ADR |
+| R-017 | Linux không có Electron autoUpdater tích hợp, dễ tạo update/rollback không nhất quán | High | Open | Release/Platform | Cổng 4 | Chọn package-manager hoặc signed update flow riêng và chạy update/rollback test trên distro hỗ trợ |
 
 ## Luật cập nhật
 

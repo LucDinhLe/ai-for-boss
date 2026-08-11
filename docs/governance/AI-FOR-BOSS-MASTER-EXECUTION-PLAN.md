@@ -78,10 +78,11 @@ Một người phổ thông có thể:
 1. Tải đúng bản cho máy của mình.
 2. Cài một lần mà không tự cài Node, Git, WSL, OpenClaw hoặc Gateway.
 3. Kết nối provider bằng phương thức được hỗ trợ và nhận kiểm tra live rõ ràng.
-4. Chọn model, agent và Advisor cho từng phiên.
-5. Giao việc, xem kế hoạch quyền, duyệt hành động nhạy cảm và nhận artifact.
-6. Khôi phục sau crash, update lỗi hoặc đổi máy mà không hiểu thuật ngữ hạ tầng.
-7. Mở chế độ Nâng cao để dùng các capability tương thích của OpenClaw.
+4. Khai sinh Agent đầu tiên bằng một cuộc trò chuyện ngắn về tên, vai trò, giọng điệu, avatar và ranh giới mà không chỉnh file kỹ thuật.
+5. Chọn model, agent và Advisor cho từng phiên.
+6. Giao việc, xem kế hoạch quyền, duyệt hành động nhạy cảm và nhận artifact.
+7. Khôi phục sau crash, update lỗi hoặc đổi máy mà không hiểu thuật ngữ hạ tầng.
+8. Mở chế độ Nâng cao để dùng các capability tương thích của OpenClaw.
 
 ### 2.2. Tiêu chuẩn phát hành
 
@@ -105,6 +106,7 @@ Mục tiêu trải nghiệm của pilot được chốt trong Pilot Charter. Ch�
 | Model và provider | Catalog, auth status, probe, provider/plugin | Trung tâm kết nối, hướng dẫn Việt/Anh, live check, revoke | Contract test và live auth bằng tài khoản test |
 | Phiên và chat | Session, history, run, usage, attachment, artifact | Giao diện phiên, model theo phiên, trạng thái tác vụ | Tạo, tiếp tục, crash, reload và history recovery |
 | Agent và phối hợp | Agent, sub-agent, task, goal, steer, swarm/ACP khi khả dụng | Mẫu agent, vai trò, ngân sách, trách nhiệm, provenance | Bài test phân việc, thu kết quả, dừng và giới hạn chi phí |
+| Khai sinh và danh tính | Seed workspace, bootstrap files, `agents set-identity`, workspace/session/auth riêng theo agent | Cuộc trò chuyện khai sinh, staging/verify/resume, avatar, kế thừa hồ sơ người dùng | Crash từng bước, Unicode/avatar, không chạy lặp, không ghi đè Agent khác |
 | Advisor | Agent/session/model/policy primitives | Điều phối review riêng, rubric, read-only, trạng thái đã review | Worker output độc hại, parse fail, budget fail, Advisor fail |
 | Memory | Memory runtime và contract tương thích | Giao diện nguồn, policy ghi nhớ, khu chờ nội dung đáng ngờ | Cách ly phiên, provenance và memory-poisoning test |
 | File và workspace | File/tool contract, workspace và session files | Bộ chọn workspace, allowlist, preview, quarantine | Path traversal, symlink escape, file giả mạo |
@@ -247,13 +249,15 @@ Sau khi Cổng 0 đạt, dự án vận hành theo mười luồng có dependenc
 ### Luồng E. Phiên, agent và Advisor
 
 - Session lifecycle, artifact và usage.
+- Agent chính ở lần cài đầu và mỗi Agent mới đều chạy bootstrap một lần; ghi `IDENTITY.md`, `USER.md`, `SOUL.md`, đồng bộ danh tính qua contract chính thức rồi mới xóa `BOOTSTRAP.md`.
+- Mỗi Agent có Agent Home, `agentDir`, session và auth profile riêng. Hồ sơ người dùng cấp ứng dụng được kế thừa có kiểm soát để không hỏi lặp; persona, quyền và project grant vẫn riêng theo Agent.
 - Agent template, sub-agent, task và budget.
 - Advisor chạy trong session review riêng, quyền read-only và rubric có schema; người dùng bật/tắt và chọn một hoặc nhiều model đã kết nối cho từng phiên.
 - Worker output luôn là dữ liệu không tin cậy đối với Advisor.
 
 ### Luồng F. Tool, workspace và sandbox
 
-- Workspace grant, file preview và path policy.
+- Tách Agent Home khỏi Không gian dự án; workspace/project grant dùng `none`, `read-only` hoặc `read-write`, có file preview và path policy.
 - Tool catalog, permission preview và Approval Inbox.
 - Browser profile riêng, network policy và quarantine.
 - Sandbox backend chỉ mở sau ADR và spike đạt từng nền tảng.
@@ -320,6 +324,7 @@ Snapshot OpenClaw `2026.8.1` đang có trong thư mục nghiên cứu chỉ là 
 - Sơ đồ data flow và nguồn sự thật.
 - Threat model, trust boundary và abuse cases.
 - Provider authentication matrix.
+- Agent identity lifecycle, Agent Home/Không gian dự án data flow và bootstrap contract của release train.
 
 #### Feature 0.4. App shell và CI đa nền tảng
 
@@ -371,10 +376,10 @@ Thứ tự:
 Thứ tự:
 
 1. `2.1` Design system Việt/Anh.
-2. `2.2` Onboarding và Trung tâm kết nối.
+2. `2.2` Onboarding, Trung tâm kết nối và khai sinh Agent chính.
 3. `2.3` Phiên, chat, history, attachment và artifact.
 4. `2.4` Model theo phiên và budget.
-5. `2.5` Agent template và phối hợp nhiều agent.
+5. `2.5` Khai sinh Agent mới, Agent template và phối hợp nhiều agent.
 6. `2.6` Advisor theo phiên, rubric và trạng thái review.
 7. `2.7` Permission preview, Approval Inbox và emergency stop.
 8. `2.8` Ba workflow đầu dành cho chủ doanh nghiệp.
@@ -589,6 +594,7 @@ Sau Feature 0.1, thứ tự là 0.2, 0.3, 0.4, 0.5 và 0.6. Chỉ sau khi Cổng
 | Model theo phiên | Mục 3, Luồng D và Feature 2.4 |
 | Advisor theo phiên | Mục 3, Luồng E và Feature 2.6 |
 | Nhiều agent | Mục 3, Luồng E và Feature 2.5 |
+| Khai sinh Agent và tách workspace | Mục 2.1/3, Luồng E/F, Feature 0.3, 2.2 và 2.5 |
 | Cơ bản và Nâng cao | Luồng B, capability manifest và Cổng 3 |
 | Gateway vô hình | Kiến trúc mục 4, Supervisor và Cổng 1 |
 | Local-first và quyền tối thiểu | Nguồn sự thật, Luồng F/H/I và security gate |

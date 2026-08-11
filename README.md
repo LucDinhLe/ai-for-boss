@@ -28,6 +28,9 @@ Feature 0.2 đang bị chặn bởi upstream: `@openclaw/gateway-client` và `@o
 6. [Mẫu Feature Spec](docs/feature-specs/TEMPLATE.md)
 7. [Feature 0.2](docs/feature-specs/0002-lock-release-train.md)
 8. [Báo cáo smoke test Feature 0.2](docs/testing/FEATURE-0.2-WINDOWS-WSL2-SMOKE.md)
+9. [Agent Genesis và biên workspace](docs/architecture/AGENT-GENESIS-AND-WORKSPACE-BOUNDARIES.md)
+10. [Audit mức sẵn sàng đóng gói](docs/release/PRODUCT-READINESS-AUDIT-2026-08-11.md)
+11. [Feature 0.2a — Agent Genesis và packaging readiness](docs/feature-specs/0002a-agent-genesis-packaging-readiness.md)
 
 ## Kiểm tra governance
 
