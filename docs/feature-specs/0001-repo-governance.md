@@ -5,7 +5,7 @@
 - Cổng: 0
 - Owner kỹ thuật: Codex, chờ senior reviewer trước pilot
 - Product Owner: Lê Đình Lực
-- Trạng thái: In progress
+- Trạng thái: Verified
 - Ngày mở: 2026-08-11
 
 ## 2. Mục tiêu vận hành
@@ -73,15 +73,15 @@ Mọi người hoặc AI bước vào repo đều biết nguồn quyết định
 
 ## 10. Tiêu chí nghiệm thu
 
-- [ ] Cấu trúc repo và tài liệu bắt buộc tồn tại.
-- [ ] Bản Rulebook trong repo giữ đúng SHA-256 đã audit.
-- [ ] `AGENTS.md` buộc đọc governance và active Feature Spec.
-- [ ] Decision Log, Risk Register, Changelog và Feature Spec template đầy đủ.
-- [ ] Governance check chạy thành công local.
-- [ ] Không có secret hoặc dữ liệu thật trong staged files.
-- [ ] Commit đầu tiên có thể hoàn tác.
-- [ ] GitHub repo private tồn tại và `main` đồng bộ.
-- [ ] CI governance đạt trên GitHub.
+- [x] Cấu trúc repo và tài liệu bắt buộc tồn tại.
+- [x] Bản Rulebook trong repo giữ đúng SHA-256 đã audit.
+- [x] `AGENTS.md` buộc đọc governance và active Feature Spec.
+- [x] Decision Log, Risk Register, Changelog và Feature Spec template đầy đủ.
+- [x] Governance check chạy thành công local.
+- [x] Không có secret hoặc dữ liệu thật trong staged files.
+- [x] Commit đầu tiên có thể hoàn tác.
+- [x] GitHub repo private tồn tại và `main` đồng bộ.
+- [x] CI governance đạt trên GitHub.
 
 ## 11. Kế hoạch kiểm thử
 
@@ -104,7 +104,8 @@ GitHub repo có thể archive hoặc xóa sau khi xác minh đúng target. Repo 
 
 ## 14. Bằng chứng hoàn thành
 
-- Commit: chờ tạo sau khi toàn bộ check đạt.
-- Kết quả test: chờ chạy.
-- Reviewer: Codex self-review; Claude Code hoặc senior reviewer có thể audit tiếp.
-- Product Owner acceptance: yêu cầu triển khai ngày 2026-08-11.
+- Commit nền: `80c367e76fdece3fd64a5581c10eac876ee18b60`.
+- Kết quả local: governance validation đạt với 13 file bắt buộc, 24 file văn bản và 21 file Markdown; PowerShell syntax và Git whitespace check đạt.
+- Kết quả GitHub: workflow `Governance` run `31462509015` hoàn thành với kết luận `success`.
+- Reviewer: Codex self-review và GitHub CI; senior/security review vẫn là cổng bắt buộc trước pilot thật.
+- Product Owner acceptance: Đại ca yêu cầu triển khai và đồng bộ GitHub ngày 2026-08-11.

@@ -6,7 +6,7 @@ AI for Boss là phần mềm AI coworker dành cho chủ doanh nghiệp. Sản p
 
 ## Trạng thái
 
-Dự án đang ở **Cổng 0, Feature 0.1 — Repo Governance**.
+Dự án đã xác minh **Cổng 0, Feature 0.1 — Repo Governance**. Feature kế tiếp theo Master Plan là 0.2, khóa release train; feature này chưa được mở trong commit hiện tại.
 
 Hiện repo chỉ chứa nền móng quản trị, tài liệu kiến trúc và kiểm tra tự động. Chưa có bộ cài, OAuth, Gateway nhúng hoặc bản phát hành cho người dùng thật.
 

@@ -16,3 +16,9 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 - Repo mặc định private.
 - Chưa cho phép credential, dữ liệu thật, OAuth, Gateway nhúng hoặc host execution.
+
+### Verified
+
+- Governance validation đạt trên máy local và GitHub Actions.
+- Rulebook và Master Plan giữ đúng SHA-256 trong governance lock.
+- Nhánh `main` của kho private `LucDinhLe/ai-for-boss` đồng bộ với commit nền.
