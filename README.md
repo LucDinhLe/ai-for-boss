@@ -31,6 +31,8 @@ Feature 0.2 đang bị chặn bởi upstream: `@openclaw/gateway-client` và `@o
 9. [Agent Genesis và biên workspace](docs/architecture/AGENT-GENESIS-AND-WORKSPACE-BOUNDARIES.md)
 10. [Audit mức sẵn sàng đóng gói](docs/release/PRODUCT-READINESS-AUDIT-2026-08-11.md)
 11. [Feature 0.2a — Agent Genesis và packaging readiness](docs/feature-specs/0002a-agent-genesis-packaging-readiness.md)
+12. [Hướng thiết kế Editorial Calm](docs/ux/EDITORIAL-DESIGN-DIRECTION.md)
+13. [Feature 0.2b — Editorial UX direction](docs/feature-specs/0002b-editorial-ux-direction.md)
 
 ## Kiểm tra governance
 

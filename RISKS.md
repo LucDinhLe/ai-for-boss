@@ -21,6 +21,7 @@ Thang mức độ: `Critical`, `High`, `Medium`, `Low`.
 | R-015 | Bootstrap/template/identity contract thay đổi giữa các OpenClaw release | High | Open | OpenClaw Adapter/Platform | Feature 0.2-0.3 và mọi upgrade | Khóa template cùng release train; contract diff và regression test trước promote |
 | R-016 | Chưa có owner, tài khoản và quy trình code-signing/notarization cho ba nền tảng | High | Open — release blocking | Product Owner + Release/Legal | Trước Cổng 4 | Không phát hành unsigned; chốt Windows signing, Apple Developer ownership và Linux signing bằng ADR |
 | R-017 | Linux không có Electron autoUpdater tích hợp, dễ tạo update/rollback không nhất quán | High | Open | Release/Platform | Cổng 4 | Chọn package-manager hoặc signed update flow riêng và chạy update/rollback test trên distro hỗ trợ |
+| R-018 | Giao diện học từ đối thủ có thể bị hiểu là sao chép nhận diện hoặc trade dress | High | Mitigated by design, untested | Product/Design/Legal | Feature 0.4 và trước Cổng 4 | Design token/copy/asset riêng; provenance; visual comparison; trademark và legal review trước phát hành |
 
 ## Luật cập nhật
 

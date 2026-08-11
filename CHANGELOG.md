@@ -17,6 +17,8 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Đặc tả Agent Genesis: bootstrap một lần, identity sync, crash resume và xóa `BOOTSTRAP.md` sau validation.
 - Biên Agent Home/`agentDir`/Không gian dự án cho nhiều Agent không ghi đè danh tính, memory hoặc auth.
 - Audit mức sẵn sàng đóng gói Windows, macOS và Linux cùng checklist ký, notarize, update, rollback, legal và support.
+- Hướng thiết kế Editorial Calm: nền giấy ấm, serif/sans, copper và ba panel theo ngữ cảnh; giữ nhận diện độc lập với sản phẩm tham chiếu.
+- Prototype tương tác có welcome/session, Việt/Anh, light/dark, model theo phiên, Advisor, Gateway, Browser, tệp và Trung tâm điều khiển.
 
 ### Security
 
