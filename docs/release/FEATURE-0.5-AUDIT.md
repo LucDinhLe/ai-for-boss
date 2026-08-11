@@ -1,7 +1,7 @@
 # Feature 0.5 Audit — First-run journey ba bước
 
 Ngày: 2026-08-11  
-Trạng thái: **Verified local; cross-platform CI và human usability pending**  
+Trạng thái: **Verified local và cross-platform CI; human usability pending**
 Phân loại: `experimental-internal`, Type C prototype, dữ liệu giả
 
 ## Phạm vi
@@ -35,6 +35,7 @@ persistence, tool, Browser, workspace grant hoặc public release.
 | Governance | Đạt; 91 file bắt buộc, 111 file text và 47 Markdown |
 | Test | 47/47 đạt; trong đó 17 test trực tiếp cho first-run/security |
 | Static/build | ESLint, TypeScript, Vite và validator Feature 0.4/0.5 đạt |
+| Cross-platform CI | Đạt trên Windows, macOS và Linux; governance/secret hygiene đạt |
 | Windows package | 75 file, 364.308.236 byte; `experimental-internal` |
 | ASAR | 13 mục allowlist; 228.324 byte; SHA-256 `051dbcda16e9b9c589aed6fc61c67648ae3237bd10ba2d43d3f9189187a8825a` |
 | Dependency audit | Không có lỗ hổng đã biết ở mức high trở lên tại thời điểm kiểm tra |
@@ -52,8 +53,7 @@ nên QA hình dùng Chrome headless trên build cục bộ. Ảnh chứng minh l
 usability test, screen-reader run hoặc independent visual review.
 
 Máy local dùng Node `24.18.0`, thấp hơn release train một patch. CI Node
-`24.19.0` mới là bằng chứng chuẩn đa nền tảng và chưa chạy cho commit Feature
-0.5 tại thời điểm audit local này.
+`24.19.0` là bằng chứng chuẩn đa nền tảng và đã đạt cho commit Feature 0.5.
 
 ## Phần chưa kết nối và cổng còn mở
 

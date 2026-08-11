@@ -102,7 +102,7 @@ Hành trình dùng dữ liệu giả, không tạo cảm giác đã kết nối 
 - [x] Việt/Anh, sáng/tối, keyboard focus và viewport 1440×900/1024×768 đạt static/local QA; human usability vẫn chưa thực hiện.
 - [x] Test, build, package, secret scan, dependency audit và governance đạt local.
 - [x] Audit ghi security/privacy/blast radius cùng rollback.
-- [ ] Commit, push và Draft PR; không merge, không public release.
+- [x] Commit `fd8857d`, push và Draft PR #5; không merge, không public release.
 
 ## 11. Kế hoạch kiểm thử
 
@@ -128,8 +128,9 @@ dùng, migration, credential, process nền hoặc artifact phát hành cần ph
 
 ## 14. Bằng chứng hoàn thành
 
-- Commit: chờ sau khi toàn bộ cổng kiểm thử đạt.
+- Commit triển khai: `fd8857d`; commit bằng chứng CI theo sau trên cùng Draft PR.
 - Test/QA: 47/47 test; governance, build/package/ASAR và dependency audit local
-  đạt; ảnh 1440×900 và 1024×768 đạt sau sửa font tiếng Việt.
+  đạt; ảnh 1440×900 và 1024×768 đạt sau sửa font tiếng Việt; CI Windows,
+  macOS, Linux và governance/secret hygiene đều đạt.
 - Reviewer: Codex self-review; senior platform/security review vẫn còn mở.
 - Product Owner acceptance: chỉ thị ngày 2026-08-11; không bao gồm phép phát hành.
