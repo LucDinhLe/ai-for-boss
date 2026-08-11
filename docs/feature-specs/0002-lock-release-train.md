@@ -115,7 +115,7 @@ Repo quay về commit Feature 0.1. Với lab, dừng đúng distro, xác minh t�
 
 ## 14. Bằng chứng hoàn thành
 
-- Commit checkpoint: `486d7a420c4f305679e101f0d0cc3dca2695aa9d`.
+- Commit checkpoints: candidate lab `486d7a420c4f305679e101f0d0cc3dca2695aa9d`; supported Gateway contract lock `77076f5`.
 - Kết quả test: OpenClaw package/CLI `2026.7.1-2`, Node `24.19.0` và pnpm `11.2.2` đạt bằng frozen lockfile; host drive mount và Windows interop bị tắt; CLI smoke chạy trong network namespace không mạng. Gateway thật chạy trong namespace chỉ có loopback; authenticated `health` RPC đạt bằng token sinh tạm trong memory; lab dừng sau test. Test BasePath sai bị từ chối trước mutation; removal `-WhatIf` không xóa distro.
 - Gỡ blocker: mã nguồn chính thức tại tag `v2026.7.1-2` ghi rõ `@openclaw/gateway-client` và `@openclaw/gateway-protocol` là package private, đồng thời tài liệu `external-apps.md` chỉ định WebSocket RPC là đường hỗ trợ cho ứng dụng ngoài. Manifest được promote thành `locked` theo contract này, không ghép beta và không vendor private internals.
 - Reviewer: Codex self-review; cần senior/security review trước pilot thật.
