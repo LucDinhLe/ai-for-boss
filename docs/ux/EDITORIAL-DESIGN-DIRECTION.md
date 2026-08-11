@@ -26,6 +26,7 @@ Tham chiếu trải nghiệm là cách Hermes Agent tạo nhịp thị giác b�
 - Icon chức năng dùng bộ icon nguồn mở đã kiểm tra license và thể hiện hành động phổ quát.
 - Brand mark sản phẩm tương lai phải có hồ sơ nguồn gốc, license và trademark review trước public release.
 - Mọi màu, khoảng cách, typography và nội dung UI được định nghĩa bằng token riêng của AI for Boss.
+- Concept mark v1 dùng monogram `A` âm trong khối `B`, tên nội bộ **La bàn quyết định**; nguồn SVG và quy tắc nằm tại [`docs/brand`](../brand/README.md).
 
 ## 4. Kiến trúc ba panel
 
@@ -136,4 +137,3 @@ Mỗi trạng thái phải có text hoặc icon; màu không được là tín h
 - Chưa chốt font thương mại, logo cuối, motion system hoặc installer visuals.
 - Chưa chứng minh runtime, Gateway, Browser hoặc capability thật.
 - Chưa thay đổi thứ tự cổng trong `AGENTS.md`.
-

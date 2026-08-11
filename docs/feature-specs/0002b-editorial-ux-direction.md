@@ -21,6 +21,7 @@ AI for Boss có một hướng thiết kế độc lập, sáng, sang và dễ d
 - Chốt Agent Loop chạy nền, panel phải chỉ hiển thị hoạt động, Browser hoặc tệp.
 - Chốt Advisor/Gateway/pause/stop/model theo phiên ở đúng ngữ cảnh.
 - Chốt rào chắn sở hữu trí tuệ và visual-regression acceptance.
+- Thiết kế mark vector gốc thay thế biểu tượng robot/AI của sản phẩm tham chiếu.
 - Tạo prototype tương tác Việt/Anh, light/dark và hai trạng thái welcome/session trong vùng visualization riêng.
 
 ## 4. Ngoài phạm vi
@@ -64,6 +65,7 @@ AI for Boss có một hướng thiết kế độc lập, sáng, sang và dễ d
 - [x] Prototype giữ ba panel, model theo phiên, Advisor, Gateway, Browser, tệp, Agent team, phê duyệt và cài đặt.
 - [x] Agent Loop không hiển thị thành checklist; progress là hoạt động theo ngữ cảnh.
 - [x] Prototype có welcome/session, Việt/Anh và light/dark.
+- [x] Có SVG mark/app tile gốc và prototype không còn dùng biểu tượng robot cho AI for Boss.
 - [x] JavaScript compile; ID/reference/panel/translation scan đạt.
 - [ ] Có independent visual review ở kích thước desktop và mobile.
 - [x] Có commit checkpoint hoàn tác được.

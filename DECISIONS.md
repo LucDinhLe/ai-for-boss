@@ -89,3 +89,13 @@ Các quyết định sau tiếp tục theo Decision Register của Rulebook:
 - Quyết định: AI for Boss dùng hướng Editorial Calm với nền giấy ấm, tương phản serif/sans, copper làm màu nhấn và đường phân vùng mảnh. Giữ ba panel; panel phải chỉ hiển thị tiến trình thực tế, Browser hoặc tệp theo ngữ cảnh. Agent Loop chạy nền và không hiện thành checklist cố định.
 - Hệ quả: Model theo phiên, Advisor, Gateway health, pause và force stop nằm trong header/composer của phiên; capability còn lại được phân bổ vào Trung tâm điều khiển. Welcome state tập trung vào thương hiệu và composer. Implementation phải đạt Việt/Anh, light/dark, responsive và accessibility.
 - Rào chắn: Chỉ học nguyên lý từ Hermes Agent; không sao chép logo, icon riêng, asset, mã nguồn, câu chữ, bố cục pixel hoặc nhận diện thương mại.
+
+## D-0010. Concept mark La bàn quyết định
+
+- Ngày: 2026-08-11
+- Owner: Lê Đình Lực
+- Nhãn: `PRODUCT_DECISION`
+- Trạng thái: Concept được tạo, chờ duyệt hình ảnh
+- Quyết định: Thay biểu tượng robot/AI tham chiếu bằng mark vector gốc. Khối `B` đại diện Boss; khoảng âm hình `A` đại diện AI và hướng lên như kim la bàn; hai khoang gợi Worker và Advisor.
+- Hệ quả: SVG là nguồn gốc cho UI và app tile. Bản ICO/ICNS/PNG sẽ được sinh trong feature packaging, không chỉnh tay thành nhiều nguồn khác nhau.
+- Rào chắn: Không dùng robot, não, mắt, antenna, tia lấp lánh hoặc asset của AI Coworker/Hermes Agent; phải qua visual similarity và trademark review trước public release.
