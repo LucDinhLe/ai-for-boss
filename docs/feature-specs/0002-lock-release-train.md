@@ -112,7 +112,7 @@ Repo quay về commit Feature 0.1. Với lab, dừng đúng distro, xác minh t�
 
 ## 14. Bằng chứng hoàn thành
 
-- Commit: chờ tạo sau khi kiểm tra cuối đạt.
+- Commit checkpoint: `486d7a420c4f305679e101f0d0cc3dca2695aa9d`.
 - Kết quả test: OpenClaw package/CLI `2026.7.1-2`, Node `24.19.0` và pnpm `11.2.2` đạt bằng frozen lockfile; host drive mount và Windows interop bị tắt; smoke chạy trong network namespace không mạng; lab dừng sau test. Test BasePath sai bị từ chối trước mutation; removal `-WhatIf` không xóa distro.
 - Blocker: npm E404 cho `@openclaw/gateway-client@2026.7.1-2` và `@openclaw/gateway-protocol@2026.7.1-2`; không promote manifest thành `locked` và không mở Feature 0.3.
 - Reviewer: Codex self-review; cần senior/security review trước pilot thật.
