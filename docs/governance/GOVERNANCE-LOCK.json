@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "lockedAt": "2026-08-11",
+  "documents": [
+    {
+      "path": "docs/governance/AI-FOR-BOSS-BUILD-RULES.md",
+      "sha256": "06C0E7458A1B0C0229175814FDDB556C9FC88C0617C9BF34E2ED852F2F4FA1CE"
+    },
+    {
+      "path": "docs/governance/AI-FOR-BOSS-MASTER-EXECUTION-PLAN.md",
+      "sha256": "078DBCC7F1D54EF860DC7D3E5A39DB3EFD76515B790144D15BB8D7361ADEEE35"
+    }
+  ]
+}

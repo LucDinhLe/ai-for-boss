@@ -1,0 +1,22 @@
+# Risk Register
+
+Thang mức độ: `Critical`, `High`, `Medium`, `Low`.
+
+| ID | Rủi ro | Mức | Trạng thái | Owner | Cổng xử lý | Biện pháp hiện tại |
+|---|---|---|---|---|---|---|
+| R-001 | Sandbox đa nền tảng chưa chứng minh | Critical | Open | Product Owner + Platform/Security | Feature 0.6 | Tắt host exec, elevated và browser nhạy cảm |
+| R-002 | SecretRef broker chưa có contract test ba OS | Critical | Open | Platform/Security | Cổng 1 và Cổng 4 | Chưa triển khai broker; cấm fallback plaintext |
+| R-003 | OAuth và điều khoản provider thay đổi | High | Open | Product + Security/Legal | Mỗi connector | Auth-support record và live test bằng tài khoản chuyên dụng |
+| R-004 | Chưa có kỹ sư chịu trách nhiệm ngoài AI | Critical | Open | Product Owner | Trước pilot thật | Chỉ prototype và technical spike local bằng dữ liệu giả |
+| R-005 | OpenClaw release drift phá adapter | High | Open | Platform | Feature 0.2 trở đi | Release train, capability diff và contract test |
+| R-006 | Repo vô tình chứa secret hoặc dữ liệu riêng | High | Mitigated | Mọi contributor | Mọi commit | `.gitignore`, governance check và review trước push |
+| R-007 | Hứa hỗ trợ thiết bị khi mới chỉ build CI | High | Open | Product + QA/Release | Cổng 4 | Chỉ công bố tổ hợp đã test trên máy thật |
+| R-008 | Một người xây tạo bus factor | High | Open | Product Owner | Trước pilot | Tài liệu, review độc lập và bàn giao theo cổng |
+| R-009 | Quyền cấp phép sản phẩm chưa chốt | Medium | Deferred | Product Owner + Legal | Trước Cổng 4 | Repo private, chưa cấp license |
+| R-010 | Advisor bị worker output thao túng | High | Open | Platform/Security | Cổng 2-3 | Session review riêng, read-only, schema và adversarial test |
+
+## Luật cập nhật
+
+- Risk mới phải có owner và cổng xử lý.
+- Risk Critical hoặc High không được đóng chỉ bằng mô tả; cần test hoặc bằng chứng review.
+- Nếu biện pháp tạm thời bị gỡ, trạng thái phải quay lại Open trước cùng commit.
