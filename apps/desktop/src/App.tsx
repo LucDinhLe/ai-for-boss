@@ -1,11 +1,10 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
-  approveGenesis,
+  approvePreviewGenesis,
   CONNECTION_FIXTURES,
   connectFixture,
   createInitialFirstRunState,
   createTaskDraft,
-  PASSING_PROMOTION_CHECKS,
   verifyInternalInstall
 } from "./first-run-machine.mjs";
 
@@ -43,13 +42,17 @@ const copy = {
     name: "Tên Agent",
     role: "Vai trò",
     tone: "Giọng điệu",
+    emoji: "Emoji đại diện",
     address: "Cách xưng hô",
+    priority: "Ưu tiên làm việc",
     boundary: "Ranh giới",
+    requiredField: "Vui lòng nhập nội dung có ý nghĩa.",
     birth: "Xác nhận bản sắc và tiếp tục",
     assignKicker: "BƯỚC 3 · GIAO VIỆC ĐẦU TIÊN",
     assignTitle: "Nói kết quả anh/chị muốn có.",
     assignLead: "Hệ thống chỉ tạo một bản giao việc nội bộ. Task không chạy, không gọi model và không trừ token.",
     task: "Mục tiêu công việc",
+    taskRequired: "Vui lòng mô tả kết quả muốn có.",
     taskPlaceholder: "Ví dụ: Lập kế hoạch ưu tiên cho tuần tới, gồm ba việc quan trọng nhất…",
     permissionTitle: "Trước khi giao việc",
     data: "Dữ liệu rời máy",
@@ -63,8 +66,12 @@ const copy = {
     completeLead: "Đây là draft nội bộ. Gateway, OpenClaw runtime và Advisor chưa chạy.",
     advisor: "Advisor giữ hai checkpoint nền",
     advisorNote: "Chưa có runtime · không tự pass",
-    plan1: "Phản biện kế hoạch trước hành động nhạy cảm.",
-    plan2: "Kiểm tra đầu cuối trước khi bàn giao.",
+    samplePlan: "Kế hoạch mẫu · chưa thực thi",
+    planSteps: [
+      "Làm rõ tiêu chí hoàn thành và giới hạn của mục tiêu.",
+      "Chuẩn bị dữ liệu, quyền và các bước thực hiện an toàn.",
+      "Giữ Advisor ở checkpoint kế hoạch và checkpoint đầu cuối."
+    ],
     again: "Làm lại demo",
     context: "HỢP ĐỒNG AN TOÀN",
     genesis: "Agent Genesis",
@@ -105,13 +112,17 @@ const copy = {
     name: "Agent name",
     role: "Role",
     tone: "Tone",
+    emoji: "Representative emoji",
     address: "How to address you",
+    priority: "Working priority",
     boundary: "Boundary",
+    requiredField: "Enter meaningful content to continue.",
     birth: "Confirm identity and continue",
     assignKicker: "STEP 3 · FIRST ASSIGNMENT",
     assignTitle: "Describe the outcome you want.",
     assignLead: "The system creates one internal assignment only. It runs no task, calls no model, and spends no tokens.",
     task: "Work objective",
+    taskRequired: "Describe the outcome you want.",
     taskPlaceholder: "Example: Plan next week's priorities and identify the top three actions…",
     permissionTitle: "Before assignment",
     data: "Data leaving device",
@@ -125,8 +136,12 @@ const copy = {
     completeLead: "This is an internal draft. Gateway, OpenClaw runtime, and Advisor are not running.",
     advisor: "Advisor keeps two background checkpoints",
     advisorNote: "No runtime · never auto-passed",
-    plan1: "Review the plan before sensitive action.",
-    plan2: "Review the final result before handoff.",
+    samplePlan: "Sample plan · not executed",
+    planSteps: [
+      "Clarify the success criteria and boundaries of the objective.",
+      "Prepare the data, permissions, and safe execution steps.",
+      "Keep Advisor at the plan and final-review checkpoints."
+    ],
     again: "Reset demo",
     context: "SAFETY CONTRACT",
     genesis: "Agent Genesis",
@@ -152,9 +167,20 @@ const defaultIdentity = {
   name: "Tôm",
   role: "Trợ lý điều hành",
   tone: "Rõ ràng, điềm tĩnh",
+  emoji: "🦐",
   userAddress: "Anh/chị",
+  priority: "Ưu tiên việc quan trọng, giải thích ngắn gọn",
   boundary: "Xin duyệt trước hành động nhạy cảm"
 };
+
+async function requestShellStatus() {
+  if (!window.aiForBoss) return null;
+  try {
+    return await window.aiForBoss.getShellStatus();
+  } catch {
+    return null;
+  }
+}
 
 function App() {
   const [locale, setLocale] = useState<Locale>("vi");
@@ -165,6 +191,7 @@ function App() {
   const [fixtureId, setFixtureId] = useState(CONNECTION_FIXTURES[0].id);
   const [identity, setIdentity] = useState(defaultIdentity);
   const [goal, setGoal] = useState("");
+  const stageHeadingRef = useRef<HTMLHeadingElement>(null);
   const text = copy[locale];
 
   useEffect(() => {
@@ -174,24 +201,34 @@ function App() {
 
   useEffect(() => {
     let active = true;
-    window.aiForBoss?.getShellStatus().then((nextStatus) => {
-      if (active) {
-        setStatus(nextStatus);
-        setBridgeReady(nextStatus.releaseTrain.id !== "unavailable");
-      }
-    }).catch(() => active && setBridgeReady(false));
+    void requestShellStatus().then((nextStatus) => {
+      if (!active) return;
+      if (nextStatus) setStatus(nextStatus);
+      setBridgeReady(Boolean(nextStatus && nextStatus.releaseTrain.id !== "unavailable"));
+    });
     return () => { active = false; };
   }, []);
+
+  useEffect(() => {
+    stageHeadingRef.current?.focus();
+  }, [journey.stage]);
 
   const step = journey.stage === "INSTALL" ? 1 : journey.stage === "CONNECT" ? 2 : 3;
   const error = useMemo(() => {
     if (!journey.lastError) return null;
-    return journey.lastError === "shell-contract-unavailable" ? text.contractError : text.formError;
+    if (journey.lastError === "shell-contract-unavailable") return text.contractError;
+    if (["identity-required-fields-missing", "identity-field-too-long", "assignment-input-missing", "assignment-too-long"].includes(journey.lastError)) return null;
+    return text.formError;
   }, [journey.lastError, text]);
+
+  const identityFieldMissing = (field: keyof typeof defaultIdentity) =>
+    journey.lastError === "identity-required-fields-missing" && !identity[field].trim();
+  const missingTask = journey.lastError === "assignment-input-missing" && !goal.trim();
+  const readinessChecks = text.checks.map((label, index) => ({ label, passed: index === 0 ? bridgeReady : true }));
 
   function handleGenesis(event: FormEvent) {
     event.preventDefault();
-    setJourney((current) => approveGenesis(current, identity, PASSING_PROMOTION_CHECKS));
+    setJourney((current) => approvePreviewGenesis(current, identity));
   }
 
   function handleTask(event: FormEvent) {
@@ -199,10 +236,33 @@ function App() {
     setJourney((current) => createTaskDraft(current, { requestId: "first-assignment-preview", goal }));
   }
 
+  function updateIdentity(field: keyof typeof defaultIdentity, value: string) {
+    setIdentity((current) => ({ ...current, [field]: value }));
+    setJourney((current) => ["identity-required-fields-missing", "identity-field-too-long"].includes(current.lastError ?? "")
+      ? { ...current, lastError: null }
+      : current);
+  }
+
+  function updateGoal(value: string) {
+    setGoal(value);
+    setJourney((current) => ["assignment-input-missing", "assignment-too-long"].includes(current.lastError ?? "")
+      ? { ...current, lastError: null }
+      : current);
+  }
+
   function resetDemo() {
     setJourney(createInitialFirstRunState());
+    setFixtureId(CONNECTION_FIXTURES[0].id);
     setIdentity(defaultIdentity);
     setGoal("");
+  }
+
+  async function handleInstallVerification() {
+    const nextStatus = await requestShellStatus();
+    const ready = Boolean(nextStatus && nextStatus.releaseTrain.id !== "unavailable");
+    if (nextStatus) setStatus(nextStatus);
+    setBridgeReady(ready);
+    setJourney((current) => verifyInternalInstall(current, ready));
   }
 
   return (
@@ -211,7 +271,7 @@ function App() {
         <header className="brand-block"><div className="brand-glyph" aria-hidden="true"><span /><span /></div><div><strong>AI for Boss</strong><small>{text.builtOn}</small></div></header>
         <section className="journey-intro"><span className="internal-badge">{text.badge}</span><h1>{text.railTitle}</h1><p>{text.railBody}</p></section>
         <ol className="stepper">
-          {text.steps.map((title, index) => <li key={title} className={step === index + 1 ? "current" : step > index + 1 || journey.stage === "COMPLETE" ? "done" : ""}><span>0{index + 1}</span><strong>{title}</strong></li>)}
+          {text.steps.map((title, index) => <li key={title} aria-current={step === index + 1 && journey.stage !== "COMPLETE" ? "step" : undefined} className={step === index + 1 ? "current" : step > index + 1 || journey.stage === "COMPLETE" ? "done" : ""}><span>0{index + 1}</span><strong>{title}</strong></li>)}
         </ol>
         <footer className="rail-footer"><span className={`health-dot ${bridgeReady ? "ready" : ""}`} /><div><strong>{status.releaseTrain.id}</strong><small>OpenClaw {status.releaseTrain.openclaw} · Electron {status.releaseTrain.electron}</small></div></footer>
       </aside>
@@ -219,16 +279,24 @@ function App() {
       <section className="journey-main">
         <header className="topbar"><span className="preview-badge">{text.preview}</span><div className="top-actions"><button type="button" className="quiet-button" aria-label={text.language} onClick={() => setLocale(locale === "vi" ? "en" : "vi")}>{locale === "vi" ? "EN" : "VI"}</button><button type="button" className="quiet-button" aria-label={text.theme} onClick={() => setTheme(theme === "light" ? "dark" : "light")}>{theme === "light" ? "◐" : "◑"}</button></div></header>
         <div className="stage-wrap">
-          {journey.stage === "INSTALL" && <section className="stage-card" data-stage="install-check"><p className="kicker">{text.installKicker}</p><h2>{text.installTitle}</h2><p className="stage-lead">{text.installLead}</p><ul className="check-list">{text.checks.map((item) => <li key={item}><span>✓</span>{item}</li>)}</ul><button className="primary-button" type="button" onClick={() => setJourney((current) => verifyInternalInstall(current, bridgeReady))}>{text.verify}</button></section>}
+          {journey.stage === "INSTALL" && <section className="stage-card" data-stage="install-check"><p className="kicker">{text.installKicker}</p><h2 ref={stageHeadingRef} tabIndex={-1}>{text.installTitle}</h2><p className="stage-lead">{text.installLead}</p><ul className="check-list" aria-live="polite">{readinessChecks.map((item) => <li key={item.label} className={item.passed ? "passed" : "pending"}><span aria-hidden="true">{item.passed ? "✓" : "…"}</span>{item.label}</li>)}</ul><button className="primary-button" type="button" onClick={() => void handleInstallVerification()}>{text.verify}</button></section>}
 
-          {journey.stage === "CONNECT" && <section className="stage-card wide" data-stage="connect-genesis"><span className="mock-banner">{text.mock}</span><p className="kicker">{text.connectKicker}</p><h2>{text.connectTitle}</h2><p className="stage-lead">{text.connectLead}</p>
-            <div className="form-grid"><label className="span-2">{text.fixture}<select value={fixtureId} onChange={(event) => setFixtureId(event.target.value)}>{CONNECTION_FIXTURES.map((fixture) => <option key={fixture.id} value={fixture.id}>{fixture.provider} · {fixture.model}</option>)}</select></label></div>
-            {journey.connection.status !== "connected-fixture" ? <div className="form-actions"><span /><button className="primary-button" type="button" onClick={() => setJourney((current) => connectFixture(current, fixtureId))}>{text.connect}</button></div> : <form onSubmit={handleGenesis}><div className="agent-chip"><span aria-hidden="true">◌</span><div><strong>{text.connected}</strong><small>{text.mock}</small></div></div><div className="form-grid"><label>{text.name}<input required maxLength={200} value={identity.name} onChange={(event) => setIdentity({ ...identity, name: event.target.value })} /></label><label>{text.role}<input required maxLength={200} value={identity.role} onChange={(event) => setIdentity({ ...identity, role: event.target.value })} /></label><label>{text.tone}<input maxLength={200} value={identity.tone} onChange={(event) => setIdentity({ ...identity, tone: event.target.value })} /></label><label>{text.address}<input maxLength={200} value={identity.userAddress} onChange={(event) => setIdentity({ ...identity, userAddress: event.target.value })} /></label><label className="span-2">{text.boundary}<textarea maxLength={200} value={identity.boundary} onChange={(event) => setIdentity({ ...identity, boundary: event.target.value })} /></label></div><div className="form-actions"><span /><button className="primary-button" type="submit">{text.birth}</button></div></form>}
+          {journey.stage === "CONNECT" && <section className="stage-card wide" data-stage="connect-genesis"><span className="mock-banner">{text.mock}</span><p className="kicker">{text.connectKicker}</p><h2 ref={stageHeadingRef} tabIndex={-1}>{text.connectTitle}</h2><p className="stage-lead">{text.connectLead}</p>
+            <div className="form-grid"><label className="span-2">{text.fixture}<select disabled={journey.connection.status === "connected-fixture"} value={journey.connection.fixtureId ?? fixtureId} onChange={(event) => setFixtureId(event.target.value)}>{CONNECTION_FIXTURES.map((fixture) => <option key={fixture.id} value={fixture.id}>{fixture.provider} · {fixture.model}</option>)}</select></label></div>
+            {journey.connection.status !== "connected-fixture" ? <div className="form-actions"><span /><button className="primary-button" type="button" onClick={() => setJourney((current) => connectFixture(current, fixtureId))}>{text.connect}</button></div> : <form onSubmit={handleGenesis} noValidate><div className="agent-chip"><span aria-hidden="true">{identity.emoji || "◌"}</span><div><strong>{text.connected}</strong><small>{text.mock}</small></div></div><div className="form-grid">
+              <label>{text.name}<input required maxLength={200} aria-invalid={identityFieldMissing("name")} aria-describedby={identityFieldMissing("name") ? "name-error" : undefined} value={identity.name} onChange={(event) => updateIdentity("name", event.target.value)} />{identityFieldMissing("name") && <em id="name-error">{text.requiredField}</em>}</label>
+              <label>{text.role}<input required maxLength={200} aria-invalid={identityFieldMissing("role")} aria-describedby={identityFieldMissing("role") ? "role-error" : undefined} value={identity.role} onChange={(event) => updateIdentity("role", event.target.value)} />{identityFieldMissing("role") && <em id="role-error">{text.requiredField}</em>}</label>
+              <label>{text.tone}<input required maxLength={200} aria-invalid={identityFieldMissing("tone")} aria-describedby={identityFieldMissing("tone") ? "tone-error" : undefined} value={identity.tone} onChange={(event) => updateIdentity("tone", event.target.value)} />{identityFieldMissing("tone") && <em id="tone-error">{text.requiredField}</em>}</label>
+              <label>{text.emoji}<input required maxLength={200} aria-invalid={identityFieldMissing("emoji")} aria-describedby={identityFieldMissing("emoji") ? "emoji-error" : undefined} value={identity.emoji} onChange={(event) => updateIdentity("emoji", event.target.value)} />{identityFieldMissing("emoji") && <em id="emoji-error">{text.requiredField}</em>}</label>
+              <label>{text.address}<input required maxLength={200} aria-invalid={identityFieldMissing("userAddress")} aria-describedby={identityFieldMissing("userAddress") ? "address-error" : undefined} value={identity.userAddress} onChange={(event) => updateIdentity("userAddress", event.target.value)} />{identityFieldMissing("userAddress") && <em id="address-error">{text.requiredField}</em>}</label>
+              <label>{text.priority}<input required maxLength={200} aria-invalid={identityFieldMissing("priority")} aria-describedby={identityFieldMissing("priority") ? "priority-error" : undefined} value={identity.priority} onChange={(event) => updateIdentity("priority", event.target.value)} />{identityFieldMissing("priority") && <em id="priority-error">{text.requiredField}</em>}</label>
+              <label className="span-2">{text.boundary}<textarea required maxLength={200} aria-invalid={identityFieldMissing("boundary")} aria-describedby={identityFieldMissing("boundary") ? "boundary-error" : undefined} value={identity.boundary} onChange={(event) => updateIdentity("boundary", event.target.value)} />{identityFieldMissing("boundary") && <em id="boundary-error">{text.requiredField}</em>}</label>
+            </div><div className="form-actions"><span /><button className="primary-button" type="submit">{text.birth}</button></div></form>}
           </section>}
 
-          {journey.stage === "ASSIGN" && <section className="stage-card" data-stage="first-assignment"><p className="kicker">{text.assignKicker}</p><h2>{text.assignTitle}</h2><p className="stage-lead">{text.assignLead}</p><form onSubmit={handleTask}><label className="task-field">{text.task}<textarea required maxLength={1200} autoFocus placeholder={text.taskPlaceholder} value={goal} onChange={(event) => setGoal(event.target.value)} /></label><section className="permission-preview"><h3>{text.permissionTitle}</h3><dl><div><dt>{text.data}</dt><dd>{text.none}</dd></div><div><dt>{text.permissions}</dt><dd>{text.none}</dd></div><div><dt>{text.budget}</dt><dd>{text.zero}</dd></div></dl></section><div className="form-actions"><span /><button className="primary-button" type="submit">{text.create}</button></div></form></section>}
+          {journey.stage === "ASSIGN" && <section className="stage-card" data-stage="first-assignment"><p className="kicker">{text.assignKicker}</p><h2 ref={stageHeadingRef} tabIndex={-1}>{text.assignTitle}</h2><p className="stage-lead">{text.assignLead}</p><form onSubmit={handleTask} noValidate><label className="task-field">{text.task}<textarea required maxLength={1200} aria-invalid={missingTask} aria-describedby={missingTask ? "task-error" : undefined} placeholder={text.taskPlaceholder} value={goal} onChange={(event) => updateGoal(event.target.value)} />{missingTask && <em id="task-error">{text.taskRequired}</em>}</label><section className="permission-preview"><h3>{text.permissionTitle}</h3><dl><div><dt>{text.data}</dt><dd>{text.none}</dd></div><div><dt>{text.permissions}</dt><dd>{text.none}</dd></div><div><dt>{text.budget}</dt><dd>{text.zero}</dd></div></dl></section><div className="form-actions"><span /><button className="primary-button" type="submit">{text.create}</button></div></form></section>}
 
-          {journey.stage === "COMPLETE" && <section className="stage-card" data-stage="complete"><p className="kicker">{text.completeKicker}</p><h2>{text.completeTitle}</h2><p className="stage-lead">{text.completeLead}</p><article className="mock-plan"><header><span aria-hidden="true">◇</span><div><strong>{text.advisor}</strong><small>{text.advisorNote}</small></div></header><ol><li>{text.plan1}</li><li>{text.plan2}</li></ol></article><blockquote className="stage-lead">“{journey.task.draft?.goal}”</blockquote><button className="secondary-button" type="button" onClick={resetDemo}>{text.again}</button></section>}
+          {journey.stage === "COMPLETE" && <section className="stage-card" data-stage="complete"><p className="kicker">{text.completeKicker}</p><h2 ref={stageHeadingRef} tabIndex={-1}>{text.completeTitle}</h2><p className="stage-lead">{text.completeLead}</p><article className="mock-plan"><header><span aria-hidden="true">◇</span><div><strong>{text.samplePlan}</strong><small>{text.advisor} · {text.advisorNote}</small></div></header><ol>{journey.task.draft?.plan.map((stepId, index) => <li key={stepId}>{text.planSteps[index]}</li>)}</ol></article><blockquote className="stage-lead">“{journey.task.draft?.goal}”</blockquote><button className="secondary-button" type="button" onClick={resetDemo}>{text.again}</button></section>}
           {error && <p className="form-error" role="alert">{error}</p>}
         </div>
       </section>

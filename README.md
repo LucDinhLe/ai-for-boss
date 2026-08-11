@@ -6,15 +6,15 @@ AI for Boss là phần mềm AI coworker dành cho chủ doanh nghiệp. Sản p
 
 ## Trạng thái
 
-Dự án đã verify **Cổng 0, Feature 0.5 — First-run journey ba bước** từ commit
-Feature 0.4 đã xác minh `58c5283`. Draft PR #5 xanh 4/4 trên Windows, macOS,
-Linux và governance; human usability cùng senior platform/security review vẫn
-đang chờ.
+Dự án đang hoàn thiện correction pass cho **Cổng 0, Feature 0.5 — First-run
+journey ba bước**, bắt đầu đúng từ commit Feature 0.4 đã xác minh `58c5283`.
+Draft PR #5 vẫn ở trạng thái Draft; human usability cùng senior
+platform/security review vẫn đang chờ.
 OpenClaw `2026.7.1-2`, Node `24.19.0`, Electron `43.3.0` và pnpm `11.2.2`
 được khóa theo release train. Desktop shell Electron/React đã build và package
 được trên Windows x64; CI Windows, macOS và Linux đã xanh trên Draft PR #4 và #5.
 
-Feature 0.2 đã khóa release train `openclaw@2026.7.1-2` bằng npm integrity, git tag/commit và Gateway WebSocket RPC v4 được upstream công bố cho external app. Hai workspace package Gateway private chỉ được fingerprint làm tham chiếu, không bundle hoặc trộn beta. Repo vẫn chưa có desktop app, OAuth, installer, updater, sandbox sản phẩm hoặc bản phát hành cho người dùng thật; lab WSL2 chỉ là bằng chứng thử nghiệm.
+Feature 0.2 đã khóa release train `openclaw@2026.7.1-2` bằng npm integrity, git tag/commit và Gateway WebSocket RPC v4 được upstream công bố cho external app. Hai workspace package Gateway private chỉ được fingerprint làm tham chiếu, không bundle hoặc trộn beta. Repo đã có desktop shell và first-run prototype nội bộ, nhưng chưa có OAuth, Gateway Adapter, OpenClaw runtime tích hợp, installer, updater, sandbox sản phẩm hoặc bản phát hành cho người dùng thật; lab WSL2 chỉ là bằng chứng thử nghiệm.
 
 Feature 0.3 đã ánh xạ 23 nhóm capability, 9 auth mode, 9 nguồn sự thật, 8 data flow, Agent Genesis contract và 14 threat/abuse case. Feature 0.4 dùng các contract đó để sinh summary an toàn cho renderer; preload chỉ có một API đọc và mọi kết nối thật vẫn khóa. Toàn bộ capability vẫn `advertisable: false`; senior platform/security review vẫn là điều kiện trước khi Cổng 0 được coi là qua hoàn toàn.
 
@@ -23,8 +23,10 @@ không phải installer, chưa chứa OpenClaw runtime, Supervisor, OAuth, Gatew
 model call, Agent Genesis hoặc tool thật.
 
 Feature 0.5 chỉ dùng ba fixture model `live:false`, state trong bộ nhớ và task
-`draft-only`. Genesis có preview fail-closed/resume idempotent; Advisor giữ
-`pending-runtime`. Đây là bằng chứng UX nội bộ, chưa phải kết nối hoặc Agent thật.
+`draft-only`. Preview Genesis chỉ dừng ở `STAGING`; renderer không được tự khai
+`ACTIVE`, xóa bootstrap hoặc báo sẵn sàng nếu thiếu bằng chứng runtime tin cậy.
+Advisor giữ `pending-runtime`. Đây là bằng chứng UX nội bộ, chưa phải kết nối
+hoặc Agent thật.
 
 ## Nguyên tắc triển khai
 

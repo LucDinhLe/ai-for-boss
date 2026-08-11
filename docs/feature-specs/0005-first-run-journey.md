@@ -5,7 +5,7 @@
 - Cổng: 0, prototype trải nghiệm nội bộ bằng dữ liệu giả
 - Owner kỹ thuật: Codex; chờ senior platform/security reviewer trước khi qua Cổng 0
 - Product Owner: Lê Đình Lực
-- Trạng thái: Active
+- Trạng thái: Correction verified local on 2026-08-12; Draft PR CI và senior review còn chờ
 - Ngày mở: 2026-08-11
 
 ## 2. Mục tiêu vận hành
@@ -31,6 +31,8 @@ Hành trình dùng dữ liệu giả, không tạo cảm giác đã kết nối 
   không chi phí thật phát sinh.
 - Validation fail-closed cho rỗng, chỉ khoảng trắng, Unicode/emoji, chuỗi dài,
   bấm hai lần, state sai và reload giữa chừng.
+- Preview chỉ duyệt hồ sơ ở `STAGING`; `ACTIVE`, xóa bootstrap và
+  `reportReady=true` chỉ được phép sau đủ bằng chứng runtime theo contract khóa.
 - Unit/contract tests, visual/manual QA, audit, changelog và rollback.
 
 ## 4. Ngoài phạm vi
@@ -73,8 +75,11 @@ Hành trình dùng dữ liệu giả, không tạo cảm giác đã kết nối 
 | Bấm nút tiếp tục hoặc tạo kế hoạch hai lần | Chỉ tạo một state/result, nút khóa sau lần hợp lệ |
 | Reload/crash giữa chừng | Quay về bước 1; không có hồ sơ nửa vời hoặc `BOOTSTRAP.md` bị xóa |
 | State/event sai thứ tự | Reducer giữ state cũ và trả lỗi fail-closed |
+| Snapshot thiếu field hoặc có tổ hợp state mâu thuẫn | Từ chối toàn bộ snapshot; quay về trạng thái sạch, không promote từng phần |
+| Snapshot chứa identity rỗng/quá dài | Từ chối resume; không được chuyển `ACTIVE` |
 | Đổi ngôn ngữ/giao diện | Giữ nguyên bước và dữ liệu đang nhập trong bộ nhớ |
 | Mất mạng | Không ảnh hưởng vì feature không có network; không đổi sang provider khác |
+| Đổi model sau khi đã chọn fixture | UI khóa lựa chọn hoặc cập nhật state nhất quán; không hiển thị một model và giữ model khác |
 
 ## 8. Quyền và dữ liệu
 
@@ -98,11 +103,12 @@ Hành trình dùng dữ liệu giả, không tạo cảm giác đã kết nối 
 - [x] Bước 2 thu đủ trường Genesis đã chốt và gắn nhãn model mô phỏng.
 - [x] Bước 3 hiển thị dữ liệu/quyền/ngân sách trước khi tạo task draft.
 - [x] Hoàn tất không ghi file, không network, không credential và không model call.
-- [x] Validation rỗng, Unicode, chuỗi dài, double submit, event sai và snapshot resume đạt.
-- [x] Việt/Anh, sáng/tối, keyboard focus và viewport 1440×900/1024×768 đạt static/local QA; human usability vẫn chưa thực hiện.
-- [x] Test, build, package, secret scan, dependency audit và governance đạt local.
+- [x] Validation rỗng cho cả bảy trường, Unicode, chuỗi dài, double submit, event sai và snapshot resume đạt invariant matrix cùng exact promotion sequence.
+- [x] Việt/Anh, sáng/tối, stage focus và viewport 1440×900/1024×768/980×680 đạt browser QA từ production bundle.
+- [ ] Human keyboard traversal, screen-reader, zoom và usability với người phổ thông chưa thực hiện.
+- [x] Test, build, package, secret scan, dependency audit và governance đạt lại sau correction pass.
 - [x] Audit ghi security/privacy/blast radius cùng rollback.
-- [x] Commit `fd8857d`, push và Draft PR #5; không merge, không public release.
+- [ ] Correction commit được push vào Draft PR #5 và CI đa nền tảng xanh lại; không merge, không public release.
 
 ## 11. Kế hoạch kiểm thử
 
@@ -110,8 +116,9 @@ Hành trình dùng dữ liệu giả, không tạo cảm giác đã kết nối 
 - Contract: renderer vẫn chỉ dùng preload read-only, CSP không đổi, copy phải
   ghi rõ demo/internal và capability thật tiếp tục bị khóa.
 - Integration: Vite build, Electron package, ASAR allowlist và smoke process.
-- Manual/visual: kiểm tra layout màn đầu ở hai kích thước; transition ba bước,
-  Việt/Anh và sáng/tối được kiểm bằng source/contract state. Human usability chưa chạy.
+- Manual/visual: production bundle đi xuyên ba bước ở 1440×900, 1024×768 và
+  980×680; kiểm input lỗi, state/fixture, Việt/Anh, sáng/tối và sample plan.
+  Human keyboard/screen-reader/usability chưa chạy.
 - Security/privacy: secret scan, dependency audit, xác nhận không storage/network.
 - Recovery: reload trở về state sạch; revert commit và xóa output ignored.
 
@@ -128,9 +135,27 @@ dùng, migration, credential, process nền hoặc artifact phát hành cần ph
 
 ## 14. Bằng chứng hoàn thành
 
-- Commit triển khai: `fd8857d`; commit bằng chứng CI theo sau trên cùng Draft PR.
-- Test/QA: 47/47 test; governance, build/package/ASAR và dependency audit local
-  đạt; ảnh 1440×900 và 1024×768 đạt sau sửa font tiếng Việt; CI Windows,
-  macOS, Linux và governance/secret hygiene đều đạt.
+- Commit triển khai ban đầu: `fd8857d`; correction checkpoint và CI sẽ được ghi
+  trên cùng Draft PR #5 trước khi đóng phiên.
+- Test/QA correction: 55/55 test; governance 93/113/48, build,
+  package/ASAR allowlist, dependency audit và bốn ảnh QA local đạt. ASAR SHA-256
+  `48b536c239ee3cce3758529fabc7c130780fcf771e4f8b481f9b13fa496c2f7c`.
 - Reviewer: Codex self-review; senior platform/security review vẫn còn mở.
 - Product Owner acceptance: chỉ thị ngày 2026-08-11; không bao gồm phép phát hành.
+
+## 15. Correction pass 2026-08-12
+
+Review độc lập phát hiện các khoảng trống và correction pass đã sửa:
+
+- Snapshot restore mới kiểm một phần schema và có thể tạo tổ hợp `ACTIVE` bất khả
+  thi khi install/connection/identity chưa hợp lệ.
+- Renderer truyền toàn bộ promotion check là đạt, nên chỉ chứng minh happy path.
+- UI thiếu emoji/avatar và ưu tiên; màn cuối chưa có sample plan xác định.
+- Fixture hiển thị có thể lệch state sau kết nối; readiness checklist hiển thị
+  dấu đạt khi preload bridge còn `loading`.
+- Visual QA mới có màn đầu; chưa chạy xuyên ba bước, theme, locale, bàn phím,
+  contrast hoặc viewport nhỏ nhất được app cho phép.
+
+Regression test hiện khóa lại toàn bộ các trường hợp trên. Blast radius của correction pass chỉ gồm first-run state, renderer, tests,
+validator, QA artifact và tài liệu Feature 0.5. Không mở persistence, IPC ghi,
+Gateway, OAuth, OpenClaw runtime, tool, credential hoặc signing.

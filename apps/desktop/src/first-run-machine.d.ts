@@ -7,52 +7,84 @@ export type GenesisState =
   | "ACTIVE"
   | "PENDING_RESUME";
 
+export type Identity = {
+  name: string;
+  role: string;
+  tone: string;
+  emoji: string;
+  userAddress: string;
+  priority: string;
+  boundary: string;
+};
+
+export type PromotionEvidence = {
+  source: typeof RUNTIME_EVIDENCE_SOURCE;
+  contentValid: boolean;
+  readbackMatches: boolean;
+  identitySyncMatches: boolean;
+  snapshotExists: boolean;
+  healthPasses: boolean;
+  memoryAbsent: boolean;
+};
+
+export type TaskDraft = {
+  goal: string;
+  output: "preview-plan";
+  plan: ["clarify-success", "prepare-safe-execution", "review-before-handoff"];
+  dataEgress: "none";
+  permissions: "none";
+  budgetTokens: 0;
+};
+
 export type FirstRunState = {
-  schemaVersion: string;
+  schemaVersion: "0.5.1-preview";
   safety: { mockMode: true; dataEgress: false; realCost: 0 };
   stage: "INSTALL" | "CONNECT" | "ASSIGN" | "COMPLETE";
-  install: { status: string; evidence: string };
-  connection: { status: string; fixtureId: string | null };
+  install: { status: "pending" | "verified"; evidence: "shell-contract-only" };
+  connection: { status: "disconnected" | "connected-fixture"; fixtureId: string | null };
   genesis: {
     state: GenesisState;
     bootstrapRetained: boolean;
     reportReady: boolean;
-    approvedIdentity: Record<string, string> | null;
-    lastVerifiedCheckpoint: string;
+    previewApproved: boolean;
+    approvedIdentity: Identity | null;
+    lastVerifiedCheckpoint: GenesisState;
     promotionOperations: string[];
   };
   task: {
-    status: string;
+    status: "empty" | "draft-only";
     requestId: string | null;
-    draft: Record<string, string> | null;
+    draft: TaskDraft | null;
   };
-  advisor: { plan: string; final: string };
+  advisor: { plan: "pending-runtime"; final: "pending-runtime" };
   lastError: string | null;
 };
 
-export const FIRST_RUN_SCHEMA_VERSION: string;
+export const FIRST_RUN_SCHEMA_VERSION: "0.5.1-preview";
 export const GENESIS_STATES: readonly GenesisState[];
+export const RUNTIME_EVIDENCE_SOURCE: "trusted-supervisor-runtime";
 export const CONNECTION_FIXTURES: readonly Readonly<{
   id: string;
   provider: string;
   model: string;
   live: false;
 }>[];
-export const PASSING_PROMOTION_CHECKS: Readonly<Record<string, true>>;
 export function createInitialFirstRunState(): FirstRunState;
 export function verifyInternalInstall(state: FirstRunState, shellReady: boolean): FirstRunState;
 export function connectFixture(state: FirstRunState, fixtureId: string): FirstRunState;
-export function normalizeIdentity(candidate: Record<string, string>):
-  | { ok: true; identity: Record<string, string> }
+export function normalizeIdentity(candidate: Partial<Identity>):
+  | { ok: true; identity: Identity }
   | { ok: false; code: string };
+export function approvePreviewGenesis(state: FirstRunState, candidate: Partial<Identity>): FirstRunState;
 export function approveGenesis(
   state: FirstRunState,
-  candidate: Record<string, string>,
-  checks: Record<string, boolean>
+  candidate: Partial<Identity>,
+  checks: Partial<PromotionEvidence>
 ): FirstRunState;
+export function validateFirstRunSnapshot(snapshot: unknown): { ok: true } | { ok: false; code: string };
 export function restoreFirstRunSnapshot(
   snapshot: FirstRunState | unknown,
-  checks: Record<string, boolean>
+  checks?: Partial<PromotionEvidence>
 ): FirstRunState;
 export function createTaskDraft(
   state: FirstRunState,

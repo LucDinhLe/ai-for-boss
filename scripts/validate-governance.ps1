@@ -96,10 +96,12 @@ $requiredFiles = @(
   'scripts/package-desktop.mjs',
   'scripts/validate-feature-0.4.mjs',
   'scripts/validate-feature-0.5.mjs',
+  'scripts/generate-feature-0.5-qa.mjs',
   'tests/contract/desktop-shell-security-contract.test.mjs',
   'tests/contract/first-run-security-contract.test.mjs',
   'tests/unit/first-run-machine.test.mjs',
-  'tests/unit/desktop-contract.test.mjs'
+  'tests/unit/desktop-contract.test.mjs',
+  'artifacts/feature-0.5/README.md'
 )
 
 foreach ($relativePath in $requiredFiles) {

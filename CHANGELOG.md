@@ -42,6 +42,7 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - State machine First-run khóa ba fixture `live:false`, Genesis promotion theo thứ tự staging/validation/readback/identity sync/snapshot/health rồi mới mô phỏng xóa bootstrap.
 - Giao diện ba bước Việt/Anh cho kiểm tra shell, kết nối mô phỏng, khai sinh Agent preview và task draft-only với permission/budget preview.
 - Unit, contract và validator Feature 0.5 cho Unicode, input rỗng/quá dài, double submit, snapshot lỗi, CSP offline và preload read-only.
+- QA harness Feature 0.5 dùng đúng production bundle để đi xuyên ba bước và lưu bằng chứng ở 1440×900, 1024×768 và 980×680.
 
 ### Changed
 
@@ -54,6 +55,9 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Rulebook lên 1.4 và Master Execution Plan lên 1.3 để kiểm chứng first-run sớm trong Feature 0.5 mà không mở Gateway/OAuth hoặc làm yếu các cổng production.
 - Script package gọi pnpm qua Corepack để không phụ thuộc bản toàn cục trên máy; TypeScript khóa `6.0.3` theo dải peer support của `typescript-eslint`.
 - Governance scan bỏ qua `node_modules`, `dist` và `out` sinh lại được, đồng thời yêu cầu toàn bộ hồ sơ Feature 0.4.
+- First-run snapshot chuyển sang schema `0.5.1-preview` với exact-shape và invariant matrix; snapshot thiếu, thừa hoặc mâu thuẫn bị loại toàn bộ về trạng thái sạch.
+- Preview Genesis không còn giả lập runtime promotion: hồ sơ hợp lệ chỉ được duyệt ở `STAGING`; `ACTIVE` và xóa bootstrap đòi bằng chứng từ `trusted-supervisor-runtime`.
+- Hồ sơ Genesis bổ sung emoji/avatar và ưu tiên; model selector khóa theo fixture đã kết nối; readiness chỉ báo đạt khi preload bridge thật sự sẵn sàng; màn cuối hiển thị kế hoạch mẫu ba bước xác định.
 
 ### Security
 
@@ -67,11 +71,12 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Static secret, OAuth token, CLI credential và plugin-owned auth có storage authority riêng; cấm plaintext/silent fallback.
 - Renderer Feature 0.4 không có Node, network, webview hay mutable IPC; production DevTools tắt và contract lỗi chuyển degraded state.
 - ASAR validator fail-closed nếu package lẫn source, dependency tree hoặc source map; artifact vẫn unsigned và non-distributable.
+- Renderer không nắm promotion evidence; state machine từ chối từng tổ hợp từng có thể tạo `ACTIVE` bất khả thi và giữ `reportReady=false` cho toàn bộ preview.
 
 ### Verified
 
-- Feature 0.5 đạt 47/47 test toàn repo, governance, lint, typecheck, Vite build, validator 0.4/0.5, Windows package/ASAR allowlist và dependency audit local.
-- Visual QA Feature 0.5 đạt ở 1440×900 và 1024×768 sau khi đổi serif ưu tiên sang Times New Roman để sửa lỗi tách dấu tiếng Việt của Georgia trên Chrome/Windows.
+- Correction pass Feature 0.5 đạt 55/55 test, lint, typecheck và validator local; full package/audit/CI được ghi tại audit sau khi correction commit hoàn tất.
+- QA tương tác production bundle đi xuyên bước 1–3, validation lỗi, Việt/Anh, sáng/tối và ba viewport 1440×900, 1024×768, 980×680 mà không tràn ngang. Human usability và screen-reader run vẫn chưa thực hiện.
 - Audit đóng Feature 0.3 xác nhận chuỗi tài liệu không còn ghi release train
   `Chưa khóa` hoặc liệt kê Feature 0.3 như việc còn chờ.
 - Governance validation đạt trên máy local và GitHub Actions.

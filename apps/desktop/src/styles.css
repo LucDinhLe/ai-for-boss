@@ -10,9 +10,9 @@
   --ink: #24211d;
   --muted: #716b61;
   --hairline: rgba(51, 45, 37, 0.14);
-  --copper: #b96d37;
-  --copper-soft: rgba(185, 109, 55, 0.12);
-  --safe: #4f7c63;
+  --copper: #9b5428;
+  --copper-soft: rgba(155, 84, 40, 0.12);
+  --safe: #477159;
   --danger: #a3564a;
 }
 
@@ -35,6 +35,7 @@
 html, body, #root { width: 100%; min-width: 760px; height: 100%; margin: 0; overflow: hidden; }
 button, input, select, textarea { color: inherit; font: inherit; }
 button { cursor: pointer; }
+button:disabled, select:disabled { cursor: not-allowed; opacity: .68; }
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
 
 .first-run-shell {
@@ -89,7 +90,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .stage-lead { max-width: 680px; margin: 20px 0 28px; color: var(--muted); font-size: 14px; line-height: 1.65; }
 .check-list { display: grid; gap: 0; margin: 12px 0 30px; padding: 0; border-top: 1px solid var(--hairline); list-style: none; }
 .check-list li { display: flex; align-items: center; gap: 13px; min-height: 54px; border-bottom: 1px solid var(--hairline); font-size: 13px; }
-.check-list span { color: var(--safe); }
+.check-list .passed span { color: var(--safe); }
+.check-list .pending { color: var(--muted); }
+.check-list .pending span { color: var(--danger); }
 .primary-button, .secondary-button { min-height: 44px; padding: 0 18px; border-radius: 4px; font-size: 12px; font-weight: 700; }
 .primary-button { border: 1px solid var(--copper); background: var(--copper); color: #fffaf3; }
 .primary-button:hover { filter: brightness(.95); }
@@ -142,7 +145,7 @@ label em { min-height: 13px; color: var(--danger); font-size: 9px; font-style: n
   .stage-wrap { padding: 34px; }
 }
 
-@media (max-width: 920px) {
+@media (max-width: 1000px) {
   html, body, #root { min-width: 680px; }
   .first-run-shell { grid-template-columns: 220px 1fr; }
   .safety-panel { display: none; }

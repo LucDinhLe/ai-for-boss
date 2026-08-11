@@ -162,3 +162,13 @@ Các lệnh cấm trộn beta và coi placeholder là production vẫn giữ ngu
 - Quyết định: Feature 0.5 triển khai vertical slice hành trình ba bước trong app shell để kiểm chứng Worth-Building sớm. Security baseline tiếp tục là acceptance gate của cùng feature; kết nối/runtime thật vẫn theo Cổng 1–2.
 - Hệ quả: Người dùng thử có thể đi qua ba bước bằng fixture được gắn nhãn rõ. State machine giữ contract Agent Genesis, resume idempotent và fail closed, nhưng không ghi Agent Home, không xóa `BOOTSTRAP.md` thật, không gọi Gateway/OAuth/model và không được tính là implementation production của Feature 2.2/2.6.
 - Phương án bị loại: Chờ xong Gateway/OAuth mới kiểm chứng UX; hoặc tạo kết nối giả nhưng trình bày như đã hoạt động thật.
+
+## D-0017. Renderer preview không được tự promote Agent Genesis
+
+- Ngày: 2026-08-12
+- Owner: Codex kỹ thuật; cần senior platform/security reviewer phê duyệt contract runtime
+- Nhãn: `TECHNICAL_DECISION`
+- Trạng thái: Chấp nhận cho Feature 0.5 preview
+- Quyết định: Hành trình first-run bằng fixture chỉ duyệt hồ sơ Genesis tới `STAGING`. `ACTIVE`, `bootstrapRetained=false` và `reportReady=true` chỉ hợp lệ khi state machine nhận đủ sáu promotion check từ nguồn `trusted-supervisor-runtime`; renderer không sở hữu hoặc truyền nguồn bằng chứng này.
+- Hệ quả: Snapshot dùng exact schema và invariant matrix; dữ liệu thiếu, thừa, sai giới hạn hoặc tổ hợp state bất khả thi bị từ chối toàn bộ. Preview vẫn cho phép tạo task `draft-only` cùng kế hoạch mẫu để test UX, nhưng không được diễn giải thành Agent/runtime đã hoạt động.
+- Phương án bị loại: Hard-code toàn bộ check là đạt trong UI; coi preview approval là runtime promotion; hoặc phục hồi một phần snapshot không đáng tin.

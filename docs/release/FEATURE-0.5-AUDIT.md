@@ -1,74 +1,104 @@
 # Feature 0.5 Audit — First-run journey ba bước
 
-Ngày: 2026-08-11  
-Trạng thái: **Verified local và cross-platform CI; human usability pending**
-Phân loại: `experimental-internal`, Type C prototype, dữ liệu giả
+Ngày mở: 2026-08-11
 
-## Phạm vi
+Correction audit: 2026-08-12
 
-Audit chỉ bao phủ vertical slice renderer của hành trình ba bước. Không có
-installer, Gateway, OAuth, provider thật, model call, Agent Home writer,
-persistence, tool, Browser, workspace grant hoặc public release.
+Trạng thái: **Correction đạt local; CI của correction commit và human usability còn chờ**
 
-## Security và privacy review
+Phân loại: `experimental-internal`, Type C prototype, chỉ dữ liệu giả
 
-- CSP tiếp tục `connect-src 'none'`; renderer không có transport đi ra ngoài.
-- Preload chỉ giữ một API đọc safe shell summary.
-- Ba fixture provider đều khóa `live: false`; fixture lạ bị từ chối.
-- State first-run chỉ nằm trong bộ nhớ và mất khi reload.
-- Genesis lỗi giữ `PENDING_RESUME`, `bootstrapRetained=true` và
-  `reportReady=false`; thao tác xóa bootstrap luôn đứng cuối chuỗi preview.
-- Advisor plan/final giữ `pending-runtime`; task chỉ ở `draft-only`, quyền thật
-  bằng không và ngân sách preview bằng 0 token.
-- Không secret, credential hoặc dữ liệu thật được dùng.
+## Kết luận
 
-## Blast radius
+Feature 0.5 đã có vertical slice ba bước trong desktop shell và correction pass
+đã đóng các lỗi invariant/UI phát hiện ở self-review. Preview Genesis chỉ dừng
+ở `STAGING`; không có đường nào từ renderer tự khai `ACTIVE`, xóa bootstrap hay
+báo Agent sẵn sàng. Feature vẫn chưa phải onboarding/runtime thật và chưa được
+phép merge hoặc phát hành.
 
-- Chạm renderer, state machine, test, validator và governance docs.
-- Không chạm OpenClaw lab, Gateway contract, manifest nguồn sự thật hoặc runtime.
-- Rủi ro chính là người xem tưởng prototype đã kết nối thật; R-026 theo dõi việc này.
+## Phạm vi và biên an toàn
 
-## Bằng chứng
+- Chỉ renderer state trong bộ nhớ; reload trở về trạng thái sạch.
+- Ba provider/model fixture đều `live:false`; selector khóa theo fixture đã chọn.
+- CSP giữ `connect-src 'none'`; preload chỉ có một request đọc safe shell status.
+- Không credential, persistence, filesystem write, process execution, Gateway,
+  OAuth, model call, tool hoặc chi phí thật.
+- Task ở `draft-only`, quyền/data egress bằng `none`, ngân sách 0 token.
+- Advisor plan/final đều `pending-runtime`; sample plan ba bước không thực thi.
 
-| Hạng mục | Kết quả |
+## Correction pass
+
+Các lỗi được sửa:
+
+1. Snapshot trước đây chỉ kiểm một phần và có thể tạo tổ hợp `ACTIVE` bất khả
+   thi. Schema `0.5.1-preview` nay dùng exact shape cùng invariant matrix cho
+   install, connection, stage, Genesis, task, Advisor và promotion operations.
+2. Renderer không còn hard-code promotion checks. Chỉ nguồn
+   `trusted-supervisor-runtime` cùng đủ sáu check mới có thể tạo `ACTIVE` ở
+   state machine; nguồn này không được import hoặc truyền từ `App.tsx`.
+3. Cả bảy trường Genesis — tên, vai trò, giọng điệu, emoji, cách xưng hô, ưu
+   tiên và ranh giới — đều bắt buộc, trim/giới hạn và có lỗi tại trường.
+4. Preview approval giữ bootstrap, `reportReady=false` và `STAGING`; màn cuối
+   hiển thị sample plan xác định thay vì một kết quả AI giả.
+5. Readiness chỉ báo shell đã nạp khi preload bridge sẵn sàng; model selector
+   không thể hiển thị khác state sau khi kết nối.
+6. Màu chữ light theme đạt ngưỡng tương phản AA; breakpoint 1000 px bảo đảm app
+   min-width 980 px không tràn ngang.
+
+Snapshot thiếu/thừa field, identity rỗng/quá dài, fixture lạ, safety drift,
+promotion sequence rút gọn hoặc state mâu thuẫn đều bị từ chối toàn bộ và quay
+về `UNSEEDED`. Snapshot `PENDING_RESUME` hợp lệ chỉ resume với bằng chứng runtime
+tin cậy; failure tiếp tục giữ bootstrap và không báo sẵn sàng.
+
+## Bằng chứng local
+
+| Hạng mục | Kết quả correction |
 |---|---|
-| Governance | Đạt; 91 file bắt buộc, 111 file text và 47 Markdown |
-| Test | 47/47 đạt; trong đó 17 test trực tiếp cho first-run/security |
-| Static/build | ESLint, TypeScript, Vite và validator Feature 0.4/0.5 đạt |
-| Cross-platform CI | Đạt trên Windows, macOS và Linux; governance/secret hygiene đạt |
-| Windows package | 75 file, 364.308.236 byte; `experimental-internal` |
-| ASAR | 13 mục allowlist; 228.324 byte; SHA-256 `051dbcda16e9b9c589aed6fc61c67648ae3237bd10ba2d43d3f9189187a8825a` |
-| Dependency audit | Không có lỗ hổng đã biết ở mức high trở lên tại thời điểm kiểm tra |
-| Visual QA | 1440×900 và 1024×768; không tràn ngang; sửa lỗi tách dấu tiếng Việt ở vòng ảnh đầu |
-| Secret/network | Secret scan đạt; CSP `connect-src 'none'`; không persistence hoặc transport mới |
+| Governance/secret hygiene | Đạt; 93 file bắt buộc, 113 file text, 48 Markdown |
+| Test | 55/55 đạt; gồm regression cho các tổ hợp snapshot đã khai thác, exact promotion sequence, bảy trường identity và completed-draft guard |
+| Static/build | ESLint, TypeScript, Vite, validator Feature 0.4/0.5 và `git diff --check` đạt |
+| Windows package | 75 file, 364.315.730 byte; `experimental-internal`, unsigned, non-distributable |
+| ASAR | 13 mục allowlist; 235.818 byte; SHA-256 `48b536c239ee3cce3758529fabc7c130780fcf771e4f8b481f9b13fa496c2f7c` |
+| Dependency audit | `pnpm audit --audit-level high`: không có lỗ hổng đã biết |
+| Network/storage | CSP offline; static scan không thấy transport, persistence, process execution hoặc secret |
 
-Ảnh QA:
+Máy local dùng Node `24.18.0`, thấp hơn release train một patch. CI dùng đúng
+Node `24.19.0`/pnpm `11.2.2` là bằng chứng chuẩn đa nền tảng và phải xanh lại
+trên correction commit trước khi đóng phiên.
+
+## QA tương tác và trực quan
+
+QA harness được sinh từ production renderer bundle, không dùng Vite source trực
+tiếp. Browser automation đã đi xuyên bước 1–3, thử input chỉ khoảng trắng, đổi
+fixture, Việt/Anh, sáng/tối và trạng thái hoàn tất. Kết quả xác nhận Genesis vẫn
+`STAGING`, `reportReady=No`, sample plan có ba bước và Advisor chưa chạy.
 
 - `artifacts/feature-0.5/first-run-1440x900.png`
 - `artifacts/feature-0.5/first-run-1024x768.png`
+- `artifacts/feature-0.5/first-run-step-3-980x680.png`
+- `artifacts/feature-0.5/first-run-complete-1440x900-dark-en.png`
 
-Computer-use runtime bị môi trường chặn `EPERM` trước khi điều khiển Windows app,
-nên QA hình dùng Chrome headless trên build cục bộ. Ảnh chứng minh layout màn
-đầu; 17 test state machine chứng minh transition Bước 1–3. Chưa có human
-usability test, screen-reader run hoặc independent visual review.
+Viewport 1024 và 980 không tràn ngang; ở 980 safety panel ẩn theo responsive
+contract. Heading nhận focus sau chuyển bước và control có `:focus-visible`.
+Chưa có human keyboard traversal, screen-reader run, zoom audit hoặc test với
+người phổ thông; không được suy diễn các hạng mục đó đã đạt.
 
-Máy local dùng Node `24.18.0`, thấp hơn release train một patch. CI Node
-`24.19.0` là bằng chứng chuẩn đa nền tảng và đã đạt cho commit `fd8857d`:
+## Blast radius và rollback
 
-- Verify Windows/macOS/Linux: run `31514628894`.
-- Governance và secret hygiene: run `31514628945`.
-- Draft PR #5, base `feature/0.4-app-shell-ci`, chưa merge.
+Correction chỉ chạm first-run state/UI/type, test, validator, QA harness và tài
+liệu. Không đổi Gateway contract, auth/source-of-truth, OpenClaw lab, runtime,
+IPC ghi, signing hoặc dữ liệu người dùng.
 
-## Phần chưa kết nối và cổng còn mở
+Rollback bằng cách revert correction commit rồi sinh lại `dist`/`out`. Không có
+migration, credential, dịch vụ nền hoặc dữ liệu người dùng cần phục hồi.
 
-- Chưa có installer, Gateway, OAuth, live model probe hoặc OpenClaw runtime.
-- Chưa ghi Agent Home, chưa xóa `BOOTSTRAP.md` thật và chưa tạo `memory/`.
-- Chưa có session execution, tool, artifact hoặc Advisor plan/final verdict thật.
-- Artifact vẫn unsigned, `distributable:false` và không được phát hành.
-- Senior platform/security review vẫn là điều kiện Gate 0; Codex self-review
-  không thay thế reviewer chịu trách nhiệm bằng tên.
+## Cổng còn mở
 
-## Rollback
-
-Revert commit Feature 0.5 và xóa output build bị ignore. Không có migration,
-credential, dịch vụ nền hoặc dữ liệu người dùng cần phục hồi.
+- Correction commit chưa có bằng chứng CI Windows/macOS/Linux/governance tại
+  thời điểm audit local này; Draft PR #5 phải giữ Draft và không merge.
+- Chưa có installer, Gateway Adapter, OAuth, live model probe, OpenClaw runtime,
+  Agent Home writer, session execution, tool hoặc Advisor verdict thật.
+- Chưa ghi identity file, chưa xóa `BOOTSTRAP.md` thật và chưa tạo `memory/`.
+- Artifact chưa ký, `distributable:false`; tuyệt đối không public release.
+- Senior platform/security review bằng người chịu trách nhiệm vẫn là điều kiện
+  Gate 0; Codex self-review không thay thế điều kiện đó.
