@@ -8,7 +8,15 @@ import { fileURLToPath } from "node:url";
 
 const testDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(testDir, "..", "..");
-const powershell = process.platform === "win32" ? "powershell" : "pwsh";
+
+function commandAvailable(command) {
+  const result = spawnSync(command, ["-NoProfile", "-Command", "exit 0"], {
+    stdio: "ignore"
+  });
+  return !result.error && result.status === 0;
+}
+
+const powershell = commandAvailable("pwsh") ? "pwsh" : "powershell";
 
 function runInCopy(mutator = () => {}) {
   const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "aifb-governance-status-"));
