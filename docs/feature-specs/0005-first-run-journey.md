@@ -5,7 +5,7 @@
 - Cổng: 0, prototype trải nghiệm nội bộ bằng dữ liệu giả
 - Owner kỹ thuật: Codex; chờ senior platform/security reviewer trước khi qua Cổng 0
 - Product Owner: Lê Đình Lực
-- Trạng thái: Correction verified local on 2026-08-12; Draft PR CI và senior review còn chờ
+- Trạng thái: Correction verified local và cross-platform CI on 2026-08-12; senior review còn chờ
 - Ngày mở: 2026-08-11
 
 ## 2. Mục tiêu vận hành
@@ -108,7 +108,7 @@ Hành trình dùng dữ liệu giả, không tạo cảm giác đã kết nối 
 - [ ] Human keyboard traversal, screen-reader, zoom và usability với người phổ thông chưa thực hiện.
 - [x] Test, build, package, secret scan, dependency audit và governance đạt lại sau correction pass.
 - [x] Audit ghi security/privacy/blast radius cùng rollback.
-- [ ] Correction commit được push vào Draft PR #5 và CI đa nền tảng xanh lại; không merge, không public release.
+- [x] Correction commit `3ab90e1` được push vào Draft PR #5 và CI đa nền tảng xanh lại; không merge, không public release.
 
 ## 11. Kế hoạch kiểm thử
 
@@ -135,11 +135,13 @@ dùng, migration, credential, process nền hoặc artifact phát hành cần ph
 
 ## 14. Bằng chứng hoàn thành
 
-- Commit triển khai ban đầu: `fd8857d`; correction checkpoint và CI sẽ được ghi
-  trên cùng Draft PR #5 trước khi đóng phiên.
+- Commit triển khai ban đầu: `fd8857d`; correction checkpoint `3ab90e1` trên
+  cùng Draft PR #5.
 - Test/QA correction: 55/55 test; governance 93/113/48, build,
   package/ASAR allowlist, dependency audit và bốn ảnh QA local đạt. ASAR SHA-256
   `48b536c239ee3cce3758529fabc7c130780fcf771e4f8b481f9b13fa496c2f7c`.
+- CI correction: Windows, macOS, Linux và governance/secret hygiene đều đạt ở
+  run `31519600558` và `31519600494`.
 - Reviewer: Codex self-review; senior platform/security review vẫn còn mở.
 - Product Owner acceptance: chỉ thị ngày 2026-08-11; không bao gồm phép phát hành.
 

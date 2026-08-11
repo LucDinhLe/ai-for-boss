@@ -4,7 +4,7 @@ Ngày mở: 2026-08-11
 
 Correction audit: 2026-08-12
 
-Trạng thái: **Correction đạt local; CI của correction commit và human usability còn chờ**
+Trạng thái: **Correction đạt local và cross-platform CI; human usability còn chờ**
 
 Phân loại: `experimental-internal`, Type C prototype, chỉ dữ liệu giả
 
@@ -61,10 +61,14 @@ tin cậy; failure tiếp tục giữ bootstrap và không báo sẵn sàng.
 | ASAR | 13 mục allowlist; 235.818 byte; SHA-256 `48b536c239ee3cce3758529fabc7c130780fcf771e4f8b481f9b13fa496c2f7c` |
 | Dependency audit | `pnpm audit --audit-level high`: không có lỗ hổng đã biết |
 | Network/storage | CSP offline; static scan không thấy transport, persistence, process execution hoặc secret |
+| Cross-platform CI | Commit `3ab90e1` đạt Windows, macOS, Linux và governance/secret hygiene |
 
 Máy local dùng Node `24.18.0`, thấp hơn release train một patch. CI dùng đúng
-Node `24.19.0`/pnpm `11.2.2` là bằng chứng chuẩn đa nền tảng và phải xanh lại
-trên correction commit trước khi đóng phiên.
+Node `24.19.0`/pnpm `11.2.2` là bằng chứng chuẩn đa nền tảng và đã đạt trên
+commit `3ab90e1`:
+
+- Desktop shell run `31519600558`: Windows, macOS và Linux đạt.
+- Governance run `31519600494`: governance và secret hygiene đạt.
 
 ## QA tương tác và trực quan
 
@@ -94,8 +98,7 @@ migration, credential, dịch vụ nền hoặc dữ liệu người dùng cần
 
 ## Cổng còn mở
 
-- Correction commit chưa có bằng chứng CI Windows/macOS/Linux/governance tại
-  thời điểm audit local này; Draft PR #5 phải giữ Draft và không merge.
+- Draft PR #5 phải giữ Draft và không merge; CI đạt không thay thế review.
 - Chưa có installer, Gateway Adapter, OAuth, live model probe, OpenClaw runtime,
   Agent Home writer, session execution, tool hoặc Advisor verdict thật.
 - Chưa ghi identity file, chưa xóa `BOOTSTRAP.md` thật và chưa tạo `memory/`.

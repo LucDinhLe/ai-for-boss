@@ -6,10 +6,10 @@ AI for Boss là phần mềm AI coworker dành cho chủ doanh nghiệp. Sản p
 
 ## Trạng thái
 
-Dự án đang hoàn thiện correction pass cho **Cổng 0, Feature 0.5 — First-run
-journey ba bước**, bắt đầu đúng từ commit Feature 0.4 đã xác minh `58c5283`.
-Draft PR #5 vẫn ở trạng thái Draft; human usability cùng senior
-platform/security review vẫn đang chờ.
+Dự án đã hoàn tất correction pass cho **Cổng 0, Feature 0.5 — First-run journey
+ba bước** ở commit `3ab90e1`, bắt đầu đúng từ commit Feature 0.4 đã xác minh
+`58c5283`. Draft PR #5 xanh 4/4 trên Windows, macOS, Linux và governance nhưng
+vẫn giữ Draft; human usability cùng senior platform/security review vẫn chờ.
 OpenClaw `2026.7.1-2`, Node `24.19.0`, Electron `43.3.0` và pnpm `11.2.2`
 được khóa theo release train. Desktop shell Electron/React đã build và package
 được trên Windows x64; CI Windows, macOS và Linux đã xanh trên Draft PR #4 và #5.

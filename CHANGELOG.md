@@ -75,7 +75,7 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 ### Verified
 
-- Correction pass Feature 0.5 đạt 55/55 test, lint, typecheck và validator local; full package/audit/CI được ghi tại audit sau khi correction commit hoàn tất.
+- Correction pass Feature 0.5 đạt 55/55 test, lint, typecheck, validator, Windows package/ASAR, dependency audit và CI Windows/macOS/Linux/governance trên commit `3ab90e1`.
 - QA tương tác production bundle đi xuyên bước 1–3, validation lỗi, Việt/Anh, sáng/tối và ba viewport 1440×900, 1024×768, 980×680 mà không tràn ngang. Human usability và screen-reader run vẫn chưa thực hiện.
 - Audit đóng Feature 0.3 xác nhận chuỗi tài liệu không còn ghi release train
   `Chưa khóa` hoặc liệt kê Feature 0.3 như việc còn chờ.
