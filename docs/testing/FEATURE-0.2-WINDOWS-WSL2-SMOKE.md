@@ -2,7 +2,7 @@
 
 ## Kết luận
 
-OpenClaw stable `2026.7.1-2` cài và chạy được bằng Node LTS `24.19.0` cùng pnpm `11.2.2` trong distro WSL2 riêng `AIForBossLab`. Lệnh version, help và Gateway help đạt mà không dùng OAuth, API key, provider account, model call hoặc dữ liệu người dùng.
+OpenClaw stable `2026.7.1-2` cài và chạy được bằng Node LTS `24.19.0` cùng pnpm `11.2.2` trong distro WSL2 riêng `AIForBossLab`. Lệnh version, help, Gateway help, Gateway startup và authenticated `health` RPC đạt mà không dùng OAuth, API key provider, provider account, model call hoặc dữ liệu người dùng.
 
 Kết quả này chứng minh candidate OpenClaw có thể chạy trong lab. Nó chưa chứng minh AI for Boss installer, Gateway RPC adapter, provider auth, desktop shell hoặc sandbox sản phẩm.
 
@@ -18,7 +18,8 @@ Kết quả này chứng minh candidate OpenClaw có thể chạy trong lab. Nó
 
 - `/mnt/c` không phải mount point trước khi cài npm packages.
 - Windows interop bị tắt; `cmd.exe` không khả dụng trong distro.
-- Smoke commands chạy trong Linux network namespace không có network interface.
+- CLI smoke commands chạy trong Linux network namespace không có network interface.
+- Gateway contract smoke chạy trong namespace chỉ bật loopback, dùng token thử nghiệm sinh tạm trong memory, gọi `health`, hủy state tạm rồi terminate distro.
 - Distro được terminate sau cài đặt và sau lượt test độc lập.
 - Không dùng `wsl --shutdown`, không dừng tiến trình AI Coworker và không dùng profile OpenClaw trên host.
 
@@ -34,8 +35,10 @@ WSL2 chia sẻ kernel với host và có mạng trong giai đoạn tải package
 | pnpm | `11.2.2` | Pass |
 | `openclaw --help` | N/A | Pass |
 | `openclaw gateway --help` | N/A | Pass |
+| Gateway startup | Loopback, auth token | Pass |
+| Gateway `health` RPC | WebSocket text/JSON | Pass |
 | Provider auth/model call | N/A | Không chạy theo phạm vi |
-| Gateway RPC readiness | N/A | Chưa chạy theo phạm vi |
+| AI for Boss Adapter | N/A | Thuộc feature sau |
 
 ## Chuỗi cung ứng
 
@@ -45,18 +48,25 @@ WSL2 chia sẻ kernel với host và có mạng trong giai đoạn tải package
 - Repo có baseline CycloneDX SBOM. Lab xuất thêm full pnpm dependency tree và transitive license inventory.
 - `npm sbom` không được dùng làm bằng chứng full tree vì npm báo sai dependency khi đọc layout pnpm; không biến báo cáo lỗi thành pass.
 
-## Blocker upstream
+## Gỡ blocker release train
 
-Truy vấn npm chính thức ngày 2026-08-11 trả `E404` cho:
+Truy vấn npm chính thức ngày 2026-08-11 xác nhận hai package công khai không có
+bản stable cùng nhịp. Kiểm tra tiếp mã nguồn đúng tag cho thấy:
 
-- `@openclaw/gateway-client@2026.7.1-2`
-- `@openclaw/gateway-protocol@2026.7.1-2`
+- `packages/gateway-client/package.json` là `0.0.0-private`, `private: true`.
+- `packages/gateway-protocol/package.json` là `0.0.0-private`, `private: true`.
+- `docs/gateway/external-apps.md` ghi rõ chưa có public npm client package và
+  hướng dẫn external app dùng WebSocket transport cùng Gateway RPC.
 
-Hai package chỉ có các bản beta cùng nhịp mới hơn. Candidate manifest vì thế mang trạng thái `blocked`; không ghép beta với OpenClaw stable và không tuyên bố Gateway sản phẩm sẵn sàng.
+Do đó điều kiện chờ package stable là giả định sai của dự án. Manifest chuyển
+sang `locked` bằng npm integrity, tag/commit, protocol v4, doc blob và private
+workspace tree fingerprint. Beta vẫn bị cấm; Gateway Adapter sản phẩm vẫn chưa
+được tuyên bố hoàn thành.
 
 ## Evidence và rollback
 
 - Báo cáo máy: `artifacts/feature-0.2/lab/smoke-report.json`.
+- Báo cáo Gateway contract: `artifacts/feature-0.2/lab/gateway-contract-smoke.json`.
 - Cây dependency: `artifacts/feature-0.2/lab/dependency-tree.full.json`.
 - License transitive: `artifacts/feature-0.2/lab/licenses.full.json`.
 - Script kiểm tra luôn terminate đúng distro sau khi chạy.

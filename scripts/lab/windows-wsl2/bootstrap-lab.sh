@@ -122,9 +122,108 @@ run_smoke() {
     "${RUNTIME_ROOT}/node_modules/.bin/openclaw" "$@"
 }
 
+run_gateway_contract_smoke() {
+  local gateway_token
+  gateway_token="$(python3 -c 'import secrets; print(secrets.token_urlsafe(32))')"
+
+  export LAB_USER RUNTIME_ROOT NODE_ROOT PNPM_ROOT
+  export OPENCLAW_GATEWAY_TOKEN="${gateway_token}"
+  unshare --net -- bash <<'GATEWAY_SMOKE'
+set -Eeuo pipefail
+
+ip link set lo up
+
+lab_path="${NODE_ROOT}/bin:${PNPM_ROOT}/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+smoke_state="$(mktemp -d /tmp/aifb-gateway-state.XXXXXX)"
+gateway_log="$(mktemp /tmp/aifb-gateway-log.XXXXXX)"
+health_json="$(mktemp /tmp/aifb-gateway-health.XXXXXX)"
+chown "${LAB_USER}:${LAB_USER}" "${smoke_state}" "${gateway_log}" "${health_json}"
+port="$(python3 -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1",0)); print(s.getsockname()[1]); s.close()')"
+
+export HOME="/home/${LAB_USER}"
+export LANG="C.UTF-8"
+export PATH="${lab_path}"
+export OPENCLAW_CONFIG_PATH="${smoke_state}/openclaw.json"
+export OPENCLAW_DISABLE_BONJOUR="1"
+export OPENCLAW_EXEC_SHELL_SNAPSHOT="0"
+export OPENCLAW_NO_RESPAWN="1"
+export OPENCLAW_STATE_DIR="${smoke_state}"
+
+runuser --preserve-environment --user "${LAB_USER}" -- \
+  "${RUNTIME_ROOT}/node_modules/.bin/openclaw" gateway \
+  --allow-unconfigured \
+  --auth token \
+  --bind loopback \
+  --port "${port}" \
+  --ws-log compact \
+  run >"${gateway_log}" 2>&1 &
+gateway_pid=$!
+
+cleanup_gateway_smoke() {
+  kill "${gateway_pid}" 2>/dev/null || true
+  wait "${gateway_pid}" 2>/dev/null || true
+  unset OPENCLAW_GATEWAY_TOKEN
+  rm -rf -- "${smoke_state}"
+  rm -f -- "${gateway_log}" "${health_json}"
+}
+trap cleanup_gateway_smoke EXIT
+
+port_ready=0
+for _ in $(seq 1 50); do
+  if python3 -c 'import socket,sys; s=socket.create_connection(("127.0.0.1", int(sys.argv[1])), 0.2); s.close()' "${port}" 2>/dev/null; then
+    port_ready=1
+    break
+  fi
+  if ! kill -0 "${gateway_pid}" 2>/dev/null; then
+    cat "${gateway_log}" >&2
+    exit 1
+  fi
+  sleep 0.1
+done
+
+if [[ "${port_ready}" -ne 1 ]]; then
+  cat "${gateway_log}" >&2
+  exit 1
+fi
+
+runuser --preserve-environment --user "${LAB_USER}" -- \
+  "${RUNTIME_ROOT}/node_modules/.bin/openclaw" gateway health \
+  --port "${port}" \
+  --json \
+  --timeout 10000 >"${health_json}"
+
+python3 - "${health_json}" <<'PY'
+import datetime
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as handle:
+    health = json.load(handle)
+
+assert isinstance(health, dict)
+assert health.get("ok") is True
+
+print(json.dumps({
+    "schemaVersion": "1.0.0",
+    "generatedAt": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
+    "transport": "websocket-text-json",
+    "protocolVersion": 4,
+    "network": "isolated-loopback-only",
+    "auth": "ephemeral-memory-token",
+    "gatewayStarted": "pass",
+    "healthRpc": "pass",
+    "healthKeys": sorted(health.keys())
+}, ensure_ascii=False))
+PY
+GATEWAY_SMOKE
+
+  unset gateway_token
+}
+
 cli_version="$(run_smoke --version)"
 run_smoke --help >/dev/null
 run_smoke gateway --help >/dev/null
+run_gateway_contract_smoke >"${LAB_STATE}/evidence/gateway-contract-smoke.json"
 
 runuser -u "${LAB_USER}" -- env -i \
   HOME="/home/${LAB_USER}" \
@@ -154,7 +253,8 @@ jq --null-input \
     containment: {
       windowsDriveMounted: false,
       windowsInteropEnabled: false,
-      smokeNetworkNamespace: "isolated-no-network"
+      cliSmokeNetworkNamespace: "isolated-no-network",
+      gatewaySmokeNetworkNamespace: "isolated-loopback-only"
     },
     versions: {
       node: $nodeVersion,
@@ -166,13 +266,15 @@ jq --null-input \
       openclawVersion: "pass",
       openclawHelp: "pass",
       gatewayHelp: "pass",
+      gatewayStart: "pass",
+      gatewayHealthRpc: "pass",
       dependencyTreeGenerated: "pass",
       baselineCycloneDxSbom: "repo-artifact",
       transitiveLicenseInventoryGenerated: "pass"
     },
     limitations: [
       "No provider authentication or model call was performed.",
-      "Gateway help was checked; Gateway RPC readiness was not tested.",
+      "The health RPC used the OpenClaw CLI reference client; the AI for Boss Adapter is a later feature.",
       "This WSL2 lab is not a product sandbox decision."
     ]
   }' >"${LAB_STATE}/evidence/smoke-report.json"

@@ -8,7 +8,7 @@ AI for Boss là phần mềm AI coworker dành cho chủ doanh nghiệp. Sản p
 
 Dự án đang ở **Cổng 0, Feature 0.2 — Khóa release train**. OpenClaw `2026.7.1-2`, Node `24.19.0` và pnpm `11.2.2` đã qua smoke test không credential trong lab WSL2 riêng trên Windows x64. Electron `43.3.0` đã được khóa ở mức metadata.
 
-Feature 0.2 đang bị chặn bởi upstream: `@openclaw/gateway-client` và `@openclaw/gateway-protocol` chưa có bản stable cùng `2026.7.1-2`. Vì vậy chưa có release train hoàn chỉnh, bộ cài, OAuth, Gateway nhúng hoặc bản phát hành cho người dùng thật. Lab WSL2 chỉ là bằng chứng thử nghiệm và không phải sandbox sản phẩm.
+Feature 0.2 đã khóa release train `openclaw@2026.7.1-2` bằng npm integrity, git tag/commit và Gateway WebSocket RPC v4 được upstream công bố cho external app. Hai workspace package Gateway private chỉ được fingerprint làm tham chiếu, không bundle hoặc trộn beta. Repo vẫn chưa có desktop app, OAuth, installer, updater, sandbox sản phẩm hoặc bản phát hành cho người dùng thật; lab WSL2 chỉ là bằng chứng thử nghiệm.
 
 ## Nguyên tắc triển khai
 

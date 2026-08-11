@@ -197,13 +197,20 @@ Invoke-NativeChecked -FilePath 'wsl.exe' -ArgumentList @(
 )
 
 New-Item -ItemType Directory -Path $EvidenceRoot -Force | Out-Null
-foreach ($evidenceFile in @('smoke-report.json', 'dependency-tree.full.json', 'licenses.full.json')) {
+foreach ($evidenceFile in @('smoke-report.json', 'gateway-contract-smoke.json', 'dependency-tree.full.json', 'licenses.full.json')) {
     Export-LabEvidence -EvidenceFile $evidenceFile
 }
 
 $smoke = Get-Content -Raw (Join-Path $EvidenceRoot 'smoke-report.json') | ConvertFrom-Json
 if ($smoke.versions.openclawPackage -ne $ExpectedOpenClawVersion) {
     throw "Unexpected OpenClaw package version in smoke report: $($smoke.versions.openclawPackage)"
+}
+if ($smoke.checks.gatewayStart -ne 'pass' -or $smoke.checks.gatewayHealthRpc -ne 'pass') {
+    throw 'Gateway contract smoke did not pass.'
+}
+$gatewayContract = Get-Content -Raw (Join-Path $EvidenceRoot 'gateway-contract-smoke.json') | ConvertFrom-Json
+if ($gatewayContract.network -ne 'isolated-loopback-only' -or $gatewayContract.auth -ne 'ephemeral-memory-token') {
+    throw 'Gateway contract smoke containment evidence is invalid.'
 }
 }
 finally {

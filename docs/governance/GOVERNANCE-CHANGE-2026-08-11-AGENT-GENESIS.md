@@ -25,7 +25,7 @@ Loại thay đổi: `PRODUCT_DECISION` và bổ sung truy vết; không mở fea
 
 - Tài liệu đi kèm OpenClaw candidate `2026.7.1-2` đã được đọc trực tiếp.
 - `openclaw agents set-identity --help` trên candidate xác nhận đường CLI chính thức cho name/theme/emoji/avatar.
-- Metadata npm được kiểm tra lại ngày 2026-08-11: hai Gateway packages stable cùng nhịp vẫn chưa tồn tại; Feature 0.2 giữ trạng thái blocked.
+- Metadata npm được kiểm tra lại ở thời điểm bản vá này: hai Gateway packages public stable cùng nhịp chưa tồn tại. Kết luận “Feature 0.2 phải blocked” đã được supersede bởi D-0013 sau khi đọc hướng dẫn external-apps và package metadata private của đúng tag.
 - Tài liệu OpenClaw online đã thay đổi bootstrap flow so với package docs, nên contract phải khóa theo release train và có regression test.
 
 ## Security, privacy và blast radius

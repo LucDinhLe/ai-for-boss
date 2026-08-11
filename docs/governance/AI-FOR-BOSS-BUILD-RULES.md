@@ -2,7 +2,7 @@
 
 Ngày chốt: 2026-08-11  
 Chủ sản phẩm: Lê Đình Lực  
-Phiên bản tài liệu: 1.2 sau audit competitive parity và Always-on  
+Phiên bản tài liệu: 1.3 sau khóa Gateway contract được upstream hỗ trợ  
 Trạng thái: Nguồn quyết định duy nhất trước khi build
 
 ## 0. Hiệu lực
@@ -133,7 +133,7 @@ Phạm vi capability gồm:
 
 `hello-ok.features.methods` chỉ là danh sách khám phá bảo thủ và cố ý không liệt kê mọi RPC. Capability inventory bắt buộc được hợp nhất từ:
 
-1. `protocol.schema.json` và các gói `@openclaw/gateway-protocol`, `@openclaw/gateway-client` cùng release train.
+1. Hợp đồng Gateway công khai của đúng tag/commit stable: protocol version, WebSocket framing, RPC reference và schema build artifact khi upstream phát hành nó.
 2. Tài liệu RPC, provider, plugin và channel của đúng phiên bản đã khóa.
 3. `hello-ok.features.methods/events` ở runtime thực tế.
 4. Plugin/channel exports đã nạp.
@@ -261,7 +261,8 @@ Giao diện bắt buộc có tiếng Việt và tiếng Anh, sáng/tối, hỗ t
 AI for Boss Supervisor là thành phần duy nhất quản lý OpenClaw Gateway:
 
 - Chạy một bản cài OpenClaw đầy đủ trong `node_modules` cùng Node thật do app quản lý; không flatten `dist`, không vendor vài file rời và không dùng Electron binary thay Node.
-- Dùng đúng `@openclaw/gateway-client` và `@openclaw/gateway-protocol` của cùng release train với Gateway.
+- Dùng integration surface mà tài liệu external-apps của đúng release train công bố. Với `2026.7.1-2`, đó là WebSocket text/JSON và Gateway RPC; hai workspace package Gateway vẫn private nên chỉ được fingerprint làm tham chiếu, không bundle hoặc import.
+- Adapter do AI for Boss sở hữu phải validate frame, protocol, scope và response, đồng thời contract-test với Gateway thật. Khi upstream có public package stable và hướng dẫn cài chính thức, việc chuyển dependency phải qua ADR và regression test.
 - Dùng loopback cùng một cổng trống do Supervisor chọn; nếu gặp `EADDRINUSE` thì chọn cổng khác và thử lại có giới hạn.
 - Windows dùng named pipe cho IPC nội bộ.
 - macOS và Linux dùng Unix domain socket chỉ chủ tài khoản được truy cập.
@@ -458,7 +459,7 @@ Các tình huống nằm ngoài cam kết bảo vệ tuyệt đối gồm admini
 - Updater xác minh chữ ký, hash, channel và rollback manifest.
 - Plugin, skill và MCP có provenance, hash, quyền, quarantine và allowlist.
 - Không cập nhật OpenClaw trực tiếp trên máy khách ngoài một bản AI for Boss đã kiểm thử và ký.
-- OpenClaw, Gateway client, protocol package, Node và lockfile được khóa thành một release train. Mỗi lần nâng OpenClaw phải chạy protocol diff, capability diff, migration, backup/restore và rollback test trước khi promote.
+- OpenClaw, Node, Electron, package manager, lockfile và Gateway integration contract công khai được khóa thành một release train. Workspace package private được fingerprint nhưng không trở thành dependency. Mỗi lần nâng OpenClaw phải chạy protocol diff, capability diff, migration, backup/restore và rollback test trước khi promote.
 
 ### Đạo đức có thể kiểm thử
 

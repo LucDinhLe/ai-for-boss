@@ -22,11 +22,19 @@ Stop if any required file is missing, its governance hash fails, or the requeste
 
 ## Current scope
 
-The project is at **Gate 0, Feature 0.2 — Lock Release Train**.
+**Gate 0, Feature 0.2 — Lock Release Train is complete.** The next permitted
+feature is **0.3 — Capability and threat model**, but it must be opened in a new
+one-feature session with its own active Feature Spec before any change.
 
-This feature may research, pin and smoke-test upstream runtime artifacts, define the runtime manifest schema, and create the baseline SBOM/license inventory. It may create a disposable local lab that uses fake or empty data.
+Feature 0.3 may define the capability manifest, source-of-truth map, data flow,
+threat model, auth-support matrix and Agent Genesis contract boundaries. It may
+use public metadata and fake/empty test data.
 
-Do not add desktop application code, OAuth, provider connectors, installer/updater logic, production configuration, host execution, embedded production Gateway supervision or real credentials during Feature 0.2. The local lab is test containment evidence only; the product sandbox decision remains Feature 0.6.
+Do not add desktop application code, OAuth/provider implementations,
+installer/updater logic, production configuration, host execution, embedded
+production Gateway supervision or real credentials during Feature 0.3. The
+local lab is containment evidence only; the product sandbox decision remains
+Feature 0.6.
 
 ## Build discipline
 

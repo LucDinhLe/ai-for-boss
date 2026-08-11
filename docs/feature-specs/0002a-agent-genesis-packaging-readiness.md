@@ -78,7 +78,7 @@ Dự án có một bộ yêu cầu có thể kiểm thử cho nghi thức khai s
 ## 9. Kiểm thử
 
 - Governance validator: required files, lock hash, secret patterns, Markdown fence và relative links.
-- Runtime manifest validator: candidate vẫn validate và vẫn `blocked`.
+- Runtime manifest validator tại thời điểm feature docs-only này vẫn `blocked`. Trạng thái đã được supersede bởi D-0013 sau khi khóa external-app WebSocket RPC contract của đúng tag stable.
 - Git whitespace check.
 - Manual traceability: D-0008 → Rulebook → Master Plan → architecture → risk → release audit.
 - Source check: npm metadata và OpenClaw candidate CLI/help không được diễn giải vượt bằng chứng.

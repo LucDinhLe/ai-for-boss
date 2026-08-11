@@ -29,4 +29,9 @@ AI for Boss is an independent product built on OpenClaw. This baseline covers on
 
 ## Release limitation
 
-`@openclaw/gateway-client` and `@openclaw/gateway-protocol` do not have stable `2026.7.1-2` publications. They are not included in this baseline, and the candidate must not be described as a complete locked release train.
+At tag `v2026.7.1-2`, `@openclaw/gateway-client` and
+`@openclaw/gateway-protocol` are private workspace packages under the OpenClaw
+MIT repository. They are not separately bundled dependencies. Their source
+tree fingerprints are retained only to lock the documented Gateway contract;
+AI for Boss uses the public external-app WebSocket RPC surface and preserves
+OpenClaw attribution.

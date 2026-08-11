@@ -5,7 +5,7 @@
 - Cổng: 0
 - Owner kỹ thuật: Codex, chờ senior/security reviewer trước pilot
 - Product Owner: Lê Đình Lực
-- Trạng thái: In progress — blocked upstream
+- Trạng thái: Complete — release train locked, product runtime chưa được build
 - Ngày mở: 2026-08-11
 
 ## 2. Mục tiêu vận hành
@@ -17,7 +17,8 @@
 - Xác minh các dist-tag và metadata từ nguồn chính thức.
 - Chọn một OpenClaw stable sau smoke test không xác thực provider.
 - Khóa ứng viên Node LTS, Electron và package manager theo ràng buộc upstream.
-- Ghi trạng thái Gateway client/protocol cùng release train; không giả lập phiên bản stable chưa tồn tại.
+- Khóa hợp đồng Gateway được upstream hỗ trợ thật sự cho app ngoài: WebSocket text/JSON và RPC được công bố của đúng tag stable.
+- Ghi fingerprint hai workspace package Gateway private làm tham chiếu nguồn; không biến chúng thành dependency công khai hoặc bundle riêng.
 - Tạo `runtime-manifest` schema và manifest nền cho các OS/architecture mục tiêu.
 - Tạo SBOM nền, license inventory và third-party notice ở mức dependency trực tiếp đã chọn.
 - Tạo script dựng, kiểm tra và hướng dẫn gỡ phòng thử nghiệm WSL2 riêng trên Windows Home.
@@ -53,7 +54,7 @@
 | Trường hợp | Hành vi mong đợi |
 |---|---|
 | Dist-tag thay đổi giữa lúc làm | Dùng phiên bản và integrity đã chụp; không cài bằng tag động |
-| Gateway client/protocol không có stable cùng nhịp | Ghi `unavailable-upstream`, không ghép beta với stable và không hoàn tất release train giả |
+| Gateway client/protocol không có package public stable cùng nhịp | Đọc hướng dẫn external-apps của đúng tag; nếu upstream công bố WebSocket RPC là surface hỗ trợ thì khóa contract/tag/commit và giữ hai package private ở trạng thái `not-bundled`; nếu không có surface hỗ trợ thì dừng |
 | Tên WSL distro đã tồn tại | Dừng; không ghi đè hoặc unregister tự động |
 | Tải distro/package lỗi | Dừng, giữ log sạch secret và cho phép chạy lại idempotent |
 | Mạng rớt giữa chừng | Không đánh dấu smoke test đạt; package install phải xác minh integrity |
@@ -74,7 +75,8 @@
 ## 9. Quyết định có hệ quả
 
 - D-0006 sẽ ghi release candidate chỉ sau khi smoke test đạt.
-- Gateway client/protocol stable cùng nhịp hiện là blocker upstream cần lưu bằng chứng, không được lách bằng beta.
+- Hai workspace package Gateway ở tag stable là `0.0.0-private`. Chúng chỉ là source reference; dependency production là WebSocket RPC được OpenClaw công bố cho external app.
+- Beta npm package, private source vendoring và import hashed `dist` chunk đều bị cấm.
 - Phòng thử nghiệm WSL2 không thay đổi quyết định sandbox đang hoãn tới Feature 0.6.
 
 ## 10. Tiêu chí nghiệm thu
@@ -84,7 +86,8 @@
 - [x] Lab không tự mount ổ Windows và tắt Windows interop trước khi cài runtime.
 - [x] Không ảnh hưởng AI Coworker hoặc profile OpenClaw đã có trên host.
 - [x] Node, Electron và package manager có phiên bản cụ thể, nguồn và hash/integrity.
-- [x] Gateway client/protocol được khóa cùng release train hoặc ghi rõ `unavailable-upstream` có bằng chứng.
+- [x] Gateway contract được khóa vào tag/commit/protocol v4; hai workspace package private có tree fingerprint và trạng thái `not-bundled`.
+- [x] Gateway thật khởi động và `health` RPC đạt trong network namespace loopback-only bằng token thử nghiệm chỉ tồn tại trong bộ nhớ tiến trình.
 - [x] Runtime manifest schema validate manifest nền.
 - [x] SBOM nền, license inventory và third-party notice tồn tại.
 - [x] Script kiểm tra có test idempotency và fail-closed phù hợp.
@@ -94,7 +97,7 @@
 ## 11. Kế hoạch kiểm thử
 
 - Unit: kiểm tra helper và điều kiện fail-closed của script lab.
-- Contract: validate runtime manifest bằng JSON Schema; đối chiếu version/integrity với metadata chụp.
+- Contract: validate runtime manifest và Gateway contract lock bằng JSON Schema; đối chiếu version/integrity/tag/commit/tree fingerprint; test fail-closed cho beta, private-package drift và release train giả.
 - Integration: dựng distro riêng, harden, cài runtime và chạy `openclaw --version`/help/doctor phù hợp mà không auth.
 - Security/privacy: xác minh `/mnt/c` vắng mặt, Windows executable không gọi được, không credential/secret trong file hoặc log commit.
 - Kiểm tra bằng tay: xác minh AI Coworker vẫn chạy; distro có tên/đường dẫn riêng; báo cáo không tuyên bố vượt bằng chứng.
@@ -113,7 +116,7 @@ Repo quay về commit Feature 0.1. Với lab, dừng đúng distro, xác minh t�
 ## 14. Bằng chứng hoàn thành
 
 - Commit checkpoint: `486d7a420c4f305679e101f0d0cc3dca2695aa9d`.
-- Kết quả test: OpenClaw package/CLI `2026.7.1-2`, Node `24.19.0` và pnpm `11.2.2` đạt bằng frozen lockfile; host drive mount và Windows interop bị tắt; smoke chạy trong network namespace không mạng; lab dừng sau test. Test BasePath sai bị từ chối trước mutation; removal `-WhatIf` không xóa distro.
-- Blocker: npm E404 cho `@openclaw/gateway-client@2026.7.1-2` và `@openclaw/gateway-protocol@2026.7.1-2`; không promote manifest thành `locked` và không mở Feature 0.3.
+- Kết quả test: OpenClaw package/CLI `2026.7.1-2`, Node `24.19.0` và pnpm `11.2.2` đạt bằng frozen lockfile; host drive mount và Windows interop bị tắt; CLI smoke chạy trong network namespace không mạng. Gateway thật chạy trong namespace chỉ có loopback; authenticated `health` RPC đạt bằng token sinh tạm trong memory; lab dừng sau test. Test BasePath sai bị từ chối trước mutation; removal `-WhatIf` không xóa distro.
+- Gỡ blocker: mã nguồn chính thức tại tag `v2026.7.1-2` ghi rõ `@openclaw/gateway-client` và `@openclaw/gateway-protocol` là package private, đồng thời tài liệu `external-apps.md` chỉ định WebSocket RPC là đường hỗ trợ cho ứng dụng ngoài. Manifest được promote thành `locked` theo contract này, không ghép beta và không vendor private internals.
 - Reviewer: Codex self-review; cần senior/security review trước pilot thật.
 - Product Owner acceptance: Product Owner yêu cầu tải, cài thử nghiệm và cô lập rủi ro ngày 2026-08-11.

@@ -7,15 +7,15 @@ Phạm vi: Từ repo hiện tại tới sản phẩm cho người phổ thông t
 
 ## 1. Kết luận điều hành
 
-**AI for Boss chưa thể đóng gói hoặc phát hành cho người dùng.** Repo hiện có governance, runtime candidate, manifest/schema, license inventory nền và một phòng thử nghiệm WSL2. Repo chưa có desktop application code, Supervisor, Gateway Adapter, onboarding thật, sandbox sản phẩm, installer, updater hoặc artifact đã ký.
+**AI for Boss chưa thể đóng gói hoặc phát hành cho người dùng.** Repo hiện có governance, release train đã khóa, manifest/schema, Gateway contract lock, license inventory nền và một phòng thử nghiệm WSL2. Repo chưa có desktop application code, Supervisor, Gateway Adapter, onboarding thật, sandbox sản phẩm, installer, updater hoặc artifact đã ký.
 
-Blocker gần nhất vẫn tồn tại tại thời điểm audit:
+Update cùng ngày đã gỡ blocker Feature 0.2:
 
 - `openclaw` stable: `2026.7.1-2`.
-- `@openclaw/gateway-client` và `@openclaw/gateway-protocol`: dist-tag `latest` vẫn là placeholder `0.0.0`; chỉ có beta `2026.8.1-beta.1`.
-- Không được ghép OpenClaw stable với Gateway packages beta để tạo release train giả.
+- Hai workspace package Gateway trong đúng tag là `0.0.0-private`, `private: true`; tài liệu chính thức yêu cầu external app dùng WebSocket RPC công bố thay vì chờ public npm package.
+- Contract lock đã pin npm integrity, git tag/commit, protocol v4, doc blob và private workspace tree fingerprint. Gateway startup cùng authenticated `health` RPC đạt trong loopback-only lab.
 
-Do đó Feature 0.2 tiếp tục ở trạng thái `blocked upstream`. Bản vá hiện tại chỉ hoàn thiện yêu cầu, kiến trúc và đường phát hành; không tạo executable giả vờ hoàn chỉnh.
+Feature 0.2 chuyển sang `complete` và manifest thành `locked`. Beta, private source vendoring và hashed `dist` imports vẫn bị cấm. Việc gỡ blocker chỉ mở feature kế tiếp; không tạo executable giả vờ hoàn chỉnh.
 
 Audit competitive parity bổ sung cùng ngày xác nhận sản phẩm cũng chưa đạt hành trình ba bước, benchmark thị giác hoặc Headless implementation. Xem [Competitive parity, ba bước và Always-on](COMPETITIVE-PARITY-AND-HEADLESS-AUDIT-2026-08-11.md).
 
@@ -24,8 +24,8 @@ Audit competitive parity bổ sung cùng ngày xác nhận sản phẩm cũng ch
 | Lớp | Bằng chứng hiện tại | Trạng thái |
 |---|---|---|
 | Governance | Rulebook, Master Plan, AGENTS, Decision Log, Risk Register, Feature Spec | Có nền |
-| Upstream candidate | OpenClaw, Node, Electron, pnpm có version cụ thể | Một phần |
-| Runtime manifest | Schema và candidate manifest cho sáu tổ hợp nền tảng | Có nền, đang `blocked` |
+| Release train | OpenClaw, Node, Electron, pnpm và Gateway contract có version/hash cụ thể | Locked |
+| Runtime manifest | Schema và manifest cho sáu tổ hợp nền tảng | Locked, chưa có artifact sản phẩm |
 | License/SBOM | Inventory, third-party notice và SBOM nền | Có nền, chưa phải SBOM artifact cuối |
 | Lab | WSL2 riêng, không mount ổ Windows, không credential | Đạt mục tiêu Feature 0.2 |
 | Product UX | Prototype ba panel ngoài repo sản phẩm | Chỉ minh họa, chưa phải app |
@@ -35,17 +35,17 @@ Audit competitive parity bổ sung cùng ngày xác nhận sản phẩm cũng ch
 
 ## 3. Khoảng trống bắt buộc theo thứ tự
 
-### 3.1. Kết thúc Feature 0.2
+### 3.1. Feature 0.2 đã hoàn thành
 
-Phải có một release train thống nhất gồm OpenClaw, Node, Electron, package manager, Gateway client và protocol package cùng contract.
+Release train thống nhất gồm OpenClaw, Node, Electron, package manager và Gateway integration contract công khai của đúng tag stable.
 
-Các đường hợp lệ:
+Đường đã chọn:
 
-1. Chờ upstream phát hành Gateway packages stable cùng nhịp.
-2. Chuyển sang một OpenClaw stable mới hơn khi cả core và packages đã đồng bộ, rồi chạy lại toàn bộ smoke/license/SBOM.
-3. Làm việc với upstream để có distribution contract chính thức nếu packages tiếp tục không được phát hành.
+1. Dùng WebSocket text/JSON và RPC mà `docs/gateway/external-apps.md` công bố cho external app.
+2. Pin tag/commit, protocol/doc blob và tree fingerprint của workspace package private để phát hiện drift.
+3. Không bundle private package. AI for Boss Adapter thuộc feature sau và phải contract-test với Gateway thật.
 
-Đường bị cấm: dùng beta ghép stable, dùng placeholder `0.0.0`, chép riêng `dist` hoặc tự viết lại protocol từ output quan sát được.
+Đường bị cấm: dùng beta ghép stable, coi placeholder npm `0.0.0` là dependency, chép private package, import hashed `dist` hoặc tự viết giao thức khác tài liệu công khai.
 
 ### 3.2. Hoàn thành Cổng 0
 
@@ -59,7 +59,7 @@ Không được mở host exec, elevated hoặc browser nhạy cảm trước Fe
 ### 3.3. Tích hợp lõi Windows
 
 - Supervisor sở hữu OpenClaw process, profile, cổng động và recovery.
-- Gateway Adapter dùng package/schema đúng release train.
+- Gateway Adapter dùng WebSocket RPC contract, protocol v4 và schema/frame validator đúng release train.
 - Handshake, scope, health, `models.list`, reconnect, history và approval backfill.
 - OAuth/API key flow bằng tài khoản test chuyên dụng.
 - Secret không xuất hiện trong renderer, command line, log hoặc support bundle.
@@ -235,17 +235,16 @@ Mỗi OS/architecture được quảng cáo cần runner sạch và ít nhất m
 
 ## 11. Đường ngắn nhất tới bản người dùng tải được
 
-1. Gỡ blocker release train hoặc chuyển sang stable release đồng bộ.
-2. Hoàn thành Feature 0.3 đến 0.6 và review kiến trúc.
-3. Thuê hoặc chỉ định một desktop/platform engineer senior chịu trách nhiệm.
-4. Làm Windows x64 technical spike với Supervisor/Gateway Adapter.
-5. Hoàn thành onboarding, Agent Genesis, session/model/Advisor và recovery tối thiểu.
-6. Test ít nhất 10 người không kỹ thuật với dữ liệu giả; đạt hành trình ba bước và Cổng Worth-Building.
-7. Chọn và mua/thiết lập code-signing; build installer Windows x64 đã ký.
-8. Private alpha 20–30 người, có support và incident owner.
-9. Mở macOS/Linux theo dependency và máy test, không mở đồng thời bằng lời hứa.
-10. Spike Headless Linux single-tenant, remote access và restore trước khi quảng cáo Always-on.
-11. Pentest, legal review, signed release, staged rollout rồi mới public download.
+1. Hoàn thành Feature 0.3 đến 0.6 và review kiến trúc.
+2. Thuê hoặc chỉ định một desktop/platform engineer senior chịu trách nhiệm.
+3. Làm Windows x64 technical spike với Supervisor/Gateway Adapter.
+4. Hoàn thành onboarding, Agent Genesis, session/model/Advisor và recovery tối thiểu.
+5. Test ít nhất 10 người không kỹ thuật với dữ liệu giả; đạt hành trình ba bước và Cổng Worth-Building.
+6. Chọn và mua/thiết lập code-signing; build installer Windows x64 đã ký.
+7. Private alpha 20–30 người, có support và incident owner.
+8. Mở macOS/Linux theo dependency và máy test, không mở đồng thời bằng lời hứa.
+9. Spike Headless Linux single-tenant, remote access và restore trước khi quảng cáo Always-on.
+10. Pentest, legal review, signed release, staged rollout rồi mới public download.
 
 Đường này ưu tiên một bản Windows x64 có bằng chứng trước. Mục tiêu đa nền tảng vẫn giữ nguyên, nhưng mỗi platform được mở bằng test và chữ ký riêng.
 

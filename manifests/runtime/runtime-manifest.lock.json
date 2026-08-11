@@ -2,9 +2,9 @@
   "$schema": "./runtime-manifest.schema.json",
   "schemaVersion": "1.0.0",
   "productVersion": "0.0.0-dev",
-  "releaseTrainId": "oc-2026.7.1-2-candidate.1",
-  "generatedAt": "2026-08-11T13:18:42+07:00",
-  "status": "blocked",
+  "releaseTrainId": "oc-2026.7.1-2-locked.1",
+  "generatedAt": "2026-08-11T19:10:00+07:00",
+  "status": "locked",
   "components": [
     {
       "name": "openclaw",
@@ -48,23 +48,23 @@
     },
     {
       "name": "@openclaw/gateway-client",
-      "version": null,
+      "version": "0.0.0-private",
       "role": "gateway-client",
-      "status": "unavailable-upstream",
-      "source": "https://www.npmjs.com/package/@openclaw/gateway-client",
-      "integrity": null,
-      "license": null,
-      "notes": "Version 2026.7.1-2 returns npm E404; only beta train versions are published. Stable OpenClaw must not be mixed with a beta client."
+      "status": "not-bundled",
+      "source": "https://github.com/openclaw/openclaw/tree/v2026.7.1-2/packages/gateway-client",
+      "integrity": "git-tree-sha1-aa1cfc32a01dc8171037585cad6b2d93aace41be",
+      "license": "MIT",
+      "notes": "Private workspace reference at the pinned stable tag. OpenClaw explicitly tells external apps not to depend on this package; AI for Boss will use the documented WebSocket RPC surface."
     },
     {
       "name": "@openclaw/gateway-protocol",
-      "version": null,
+      "version": "0.0.0-private",
       "role": "gateway-protocol",
-      "status": "unavailable-upstream",
-      "source": "https://www.npmjs.com/package/@openclaw/gateway-protocol",
-      "integrity": null,
-      "license": null,
-      "notes": "Version 2026.7.1-2 returns npm E404; only beta train versions are published. Stable OpenClaw must not be mixed with a beta protocol package."
+      "status": "not-bundled",
+      "source": "https://github.com/openclaw/openclaw/tree/v2026.7.1-2/packages/gateway-protocol",
+      "integrity": "git-tree-sha1-0f8c8156d5352ee1c83fbed331c2082030bf0ac3",
+      "license": "MIT",
+      "notes": "Private workspace reference at the pinned stable tag. Protocol v4 is locked by the public Gateway documentation and source commit; the private package is not bundled or imported."
     }
   ],
   "platforms": [
@@ -134,12 +134,14 @@
     }
   ],
   "capabilities": [
-    "OpenClaw CLI metadata smoke test without provider authentication"
+    "OpenClaw CLI metadata smoke test without provider authentication",
+    "Documented OpenClaw Gateway WebSocket RPC contract v4 pinned to the stable source commit",
+    "Gateway startup and health RPC smoke test with an ephemeral in-memory token in a loopback-only network namespace"
   ],
   "knownLimitations": [
-    "Gateway client and protocol packages do not have a stable 2026.7.1-2 publication, so the release train is not locked.",
     "No AI for Boss application or installer artifact exists yet.",
-    "No provider authentication, model call, Gateway RPC contract or cross-platform desktop test is included.",
+    "The AI for Boss-owned Gateway Adapter, provider authentication, model call and cross-platform desktop tests begin in later features.",
+    "The private OpenClaw workspace packages are reference fingerprints only; beta npm packages and hashed private dist chunks are forbidden dependencies.",
     "The WSL2 lab is not the Feature 0.6 product sandbox decision."
   ]
 }

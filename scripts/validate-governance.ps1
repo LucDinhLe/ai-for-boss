@@ -33,7 +33,7 @@ $requiredFiles = @(
   'docs/licenses/sbom.baseline.cdx.json',
   'docs/licenses/THIRD_PARTY_NOTICES.md',
   'manifests/runtime/runtime-manifest.schema.json',
-  'manifests/runtime/runtime-manifest.candidate.json',
+  'manifests/runtime/runtime-manifest.lock.json',
   'manifests/runtime/openclaw-lab/package.json',
   'manifests/runtime/openclaw-lab/pnpm-workspace.yaml',
   'manifests/runtime/openclaw-lab/pnpm-lock.yaml',
@@ -42,7 +42,12 @@ $requiredFiles = @(
   'docs/governance/FINAL-AUDIT-2026-08-11.md',
   'docs/governance/GOVERNANCE-CHANGE-2026-08-11-AGENT-GENESIS.md',
   'docs/governance/GOVERNANCE-CHANGE-2026-08-11-PARITY-HEADLESS.md',
-  'docs/governance/GOVERNANCE-LOCK.json'
+  'docs/governance/GOVERNANCE-CHANGE-2026-08-11-GATEWAY-CONTRACT.md',
+  'docs/governance/GOVERNANCE-LOCK.json',
+  'manifests/runtime/gateway-contract.schema.json',
+  'manifests/runtime/gateway-contract.lock.json',
+  'tests/contract/release-train-contract.test.mjs',
+  'artifacts/feature-0.2/lab/gateway-contract-smoke.json'
 )
 
 foreach ($relativePath in $requiredFiles) {

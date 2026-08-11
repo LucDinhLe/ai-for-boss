@@ -8,13 +8,13 @@ Thang mức độ: `Critical`, `High`, `Medium`, `Low`.
 | R-002 | SecretRef broker chưa có contract test ba OS | Critical | Open | Platform/Security | Cổng 1 và Cổng 4 | Chưa triển khai broker; cấm fallback plaintext |
 | R-003 | OAuth và điều khoản provider thay đổi | High | Open | Product + Security/Legal | Mỗi connector | Auth-support record và live test bằng tài khoản chuyên dụng |
 | R-004 | Chưa có kỹ sư chịu trách nhiệm ngoài AI | Critical | Open | Product Owner | Trước pilot thật | Chỉ prototype và technical spike local bằng dữ liệu giả |
-| R-005 | OpenClaw release drift phá adapter | High | Open | Platform | Feature 0.2 trở đi | Candidate đã pin hash/version; release train chưa promote khi Gateway packages stable cùng nhịp còn thiếu |
+| R-005 | OpenClaw release drift phá adapter | High | Open | Platform | Feature 0.2 trở đi | Release train pin npm integrity, tag/commit, protocol/doc blob và private workspace tree; mọi nâng cấp chạy contract/protocol/capability diff |
 | R-006 | Repo vô tình chứa secret hoặc dữ liệu riêng | High | Mitigated | Mọi contributor | Mọi commit | `.gitignore`, governance check và review trước push |
 | R-007 | Hứa hỗ trợ thiết bị khi mới chỉ build CI | High | Open | Product + QA/Release | Cổng 4 | Chỉ công bố tổ hợp đã test trên máy thật |
 | R-008 | Một người xây tạo bus factor | High | Open | Product Owner | Trước pilot | Tài liệu, review độc lập và bàn giao theo cổng |
 | R-009 | Quyền cấp phép sản phẩm chưa chốt | Medium | Deferred | Product Owner + Legal | Trước Cổng 4 | Repo private, chưa cấp license |
 | R-010 | Advisor bị worker output thao túng | High | Open | Platform/Security | Cổng 2-3 | Session review riêng, read-only, schema và adversarial test |
-| R-011 | Gateway client/protocol stable cùng OpenClaw chưa được upstream phát hành | High | Open — blocking | Platform + Product Owner | Feature 0.2 | Giữ manifest `blocked`; không ghép beta với stable; kiểm tra lại dist-tag có kiểm soát |
+| R-011 | External-app contract bị hiểu sai thành public-package requirement | High | Mitigated — no longer blocking | Platform + Product Owner | Feature 0.2 và mọi upgrade | Dùng WebSocket RPC công khai của đúng tag; private package chỉ fingerprint, không bundle; CI cấm beta/private dist và drift |
 | R-012 | WSL2 lab chia sẻ kernel host và có mạng trong lúc tải dependency | Medium | Open | Platform/Security | Feature 0.6 | Không mount ổ Windows, tắt interop, không dùng credential, smoke trong network namespace không mạng và terminate sau test |
 | R-013 | Nhiều Agent dùng chung workspace làm ghi đè identity, memory hoặc file bootstrap | High | Mitigated by design, untested | Platform/Product | Feature 0.3 và 2.5 | Agent Home, `agentDir`, session và auth profile tách riêng; project grant riêng |
 | R-014 | Bootstrap bị xóa hoặc workspace bị coi là configured khi dữ liệu mới ghi một phần | High | Open | Platform | Feature 2.2 và 2.5 | Staging, readback, identity sync, health check; không tạo `memory/` sớm; crash resume idempotent |

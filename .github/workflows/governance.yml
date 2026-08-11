@@ -28,3 +28,6 @@ jobs:
 
       - name: Validate runtime manifest
         run: node ./scripts/validate-runtime-manifest.mjs
+
+      - name: Test release-train contract guards
+        run: node --test ./tests/contract/release-train-contract.test.mjs

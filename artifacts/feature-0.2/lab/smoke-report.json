@@ -1,11 +1,12 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-08-11T06:35:08Z",
+  "generatedAt": "2026-08-11T12:24:40Z",
   "lab": "AIForBossLab",
   "containment": {
     "windowsDriveMounted": false,
     "windowsInteropEnabled": false,
-    "smokeNetworkNamespace": "isolated-no-network"
+    "cliSmokeNetworkNamespace": "isolated-no-network",
+    "gatewaySmokeNetworkNamespace": "isolated-loopback-only"
   },
   "versions": {
     "node": "v24.19.0",
@@ -17,13 +18,15 @@
     "openclawVersion": "pass",
     "openclawHelp": "pass",
     "gatewayHelp": "pass",
+    "gatewayStart": "pass",
+    "gatewayHealthRpc": "pass",
     "dependencyTreeGenerated": "pass",
     "baselineCycloneDxSbom": "repo-artifact",
     "transitiveLicenseInventoryGenerated": "pass"
   },
   "limitations": [
     "No provider authentication or model call was performed.",
-    "Gateway help was checked; Gateway RPC readiness was not tested.",
+    "The health RPC used the OpenClaw CLI reference client; the AI for Boss Adapter is a later feature.",
     "This WSL2 lab is not a product sandbox decision."
   ]
 }

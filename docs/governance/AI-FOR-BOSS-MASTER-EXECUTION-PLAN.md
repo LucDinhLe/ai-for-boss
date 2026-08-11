@@ -2,8 +2,8 @@
 
 Ngày lập: 2026-08-11  
 Chủ sản phẩm: Lê Đình Lực  
-Phiên bản: 1.1  
-Trạng thái: Kế hoạch thi công trực thuộc Rulebook 1.2
+Phiên bản: 1.2  
+Trạng thái: Kế hoạch thi công trực thuộc Rulebook 1.3
 
 ## 0. Vai trò của tài liệu
 
@@ -15,7 +15,7 @@ Ba tài liệu có vai trò riêng:
 
 | Tài liệu | Trả lời |
 |---|---|
-| Rulebook 1.2 | Điều gì bắt buộc, điều gì bị cấm, cổng nào phải qua |
+| Rulebook 1.3 | Điều gì bắt buộc, điều gì bị cấm, cổng nào phải qua |
 | Master Execution Plan | Xây theo lớp nào, thứ tự nào, dùng phần nào của OpenClaw, nghiệm thu ra sao |
 | Feature Spec và Decision Log | Phiên build hiện tại làm đúng việc gì và đã chốt lựa chọn nào |
 
@@ -229,7 +229,8 @@ CI phải thất bại khi:
 - Upstream thêm, xóa hoặc đổi capability nhưng manifest chưa được phân loại.
 - Capability đang quảng cáo mất test trên một nền tảng.
 - Một feature dùng state riêng của OpenClaw ngoài contract.
-- Gateway client, protocol package và OpenClaw lệch release train.
+- OpenClaw, protocol version, public RPC docs hoặc source fingerprint lệch Gateway contract lock.
+- Adapter nhập package private, hashed `dist` chunk hoặc beta package không được release train cho phép.
 
 Không dùng riêng `hello-ok.features.methods` làm danh sách đầy đủ. Nó chỉ là một tín hiệu runtime trong nhiều nguồn.
 
@@ -240,7 +241,8 @@ Sau khi Cổng 0 đạt, dự án vận hành theo mười một luồng có dep
 ### Luồng A. Upstream và hợp đồng tương thích
 
 - Chọn một OpenClaw stable release.
-- Khóa Node, Electron, package manager, Gateway client và protocol.
+- Khóa Node, Electron, package manager và Gateway integration surface công khai của đúng tag/commit.
+- Fingerprint workspace package private để phát hiện drift; không bundle hoặc lấy chúng làm dependency.
 - Tạo runtime manifest, capability manifest và license inventory.
 - Tạo protocol diff, capability diff và migration test khi nâng phiên bản.
 
@@ -645,7 +647,7 @@ Sau Feature 0.1, thứ tự là 0.2, 0.3, 0.4, 0.5 và 0.6. Chỉ sau khi Cổng
 
 - [OpenClaw Gateway protocol](https://docs.openclaw.ai/gateway/protocol)
 - [Embedding OpenClaw](https://docs.openclaw.ai/gateway/embedding)
-- [Building a Gateway client](https://docs.openclaw.ai/gateway/clients)
+- [Gateway integrations for external apps](https://docs.openclaw.ai/gateway/external-apps)
 - [OpenClaw capabilities overview](https://docs.openclaw.ai/tools)
 - [OpenClaw provider directory](https://docs.openclaw.ai/providers)
 - [OpenClaw plugins](https://docs.openclaw.ai/plugins)

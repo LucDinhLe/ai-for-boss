@@ -6,7 +6,8 @@ This lab installs a pinned OpenClaw candidate in a dedicated Ubuntu 24.04 WSL2 d
 
 - The distribution is stored under `%LOCALAPPDATA%\AIForBoss\Lab\WSL\AIForBossLab`, outside OneDrive and outside existing AI Coworker/OpenClaw profiles.
 - Windows drive automount and Windows executable interop are disabled before any npm package is installed.
-- Smoke commands run inside a temporary Linux network namespace with no network interface.
+- CLI smoke commands run inside a temporary Linux network namespace with no network interface.
+- Gateway contract smoke brings up only the loopback interface, starts a real Gateway with an ephemeral in-memory token, calls `health`, then destroys the temporary state.
 - The distro is terminated after installation and tests.
 - No OAuth, API key, provider account, model call or user data is used.
 
@@ -21,7 +22,7 @@ Run from an elevated PowerShell only after reviewing the scripts:
 .\scripts\lab\windows-wsl2\Test-AIForBossLab.ps1
 ```
 
-The install script creates a smoke report, a full pnpm dependency tree and a transitive license inventory under `artifacts/feature-0.2/lab/`, then stops the distro. The baseline CycloneDX SBOM is tracked separately under `docs/licenses/`. The script is safe to rerun against the same named lab; it never overwrites a differently named distro.
+The install script creates a smoke report, a Gateway contract report, a full pnpm dependency tree and a transitive license inventory under `artifacts/feature-0.2/lab/`, then stops the distro. The baseline CycloneDX SBOM is tracked separately under `docs/licenses/`. The script is safe to rerun against the same named lab; it never overwrites a differently named distro.
 
 ## Rollback
 

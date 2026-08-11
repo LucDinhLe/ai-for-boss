@@ -11,7 +11,7 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Decision Log, Risk Register, Feature Spec template và quy tắc đóng góp.
 - Kiểm tra tự động cho governance lock, tài liệu bắt buộc và dấu hiệu bí mật.
 - Cấu trúc thư mục dự kiến cho desktop, Supervisor, OpenClaw Adapter, policy và test.
-- Feature 0.2 candidate manifest, JSON Schema, baseline SBOM, license inventory và third-party notice.
+- Feature 0.2 runtime manifest, JSON Schema, baseline SBOM, license inventory và third-party notice; manifest được rename thành `runtime-manifest.lock.json` sau khi contract đạt.
 - Bộ script tạo, harden, kiểm tra và gỡ có xác nhận cho WSL2 lab `AIForBossLab`.
 - Smoke evidence cho OpenClaw `2026.7.1-2`, Node `24.19.0` và pnpm `11.2.2` không dùng credential.
 - Đặc tả Agent Genesis: bootstrap một lần, identity sync, crash resume và xóa `BOOTSTRAP.md` sau validation.
@@ -24,11 +24,15 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Hành trình ba bước từ tải/cài tới giao việc đầu tiên cùng Cổng Worth-Building có chỉ số usability/visual cụ thể.
 - Advisor hai checkpoint: phản biện kế hoạch trước thực thi và kiểm tra đầu cuối trước bàn giao.
 - Kiến trúc Always-on single-tenant trên Linux, remote access riêng tư, health, auto-restart, backup và rollback.
+- Gateway contract lock gồm npm integrity, tag/commit, protocol v4, doc blob và private workspace tree fingerprint.
+- Contract tests fail-closed khi stable train lẫn beta, private package bị bundle, fingerprint drift hoặc policy đòi public package trái tài liệu upstream.
+- Gateway startup và authenticated `health` RPC smoke trong network namespace chỉ có loopback bằng token tạm trong memory.
 
 ### Changed
 
 - Concept **La bàn quyết định** chuyển sang trạng thái rejected; icon production để feature thương hiệu sau.
 - Rulebook lên 1.2 và Master Execution Plan lên 1.1 để thêm parity gate, hành trình ba bước và Headless track.
+- Rulebook lên 1.3 và Master Execution Plan lên 1.2 để dùng external-app WebSocket RPC contract mà OpenClaw stable thực sự hỗ trợ.
 
 ### Security
 
@@ -47,7 +51,10 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - OpenClaw package/CLI version, help và Gateway help chạy đạt trong lab; AI Coworker trên host vẫn hoạt động.
 - Lượt cài lại bằng frozen lockfile, kiểm tra BasePath fail-closed và removal `-WhatIf` đều đạt.
 
+### Unblocked
+
+- Feature 0.2 đã promote thành `locked`. Blocker package npm được loại vì upstream stable xác nhận hai package vẫn private và chỉ định WebSocket RPC cho external app.
+
 ### Blocked
 
-- Feature 0.2 chưa thể promote vì hai package Gateway stable `2026.7.1-2` chưa tồn tại trên npm; beta không được trộn vào stable.
-- Chưa có desktop code, Supervisor, Gateway Adapter, sandbox sản phẩm, installer, updater hoặc signing identity; chưa được phát hành cho người dùng.
+- Chưa có desktop code, Supervisor, AI for Boss Gateway Adapter, sandbox sản phẩm, installer, updater hoặc signing identity; chưa được phát hành cho người dùng.

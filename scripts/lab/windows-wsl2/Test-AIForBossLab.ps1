@@ -32,6 +32,9 @@ try {
     Invoke-WslCheck 'test "$(PATH=/opt/ai-for-boss-lab/toolchain/node-v24.19.0-linux-x64/bin:/opt/ai-for-boss-lab/toolchain/pnpm-11.2.2/bin:/usr/bin:/bin pnpm --version)" = "11.2.2"'
     Invoke-WslCheck 'test "$(/opt/ai-for-boss-lab/toolchain/node-v24.19.0-linux-x64/bin/node --eval "console.log(require(\"/opt/ai-for-boss-lab/runtime/node_modules/openclaw/package.json\").version)")" = "2026.7.1-2"'
     Invoke-WslCheck 'test -s /var/lib/ai-for-boss-lab/evidence/smoke-report.json'
+    Invoke-WslCheck 'test -s /var/lib/ai-for-boss-lab/evidence/gateway-contract-smoke.json'
+    Invoke-WslCheck 'test $(jq -r .checks.gatewayStart /var/lib/ai-for-boss-lab/evidence/smoke-report.json) = pass && test $(jq -r .checks.gatewayHealthRpc /var/lib/ai-for-boss-lab/evidence/smoke-report.json) = pass'
+    Invoke-WslCheck 'test $(jq -r .gatewayStarted /var/lib/ai-for-boss-lab/evidence/gateway-contract-smoke.json) = pass && test $(jq -r .healthRpc /var/lib/ai-for-boss-lab/evidence/gateway-contract-smoke.json) = pass && test $(jq -r .network /var/lib/ai-for-boss-lab/evidence/gateway-contract-smoke.json) = isolated-loopback-only && test $(jq -r .auth /var/lib/ai-for-boss-lab/evidence/gateway-contract-smoke.json) = ephemeral-memory-token'
     Invoke-WslCheck 'test -s /var/lib/ai-for-boss-lab/evidence/dependency-tree.full.json'
     Invoke-WslCheck 'test -s /var/lib/ai-for-boss-lab/evidence/licenses.full.json'
 }

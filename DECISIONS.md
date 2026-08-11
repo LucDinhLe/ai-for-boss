@@ -50,15 +50,18 @@ Các quyết định sau tiếp tục theo Decision Register của Rulebook:
 - Giá và license thương mại trước Cổng 5.
 - Control plane provider trước Cổng 7.
 
-## D-0006. Release train stable bị chặn một phần
+## D-0006. Release train stable bị chặn một phần — superseded bởi D-0013
 
 - Ngày: 2026-08-11
 - Owner: Codex kỹ thuật; cần Product Owner và senior/security reviewer trước khi promote
 - Nhãn: `GATED_HYPOTHESIS`
-- Trạng thái: Chấp nhận làm candidate, chưa promote
+- Trạng thái: Superseded ngày 2026-08-11 sau khi đọc integration guidance của đúng tag stable
 - Quyết định: Khóa OpenClaw `2026.7.1-2`, Node `24.19.0`, Electron `43.3.0` và pnpm `11.2.2` trong candidate manifest. OpenClaw, Node và pnpm đã qua smoke test trong lab WSL2 không credential; Electron hiện mới khóa metadata.
 - Hệ quả: Candidate không được gọi là release train hoàn chỉnh vì `@openclaw/gateway-client@2026.7.1-2` và `@openclaw/gateway-protocol@2026.7.1-2` trả npm E404. Không ghép beta `2026.8.1-beta.1` vào stable và không mở Feature 0.3.
 - Phương án bị loại: Dùng dist-tag động; dùng snapshot nghiên cứu `2026.8.1`; ghép OpenClaw stable với Gateway packages beta; coi gói `0.0.0` placeholder là production.
+
+Giả định “phải có public package stable” trong quyết định này bị sửa bởi D-0013.
+Các lệnh cấm trộn beta và coi placeholder là production vẫn giữ nguyên.
 
 ## D-0007. WSL2 chỉ là phòng thử nghiệm Feature 0.2
 
@@ -119,3 +122,13 @@ Các quyết định sau tiếp tục theo Decision Register của Rulebook:
 - Quyết định: Bổ sung mode Always-on chạy trên host Linux riêng do khách sở hữu/thuê. Mỗi khách hoặc nhóm thật sự cùng biên tin cậy dùng một runtime/Gateway hoàn chỉnh; không shared Gateway hoặc session-ID tenancy.
 - Hệ quả: Gateway loopback-only; Tailscale/SSH là default trước khi HTTPS remote được audit. Cần non-root service, one-time claim, device pairing/revoke, health, auto-restart, backup/restore, signed update và remote security tests.
 - Phương án bị loại: Shared multi-tenant Gateway; công khai Gateway ra Internet; khóa provider cloud trước ADR; bắt đầu bằng Kubernetes/Fleet experimental.
+
+## D-0013. Khóa Gateway bằng external-app contract công khai
+
+- Ngày: 2026-08-11
+- Owner: Lê Đình Lực yêu cầu giải blocker; Codex xác minh kỹ thuật
+- Nhãn: `VERIFIED_UPSTREAM`
+- Trạng thái: Chấp nhận
+- Quyết định: Với OpenClaw `2026.7.1-2`, AI for Boss dùng WebSocket text/JSON và Gateway RPC được tài liệu `external-apps.md` của đúng tag công bố. `@openclaw/gateway-client` và `@openclaw/gateway-protocol` ở tag stable là workspace package `0.0.0-private`, chỉ được ghi tree fingerprint làm tham chiếu; không bundle, vendor hoặc import.
+- Hệ quả: Release train được khóa bằng npm integrity, git tag/commit, protocol v4, doc blob và private-package tree fingerprint. Adapter thuộc AI for Boss, phải validate contract và test với Gateway thật. Feature 0.2 hết blocker nhưng chưa tạo desktop app hoặc installer.
+- Phương án bị loại: Chờ package public không được upstream hứa ngày; ghép beta; sao chép private package; import hashed `dist`; đọc private state; tự chế giao thức khác tài liệu.
