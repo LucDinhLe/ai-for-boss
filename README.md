@@ -6,12 +6,13 @@ AI for Boss là phần mềm AI coworker dành cho chủ doanh nghiệp. Sản p
 
 ## Trạng thái
 
-Dự án đã local-verify **Cổng 0, Feature 0.5 — First-run journey ba bước** từ
-commit Feature 0.4 đã xác minh `58c5283`. Cross-platform CI của Feature 0.5,
-human usability và senior platform/security review vẫn đang chờ.
+Dự án đã verify **Cổng 0, Feature 0.5 — First-run journey ba bước** từ commit
+Feature 0.4 đã xác minh `58c5283`. Draft PR #5 xanh 4/4 trên Windows, macOS,
+Linux và governance; human usability cùng senior platform/security review vẫn
+đang chờ.
 OpenClaw `2026.7.1-2`, Node `24.19.0`, Electron `43.3.0` và pnpm `11.2.2`
 được khóa theo release train. Desktop shell Electron/React đã build và package
-được trên Windows x64; CI Windows, macOS và Linux đã xanh trên draft PR #4.
+được trên Windows x64; CI Windows, macOS và Linux đã xanh trên Draft PR #4 và #5.
 
 Feature 0.2 đã khóa release train `openclaw@2026.7.1-2` bằng npm integrity, git tag/commit và Gateway WebSocket RPC v4 được upstream công bố cho external app. Hai workspace package Gateway private chỉ được fingerprint làm tham chiếu, không bundle hoặc trộn beta. Repo vẫn chưa có desktop app, OAuth, installer, updater, sandbox sản phẩm hoặc bản phát hành cho người dùng thật; lab WSL2 chỉ là bằng chứng thử nghiệm.
 

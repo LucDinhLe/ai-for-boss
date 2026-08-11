@@ -22,9 +22,9 @@ Stop if any required file is missing, its governance hash fails, or the requeste
 
 ## Current scope
 
-**Gate 0, Feature 0.5 — First-run journey is active** from the verified Feature
-0.4 commit `58c5283`. Independent senior platform/security review remains a
-Gate 0 requirement. The active Feature Spec is
+**Gate 0, Feature 0.5 — First-run journey is implemented and verified** from
+the Feature 0.4 commit `58c5283`; Draft PR #5 remains unmerged. Independent
+senior platform/security review remains a Gate 0 requirement. The Feature Spec is
 `docs/feature-specs/0005-first-run-journey.md`.
 
 Feature 0.4 contains the Electron shell, sandboxed renderer, minimal preload

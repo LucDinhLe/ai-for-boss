@@ -53,7 +53,11 @@ nên QA hình dùng Chrome headless trên build cục bộ. Ảnh chứng minh l
 usability test, screen-reader run hoặc independent visual review.
 
 Máy local dùng Node `24.18.0`, thấp hơn release train một patch. CI Node
-`24.19.0` là bằng chứng chuẩn đa nền tảng và đã đạt cho commit Feature 0.5.
+`24.19.0` là bằng chứng chuẩn đa nền tảng và đã đạt cho commit `fd8857d`:
+
+- Verify Windows/macOS/Linux: run `31514628894`.
+- Governance và secret hygiene: run `31514628945`.
+- Draft PR #5, base `feature/0.4-app-shell-ci`, chưa merge.
 
 ## Phần chưa kết nối và cổng còn mở
 
