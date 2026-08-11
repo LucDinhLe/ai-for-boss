@@ -7,6 +7,8 @@
 - Product Owner: Lê Đình Lực
 - Trạng thái: Complete — local contract verification đạt; independent senior/security review còn là Cổng 0
 - Ngày mở: 2026-08-11
+- Sửa lỗi đóng feature: đồng bộ trạng thái release train/Feature 0.3 trong
+  Master Plan và readiness audit; thêm guard chống trạng thái cũ quay lại
 
 ## 2. Mục tiêu vận hành
 
@@ -98,6 +100,8 @@ Feature này cũng xác định các luồng dữ liệu cùng mô hình đe d�
 - [x] Unit/contract tests, governance validation, secret scan, whitespace và manual review đạt.
 - [x] `AGENTS.md`, `CHANGELOG.md`, `DECISIONS.md`, `RISKS.md` và governance required-file list được cập nhật phù hợp.
 - [x] Có rollback về commit Feature 0.2 và checkpoint Git hoàn tác được.
+- [x] Master Plan và readiness audit phản ánh release train đã khóa cùng
+  Feature 0.3 đã hoàn thành; governance validator từ chối trạng thái cũ.
 
 ## 11. Kế hoạch kiểm thử
 
@@ -121,6 +125,6 @@ Quay về commit cuối của Feature 0.2 hoặc revert commit Feature 0.3. Toà
 ## 14. Bằng chứng hoàn thành
 
 - Commit checkpoint: `555659c` (`feat(governance): define capability and threat contracts`).
-- Kết quả test: Feature 0.3 validator đạt 23 capability, 9 auth mode, 9 nguồn, 8 flow và 14 threat; contract suite 19/19, governance, runtime validation, secret scan và whitespace đạt.
+- Kết quả test: Feature 0.3 validator đạt 23 capability, 9 auth mode, 9 nguồn, 8 flow và 14 threat; contract suite 22/22 gồm governance-status guards, governance, runtime validation, secret scan và whitespace đạt.
 - Reviewer: Codex self-review và source-path audit 58/58; bắt buộc senior platform/security review trước khi qua Cổng 0/pilot thật.
 - Product Owner acceptance: Product Owner cho phép triển khai bước tiếp theo ngày 2026-08-11.

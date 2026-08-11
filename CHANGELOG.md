@@ -36,6 +36,9 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 ### Changed
 
+- Đồng bộ Master Plan và product-readiness audit với release train đã khóa cùng
+  trạng thái hoàn thành theo contract của Feature 0.3; thêm governance guard
+  để trạng thái `Chưa khóa` cũ không quay lại.
 - Concept **La bàn quyết định** chuyển sang trạng thái rejected; icon production để feature thương hiệu sau.
 - Rulebook lên 1.2 và Master Execution Plan lên 1.1 để thêm parity gate, hành trình ba bước và Headless track.
 - Rulebook lên 1.3 và Master Execution Plan lên 1.2 để dùng external-app WebSocket RPC contract mà OpenClaw stable thực sự hỗ trợ.
@@ -53,13 +56,15 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 ### Verified
 
+- Audit đóng Feature 0.3 xác nhận chuỗi tài liệu không còn ghi release train
+  `Chưa khóa` hoặc liệt kê Feature 0.3 như việc còn chờ.
 - Governance validation đạt trên máy local và GitHub Actions.
 - Rulebook và Master Plan giữ đúng SHA-256 trong governance lock.
 - Nhánh `main` của kho private `LucDinhLe/ai-for-boss` đồng bộ với commit nền.
 - OpenClaw package/CLI version, help và Gateway help chạy đạt trong lab; AI Coworker trên host vẫn hoạt động.
 - Lượt cài lại bằng frozen lockfile, kiểm tra BasePath fail-closed và removal `-WhatIf` đều đạt.
 - 58 đường nguồn upstream được tham chiếu trong capability/auth manifest đều tồn tại trong đúng npm package OpenClaw `2026.7.1-2` trên máy kiểm tra.
-- Feature 0.3 validator đạt 23 capability, 9 auth mode, 9 nguồn sự thật, 8 data flow và 14 threat; tổng contract suite đạt 19/19.
+- Feature 0.3 validator đạt 23 capability, 9 auth mode, 9 nguồn sự thật, 8 data flow và 14 threat; tổng contract suite đạt 22/22, gồm guard trạng thái governance.
 
 ### Unblocked
 

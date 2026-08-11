@@ -29,11 +29,8 @@ jobs:
       - name: Validate runtime manifest
         run: node ./scripts/validate-runtime-manifest.mjs
 
-      - name: Test release-train contract guards
-        run: node --test ./tests/contract/release-train-contract.test.mjs
+      - name: Test all contract guards
+        run: node --test ./tests/contract/*.test.mjs
 
       - name: Validate Feature 0.3 capability and threat contracts
         run: node ./scripts/validate-feature-0.3.mjs
-
-      - name: Test Feature 0.3 fail-closed guards
-        run: node --test ./tests/contract/capability-threat-model-contract.test.mjs

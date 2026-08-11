@@ -65,7 +65,8 @@ $requiredFiles = @(
   'manifests/security/threat-model.schema.json',
   'manifests/security/threat-model.manifest.json',
   'scripts/validate-feature-0.3.mjs',
-  'tests/contract/capability-threat-model-contract.test.mjs'
+  'tests/contract/capability-threat-model-contract.test.mjs',
+  'tests/contract/governance-status-contract.test.mjs'
 )
 
 foreach ($relativePath in $requiredFiles) {
@@ -109,6 +110,35 @@ if (Test-Path -LiteralPath $agentsPath -PathType Leaf) {
     if (-not $agentsText.Contains($term)) {
       Add-Failure "AGENTS.md is missing required startup term: $term"
     }
+  }
+}
+
+$masterPlanPath = Join-Path $repoRoot 'docs/governance/AI-FOR-BOSS-MASTER-EXECUTION-PLAN.md'
+if (Test-Path -LiteralPath $masterPlanPath -PathType Leaf) {
+  $masterPlanText = Get-Content -LiteralPath $masterPlanPath -Raw
+  $requiredMasterPlanTerms = @(
+    'release train `oc-2026.7.1-2-locked.1`',
+    '| Phiên bản OpenClaw stable được khóa | Feature 0.2 | Đã khóa trong release train `oc-2026.7.1-2-locked.1`:',
+    '**Trạng thái:** Hoàn thành ở mức hợp đồng và kiểm tra cục bộ.'
+  )
+  foreach ($term in $requiredMasterPlanTerms) {
+    if (-not $masterPlanText.Contains($term)) {
+      Add-Failure "Master Plan is missing current release/feature status: $term"
+    }
+  }
+  if ($masterPlanText.Contains('| Phiên bản OpenClaw stable được khóa | Feature 0.2 | Chưa khóa |')) {
+    Add-Failure 'Master Plan still marks the locked Feature 0.2 release train as unresolved'
+  }
+}
+
+$readinessAuditPath = Join-Path $repoRoot 'docs/release/PRODUCT-READINESS-AUDIT-2026-08-11.md'
+if (Test-Path -LiteralPath $readinessAuditPath -PathType Leaf) {
+  $readinessAuditText = Get-Content -LiteralPath $readinessAuditPath -Raw
+  if (-not $readinessAuditText.Contains('Feature 0.3 đã hoàn thành ở mức contract.')) {
+    Add-Failure 'Product readiness audit does not record Feature 0.3 contract completion'
+  }
+  if ($readinessAuditText.Contains('Hoàn thành Feature 0.3 đến 0.6')) {
+    Add-Failure 'Product readiness audit still lists completed Feature 0.3 as pending'
   }
 }
 
