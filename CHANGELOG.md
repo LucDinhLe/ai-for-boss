@@ -33,6 +33,11 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Agent Genesis contract khóa 7 reference template, state machine crash-resume, activation preconditions và ba vùng Agent Home/`agentDir`/Không gian dự án.
 - Threat model gồm 10 tài sản, 10 tác nhân, 10 trust boundary và 14 abuse case truy vết về Risk Register.
 - Validator và 14 contract tests Feature 0.3 fail-closed khi capability thiếu, release drift, private package source, OAuth storage sai, nguồn sự thật trùng, threat mất trace hoặc bootstrap bị làm yếu.
+- Electron/React desktop shell Feature 0.4 với giao diện Editorial Calm ba panel, Việt/Anh, sáng/tối và hành trình ba bước hiển thị trạng thái thật.
+- Main/preload boundary chỉ đọc một safe contract summary; deny popup, navigation ngoài, webview và permission mặc định.
+- Workspace pnpm khóa exact dependency, Vite build, Electron package, artifact inventory và ASAR content allowlist.
+- CI matrix tạo artifact `experimental-internal` riêng trên Windows, macOS và Linux bằng Node `24.19.0` và pnpm `11.2.2`.
+- 8 phép thử Feature 0.4 cho contract generator, Electron security boundary, CSP và renderer IPC allowlist; tổng suite tăng lên 30 test.
 
 ### Changed
 
@@ -42,6 +47,8 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Concept **La bàn quyết định** chuyển sang trạng thái rejected; icon production để feature thương hiệu sau.
 - Rulebook lên 1.2 và Master Execution Plan lên 1.1 để thêm parity gate, hành trình ba bước và Headless track.
 - Rulebook lên 1.3 và Master Execution Plan lên 1.2 để dùng external-app WebSocket RPC contract mà OpenClaw stable thực sự hỗ trợ.
+- Script package gọi pnpm qua Corepack để không phụ thuộc bản toàn cục trên máy; TypeScript khóa `6.0.3` theo dải peer support của `typescript-eslint`.
+- Governance scan bỏ qua `node_modules`, `dist` và `out` sinh lại được, đồng thời yêu cầu toàn bộ hồ sơ Feature 0.4.
 
 ### Security
 
@@ -53,6 +60,8 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Bootstrap fail-closed: chưa xác minh thì chưa xóa file, chưa tạo memory sớm và chưa báo Agent sẵn sàng.
 - Mọi capability Feature 0.3 bị khóa `advertisable: false`; Critical/High threat không được đóng bằng mô tả và tiếp tục chặn phát hành cho tới khi có test thực thi.
 - Static secret, OAuth token, CLI credential và plugin-owned auth có storage authority riêng; cấm plaintext/silent fallback.
+- Renderer Feature 0.4 không có Node, network, webview hay mutable IPC; production DevTools tắt và contract lỗi chuyển degraded state.
+- ASAR validator fail-closed nếu package lẫn source, dependency tree hoặc source map; artifact vẫn unsigned và non-distributable.
 
 ### Verified
 
@@ -65,6 +74,8 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Lượt cài lại bằng frozen lockfile, kiểm tra BasePath fail-closed và removal `-WhatIf` đều đạt.
 - 58 đường nguồn upstream được tham chiếu trong capability/auth manifest đều tồn tại trong đúng npm package OpenClaw `2026.7.1-2` trên máy kiểm tra.
 - Feature 0.3 validator đạt 23 capability, 9 auth mode, 9 nguồn sự thật, 8 data flow và 14 threat; tổng contract suite đạt 22/22, gồm guard trạng thái governance.
+- Local Feature 0.4 đạt lint, typecheck, Vite build, 30/30 test, dependency audit, Windows x64 package và process/visual smoke ở 1440×900 cùng 1024×768.
+- Windows ASAR có 13 mục allowlist, SHA-256 `773b901aeefc4d027b217798ce9ad70dcf75da7383a229fc6b3a8a23306a160b`; không có source, `node_modules` hoặc source map.
 
 ### Unblocked
 
@@ -72,4 +83,4 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 ### Blocked
 
-- Chưa có desktop code, Supervisor, AI for Boss Gateway Adapter, sandbox sản phẩm, installer, updater hoặc signing identity; chưa được phát hành cho người dùng.
+- CI Feature 0.4 ba hệ điều hành còn chờ; chưa có Supervisor, AI for Boss Gateway Adapter, sandbox sản phẩm, installer, updater hoặc signing identity; chưa được phát hành cho người dùng.

@@ -1,0 +1,14 @@
+{
+  "name": "@aifb/desktop",
+  "productName": "AI for Boss",
+  "version": "0.0.0-dev",
+  "author": "AI for Boss",
+  "private": true,
+  "type": "module",
+  "main": "electron/main.mjs",
+  "scripts": {
+    "build": "vite build",
+    "start": "electron .",
+    "typecheck": "tsc --noEmit"
+  }
+}

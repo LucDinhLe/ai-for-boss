@@ -16,7 +16,8 @@ function runInCopy(mutator = () => {}) {
   try {
     fs.cpSync(repoRoot, fixtureRoot, {
       recursive: true,
-      filter: (source) => path.basename(source) !== ".git"
+      filter: (source) =>
+        !new Set([".git", "node_modules", "dist", "out"]).has(path.basename(source))
     });
     mutator(fixtureRoot);
     return spawnSync(

@@ -1,0 +1,40 @@
+{
+  "name": "ai-for-boss",
+  "version": "0.0.0-dev",
+  "private": true,
+  "description": "AI for Boss desktop product shell, built on OpenClaw.",
+  "packageManager": "pnpm@11.2.2",
+  "engines": {
+    "node": "24.19.0",
+    "pnpm": "11.2.2"
+  },
+  "scripts": {
+    "contracts:generate": "node scripts/generate-desktop-contract.mjs",
+    "build": "corepack pnpm run contracts:generate && corepack pnpm --filter @aifb/desktop build",
+    "dev": "corepack pnpm run build && corepack pnpm --filter @aifb/desktop start",
+    "lint": "eslint .",
+    "typecheck": "corepack pnpm --filter @aifb/desktop typecheck",
+    "test": "node --test tests/contract/*.test.mjs tests/unit/*.test.mjs",
+    "package:desktop": "corepack pnpm run build && node scripts/package-desktop.mjs",
+    "validate:desktop": "node scripts/validate-feature-0.4.mjs",
+    "verify": "corepack pnpm run lint && corepack pnpm run typecheck && corepack pnpm run test && corepack pnpm run build && corepack pnpm run validate:desktop"
+  },
+  "devDependencies": {
+    "@electron/packager": "20.2.1",
+    "@electron/asar": "4.2.1",
+    "@eslint/js": "10.0.1",
+    "@types/node": "24.13.3",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "@vitejs/plugin-react": "6.0.5",
+    "electron": "43.3.0",
+    "eslint": "10.8.1",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-react-refresh": "0.5.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.67.0",
+    "vite": "8.2.1"
+  }
+}
