@@ -6,7 +6,7 @@
 - Loại: Product design amendment, docs-only
 - Product Owner: Lê Đình Lực
 - Owner thực hiện: Codex
-- Trạng thái: Implemented, pending commit/review
+- Trạng thái: Implemented, committed; pending independent visual review
 - Ngày mở: 2026-08-11
 - Giới hạn: Không mở Feature 0.3 hoặc viết desktop application code
 
@@ -66,7 +66,7 @@ AI for Boss có một hướng thiết kế độc lập, sáng, sang và dễ d
 - [x] Prototype có welcome/session, Việt/Anh và light/dark.
 - [x] JavaScript compile; ID/reference/panel/translation scan đạt.
 - [ ] Có independent visual review ở kích thước desktop và mobile.
-- [ ] Có commit checkpoint hoàn tác được.
+- [x] Có commit checkpoint hoàn tác được.
 
 ## 9. Kiểm thử
 
@@ -86,7 +86,6 @@ Revert commit docs-only và bỏ prototype thử nghiệm. Không cần migratio
 
 ## 12. Bằng chứng hoàn thành
 
-- Commit checkpoint: điền sau validation cuối.
+- Commit checkpoint: `97ab9fc` (`docs: define editorial UX direction`).
 - Product Owner acceptance: yêu cầu điều chỉnh theo tinh thần Hermes Agent ngày 2026-08-11.
 - Reviewer: Codex self-review; independent visual/brand review còn thiếu.
-
