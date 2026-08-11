@@ -132,3 +132,13 @@ Các lệnh cấm trộn beta và coi placeholder là production vẫn giữ ngu
 - Quyết định: Với OpenClaw `2026.7.1-2`, AI for Boss dùng WebSocket text/JSON và Gateway RPC được tài liệu `external-apps.md` của đúng tag công bố. `@openclaw/gateway-client` và `@openclaw/gateway-protocol` ở tag stable là workspace package `0.0.0-private`, chỉ được ghi tree fingerprint làm tham chiếu; không bundle, vendor hoặc import.
 - Hệ quả: Release train được khóa bằng npm integrity, git tag/commit, protocol v4, doc blob và private-package tree fingerprint. Adapter thuộc AI for Boss, phải validate contract và test với Gateway thật. Feature 0.2 hết blocker nhưng chưa tạo desktop app hoặc installer.
 - Phương án bị loại: Chờ package public không được upstream hứa ngày; ghép beta; sao chép private package; import hashed `dist`; đọc private state; tự chế giao thức khác tài liệu.
+
+## D-0014. Capability contract dựa trên bằng chứng và một nguồn sự thật
+
+- Ngày: 2026-08-11
+- Owner: Codex kỹ thuật theo Rulebook; cần senior platform/security reviewer trước khi qua Cổng 0
+- Nhãn: `TECHNICAL_DECISION`
+- Trạng thái: Chấp nhận cho Feature 0.3
+- Quyết định: Capability manifest v1 ánh xạ 23 nhóm năng lực bằng nguồn công khai của release train đã khóa, tách `WRAPPED`, `RESTRICTED` và `BLOCKED`, đồng thời khóa `advertisable: false` cho tới khi có product test. Mỗi miền dữ liệu chỉ có một nguồn có quyền ghi; mọi trust boundary, auth mode, Agent Genesis state và threat Critical/High phải truy vết được tới control, failure behavior, test gate và Risk Register.
+- Hệ quả: `hello-ok.features.methods/events` không được dùng như inventory đầy đủ; private Gateway package, hashed `dist`, beta và dynamic tag bị validator cấm. Feature 0.4/0.5 phải tiêu thụ các contract này thay vì tự đoán IPC, storage hoặc quyền.
+- Phương án bị loại: Bảng Markdown không kiểm thử; gắn nhãn toàn bộ là planned; tuyên bố hỗ trợ dựa trên tài liệu upstream trước khi AI for Boss có test thực thi.

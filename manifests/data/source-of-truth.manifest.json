@@ -1,0 +1,234 @@
+{
+  "$schema": "./source-of-truth.schema.json",
+  "schemaVersion": "1.0.0",
+  "releaseTrainId": "oc-2026.7.1-2-locked.1",
+  "sources": [
+    {
+      "id": "SOT-01",
+      "name": "OpenClaw qua Gateway RPC và contract chính thức",
+      "owner": "openclaw",
+      "role": "authoritative",
+      "authoritativeDomains": ["sessions", "transcripts", "agent-runtime", "model-status", "usage", "openclaw-audit", "schedule-runtime", "channel-runtime", "plugin-runtime", "node-runtime"],
+      "writers": ["OpenClaw Gateway and official CLI/config/backup contracts"],
+      "readers": ["AI for Boss Adapter", "AI for Boss Supervisor"],
+      "rules": ["AI for Boss may keep rebuildable projections only", "Never read or mutate OpenClaw SQLite, transcript, cache or private state directly"],
+      "failureBehavior": "Keep the last confirmed projection read-only and reconcile through official RPC/CLI after recovery."
+    },
+    {
+      "id": "SOT-02",
+      "name": "Kho dữ liệu sản phẩm AI for Boss có version",
+      "owner": "ai-for-boss",
+      "role": "authoritative",
+      "authoritativeDomains": ["product-policy", "advisor-rubric", "product-approval-metadata", "product-audit-metadata", "ui-preferences", "cohort-pack", "role-pack", "personal-overlay", "budget-policy", "project-folder-grant"],
+      "writers": ["AI for Boss Supervisor through versioned transactions"],
+      "readers": ["AI for Boss Main", "Policy Compiler", "Advisor Orchestrator", "Backup subsystem"],
+      "rules": ["Renderer never writes storage directly", "Migrations require snapshot and rollback", "Do not duplicate OpenClaw authoritative runtime data"],
+      "failureBehavior": "Transaction fails atomically, old version remains authoritative and new work requiring the write stops."
+    },
+    {
+      "id": "SOT-03",
+      "name": "Kho bí mật của hệ điều hành cho static secret",
+      "owner": "operating-system",
+      "role": "credential-authority",
+      "authoritativeDomains": ["static-provider-secret", "static-connector-secret"],
+      "writers": ["Credential Broker after user approval"],
+      "readers": ["Credential Broker for the exact runtime target"],
+      "rules": ["Only after three-OS SecretRef contract tests", "Never expose value to renderer, argv, logs, crash report or support bundle", "No plaintext fallback"],
+      "failureBehavior": "Connector remains disabled and the user receives a recoverable storage error."
+    },
+    {
+      "id": "SOT-04",
+      "name": "OpenClaw native auth store trong profile riêng",
+      "owner": "openclaw",
+      "role": "credential-authority",
+      "authoritativeDomains": ["oauth-token", "provider-auth-profile", "channel-credential", "device-token"],
+      "writers": ["OpenClaw official auth, channel and pairing flows"],
+      "readers": ["OpenClaw runtime only; AI for Boss reads status through official contract"],
+      "rules": ["Separate profile per Agent or trust boundary", "ACL restricted to the OS user", "Avoid cloud-synced directories", "Never copy token into product DB"],
+      "failureBehavior": "Connection is unavailable; revoke or restart auth through OpenClaw without reading the token."
+    },
+    {
+      "id": "SOT-05",
+      "name": "Agent Home riêng của từng Agent",
+      "owner": "openclaw",
+      "role": "authoritative",
+      "authoritativeDomains": ["agent-identity-files", "agent-persona", "agent-user-profile", "agent-memory", "agent-heartbeat", "bootstrap-state"],
+      "writers": ["OpenClaw Agent and AI for Boss Genesis transaction through documented workspace contract"],
+      "readers": ["The matching Agent", "AI for Boss Supervisor for validation and recovery"],
+      "rules": ["One Agent Home per Agent", "No secret in Markdown", "BOOTSTRAP.md removed only after verified activation", "Do not create memory before bootstrap completes"],
+      "failureBehavior": "Keep BOOTSTRAP.md and staging data, mark PENDING_RESUME and preserve the previous active identity."
+    },
+    {
+      "id": "SOT-06",
+      "name": "Không gian dự án do người dùng chọn",
+      "owner": "user",
+      "role": "authoritative",
+      "authoritativeDomains": ["business-source-file", "user-owned-artifact"],
+      "writers": ["User", "Agent with explicit read-write grant through sandbox contract"],
+      "readers": ["User", "Agent with explicit read-only or read-write grant"],
+      "rules": ["Separate from Agent Home", "Grant is none, read-only or read-write", "Canonical path must remain inside allowlist", "No symlink or hardlink boundary bypass"],
+      "failureBehavior": "Mark project unavailable and deny access; never select or create an alternate folder silently."
+    },
+    {
+      "id": "SOT-07",
+      "name": "Release train và manifest đã ký",
+      "owner": "release-pipeline",
+      "role": "immutable-contract",
+      "authoritativeDomains": ["runtime-version", "gateway-contract", "capability-contract", "release-artifact", "release-signature", "platform-support-matrix"],
+      "writers": ["Clean release pipeline with accountable release owner"],
+      "readers": ["Installer", "Updater", "Supervisor", "Diagnostics", "Website download recommender"],
+      "rules": ["Exact version, hash and signature", "No dynamic tags", "No private workspace package import", "Promotion requires platform evidence"],
+      "failureBehavior": "Reject install/update and retain the previous verified release."
+    },
+    {
+      "id": "SOT-08",
+      "name": "Artifact phục hồi được mã hóa",
+      "owner": "user",
+      "role": "recovery-artifact",
+      "authoritativeDomains": ["encrypted-recovery-snapshot"],
+      "writers": ["AI for Boss backup subsystem using official OpenClaw backup plus product snapshot"],
+      "readers": ["AI for Boss restore staging after user authorization"],
+      "rules": ["Never a live writable source", "Portable full backup always encrypted", "Verify before restore", "New device, Gateway and remote identities after restore"],
+      "failureBehavior": "Reject the archive, keep current data unchanged and report verification failure."
+    },
+    {
+      "id": "SOT-09",
+      "name": "Control plane tương lai",
+      "owner": "future-control-plane",
+      "role": "future-authority",
+      "authoritativeDomains": ["license", "enrollment", "signed-enterprise-policy", "rollout-assignment", "approved-health-metadata"],
+      "writers": ["Future enterprise administrators and release operations"],
+      "readers": ["Future enrolled AI for Boss instances"],
+      "rules": ["No prompt, file, output or customer secret by default", "Provider and data model require Product Owner decision before Gate 7"],
+      "failureBehavior": "Keep last valid signed policy within its expiry; deny new privileged enrollment or policy expansion."
+    }
+  ],
+  "flows": [
+    {
+      "id": "DF-01",
+      "name": "Cài đặt và khởi động AI Engine",
+      "trigger": "Người dùng chạy artifact đúng OS/architecture",
+      "steps": [
+        { "from": "USER", "to": "INSTALLER", "data": ["install-choice"], "trustBoundary": "TB-01", "control": "Show publisher, version, requested privilege and data-retention behavior" },
+        { "from": "INSTALLER", "to": "SOT-07", "data": ["release-manifest", "hash", "signature"], "trustBoundary": "TB-03", "control": "Fail closed on mismatch or unsupported platform" },
+        { "from": "SUPERVISOR", "to": "GATEWAY", "data": ["loopback-endpoint", "ephemeral-bootstrap-auth"], "trustBoundary": "TB-02", "control": "Supervisor-only ownership; renderer receives status only" }
+      ],
+      "untrustedInputs": ["downloaded artifact", "host environment", "pre-existing processes"],
+      "secrets": ["Gateway bootstrap credential"],
+      "approvals": ["OS elevation only when a documented install operation requires it"],
+      "failureBehavior": "Abort or rollback installation; do not kill foreign processes or reuse another Gateway.",
+      "threatRefs": ["T-01", "T-02", "T-08"]
+    },
+    {
+      "id": "DF-02",
+      "name": "Kết nối provider",
+      "trigger": "Người dùng chọn một auth mode được auth-support manifest cho phép",
+      "steps": [
+        { "from": "RENDERER", "to": "MAIN", "data": ["provider-id", "auth-mode", "user-intent"], "trustBoundary": "TB-01", "control": "Schema and sender validation; no secret accepted by generic renderer IPC" },
+        { "from": "SUPERVISOR", "to": "SOT-03", "data": ["static-secret-reference"], "trustBoundary": "TB-02", "control": "Credential Broker exact-target access; unavailable until contract gate" },
+        { "from": "GATEWAY", "to": "SOT-04", "data": ["oauth-state", "oauth-token", "auth-profile"], "trustBoundary": "TB-03", "control": "PKCE/state, fresh callback session and OpenClaw-owned commit" },
+        { "from": "GATEWAY", "to": "PROVIDER", "data": ["live-probe", "model-request"], "trustBoundary": "TB-03", "control": "Allowlisted provider route and explicit account" }
+      ],
+      "untrustedInputs": ["browser callback", "provider error", "plugin-owned auth response"],
+      "secrets": ["API key", "OAuth token", "device code", "provider cookie if upstream uses one"],
+      "approvals": ["Connect", "Disconnect/revoke", "Experimental auth acknowledgement"],
+      "failureBehavior": "Delete temporary state, keep connector disconnected and never silently switch auth route or provider.",
+      "threatRefs": ["T-03", "T-04", "T-05", "T-12"]
+    },
+    {
+      "id": "DF-03",
+      "name": "Phiên làm việc và model call",
+      "trigger": "Người dùng giao mục tiêu trong một phiên",
+      "steps": [
+        { "from": "USER", "to": "RENDERER", "data": ["goal", "attachment", "session-model", "budget"], "trustBoundary": "TB-01", "control": "Permission and data-egress preview" },
+        { "from": "MAIN", "to": "GATEWAY", "data": ["validated-session-command", "idempotency-key"], "trustBoundary": "TB-02", "control": "Allowlisted IPC and least-privilege scope" },
+        { "from": "GATEWAY", "to": "PROVIDER", "data": ["prompt", "selected-context", "tool-schema"], "trustBoundary": "TB-03", "control": "Selected provider only; no silent model fallback" },
+        { "from": "GATEWAY", "to": "SOT-01", "data": ["session", "transcript", "usage", "artifact-metadata"], "trustBoundary": null, "control": "OpenClaw authoritative write" }
+      ],
+      "untrustedInputs": ["user attachment", "provider output", "tool output", "external content"],
+      "secrets": ["provider credential used only by runtime"],
+      "approvals": ["Sensitive tool action", "Budget override", "Model change with material impact"],
+      "failureBehavior": "Keep confirmed draft/checkpoint and label the run interrupted or unknown until reconciled.",
+      "threatRefs": ["T-04", "T-06", "T-09", "T-13"]
+    },
+    {
+      "id": "DF-04",
+      "name": "Advisor plan gate và final gate",
+      "trigger": "Advisor được bật cho phiên và worker tạo draft plan hoặc candidate result",
+      "steps": [
+        { "from": "GATEWAY", "to": "ADVISOR", "data": ["goal", "constraints", "minimal-evidence", "worker-output-as-data", "rubric", "budget"], "trustBoundary": "TB-06", "control": "Separate read-only review session and untrusted-data boundary" },
+        { "from": "ADVISOR", "to": "SOT-02", "data": ["schema-validated-verdict", "issues", "evidence", "confidence"], "trustBoundary": "TB-06", "control": "Reject malformed or unsupported pass" },
+        { "from": "MAIN", "to": "USER", "data": ["review-status", "required-revision", "override-choice"], "trustBoundary": "TB-01", "control": "Override or disable is explicit and audited" }
+      ],
+      "untrustedInputs": ["worker output", "web evidence", "tool output", "agent output"],
+      "secrets": [],
+      "approvals": ["User override before sensitive mutation", "User acceptance of unreviewed result"],
+      "failureBehavior": "Keep status unreviewed; worker cannot self-approve or inherit Advisor authority.",
+      "threatRefs": ["T-06", "T-07", "T-09"]
+    },
+    {
+      "id": "DF-05",
+      "name": "Khai sinh Agent và cấp Không gian dự án",
+      "trigger": "Fresh install hoặc người dùng tạo Agent mới",
+      "steps": [
+        { "from": "SUPERVISOR", "to": "SOT-05", "data": ["release-locked-bootstrap-templates", "staging-files"], "trustBoundary": "TB-05", "control": "Unique Agent Home and atomic staging" },
+        { "from": "USER", "to": "SOT-05", "data": ["approved-name", "role", "tone", "avatar", "address", "priorities", "boundaries"], "trustBoundary": "TB-01", "control": "Conversation summary and explicit confirmation" },
+        { "from": "SUPERVISOR", "to": "GATEWAY", "data": ["identity-sync-command"], "trustBoundary": "TB-02", "control": "Official CLI/RPC only, then readback and health" },
+        { "from": "SUPERVISOR", "to": "SOT-02", "data": ["project-grant"], "trustBoundary": "TB-05", "control": "none/read-only/read-write; sandbox contract required before access to SOT-06" }
+      ],
+      "untrustedInputs": ["avatar", "user-entered identity text", "pre-existing folder contents"],
+      "secrets": [],
+      "approvals": ["Identity summary", "Project folder and grant", "Rebirth with snapshot"],
+      "failureBehavior": "Keep BOOTSTRAP.md, preserve previous active data and resume idempotently from a safe checkpoint.",
+      "threatRefs": ["T-06", "T-10", "T-11"]
+    },
+    {
+      "id": "DF-06",
+      "name": "Tool, file và browser action",
+      "trigger": "Approved task requests a tool or external action",
+      "steps": [
+        { "from": "GATEWAY", "to": "POLICY", "data": ["tool", "arguments", "effective-agent", "workspace", "network-destination", "risk-class"], "trustBoundary": "TB-02", "control": "Compiled policy; deny wins; timeout fails closed" },
+        { "from": "POLICY", "to": "USER", "data": ["approval-request", "impact", "reversibility", "destination"], "trustBoundary": "TB-01", "control": "Separate approval for red actions" },
+        { "from": "SANDBOX", "to": "SOT-06", "data": ["read-or-write-file"], "trustBoundary": "TB-04", "control": "Canonical allowlist and project grant" },
+        { "from": "SANDBOX", "to": "EXTERNAL_CONTENT", "data": ["web-request", "browser-action", "download"], "trustBoundary": "TB-03", "control": "Deny-by-default egress, dedicated browser profile and quarantine" }
+      ],
+      "untrustedInputs": ["web page", "email", "PDF/OCR", "tool output", "download", "plugin/MCP response"],
+      "secrets": ["browser session data and connector credentials isolated from model and renderer"],
+      "approvals": ["External send", "Destructive write", "Financial/legal/HR action", "Admin/elevated/exec"],
+      "failureBehavior": "Deny and leave external state unchanged; never execute directly on host because sandbox is unavailable.",
+      "threatRefs": ["T-06", "T-08", "T-09", "T-10", "T-12", "T-13"]
+    },
+    {
+      "id": "DF-07",
+      "name": "Backup, restore và update",
+      "trigger": "Người dùng tạo backup/restore hoặc updater nhận release mới",
+      "steps": [
+        { "from": "SOT-01", "to": "SOT-08", "data": ["verified-openclaw-backup"], "trustBoundary": "TB-09", "control": "Official backup create --verify; no live SQLite copy" },
+        { "from": "SOT-02", "to": "SOT-08", "data": ["versioned-product-snapshot"], "trustBoundary": "TB-09", "control": "Consistent snapshot and encryption" },
+        { "from": "SOT-08", "to": "RESTORE-STAGING", "data": ["encrypted-recovery-content"], "trustBoundary": "TB-09", "control": "Decrypt with user authority, verify, migrate and health-check before swap" },
+        { "from": "SOT-07", "to": "UPDATER", "data": ["artifact", "signature", "hash", "rollback-manifest"], "trustBoundary": "TB-03", "control": "Reject tamper and downgrade; retain prior bundle" }
+      ],
+      "untrustedInputs": ["backup archive", "update artifact", "migration input"],
+      "secrets": ["full recovery may contain OAuth, API keys and channel credentials"],
+      "approvals": ["Portable full backup export", "Restore", "Delete retained data"],
+      "failureBehavior": "Keep current state and previous bundle; rollback staging or update without partial promotion.",
+      "threatRefs": ["T-01", "T-03", "T-08", "T-11", "T-12"]
+    },
+    {
+      "id": "DF-08",
+      "name": "Always-on qua private ingress",
+      "trigger": "Thiết bị đã claim kết nối instance riêng của khách",
+      "steps": [
+        { "from": "REMOTE_CLIENT", "to": "PRIVATE_INGRESS", "data": ["device-identity", "short-lived-claim-or-session"], "trustBoundary": "TB-08", "control": "Tailscale/SSH first; one-time claim expires and cannot be reused" },
+        { "from": "PRIVATE_INGRESS", "to": "HEADLESS_SUPERVISOR", "data": ["authenticated-operator-request"], "trustBoundary": "TB-08", "control": "Per-customer instance and least-privilege scope" },
+        { "from": "HEADLESS_SUPERVISOR", "to": "GATEWAY", "data": ["loopback-only-rpc"], "trustBoundary": "TB-02", "control": "Non-root service, resource limits and process ownership" },
+        { "from": "HEADLESS_SUPERVISOR", "to": "REMOTE_CLIENT", "data": ["reconciled-events", "history", "approval-backlog"], "trustBoundary": "TB-08", "control": "Reconnect and idempotency; no duplicate mutation" }
+      ],
+      "untrustedInputs": ["remote network", "claim request", "remote client", "external channel content"],
+      "secrets": ["device token", "provider credential", "customer business data"],
+      "approvals": ["First device claim", "Scope upgrade", "Device revoke", "Remote sensitive action"],
+      "failureBehavior": "Deny access on identity or tunnel uncertainty; Gateway remains loopback-only and no shared tenant fallback exists.",
+      "threatRefs": ["T-02", "T-03", "T-05", "T-08", "T-14"]
+    }
+  ]
+}

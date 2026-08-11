@@ -27,6 +27,12 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Gateway contract lock gồm npm integrity, tag/commit, protocol v4, doc blob và private workspace tree fingerprint.
 - Contract tests fail-closed khi stable train lẫn beta, private package bị bundle, fingerprint drift hoặc policy đòi public package trái tài liệu upstream.
 - Gateway startup và authenticated `health` RPC smoke trong network namespace chỉ có loopback bằng token tạm trong memory.
+- Feature 0.3 capability manifest v1 ánh xạ đủ 23 nhóm OpenClaw thành `WRAPPED`, `RESTRICTED` hoặc `BLOCKED`, kèm nguồn, quyền, dữ liệu, failure behavior và test gate.
+- Auth-support matrix cho 9 đường OpenAI, Anthropic, Google, provider plugin và local model; tất cả vẫn `documented-only` hoặc `blocked`, chưa có live-auth claim.
+- Source-of-truth manifest gồm 9 nguồn có quyền duy nhất và 8 luồng dữ liệu cốt lõi cho install, provider, session, Advisor, Genesis, tool/browser, recovery và Always-on.
+- Agent Genesis contract khóa 7 reference template, state machine crash-resume, activation preconditions và ba vùng Agent Home/`agentDir`/Không gian dự án.
+- Threat model gồm 10 tài sản, 10 tác nhân, 10 trust boundary và 14 abuse case truy vết về Risk Register.
+- Validator và 14 contract tests Feature 0.3 fail-closed khi capability thiếu, release drift, private package source, OAuth storage sai, nguồn sự thật trùng, threat mất trace hoặc bootstrap bị làm yếu.
 
 ### Changed
 
@@ -42,6 +48,8 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Dependency build scripts chỉ cho phép bốn package/phiên bản xuất hiện trong lock, không bật allow-all.
 - Bộ cài từ chối distro trùng tên nhưng sai registry BasePath/WSL version và truyền input đã pin mà không mount ổ host.
 - Bootstrap fail-closed: chưa xác minh thì chưa xóa file, chưa tạo memory sớm và chưa báo Agent sẵn sàng.
+- Mọi capability Feature 0.3 bị khóa `advertisable: false`; Critical/High threat không được đóng bằng mô tả và tiếp tục chặn phát hành cho tới khi có test thực thi.
+- Static secret, OAuth token, CLI credential và plugin-owned auth có storage authority riêng; cấm plaintext/silent fallback.
 
 ### Verified
 
@@ -50,6 +58,8 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Nhánh `main` của kho private `LucDinhLe/ai-for-boss` đồng bộ với commit nền.
 - OpenClaw package/CLI version, help và Gateway help chạy đạt trong lab; AI Coworker trên host vẫn hoạt động.
 - Lượt cài lại bằng frozen lockfile, kiểm tra BasePath fail-closed và removal `-WhatIf` đều đạt.
+- 58 đường nguồn upstream được tham chiếu trong capability/auth manifest đều tồn tại trong đúng npm package OpenClaw `2026.7.1-2` trên máy kiểm tra.
+- Feature 0.3 validator đạt 23 capability, 9 auth mode, 9 nguồn sự thật, 8 data flow và 14 threat; tổng contract suite đạt 19/19.
 
 ### Unblocked
 

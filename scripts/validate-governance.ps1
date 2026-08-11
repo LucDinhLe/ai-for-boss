@@ -47,7 +47,25 @@ $requiredFiles = @(
   'manifests/runtime/gateway-contract.schema.json',
   'manifests/runtime/gateway-contract.lock.json',
   'tests/contract/release-train-contract.test.mjs',
-  'artifacts/feature-0.2/lab/gateway-contract-smoke.json'
+  'artifacts/feature-0.2/lab/gateway-contract-smoke.json',
+  'docs/feature-specs/0003-capability-threat-model.md',
+  'docs/architecture/CAPABILITY-INVENTORY.md',
+  'docs/architecture/SOURCE-OF-TRUTH-AND-DATA-FLOW.md',
+  'docs/security/THREAT-MODEL.md',
+  'docs/security/PROVIDER-AUTH-MATRIX.md',
+  'docs/release/FEATURE-0.3-AUDIT.md',
+  'manifests/capabilities/capability-manifest.schema.json',
+  'manifests/capabilities/openclaw-2026.7.1-2.capability-manifest.json',
+  'manifests/providers/auth-support.schema.json',
+  'manifests/providers/auth-support.manifest.json',
+  'manifests/data/source-of-truth.schema.json',
+  'manifests/data/source-of-truth.manifest.json',
+  'manifests/agents/agent-genesis.schema.json',
+  'manifests/agents/agent-genesis.contract.json',
+  'manifests/security/threat-model.schema.json',
+  'manifests/security/threat-model.manifest.json',
+  'scripts/validate-feature-0.3.mjs',
+  'tests/contract/capability-threat-model-contract.test.mjs'
 )
 
 foreach ($relativePath in $requiredFiles) {

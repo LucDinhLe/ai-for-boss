@@ -27,6 +27,8 @@ Thang mức độ: `Critical`, `High`, `Medium`, `Low`.
 | R-021 | Shared host làm lẫn dữ liệu khách hoặc session ID bị dùng như tenant boundary | Critical | Mitigated by architecture, untested | Platform/Security | Headless Cổng 4 và Cổng 7 | Một instance/cell đầy đủ cho mỗi khách/biên tin cậy; cross-tenant test; không shared Gateway |
 | R-022 | Always-on tăng chi phí và trách nhiệm vận hành vượt khả năng đội hiện tại | High | Open | Product Owner + Operations | Trước Headless pilot | Khách sở hữu hạ tầng; provider-neutral ADR; monitoring/backup/support owner; chưa mở SaaS hoặc Kubernetes |
 | R-023 | One-time claim hoặc remote pairing bị dùng lại/chiếm trước | High | Open | Platform/Security | Headless Cổng 4 | Credential hết hạn nhanh, single-use, bind đúng instance/device, rate limit, revoke và audit |
+| R-024 | Capability inventory v1 ở family-level có thể bỏ sót drift RPC/provider/plugin/channel cụ thể | High | Open | OpenClaw Adapter/QA | Cổng 3 và mọi upgrade | Cổng 3 sinh inventory chi tiết; CI chạy protocol/capability/plugin diff và fail khi item chưa phân loại |
+| R-025 | Tài liệu contract bị hiểu nhầm thành control bảo mật đã triển khai | Critical | Open — release blocking | Product/Engineering/Security | Mọi cổng | Mọi capability Feature 0.3 khóa `advertisable: false`; tách evidence level; chỉ test thực thi và review độc lập mới được promote |
 
 ## Luật cập nhật
 

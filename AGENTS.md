@@ -22,19 +22,20 @@ Stop if any required file is missing, its governance hash fails, or the requeste
 
 ## Current scope
 
-**Gate 0, Feature 0.2 — Lock Release Train is complete.** The next permitted
-feature is **0.3 — Capability and threat model**, but it must be opened in a new
-one-feature session with its own active Feature Spec before any change.
+**Gate 0, Feature 0.3 — Capability and threat model is complete with local
+contract verification.** Independent senior platform/security review remains a
+Gate 0 requirement. The next permitted feature is **0.4 — App shell and
+cross-platform CI**, but it must be opened in a new one-feature session with its
+own active Feature Spec before any change.
 
-Feature 0.3 may define the capability manifest, source-of-truth map, data flow,
-threat model, auth-support matrix and Agent Genesis contract boundaries. It may
-use public metadata and fake/empty test data.
+Feature 0.4 may create the empty Electron app shell, sandboxed renderer,
+minimal preload boundary, placeholder onboarding state and CI build matrix. It
+must consume the Feature 0.3 capability/source/threat contracts.
 
-Do not add desktop application code, OAuth/provider implementations,
-installer/updater logic, production configuration, host execution, embedded
-production Gateway supervision or real credentials during Feature 0.3. The
-local lab is containment evidence only; the product sandbox decision remains
-Feature 0.6.
+Do not add live OAuth/provider implementations, production Gateway supervision,
+installer/updater release logic, host execution, sensitive browser actions,
+real credentials or product sandbox claims during Feature 0.4. The sandbox
+decision remains Feature 0.6.
 
 ## Build discipline
 

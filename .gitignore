@@ -19,6 +19,8 @@ coverage/
 
 # Runtime and user data
 data/
+!manifests/data/
+!manifests/data/*.json
 state/
 profiles/
 backups/

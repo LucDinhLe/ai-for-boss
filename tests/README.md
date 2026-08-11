@@ -13,3 +13,9 @@ Feature 0.2 chạy thêm `scripts/validate-runtime-manifest.mjs` và
 hợp đồng WebSocket RPC công khai, protocol version và fingerprint của hai
 workspace package private chỉ dùng làm tham chiếu. Beta, private dist import và
 trạng thái release train giả đều phải fail closed.
+
+Feature 0.3 chạy `scripts/validate-feature-0.3.mjs` và
+`tests/contract/capability-threat-model-contract.test.mjs`. Bộ test kiểm tra
+coverage 23 nhóm capability, release-train linkage, auth storage, nguồn sự thật,
+tám data flow, Agent Genesis contract, threat traceability và cấm mọi capability
+Feature 0.3 tự quảng cáo là đã hỗ trợ.
