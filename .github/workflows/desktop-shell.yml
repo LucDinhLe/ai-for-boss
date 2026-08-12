@@ -1,0 +1,73 @@
+name: Desktop shell
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify-and-package:
+    name: Verify ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            label: windows
+          - os: macos-14
+            label: macos
+          - os: ubuntu-latest
+            label: linux
+
+    env:
+      RELEASE_CLASSIFICATION: experimental-internal
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up exact Node runtime
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24.19.0
+
+      - name: Activate exact package manager
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.2.2 --activate
+
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate governance and locked contracts
+        shell: pwsh
+        run: |
+          ./scripts/validate-governance.ps1
+          node scripts/validate-runtime-manifest.mjs
+          node scripts/validate-feature-0.3.mjs
+
+      - name: Lint, type-check, test and build
+        run: pnpm verify
+
+      - name: Audit dependency graph
+        run: pnpm audit --audit-level high
+
+      - name: Package current platform
+        run: pnpm package:desktop
+
+      - name: Validate experimental artifact inventory
+        run: node scripts/validate-feature-0.4.mjs --require-artifact
+
+      - name: Upload internal artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ai-for-boss-${{ matrix.label }}-experimental-internal
+          path: out/desktop/
+          if-no-files-found: error
+          retention-days: 7

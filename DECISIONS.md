@@ -142,3 +142,13 @@ Các lệnh cấm trộn beta và coi placeholder là production vẫn giữ ngu
 - Quyết định: Capability manifest v1 ánh xạ 23 nhóm năng lực bằng nguồn công khai của release train đã khóa, tách `WRAPPED`, `RESTRICTED` và `BLOCKED`, đồng thời khóa `advertisable: false` cho tới khi có product test. Mỗi miền dữ liệu chỉ có một nguồn có quyền ghi; mọi trust boundary, auth mode, Agent Genesis state và threat Critical/High phải truy vết được tới control, failure behavior, test gate và Risk Register.
 - Hệ quả: `hello-ok.features.methods/events` không được dùng như inventory đầy đủ; private Gateway package, hashed `dist`, beta và dynamic tag bị validator cấm. Feature 0.4/0.5 phải tiêu thụ các contract này thay vì tự đoán IPC, storage hoặc quyền.
 - Phương án bị loại: Bảng Markdown không kiểm thử; gắn nhãn toàn bộ là planned; tuyên bố hỗ trợ dựa trên tài liệu upstream trước khi AI for Boss có test thực thi.
+
+## D-0015. React/Vite shell và bundle thử nghiệm không đồng nghĩa installer
+
+- Ngày: 2026-08-11
+- Owner: Codex kỹ thuật theo release train; Product Owner chốt hướng trải nghiệm
+- Nhãn: `TECHNICAL_DECISION`
+- Trạng thái: Chấp nhận cho Feature 0.4
+- Quyết định: Desktop shell dùng Electron `43.3.0`, React `19.2.8`, Vite `8.2.1` và TypeScript `6.0.3`; renderer nhận một safe summary qua preload read-only. `@electron/packager` chỉ tạo bundle `experimental-internal` theo OS/architecture runner.
+- Hệ quả: CI ba OS chứng minh build/package contract, không chứng minh thiết bị được hỗ trợ. Artifact phải có inventory, ASAR allowlist, `signed: false`, `distributable: false`; installer, updater, signing và support matrix vẫn thuộc Cổng 4.
+- Phương án bị loại: Cho renderer đọc manifest/filesystem; preload IPC tổng quát; gọi CI artifact là bản cài; dùng pnpm hoặc dependency động trên từng máy.

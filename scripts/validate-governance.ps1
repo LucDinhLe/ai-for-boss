@@ -2,6 +2,7 @@ $ErrorActionPreference = 'Stop'
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $failures = [System.Collections.Generic.List[string]]::new()
+$ignoredGeneratedPathPattern = '[\\/](?:\.git|node_modules|dist|out)[\\/]'
 
 function Add-Failure([string]$message) {
   $failures.Add($message)
@@ -66,7 +67,31 @@ $requiredFiles = @(
   'manifests/security/threat-model.manifest.json',
   'scripts/validate-feature-0.3.mjs',
   'tests/contract/capability-threat-model-contract.test.mjs',
-  'tests/contract/governance-status-contract.test.mjs'
+  'tests/contract/governance-status-contract.test.mjs',
+  'docs/feature-specs/0004-app-shell-cross-platform-ci.md',
+  'docs/release/FEATURE-0.4-AUDIT.md',
+  'package.json',
+  'pnpm-workspace.yaml',
+  'pnpm-lock.yaml',
+  'eslint.config.mjs',
+  '.github/workflows/desktop-shell.yml',
+  'apps/desktop/package.json',
+  'apps/desktop/index.html',
+  'apps/desktop/tsconfig.json',
+  'apps/desktop/vite.config.ts',
+  'apps/desktop/electron/main.mjs',
+  'apps/desktop/electron/preload.cjs',
+  'apps/desktop/electron/security-policy.mjs',
+  'apps/desktop/electron/shell-contract.mjs',
+  'apps/desktop/src/App.tsx',
+  'apps/desktop/src/global.d.ts',
+  'apps/desktop/src/main.tsx',
+  'apps/desktop/src/styles.css',
+  'scripts/generate-desktop-contract.mjs',
+  'scripts/package-desktop.mjs',
+  'scripts/validate-feature-0.4.mjs',
+  'tests/contract/desktop-shell-security-contract.test.mjs',
+  'tests/unit/desktop-contract.test.mjs'
 )
 
 foreach ($relativePath in $requiredFiles) {
@@ -144,7 +169,7 @@ if (Test-Path -LiteralPath $readinessAuditPath -PathType Leaf) {
 
 $forbiddenEnvFiles = Get-ChildItem -LiteralPath $repoRoot -Recurse -Force -File |
   Where-Object {
-    $_.FullName -notmatch '[\\/]\.git[\\/]' -and
+    $_.FullName -notmatch $ignoredGeneratedPathPattern -and
     $_.Name -match '^\.env(?:\..+)?$' -and
     $_.Name -ne '.env.example'
   }
@@ -163,7 +188,7 @@ $secretPatterns = @(
 $textExtensions = @('.md', '.txt', '.json', '.yml', '.yaml', '.ps1', '.js', '.mjs', '.cjs', '.ts', '.tsx', '.css', '.html')
 $candidateFiles = Get-ChildItem -LiteralPath $repoRoot -Recurse -Force -File |
   Where-Object {
-    $_.FullName -notmatch '[\\/]\.git[\\/]' -and
+    $_.FullName -notmatch $ignoredGeneratedPathPattern -and
     $textExtensions -contains $_.Extension.ToLowerInvariant()
   }
 

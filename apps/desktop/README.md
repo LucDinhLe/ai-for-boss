@@ -1,5 +1,19 @@
-# Desktop app
+# AI for Boss desktop shell
 
-Vùng dành cho Electron main, preload và renderer của AI for Boss.
+Feature 0.4 contains the first executable Electron/React shell.
 
-Application code chỉ bắt đầu từ Feature 0.4 sau khi release train, capability và threat model đã đủ điều kiện. Renderer phải sandbox, tắt Node integration và chỉ dùng IPC allowlist.
+- `electron/main.mjs` owns the window and deny-by-default desktop boundary.
+- `electron/preload.cjs` exposes exactly one read-only method.
+- `src/` contains the Editorial Calm renderer.
+- `generated/shell-contract.json` is build output derived from locked manifests.
+
+The shell is `experimental-internal`. It does not start OpenClaw, connect a
+provider, store credentials or execute tools.
+
+Run from the repository root:
+
+```text
+pnpm build
+pnpm dev
+pnpm package:desktop
+```

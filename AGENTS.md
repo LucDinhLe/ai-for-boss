@@ -22,15 +22,14 @@ Stop if any required file is missing, its governance hash fails, or the requeste
 
 ## Current scope
 
-**Gate 0, Feature 0.3 — Capability and threat model is complete with local
-contract verification.** Independent senior platform/security review remains a
-Gate 0 requirement. The next permitted feature is **0.4 — App shell and
-cross-platform CI**, but it must be opened in a new one-feature session with its
-own active Feature Spec before any change.
+**Gate 0, Feature 0.4 — App shell and cross-platform CI is complete with local
+and three-OS CI evidence.** Independent senior platform/security review remains
+a Gate 0 requirement. The next permitted feature is **0.5 — First-run journey**,
+opened in a new one-feature session with its own active Feature Spec.
 
-Feature 0.4 may create the empty Electron app shell, sandboxed renderer,
-minimal preload boundary, placeholder onboarding state and CI build matrix. It
-must consume the Feature 0.3 capability/source/threat contracts.
+Feature 0.4 contains the Electron shell, sandboxed renderer, minimal preload
+boundary, honest placeholder state and experimental CI package matrix. It
+consumes the Feature 0.3 capability/source/threat contracts.
 
 Do not add live OAuth/provider implementations, production Gateway supervision,
 installer/updater release logic, host execution, sensitive browser actions,
