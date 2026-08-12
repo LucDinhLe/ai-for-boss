@@ -2,7 +2,7 @@
 
 Ngày chốt: 2026-08-11  
 Chủ sản phẩm: Lê Đình Lực  
-Phiên bản tài liệu: 1.3 sau khóa Gateway contract được upstream hỗ trợ  
+Phiên bản tài liệu: 1.4 sau khi mở first-run vertical slice ở Feature 0.5  
 Trạng thái: Nguồn quyết định duy nhất trước khi build
 
 ## 0. Hiệu lực
@@ -572,7 +572,7 @@ Thứ tự feature trong Cổng 0:
 2. `0.2` Khóa upstream, license inventory và `runtime-manifest` schema.
 3. `0.3` Capability inventory, nguồn sự thật, data flow và threat model.
 4. `0.4` App shell trống cùng CI đa nền tảng.
-5. `0.5` Security baseline, test policy và release policy.
+5. `0.5` First-run journey bằng dữ liệu giả, cùng security baseline và test policy để không biến prototype thành claim production.
 6. `0.6` Sandbox feasibility ADR và spike tối thiểu trên từng họ hệ điều hành.
 
 Chỉ qua cổng khi build app trống tái lập được trên Windows, macOS và Linux bằng CI, không còn giả định ẩn và security review kiến trúc không còn lỗi nghiêm trọng chưa có phương án.
@@ -765,7 +765,7 @@ Các phiên tiếp theo:
 1. `Feature 0.2` khóa một phiên bản OpenClaw ổn định, Node, Electron, package manager và tạo `runtime-manifest` schema.
 2. `Feature 0.3` lập capability inventory, source-of-truth map, data flow và threat model.
 3. `Feature 0.4` dựng app shell trống cùng CI Windows/macOS/Linux.
-4. `Feature 0.5` dựng security baseline, test policy và release policy.
+4. `Feature 0.5` dựng first-run journey bằng dữ liệu giả, giữ Agent Genesis fail-closed và hoàn thiện security/test baseline liên quan.
 5. `Feature 0.6` spike sandbox và trình Đại ca quyết định bằng hệ quả cài đặt, bảo mật, dữ liệu và chi phí.
 
 Chỉ sau khi Cổng 0 đạt mới mở `Feature 1.1`, spawn OpenClaw nhúng trên Windows. Không nhảy thẳng vào giao diện hoặc OAuth.

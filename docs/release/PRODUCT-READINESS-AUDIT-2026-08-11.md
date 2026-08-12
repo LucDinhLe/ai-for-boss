@@ -7,7 +7,7 @@ Phạm vi: Từ repo hiện tại tới sản phẩm cho người phổ thông t
 
 ## 1. Kết luận điều hành
 
-**AI for Boss chưa thể đóng gói hoặc phát hành cho người dùng.** Repo hiện có governance, release train đã khóa, capability/auth/source/threat contract, Gateway contract lock, license inventory nền và một phòng thử nghiệm WSL2. Repo chưa có desktop application code, Supervisor, Gateway Adapter, onboarding thật, sandbox sản phẩm, installer, updater hoặc artifact đã ký.
+**AI for Boss chưa thể đóng gói hoặc phát hành cho người dùng.** Repo hiện có governance, release train đã khóa, capability/auth/source/threat contract, Gateway contract lock, desktop shell và first-run prototype nội bộ bằng dữ liệu giả. Repo chưa có Supervisor, Gateway Adapter, onboarding/runtime thật, sandbox sản phẩm, installer, updater hoặc artifact đã ký.
 
 Update cùng ngày đã gỡ blocker Feature 0.2:
 
@@ -34,8 +34,8 @@ Audit competitive parity bổ sung cùng ngày xác nhận sản phẩm cũng ch
 | Capability/data/security contract | 23 capability, 9 auth mode, 9 nguồn, 8 flow, Agent Genesis và 14 threat | Hoàn thành Feature 0.3; chưa phải control đã triển khai |
 | License/SBOM | Inventory, third-party notice và SBOM nền | Có nền, chưa phải SBOM artifact cuối |
 | Lab | WSL2 riêng, không mount ổ Windows, không credential | Đạt mục tiêu Feature 0.2 |
-| Product UX | Prototype ba panel ngoài repo sản phẩm | Chỉ minh họa, chưa phải app |
-| Desktop/Supervisor/Adapter | Chỉ có README placeholder | Chưa có |
+| Product UX | Desktop shell và first-run prototype ba bước bằng fixture `live:false` | Có vertical slice nội bộ; chưa có human usability |
+| Desktop/Supervisor/Adapter | Electron/React shell có secure renderer boundary; Supervisor/Adapter chưa có | Shell thử nghiệm, runtime chưa có |
 | Installer/updater/signing | Chưa có | Chưa có |
 | Pilot/security/legal | Chưa thực hiện | Chưa có |
 
@@ -57,8 +57,8 @@ Release train thống nhất gồm OpenClaw, Node, Electron, package manager và
 
 Feature 0.3 đã hoàn thành ở mức contract. Các phần còn lại của Cổng 0 là:
 
-- Feature 0.4: Electron shell trống, renderer sandbox và CI Windows/macOS/Linux.
-- Feature 0.5: IPC schema, CSP, navigation policy, release policy, redaction và incident skeleton.
+- Feature 0.4: Electron shell, renderer sandbox và CI Windows/macOS/Linux đã có; artifact vẫn experimental/unsigned.
+- Feature 0.5: first-run vertical slice đang ở correction pass; IPC ghi, release policy đầy đủ, redaction và incident skeleton vẫn là acceptance gap của Cổng 0.
 - Feature 0.6: ADR và spike sandbox trên từng họ hệ điều hành.
 
 Không được mở host exec, elevated hoặc browser nhạy cảm trước Feature 0.6.

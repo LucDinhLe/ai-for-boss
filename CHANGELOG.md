@@ -38,6 +38,11 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Workspace pnpm khóa exact dependency, Vite build, Electron package, artifact inventory và ASAR content allowlist.
 - CI matrix tạo artifact `experimental-internal` riêng trên Windows, macOS và Linux bằng Node `24.19.0` và pnpm `11.2.2`.
 - 8 phép thử Feature 0.4 cho contract generator, Electron security boundary, CSP và renderer IPC allowlist; tổng suite tăng lên 30 test.
+- Đặc tả Feature 0.5 cho first-run vertical slice ba bước bằng dữ liệu giả, với Agent Genesis resume idempotent/fail-closed và Advisor hai checkpoint giữ trạng thái chưa có runtime.
+- State machine First-run khóa ba fixture `live:false`, Genesis promotion theo thứ tự staging/validation/readback/identity sync/snapshot/health rồi mới mô phỏng xóa bootstrap.
+- Giao diện ba bước Việt/Anh cho kiểm tra shell, kết nối mô phỏng, khai sinh Agent preview và task draft-only với permission/budget preview.
+- Unit, contract và validator Feature 0.5 cho Unicode, input rỗng/quá dài, double submit, snapshot lỗi, CSP offline và preload read-only.
+- QA harness Feature 0.5 dùng đúng production bundle để đi xuyên ba bước và lưu bằng chứng ở 1440×900, 1024×768 và 980×680.
 
 ### Changed
 
@@ -47,8 +52,12 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Concept **La bàn quyết định** chuyển sang trạng thái rejected; icon production để feature thương hiệu sau.
 - Rulebook lên 1.2 và Master Execution Plan lên 1.1 để thêm parity gate, hành trình ba bước và Headless track.
 - Rulebook lên 1.3 và Master Execution Plan lên 1.2 để dùng external-app WebSocket RPC contract mà OpenClaw stable thực sự hỗ trợ.
+- Rulebook lên 1.4 và Master Execution Plan lên 1.3 để kiểm chứng first-run sớm trong Feature 0.5 mà không mở Gateway/OAuth hoặc làm yếu các cổng production.
 - Script package gọi pnpm qua Corepack để không phụ thuộc bản toàn cục trên máy; TypeScript khóa `6.0.3` theo dải peer support của `typescript-eslint`.
 - Governance scan bỏ qua `node_modules`, `dist` và `out` sinh lại được, đồng thời yêu cầu toàn bộ hồ sơ Feature 0.4.
+- First-run snapshot chuyển sang schema `0.5.1-preview` với exact-shape và invariant matrix; snapshot thiếu, thừa hoặc mâu thuẫn bị loại toàn bộ về trạng thái sạch.
+- Preview Genesis không còn giả lập runtime promotion: hồ sơ hợp lệ chỉ được duyệt ở `STAGING`; `ACTIVE` và xóa bootstrap đòi bằng chứng từ `trusted-supervisor-runtime`.
+- Hồ sơ Genesis bổ sung emoji/avatar và ưu tiên; model selector khóa theo fixture đã kết nối; readiness chỉ báo đạt khi preload bridge thật sự sẵn sàng; màn cuối hiển thị kế hoạch mẫu ba bước xác định.
 
 ### Security
 
@@ -62,9 +71,12 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Static secret, OAuth token, CLI credential và plugin-owned auth có storage authority riêng; cấm plaintext/silent fallback.
 - Renderer Feature 0.4 không có Node, network, webview hay mutable IPC; production DevTools tắt và contract lỗi chuyển degraded state.
 - ASAR validator fail-closed nếu package lẫn source, dependency tree hoặc source map; artifact vẫn unsigned và non-distributable.
+- Renderer không nắm promotion evidence; state machine từ chối từng tổ hợp từng có thể tạo `ACTIVE` bất khả thi và giữ `reportReady=false` cho toàn bộ preview.
 
 ### Verified
 
+- Correction pass Feature 0.5 đạt 55/55 test, lint, typecheck, validator, Windows package/ASAR, dependency audit và CI Windows/macOS/Linux/governance trên commit `3ab90e1`.
+- QA tương tác production bundle đi xuyên bước 1–3, validation lỗi, Việt/Anh, sáng/tối và ba viewport 1440×900, 1024×768, 980×680 mà không tràn ngang. Human usability và screen-reader run vẫn chưa thực hiện.
 - Audit đóng Feature 0.3 xác nhận chuỗi tài liệu không còn ghi release train
   `Chưa khóa` hoặc liệt kê Feature 0.3 như việc còn chờ.
 - Governance validation đạt trên máy local và GitHub Actions.

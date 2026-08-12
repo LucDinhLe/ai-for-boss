@@ -2,8 +2,8 @@
 
 Ngày lập: 2026-08-11  
 Chủ sản phẩm: Lê Đình Lực  
-Phiên bản: 1.2  
-Trạng thái: Kế hoạch thi công trực thuộc Rulebook 1.3
+Phiên bản: 1.3  
+Trạng thái: Kế hoạch thi công trực thuộc Rulebook 1.4
 
 ## 0. Vai trò của tài liệu
 
@@ -15,7 +15,7 @@ Ba tài liệu có vai trò riêng:
 
 | Tài liệu | Trả lời |
 |---|---|
-| Rulebook 1.3 | Điều gì bắt buộc, điều gì bị cấm, cổng nào phải qua |
+| Rulebook 1.4 | Điều gì bắt buộc, điều gì bị cấm, cổng nào phải qua |
 | Master Execution Plan | Xây theo lớp nào, thứ tự nào, dùng phần nào của OpenClaw, nghiệm thu ra sao |
 | Feature Spec và Decision Log | Phiên build hiện tại làm đúng việc gì và đã chốt lựa chọn nào |
 
@@ -376,13 +376,19 @@ platform/security review vẫn là điều kiện của Cổng 0; chưa có capa
 
 CI build chỉ chứng minh khả năng biên dịch. Hỗ trợ thiết bị chỉ được công bố sau test máy thật ở Cổng 4.
 
-#### Feature 0.5. Baseline bảo mật và phát hành
+#### Feature 0.5. First-run journey và baseline bảo mật liên quan
 
 Đầu ra:
 
-- IPC schema và sender validation.
-- CSP, navigation policy và remote-debugging policy.
-- Test policy, release policy, support-bundle redaction và incident skeleton.
+- Vertical slice ba bước bằng dữ liệu giả, gắn nhãn internal rõ ràng.
+- Agent Genesis state machine giữ resume idempotent và fail closed theo contract đã khóa.
+- Task draft cùng Advisor plan/final checkpoint ở trạng thái pending, chưa có runtime hoặc verdict giả.
+- IPC schema/sender validation, CSP, navigation/remote-debugging policy và test policy liên quan first run.
+
+Feature này kiểm chứng hành trình sớm nhưng không thay Feature 2.2, 2.3 hoặc
+2.6. Gateway, OAuth, OpenClaw writer, session execution, Advisor orchestration,
+support-bundle redaction và incident implementation vẫn phải đạt ở đúng cổng
+trước khi có claim production.
 
 #### Feature 0.6. Sandbox feasibility
 

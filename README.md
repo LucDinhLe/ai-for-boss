@@ -6,18 +6,27 @@ AI for Boss là phần mềm AI coworker dành cho chủ doanh nghiệp. Sản p
 
 ## Trạng thái
 
-Dự án đã local-verify **Cổng 0, Feature 0.4 — App shell và CI đa nền tảng**.
+Dự án đã hoàn tất correction pass cho **Cổng 0, Feature 0.5 — First-run journey
+ba bước** ở commit `3ab90e1`, bắt đầu đúng từ commit Feature 0.4 đã xác minh
+`58c5283`. Draft PR #5 xanh 4/4 trên Windows, macOS, Linux và governance nhưng
+vẫn giữ Draft; human usability cùng senior platform/security review vẫn chờ.
 OpenClaw `2026.7.1-2`, Node `24.19.0`, Electron `43.3.0` và pnpm `11.2.2`
 được khóa theo release train. Desktop shell Electron/React đã build và package
-được trên Windows x64; CI Windows, macOS và Linux đã xanh trên draft PR #4.
+được trên Windows x64; CI Windows, macOS và Linux đã xanh trên Draft PR #4 và #5.
 
-Feature 0.2 đã khóa release train `openclaw@2026.7.1-2` bằng npm integrity, git tag/commit và Gateway WebSocket RPC v4 được upstream công bố cho external app. Hai workspace package Gateway private chỉ được fingerprint làm tham chiếu, không bundle hoặc trộn beta. Repo vẫn chưa có desktop app, OAuth, installer, updater, sandbox sản phẩm hoặc bản phát hành cho người dùng thật; lab WSL2 chỉ là bằng chứng thử nghiệm.
+Feature 0.2 đã khóa release train `openclaw@2026.7.1-2` bằng npm integrity, git tag/commit và Gateway WebSocket RPC v4 được upstream công bố cho external app. Hai workspace package Gateway private chỉ được fingerprint làm tham chiếu, không bundle hoặc trộn beta. Repo đã có desktop shell và first-run prototype nội bộ, nhưng chưa có OAuth, Gateway Adapter, OpenClaw runtime tích hợp, installer, updater, sandbox sản phẩm hoặc bản phát hành cho người dùng thật; lab WSL2 chỉ là bằng chứng thử nghiệm.
 
 Feature 0.3 đã ánh xạ 23 nhóm capability, 9 auth mode, 9 nguồn sự thật, 8 data flow, Agent Genesis contract và 14 threat/abuse case. Feature 0.4 dùng các contract đó để sinh summary an toàn cho renderer; preload chỉ có một API đọc và mọi kết nối thật vẫn khóa. Toàn bộ capability vẫn `advertisable: false`; senior platform/security review vẫn là điều kiện trước khi Cổng 0 được coi là qua hoàn toàn.
 
 Bản package hiện là `experimental-internal`, chưa ký và không phân phối. Nó
 không phải installer, chưa chứa OpenClaw runtime, Supervisor, OAuth, Gateway,
 model call, Agent Genesis hoặc tool thật.
+
+Feature 0.5 chỉ dùng ba fixture model `live:false`, state trong bộ nhớ và task
+`draft-only`. Preview Genesis chỉ dừng ở `STAGING`; renderer không được tự khai
+`ACTIVE`, xóa bootstrap hoặc báo sẵn sàng nếu thiếu bằng chứng runtime tin cậy.
+Advisor giữ `pending-runtime`. Đây là bằng chứng UX nội bộ, chưa phải kết nối
+hoặc Agent thật.
 
 ## Nguyên tắc triển khai
 
@@ -53,6 +62,8 @@ model call, Agent Genesis hoặc tool thật.
 22. [Audit Feature 0.3](docs/release/FEATURE-0.3-AUDIT.md)
 23. [Feature 0.4 — App shell và CI đa nền tảng](docs/feature-specs/0004-app-shell-cross-platform-ci.md)
 24. [Audit Feature 0.4](docs/release/FEATURE-0.4-AUDIT.md)
+25. [Feature 0.5 — First-run journey](docs/feature-specs/0005-first-run-journey.md)
+26. [Audit Feature 0.5](docs/release/FEATURE-0.5-AUDIT.md)
 
 ## Kiểm tra governance
 
@@ -66,6 +77,7 @@ corepack pnpm install --frozen-lockfile
 corepack pnpm verify
 corepack pnpm package:desktop
 node .\scripts\validate-feature-0.4.mjs --require-artifact
+node .\scripts\validate-feature-0.5.mjs
 ```
 
 `ExecutionPolicy Bypass` chỉ áp dụng cho tiến trình kiểm tra này, không thay đổi chính sách PowerShell toàn máy.

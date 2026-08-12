@@ -27,3 +27,13 @@ summary, release train, Electron web preferences, preload allowlist, CSP và c�
 cờ làm yếu sandbox. Package validation đọc inventory bên trong ASAR và từ chối
 source, `node_modules` hoặc source map. Ma trận CI build/package riêng trên
 Windows, macOS và Linux nhưng artifact vẫn chỉ là `experimental-internal`.
+
+Feature 0.5 chạy `scripts/validate-feature-0.5.mjs`,
+`tests/unit/first-run-machine.test.mjs` và
+`tests/contract/first-run-security-contract.test.mjs`. Bộ test khóa ba fixture
+`live:false`, exact snapshot schema/invariant matrix, Genesis fail-closed/resume
+idempotent, renderer không được tự cung cấp runtime promotion evidence, task
+draft-only, kế hoạch mẫu xác định, Advisor pending-runtime, CSP offline, state
+chỉ trong bộ nhớ và preload read-only. `corepack pnpm run qa:prepare` sinh QA
+harness từ production bundle; QA tương tác vẫn không thay thế human usability,
+screen-reader hoặc senior platform/security review.
