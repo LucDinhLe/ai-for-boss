@@ -5,7 +5,7 @@
 - Cổng: 0
 - Owner kỹ thuật: Hermes/Codex; chờ senior platform/security reviewer trước khi qua Cổng 0
 - Product Owner: Lê Đình Lực
-- Trạng thái: Local verified; checkpoint, Draft PR và CI pending
+- Trạng thái: Technical handoff complete tại checkpoint `25d523b`; Draft PR #6 mở, CI 4/4 xanh; Gate 0 vẫn chờ Product Owner backend acceptance và senior platform/security review
 - Ngày mở: 2026-08-12
 - Nhánh: `feature/0.6-sandbox-feasibility`
 - Điểm xuất phát đã xác minh: `cf5edc56c6db2a77a559e3bacbfc664b73b060e1`
@@ -139,14 +139,14 @@ Product Owner cần chốt một câu hỏi sau khi nhận ADR: chấp nhận h�
 - [x] Khuyến nghị nêu hệ quả vận hành, phương án còn lại, chi phí, giới hạn và mặc định an toàn.
 - [x] Manifest/schema bao phủ ba hướng, ba họ OS, capability lock, failure behavior, data egress, admin/install, cost/license và recovery/update.
 - [x] Probe chạy mà không cài phần mềm, không dùng admin, network, credential hoặc child-file I/O; chỉ tạo/xóa không recursive một thư mục tạm rỗng sau canonical containment và cleanup reauthorization.
-- [ ] Probe chạy trên Windows, macOS và Linux CI; kết quả chỉ được gắn `spike-tested` với scope `presence` và `temp-containment`, `promotionEligible:false`.
+- [x] Probe chạy trên Windows, macOS và Linux CI; kết quả chỉ được gắn `spike-tested` với scope `presence` và `temp-containment`, `promotionEligible:false`.
 - [x] Contract tests từ chối evidence promotion giả, platform mismatch, thiếu containment, thiếu backend, silent fallback và mở capability nguy hiểm.
 - [x] Capability inventory tiếp tục giữ workspace/file, tool/exec, Browser/web và Always-on ở trạng thái phù hợp; không capability nào tự đổi `advertisable:false`.
-- [x] Governance, lint, typecheck, toàn bộ test, build, validators, dependency audit, secret scan và package/ASAR gate đạt trên Windows local; exact Node `24.19.0` chờ CI.
+- [x] Governance, lint, typecheck, toàn bộ test, build, validators, dependency audit, secret scan và package/ASAR gate đạt trên Windows local; exact Node `24.19.0` đã được CI ba hệ điều hành xác minh tại implementation checkpoint.
 - [x] Audit ghi rõ phần đã chứng minh, chỉ có tài liệu, giả thuyết, không khả thi/bị khóa và phần chưa test trên máy thật.
-- [ ] Có commit rollback được, nhánh được push và Draft PR riêng target `feature/0.5-first-run-journey`.
-- [ ] CI Windows, macOS, Linux và governance đạt trên HEAD của Draft PR.
-- [ ] CI trên HEAD không còn cảnh báo GitHub Actions dùng Node 20; `checkout`, `setup-node` và `upload-artifact` đều dùng release Node 24 đã khóa SHA, validator từ chối tag trôi nổi hoặc SHA cũ.
+- [x] Có commit rollback được `25d523baa6212c88a8a35797daf59226f3ba3588`, nhánh đã push và Draft PR #6 target `feature/0.5-first-run-journey`.
+- [x] CI Windows, macOS, Linux và governance đạt 4/4 trên implementation checkpoint của Draft PR #6.
+- [x] CI trên implementation checkpoint không còn cảnh báo GitHub Actions dùng Node 20; `checkout`, `setup-node` và `upload-artifact` đều dùng release Node 24 đã khóa SHA, validator từ chối tag trôi nổi hoặc SHA cũ.
 - [x] Feature 0.6 không sửa hoặc merge PR #5. Kiểm tra external state trước checkpoint cho thấy PR #5 đã được tài khoản Product Owner merge vào `main` lúc `2026-08-12T05:16:11Z`, sau khi gói bàn giao được tạo; trạng thái này được ghi nhận trung thực và không được xem là hành động của nhánh Feature 0.6.
 - [x] Senior platform/security review vẫn được ghi là điều kiện Gate 0 còn mở.
 
@@ -171,7 +171,7 @@ Trước checkpoint: dùng `git restore --staged` trên đúng danh sách file F
 
 ## 15. Bằng chứng hoàn thành
 
-- Commit: Checkpoint là commit chứa chính hồ sơ này; exact SHA được Git và Draft PR ghi nhận sau khi commit được tạo, tránh hard-code một SHA chưa tồn tại.
-- Kết quả test: Targeted Feature 0.6 đạt 25/25; full suite 80/80; lint, typecheck, build, Feature 0.4/0.5/0.6 validators, governance 105/124/52, dependency audit, Draft 2020-12 schema validation, `git diff --check` và package/ASAR đạt sau khi khóa Node 24 action pins và harden governance recursion. Local dùng Node `24.18.0`, lệch patch với release train CI `24.19.0`; CI ba OS/governance trên HEAD còn chờ.
-- Reviewer: Hermes/Codex self-review; senior platform/security review bắt buộc và chưa thực hiện.
+- Commit: Implementation checkpoint `25d523baa6212c88a8a35797daf59226f3ba3588`; mọi cập nhật đóng hồ sơ sau checkpoint là commit tài liệu riêng, rollback độc lập.
+- Kết quả test: Targeted Feature 0.6 đạt 25/25; full suite 80/80; lint, typecheck, build, Feature 0.4/0.5/0.6 validators, governance 105/124/52, dependency audit, Draft 2020-12 schema validation, `git diff --check` và package/ASAR đạt sau khi khóa Node 24 action pins và harden governance recursion. CI exact Node `24.19.0` đạt 4/4 trên Windows, macOS, Linux và governance tại implementation checkpoint.
+- Reviewer: Hai delegated AI review cuối cùng PASS trên cùng fingerprint `86f595e41cdca40072c06304bc59bcb3b7e187922bd861d1a35ae5a3171bcda1`, không có Critical/High. Đây là pre-commit quality review; senior platform/security review bắt buộc vẫn chưa thực hiện.
 - Product Owner acceptance: Chỉ thị mở Feature 0.6 ngày 2026-08-12; chưa chấp nhận khuyến nghị sandbox cuối.

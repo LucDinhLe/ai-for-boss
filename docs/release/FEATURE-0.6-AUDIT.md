@@ -3,7 +3,7 @@
 - Ngày audit: 2026-08-12
 - Nhánh: `feature/0.6-sandbox-feasibility`
 - Base: `cf5edc5`
-- Trạng thái: Local verified; checkpoint là commit chứa audit này; Draft PR/CI pending
+- Trạng thái: Technical handoff complete tại checkpoint `25d523b`; Draft PR #6 mở và CI 4/4 xanh; Gate 0 chưa qua
 - Product Owner: Lê Đình Lực
 - Review bắt buộc: Senior platform reviewer và independent security reviewer chưa ký
 
@@ -78,7 +78,7 @@ Tất cả source ID, URL, ngày truy cập và giới hạn nằm trong ADR/man
 | Dependency audit high | Pass | No known vulnerabilities found |
 | Schema và diff hygiene | Pass | Draft 2020-12 schema/manifest valid; `git diff --check` pass |
 | Windows package/ASAR | Pass | 75 files; 13 ASAR entries; SHA-256 `5a3446e3c73c3599177210516c232790a586c5354ef5e6639bfcca0e758ea48e`; unsigned/non-distributable |
-| CI Windows/macOS/Linux/governance | Pending | Chờ Draft PR HEAD |
+| CI Windows/macOS/Linux/governance | Pass | 4/4 xanh trên implementation checkpoint `25d523b` của Draft PR #6 |
 | Real sandbox runtime | Not run by design | Cần quyền, backend selection và riêng một implementation spike |
 | Human/machine representative testing | Not run | Cổng 4 |
 
@@ -95,6 +95,7 @@ Feature 0.6 không sửa first-run state machine, renderer journey, Agent Genesi
 - Self-review clean staged tree phát hiện Governance CI thiếu cài dependency cho AST policy. Clean archive tái hiện `ERR_MODULE_NOT_FOUND`; workflow và regression test đã được sửa trước checkpoint.
 - Reviewer `deleg_39c0fc53` đọc fingerprint cũ `674d20d...` với 20 staged files; sáu blocker source policy/capability/evidence/claim/threat/rollback thuộc snapshot cũ đã được candidate mới xử lý. Finding write-before-child-containment và stale cleanup authorization còn hiệu lực, được tái hiện RED; probe hiện bỏ child-file I/O cùng recursive removal, tái canonicalize ngay trước `rmdirSync`, và ba regression tests đạt.
 - Delegated AI review chỉ là pre-commit quality review; không thay senior human platform/security review bắt buộc ở Gate 0.
+- Hai review cuối cùng đọc cùng exact staged snapshot, giữ fingerprint đầu/cuối `86f595e41cdca40072c06304bc59bcb3b7e187922bd861d1a35ae5a3171bcda1` và đều PASS, không có finding Critical/High.
 
 ## 6. Product Owner và reviewer còn phải chốt
 
@@ -108,4 +109,4 @@ Antigravity không phải blocker và không thay CI/reviewer. Nếu dùng, ch�
 
 ## 7. Điểm bàn giao
 
-Feature 0.6 chỉ được gọi là technical handoff complete sau full local gates, checkpoint commit, Draft PR đúng base và CI bốn check xanh. Gate 0 vẫn mở cho tới khi Product Owner cùng reviewer bắt buộc xử lý các quyết định ở mục 6.
+Feature 0.6 đã đạt technical handoff complete: full local gates xanh, implementation checkpoint `25d523b` đã push, Draft PR #6 đúng base và CI bốn check xanh. Gate 0 vẫn mở cho tới khi Product Owner cùng reviewer bắt buộc xử lý các quyết định ở mục 6; trạng thái này không cho phép mở host exec, elevated, Browser nhạy cảm hoặc gọi sandbox production-ready.

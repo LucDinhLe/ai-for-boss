@@ -81,7 +81,7 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 ### Verified
 
-- Feature 0.6 local đạt 25/25 targeted tests, 80/80 full suite, lint, typecheck, build, validators, governance 105/124/52, dependency audit, Draft 2020-12 schema validation, diff hygiene và Windows package/ASAR sau khi khóa Node 24 action pins và harden governance recursion; CI exact Node `24.19.0` trên HEAD còn chờ.
+- Feature 0.6 đạt technical handoff complete tại implementation checkpoint `25d523b`: local đạt 25/25 targeted tests, 80/80 full suite, lint, typecheck, build, validators, governance 105/124/52, dependency audit, Draft 2020-12 schema validation, diff hygiene và Windows package/ASAR; Draft PR #6 có CI exact Node `24.19.0` xanh 4/4 trên Windows, macOS, Linux và governance.
 - Probe source được khóa bằng exact reviewed-source SHA-256 trước AST allowlist; ba direction được khóa bằng semantic digest để schema/manifest co-mutation không thể xóa một nền tảng hoặc viết lại isolation/network/capability claims.
 - Governance CI cài exact pnpm và frozen dependency graph trước khi load AST policy; clean-tree regression chặn lỗi `ERR_MODULE_NOT_FOUND` bị local `node_modules` che khuất.
 - Correction pass Feature 0.5 đạt 55/55 test, lint, typecheck, validator, Windows package/ASAR, dependency audit và CI Windows/macOS/Linux/governance trên commit `3ab90e1`.

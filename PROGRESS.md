@@ -36,12 +36,12 @@ Feature 0.6: sandbox feasibility ADR và spike tối thiểu. Không triển kha
 - JSON Schema Draft 2020-12/manifest và `git diff --check`: pass.
 - Windows package/ASAR: 75 files, 13 allowlisted entries, unsigned/non-distributable.
 
-## Đang chờ trước khi bàn giao
+## Bàn giao kỹ thuật đã hoàn tất
 
-- Final independent review trên staged snapshot bất biến; các finding Critical/High còn hiệu lực từ `deleg_7c261ecc` đã được tái hiện RED và sửa GREEN bằng regression tests.
-- Push checkpoint branch và mở Draft PR target `feature/0.5-first-run-journey` sau khi review staged snapshot đạt.
-- Chờ CI Windows, macOS, Linux và governance trên HEAD.
-- CI HEAD phải hết cảnh báo action runtime Node 20 trước khi Feature 0.6 được bàn giao.
+- Hai review AI độc lập cùng exact fingerprint `86f595e4…cda1` đều PASS, không có finding Critical/High; review này không thay senior human review.
+- Implementation checkpoint `25d523baa6212c88a8a35797daf59226f3ba3588` đã push lên `feature/0.6-sandbox-feasibility`.
+- Draft PR #6 target `feature/0.5-first-run-journey` vẫn mở ở trạng thái Draft.
+- CI trên implementation checkpoint xanh 4/4: Windows, macOS, Linux và governance; không còn cảnh báo action runtime Node 20.
 
 ## Gate còn mở
 
@@ -53,4 +53,4 @@ Feature 0.6: sandbox feasibility ADR và spike tối thiểu. Không triển kha
 
 ## Điểm tiếp theo
 
-Sau khi Feature 0.6 được bàn giao và Gate 0 có quyết định/reviewer cần thiết, phiên riêng kế tiếp mới được mở Feature 1.1: Supervisor spawn OpenClaw nhúng trên Windows x64. Không nối runtime trước sandbox/review gate. SHA checkpoint là commit chứa chính file `PROGRESS.md` này và được Git/PR ghi nhận, không hard-code trước khi commit tồn tại.
+Feature 0.6 đã bàn giao kỹ thuật. Sau khi Gate 0 có quyết định Product Owner và chữ ký reviewer bắt buộc, phiên riêng kế tiếp mới được mở Feature 1.1: Supervisor spawn OpenClaw nhúng trên Windows x64. Không nối runtime trước sandbox/review gate. Implementation checkpoint là `25d523baa6212c88a8a35797daf59226f3ba3588`; commit đóng hồ sơ được giữ riêng để rollback độc lập.
