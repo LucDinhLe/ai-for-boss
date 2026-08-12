@@ -6,9 +6,11 @@ AI for Boss là phần mềm AI coworker dành cho chủ doanh nghiệp. Sản p
 
 ## Trạng thái
 
-Dự án đang ở **Cổng 0, Feature 0.2 — Khóa release train**. OpenClaw `2026.7.1-2`, Node `24.19.0` và pnpm `11.2.2` đã qua smoke test không credential trong lab WSL2 riêng trên Windows x64. Electron `43.3.0` đã được khóa ở mức metadata.
+Dự án đã hoàn thành local verification cho **Cổng 0, Feature 0.3 — Capability và threat model**. OpenClaw `2026.7.1-2`, Node `24.19.0` và pnpm `11.2.2` đã qua smoke test không credential trong lab WSL2 riêng trên Windows x64. Electron `43.3.0` đã được khóa ở mức metadata.
 
 Feature 0.2 đã khóa release train `openclaw@2026.7.1-2` bằng npm integrity, git tag/commit và Gateway WebSocket RPC v4 được upstream công bố cho external app. Hai workspace package Gateway private chỉ được fingerprint làm tham chiếu, không bundle hoặc trộn beta. Repo vẫn chưa có desktop app, OAuth, installer, updater, sandbox sản phẩm hoặc bản phát hành cho người dùng thật; lab WSL2 chỉ là bằng chứng thử nghiệm.
+
+Feature 0.3 đã ánh xạ 23 nhóm capability, 9 auth mode, 9 nguồn sự thật, 8 data flow, Agent Genesis contract và 14 threat/abuse case. Toàn bộ capability vẫn khóa `advertisable: false`; contract và threat model mới là bản thiết kế có kiểm tra nhất quán, chưa phải control đã triển khai. Senior platform/security review vẫn là điều kiện trước khi Cổng 0 được coi là qua hoàn toàn.
 
 ## Nguyên tắc triển khai
 
@@ -36,6 +38,12 @@ Feature 0.2 đã khóa release train `openclaw@2026.7.1-2` bằng npm integrity,
 14. [Hồ sơ concept icon bị loại](docs/brand/README.md)
 15. [Audit competitive parity, hành trình ba bước và Always-on](docs/release/COMPETITIVE-PARITY-AND-HEADLESS-AUDIT-2026-08-11.md)
 16. [Feature 0.2c — Competitive parity, ba bước và Headless](docs/feature-specs/0002c-competitive-parity-three-step-headless.md)
+17. [Feature 0.3 — Capability và threat model](docs/feature-specs/0003-capability-threat-model.md)
+18. [Capability inventory v1](docs/architecture/CAPABILITY-INVENTORY.md)
+19. [Nguồn sự thật và luồng dữ liệu](docs/architecture/SOURCE-OF-TRUTH-AND-DATA-FLOW.md)
+20. [Threat model](docs/security/THREAT-MODEL.md)
+21. [Ma trận xác thực provider](docs/security/PROVIDER-AUTH-MATRIX.md)
+22. [Audit Feature 0.3](docs/release/FEATURE-0.3-AUDIT.md)
 
 ## Kiểm tra governance
 
@@ -44,6 +52,8 @@ Chạy trên PowerShell 7 hoặc Windows PowerShell:
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\validate-governance.ps1
 node .\scripts\validate-runtime-manifest.mjs
+node .\scripts\validate-feature-0.3.mjs
+node --test .\tests\contract\release-train-contract.test.mjs .\tests\contract\capability-threat-model-contract.test.mjs
 ```
 
 `ExecutionPolicy Bypass` chỉ áp dụng cho tiến trình kiểm tra này, không thay đổi chính sách PowerShell toàn máy.

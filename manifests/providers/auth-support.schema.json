@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aiforboss.local/schemas/auth-support.schema.json",
+  "title": "AI for Boss provider authentication support",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "capturedAt", "releaseTrainId", "defaultPolicy", "records"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": "1.0.0" },
+    "capturedAt": { "type": "string", "format": "date-time" },
+    "releaseTrainId": { "const": "oc-2026.7.1-2-locked.1" },
+    "defaultPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unknownAuthMode", "silentFallback", "productionEnablementRequires"],
+      "properties": {
+        "unknownAuthMode": { "const": "blocked" },
+        "silentFallback": { "const": false },
+        "productionEnablementRequires": {
+          "type": "array",
+          "minItems": 4,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "records": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/record" }
+    }
+  },
+  "$defs": {
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "provider",
+        "authMode",
+        "supportLevel",
+        "readiness",
+        "credentialOwner",
+        "storageAuthority",
+        "source",
+        "termsCheckedAt",
+        "platformsTested",
+        "liveProbe",
+        "revokeFlow",
+        "enablementGate",
+        "userLabelVi",
+        "failureBehavior",
+        "risks"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)+$" },
+        "provider": { "enum": ["openai", "anthropic", "google", "generic-provider", "local-model"] },
+        "authMode": { "enum": ["api-key", "oauth", "device-code", "cli-credential", "plugin-owned", "none-local"] },
+        "supportLevel": { "enum": ["production", "conditional", "experimental", "blocked"] },
+        "readiness": { "enum": ["documented-only", "live-tested", "blocked"] },
+        "credentialOwner": { "enum": ["customer", "openclaw-profile", "external-cli", "plugin", "none"] },
+        "storageAuthority": { "enum": ["os-key-store-via-secretref", "openclaw-native-auth-store", "external-cli-store", "plugin-defined", "none"] },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "surface"],
+          "properties": {
+            "path": { "type": "string", "minLength": 1 },
+            "surface": { "type": "string", "minLength": 1 }
+          }
+        },
+        "termsCheckedAt": { "type": ["string", "null"] },
+        "platformsTested": { "type": "array", "items": { "enum": ["windows-x64", "windows-arm64", "macos-arm64", "macos-x64", "linux-x64", "linux-arm64"] } },
+        "liveProbe": { "enum": ["required", "passed", "not-applicable"] },
+        "revokeFlow": { "enum": ["required", "verified", "not-applicable"] },
+        "enablementGate": { "type": "string", "minLength": 1 },
+        "userLabelVi": { "type": "string", "minLength": 1 },
+        "failureBehavior": { "type": "string", "minLength": 1 },
+        "risks": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    }
+  }
+}

@@ -7,7 +7,7 @@ Phạm vi: Từ repo hiện tại tới sản phẩm cho người phổ thông t
 
 ## 1. Kết luận điều hành
 
-**AI for Boss chưa thể đóng gói hoặc phát hành cho người dùng.** Repo hiện có governance, release train đã khóa, manifest/schema, Gateway contract lock, license inventory nền và một phòng thử nghiệm WSL2. Repo chưa có desktop application code, Supervisor, Gateway Adapter, onboarding thật, sandbox sản phẩm, installer, updater hoặc artifact đã ký.
+**AI for Boss chưa thể đóng gói hoặc phát hành cho người dùng.** Repo hiện có governance, release train đã khóa, capability/auth/source/threat contract, Gateway contract lock, license inventory nền và một phòng thử nghiệm WSL2. Repo chưa có desktop application code, Supervisor, Gateway Adapter, onboarding thật, sandbox sản phẩm, installer, updater hoặc artifact đã ký.
 
 Update cùng ngày đã gỡ blocker Feature 0.2:
 
@@ -16,6 +16,11 @@ Update cùng ngày đã gỡ blocker Feature 0.2:
 - Contract lock đã pin npm integrity, git tag/commit, protocol v4, doc blob và private workspace tree fingerprint. Gateway startup cùng authenticated `health` RPC đạt trong loopback-only lab.
 
 Feature 0.2 chuyển sang `complete` và manifest thành `locked`. Beta, private source vendoring và hashed `dist` imports vẫn bị cấm. Việc gỡ blocker chỉ mở feature kế tiếp; không tạo executable giả vờ hoàn chỉnh.
+
+Feature 0.3 cũng đã hoàn thành ở mức hợp đồng và kiểm tra cục bộ: 23 nhóm
+capability, 9 auth mode, 9 nguồn sự thật, 8 data flow, Agent Genesis contract
+và 14 threat/abuse case. Toàn bộ capability vẫn `advertisable: false`; senior
+platform/security review vẫn là điều kiện trước khi qua Cổng 0.
 
 Audit competitive parity bổ sung cùng ngày xác nhận sản phẩm cũng chưa đạt hành trình ba bước, benchmark thị giác hoặc Headless implementation. Xem [Competitive parity, ba bước và Always-on](COMPETITIVE-PARITY-AND-HEADLESS-AUDIT-2026-08-11.md).
 
@@ -26,6 +31,7 @@ Audit competitive parity bổ sung cùng ngày xác nhận sản phẩm cũng ch
 | Governance | Rulebook, Master Plan, AGENTS, Decision Log, Risk Register, Feature Spec | Có nền |
 | Release train | OpenClaw, Node, Electron, pnpm và Gateway contract có version/hash cụ thể | Locked |
 | Runtime manifest | Schema và manifest cho sáu tổ hợp nền tảng | Locked, chưa có artifact sản phẩm |
+| Capability/data/security contract | 23 capability, 9 auth mode, 9 nguồn, 8 flow, Agent Genesis và 14 threat | Hoàn thành Feature 0.3; chưa phải control đã triển khai |
 | License/SBOM | Inventory, third-party notice và SBOM nền | Có nền, chưa phải SBOM artifact cuối |
 | Lab | WSL2 riêng, không mount ổ Windows, không credential | Đạt mục tiêu Feature 0.2 |
 | Product UX | Prototype ba panel ngoài repo sản phẩm | Chỉ minh họa, chưa phải app |
@@ -49,7 +55,8 @@ Release train thống nhất gồm OpenClaw, Node, Electron, package manager và
 
 ### 3.2. Hoàn thành Cổng 0
 
-- Feature 0.3: capability inventory, source-of-truth map, data flow, threat model, auth matrix và Agent Genesis contract.
+Feature 0.3 đã hoàn thành ở mức contract. Các phần còn lại của Cổng 0 là:
+
 - Feature 0.4: Electron shell trống, renderer sandbox và CI Windows/macOS/Linux.
 - Feature 0.5: IPC schema, CSP, navigation policy, release policy, redaction và incident skeleton.
 - Feature 0.6: ADR và spike sandbox trên từng họ hệ điều hành.
@@ -235,7 +242,7 @@ Mỗi OS/architecture được quảng cáo cần runner sạch và ít nhất m
 
 ## 11. Đường ngắn nhất tới bản người dùng tải được
 
-1. Hoàn thành Feature 0.3 đến 0.6 và review kiến trúc.
+1. Hoàn thành Feature 0.4 đến 0.6 và review kiến trúc độc lập.
 2. Thuê hoặc chỉ định một desktop/platform engineer senior chịu trách nhiệm.
 3. Làm Windows x64 technical spike với Supervisor/Gateway Adapter.
 4. Hoàn thành onboarding, Agent Genesis, session/model/Advisor và recovery tối thiểu.

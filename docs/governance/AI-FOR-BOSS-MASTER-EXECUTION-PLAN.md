@@ -339,6 +339,10 @@ Nghiệm thu khi một phiên AI mới có thể đọc tài liệu, xác địn
 
 #### Feature 0.2. Khóa release train
 
+**Trạng thái:** Hoàn thành. Release train `oc-2026.7.1-2-locked.1` đã khóa
+OpenClaw `2026.7.1-2`, Node `24.19.0`, Electron `43.3.0`, pnpm `11.2.2`
+và Gateway protocol v4 bằng contract công khai dành cho external app.
+
 Đầu ra:
 
 - Chọn một OpenClaw stable release sau khi chạy smoke test.
@@ -349,6 +353,10 @@ Nghiệm thu khi một phiên AI mới có thể đọc tài liệu, xác địn
 Snapshot OpenClaw `2026.8.1` đang có trong thư mục nghiên cứu chỉ là bằng chứng khảo sát. Nó chưa được coi là phiên bản sản phẩm đã khóa.
 
 #### Feature 0.3. Capability và threat model
+
+**Trạng thái:** Hoàn thành ở mức hợp đồng và kiểm tra cục bộ. Senior
+platform/security review vẫn là điều kiện của Cổng 0; chưa có capability nào
+được phép quảng cáo là đã triển khai production.
 
 Đầu ra:
 
@@ -591,7 +599,7 @@ Hai đường gặp nhau ở Private Alpha. Lúc đó dữ liệu nhu cầu đã
 
 | Quyết định | Hạn chốt | Mặc định hiện tại |
 |---|---|---|
-| Phiên bản OpenClaw stable được khóa | Feature 0.2 | Chưa khóa |
+| Phiên bản OpenClaw stable được khóa | Feature 0.2 | Đã khóa trong release train `oc-2026.7.1-2-locked.1`: OpenClaw `2026.7.1-2`, Node `24.19.0`, Electron `43.3.0`, pnpm `11.2.2`, Gateway protocol v4 |
 | Sandbox local, remote hay native | Feature 0.6 | Tool nguy hiểm tắt |
 | Mã nguồn mở hay thương mại đóng | Trước Cổng 4 | Repo private |
 | Nền tảng và kiến trúc quảng cáo | Mỗi release Cổng 4+ | Chỉ tổ hợp đã test |

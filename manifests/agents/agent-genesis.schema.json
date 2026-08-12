@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aiforboss.local/schemas/agent-genesis.schema.json",
+  "title": "AI for Boss Agent Genesis contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "releaseTrainId",
+    "sourceDocuments",
+    "templateReferences",
+    "states",
+    "transitions",
+    "activationPreconditions",
+    "workspaceBoundaries",
+    "invariants",
+    "failureBehavior"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": "1.0.0" },
+    "releaseTrainId": { "const": "oc-2026.7.1-2-locked.1" },
+    "sourceDocuments": { "type": "array", "minItems": 3, "items": { "type": "string", "minLength": 1 } },
+    "templateReferences": {
+      "type": "array",
+      "minItems": 7,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "path", "sha256", "bytes", "evidence"],
+        "properties": {
+          "name": { "enum": ["AGENTS.md", "SOUL.md", "TOOLS.md", "IDENTITY.md", "USER.md", "HEARTBEAT.md", "BOOTSTRAP.md"] },
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "bytes": { "type": "integer" },
+          "evidence": { "const": "locked-reference-document" }
+        }
+      }
+    },
+    "states": {
+      "type": "array",
+      "minItems": 7,
+      "items": { "enum": ["UNSEEDED", "SEEDED", "CONVERSING", "STAGING", "VERIFYING", "ACTIVE", "PENDING_RESUME"] }
+    },
+    "transitions": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "to", "condition"],
+        "properties": {
+          "from": { "type": "string", "minLength": 1 },
+          "to": { "type": "string", "minLength": 1 },
+          "condition": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "activationPreconditions": { "type": "array", "minItems": 8, "items": { "type": "string", "minLength": 1 } },
+    "workspaceBoundaries": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "sourceOfTruthRefs", "contains", "rendererAccess", "grantModes"],
+        "properties": {
+          "id": { "enum": ["agent-home", "agent-dir", "project-space"] },
+          "name": { "type": "string", "minLength": 1 },
+          "sourceOfTruthRefs": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^SOT-[0-9]{2}$" } },
+          "contains": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+          "rendererAccess": { "enum": ["none", "status-only", "user-mediated-files"] },
+          "grantModes": { "type": "array", "minItems": 1, "items": { "enum": ["none", "read-only", "read-write", "supervisor-contract-only"] } }
+        }
+      }
+    },
+    "invariants": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "failureBehavior": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "keepBootstrap", "createMemory", "reportReady", "resumeMode"],
+      "properties": {
+        "state": { "const": "PENDING_RESUME" },
+        "keepBootstrap": { "const": true },
+        "createMemory": { "const": false },
+        "reportReady": { "const": false },
+        "resumeMode": { "const": "idempotent-from-last-verified-checkpoint" }
+      }
+    }
+  }
+}

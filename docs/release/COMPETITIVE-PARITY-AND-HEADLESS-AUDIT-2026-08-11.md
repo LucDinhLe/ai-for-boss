@@ -5,9 +5,13 @@ Người thực hiện: Codex self-review
 Product Owner: Lê Đình Lực  
 Đối chiếu: AICoworker v2026.6.19 và tài liệu OpenClaw công khai tại thời điểm audit
 
+**Cập nhật trạng thái:** Feature 0.3 đã hoàn thành capability/auth/source/threat
+contract cùng Agent Genesis contract sau baseline audit này. Các trạng thái
+implementation, hành trình ba bước và Headless bên dưới chưa thay đổi.
+
 ## 1. Kết luận điều hành
 
-**Bản AI for Boss hiện tại chưa đạt điều kiện cạnh tranh và chưa có sản phẩm để tải dùng.** Repo có governance, runtime candidate, WSL2 lab, thiết kế UX và prototype tĩnh. Chưa có desktop app, Supervisor, Gateway Adapter, provider connection, Agent runtime, Advisor thật, installer, updater, signing hoặc Headless product.
+**Bản AI for Boss hiện tại chưa đạt điều kiện cạnh tranh và chưa có sản phẩm để tải dùng.** Repo có governance, release train đã khóa, Feature 0.3 contract, WSL2 lab, thiết kế UX và prototype tĩnh. Chưa có desktop app, Supervisor, Gateway Adapter, provider connection, Agent runtime, Advisor thật, installer, updater, signing hoặc Headless product.
 
 Vì vậy:
 
@@ -117,4 +121,3 @@ Thứ tự mới cần chứng minh:
 - OpenClaw Gateway client: <https://docs.openclaw.ai/gateway/clients>
 - OpenClaw Multi-tenant hosting: <https://docs.openclaw.ai/gateway/multi-tenant-hosting>
 - OpenClaw Kubernetes: <https://docs.openclaw.ai/install/kubernetes>
-
