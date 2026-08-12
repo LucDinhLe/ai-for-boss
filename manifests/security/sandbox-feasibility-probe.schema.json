@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-for-boss.local/schemas/sandbox-feasibility-probe.schema.json",
+  "title": "AI for Boss Feature 0.6 fixture-only probe success report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "testId",
+    "capturedAt",
+    "platform",
+    "architecture",
+    "nodeMajor",
+    "claimsIsolation",
+    "protectedCapabilities",
+    "ok",
+    "code",
+    "evidenceLevel",
+    "evidenceScopes",
+    "releaseTrainId",
+    "promotionEligible",
+    "runtimeHints",
+    "tempFixture",
+    "failure",
+    "limitations"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "testId": {
+      "const": "TEST-SANDBOX-FEASIBILITY-PRESENCE"
+    },
+    "capturedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "platform": {
+      "enum": [
+        "win32",
+        "darwin",
+        "linux"
+      ]
+    },
+    "architecture": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nodeMajor": {
+      "type": "integer"
+    },
+    "claimsIsolation": {
+      "const": false
+    },
+    "protectedCapabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "productHostExec",
+        "elevatedExec",
+        "sensitiveBrowser",
+        "networkEgress",
+        "credentialUse"
+      ],
+      "properties": {
+        "productHostExec": {
+          "const": false
+        },
+        "elevatedExec": {
+          "const": false
+        },
+        "sensitiveBrowser": {
+          "const": false
+        },
+        "networkEgress": {
+          "const": false
+        },
+        "credentialUse": {
+          "const": false
+        }
+      }
+    },
+    "ok": {
+      "const": true
+    },
+    "code": {
+      "const": "probe-complete"
+    },
+    "runtimeHints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dockerDesktopExecutablePresent": {
+          "type": "boolean"
+        },
+        "opensshClientAtStandardPath": {
+          "type": "boolean"
+        },
+        "windowsSandboxExecutablePresent": {
+          "type": "boolean"
+        },
+        "wslExecutablePresent": {
+          "type": "boolean"
+        },
+        "codesignPresent": {
+          "type": "boolean"
+        },
+        "dockerDesktopAppPresent": {
+          "type": "boolean"
+        },
+        "sandboxExecPresent": {
+          "type": "boolean"
+        },
+        "cgroupV2Present": {
+          "type": "boolean"
+        },
+        "dockerCliAtStandardPath": {
+          "type": "boolean"
+        },
+        "unsharePresent": {
+          "type": "boolean"
+        },
+        "userNamespaceMetadataPresent": {
+          "type": "boolean"
+        }
+      }
+    },
+    "tempFixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "createdInsideOsTemp",
+        "pathContained",
+        "cleanupReauthorized",
+        "cleanupVerified"
+      ],
+      "properties": {
+        "createdInsideOsTemp": {
+          "const": true
+        },
+        "pathContained": {
+          "const": true
+        },
+        "cleanupReauthorized": {
+          "const": true
+        },
+        "cleanupVerified": {
+          "const": true
+        }
+      }
+    },
+    "failure": {
+      "const": null
+    },
+    "limitations": {
+      "const": [
+        "Executable or OS primitive presence does not prove installation health, isolation, policy enforcement or user readiness.",
+        "This probe does not start a process, container, VM, SSH session, browser or network request.",
+        "This probe creates and removes one empty directory solely under the OS temporary directory."
+      ]
+    },
+    "evidenceLevel": {
+      "const": "spike-tested"
+    },
+    "evidenceScopes": {
+      "const": [
+        "presence",
+        "temp-containment"
+      ]
+    },
+    "releaseTrainId": {
+      "const": "oc-2026.7.1-2-locked.1"
+    },
+    "promotionEligible": {
+      "const": false
+    }
+  }
+}

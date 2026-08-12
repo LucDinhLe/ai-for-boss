@@ -1,0 +1,292 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-for-boss.local/schemas/sandbox-feasibility.schema.json",
+  "title": "AI for Boss Feature 0.6 sandbox feasibility decision contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "releaseTrainId",
+    "capturedAt",
+    "evidencePolicy",
+    "spikeBoundary",
+    "probeSourceLocks",
+    "reviewGate",
+    "promotionPolicy",
+    "safeDefault",
+    "governanceTraceability",
+    "directions",
+    "recommendation",
+    "lockedCapabilityIds",
+    "claims",
+    "sources"
+  ],
+  "properties": {
+    "$schema": { "const": "./sandbox-feasibility.schema.json" },
+    "schemaVersion": { "const": "1.0.0" },
+    "releaseTrainId": { "const": "oc-2026.7.1-2-locked.1" },
+    "capturedAt": { "type": "string", "format": "date-time" },
+    "evidencePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["levels", "presenceIsIsolationProof", "ciRunnerIsUserDeviceProof", "advertisingRequiresRealProductEvidence"],
+      "properties": {
+        "levels": {
+          "const": ["spike-tested", "documented-primary-source", "assumption-pending", "blocked-or-not-feasible"]
+        },
+        "presenceIsIsolationProof": { "const": false },
+        "ciRunnerIsUserDeviceProof": { "const": false },
+        "advertisingRequiresRealProductEvidence": { "const": true }
+      }
+    },
+    "spikeBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fixtureOnly", "mayInstallSoftware", "mayUseCredentials", "mayUseNetwork", "maySpawnProcesses", "mayWriteOutsideOsTemp", "claimsIsolation"],
+      "properties": {
+        "fixtureOnly": { "const": true },
+        "mayInstallSoftware": { "const": false },
+        "mayUseCredentials": { "const": false },
+        "mayUseNetwork": { "const": false },
+        "maySpawnProcesses": { "const": false },
+        "mayWriteOutsideOsTemp": { "const": false },
+        "claimsIsolation": { "const": false }
+      }
+    },
+    "probeSourceLocks": {
+      "const": [
+        {
+          "path": "src/sandbox/feasibility-probe.mjs",
+          "sha256": "69b8b7927a1900b72b8d577ed0827c98ef0b016a18470407e4ac90f226602a82"
+        },
+        {
+          "path": "scripts/spike/sandbox-feasibility-probe.mjs",
+          "sha256": "30e6884e567b36917287b2b59f838c191c383f0e3deb2337a0610b9ebacad5a9"
+        }
+      ]
+    },
+    "reviewGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "requiredReviewers", "productOwnerDecision"],
+      "properties": {
+        "status": { "const": "pending" },
+        "requiredReviewers": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "productOwnerDecision": { "const": "pending" }
+      }
+    },
+    "promotionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "requiresProductOwnerAcceptance", "requiresIndependentReview", "requiresRealProductIsolationEvidence", "requiredPlatforms", "requiredControls", "allowsPresenceOnlyEvidence", "allowsCiRunnerAsUserDeviceEvidence"],
+      "properties": {
+        "enabled": { "const": false },
+        "requiresProductOwnerAcceptance": { "const": true },
+        "requiresIndependentReview": { "const": true },
+        "requiresRealProductIsolationEvidence": { "const": true },
+        "requiredPlatforms": { "const": ["win32", "darwin", "linux"] },
+        "requiredControls": {
+          "const": ["filesystem-containment", "network-deny-by-default", "process-boundary", "credential-isolation", "backend-health", "failure-recovery", "update-rollback"]
+        },
+        "allowsPresenceOnlyEvidence": { "const": false },
+        "allowsCiRunnerAsUserDeviceEvidence": { "const": false }
+      }
+    },
+    "safeDefault": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["execution", "sandboxMode", "workspaceAccess", "networkEgress", "productHostExec", "elevatedExec", "sensitiveBrowser", "automaticFallback", "advertisable", "reason"],
+      "properties": {
+        "execution": { "const": "blocked" },
+        "sandboxMode": { "const": "off" },
+        "workspaceAccess": { "const": "none" },
+        "networkEgress": { "const": "none" },
+        "productHostExec": { "const": false },
+        "elevatedExec": { "const": false },
+        "sensitiveBrowser": { "const": false },
+        "automaticFallback": { "const": false },
+        "advertisable": { "const": false },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    },
+    "governanceTraceability": {
+      "const": {
+        "decisionRefs": ["D-0018"],
+        "riskThreatRefs": {
+          "R-001": ["T-06", "T-08", "T-09", "T-10"],
+          "R-020": ["T-02", "T-05", "T-08", "T-12", "T-14"],
+          "R-028": ["T-08", "T-10"],
+          "R-029": ["T-02", "T-03", "T-14"],
+          "R-030": ["T-08", "T-10"]
+        }
+      }
+    },
+    "directions": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "decision", "evidenceLevel", "sourceRefs", "isolation", "platforms", "installationAndPrivilege", "dataAndNetwork", "costLicenseDependency", "recoveryUpdateFailure", "ordinaryUserFit", "remainingBlockedCapabilities"],
+        "properties": {
+          "id": {
+            "enum": ["local-managed-container", "remote-openshell-ssh", "native-os-restrictions"]
+          },
+          "name": { "type": "string", "minLength": 1 },
+          "decision": {
+            "enum": ["preferred-contingent", "optional-research-only", "rejected-as-primary-backend"]
+          },
+          "evidenceLevel": { "const": "documented-primary-source" },
+          "sourceRefs": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "pattern": "^SRC-[0-9]{2}$" }
+          },
+          "isolation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["rating", "basis", "testedInFeature"],
+            "properties": {
+              "rating": { "type": "string", "minLength": 1 },
+              "basis": { "type": "string", "minLength": 1 },
+              "testedInFeature": { "const": false }
+            }
+          },
+          "platforms": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["windows", "macos", "linux"],
+            "properties": {
+              "windows": { "type": "string", "minLength": 1 },
+              "macos": { "type": "string", "minLength": 1 },
+              "linux": { "type": "string", "minLength": 1 }
+            }
+          },
+          "installationAndPrivilege": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "dataAndNetwork": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["workspace", "networkDefault", "externalDataTransfer", "lockedControls"],
+            "properties": {
+              "workspace": { "type": "string", "minLength": 1 },
+              "networkDefault": { "type": "string", "minLength": 1 },
+              "externalDataTransfer": { "type": "string", "minLength": 1 },
+              "lockedControls": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "type": "string", "minLength": 1 }
+              }
+            }
+          },
+          "costLicenseDependency": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["software", "commercial", "externalDependency"],
+            "properties": {
+              "software": { "type": "string", "minLength": 1 },
+              "commercial": { "type": "string", "minLength": 1 },
+              "externalDependency": { "type": "string", "minLength": 1 }
+            }
+          },
+          "recoveryUpdateFailure": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["failure", "recovery", "update"],
+            "properties": {
+              "failure": { "type": "string", "minLength": 1 },
+              "recovery": { "type": "string", "minLength": 1 },
+              "update": { "type": "string", "minLength": 1 }
+            }
+          },
+          "ordinaryUserFit": { "type": "string", "minLength": 1 },
+          "remainingBlockedCapabilities": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "recommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primaryDirection", "status", "safeProductDefault", "secondaryDirection", "nativeRole", "nextEvidenceRequired"],
+      "properties": {
+        "primaryDirection": { "const": "local-managed-container" },
+        "status": { "const": "preferred-contingent" },
+        "safeProductDefault": { "const": "blocked" },
+        "secondaryDirection": { "type": "string", "minLength": 1 },
+        "nativeRole": { "type": "string", "minLength": 1 },
+        "nextEvidenceRequired": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "lockedCapabilityIds": {
+      "const": ["workspace.files-grants", "tools.exec-approvals", "browser.web-automation", "always-on.private-instance"]
+    },
+    "claims": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claimId", "directionId", "classification", "statement", "sourceRefs", "sectionLocators", "promotionEligible"],
+        "properties": {
+          "claimId": { "type": "string", "pattern": "^CLM-[0-9]{2}$" },
+          "directionId": { "enum": ["local-managed-container", "remote-openshell-ssh", "native-os-restrictions"] },
+          "classification": { "enum": ["upstream-fact", "analyst-inference", "product-policy", "assumption"] },
+          "statement": { "type": "string", "minLength": 1 },
+          "sourceRefs": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "pattern": "^SRC-[0-9]{2}$" }
+          },
+          "sectionLocators": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "promotionEligible": { "const": false }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 18,
+      "maxItems": 18,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "url", "accessedAt", "scope", "evidenceLevel"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^SRC-[0-9]{2}$" },
+          "url": { "type": "string", "format": "uri", "pattern": "^https://" },
+          "accessedAt": { "const": "2026-08-12" },
+          "scope": { "type": "string", "minLength": 1 },
+          "evidenceLevel": { "const": "documented-primary-source" }
+        }
+      }
+    }
+  }
+}
