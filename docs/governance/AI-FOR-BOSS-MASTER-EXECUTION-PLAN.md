@@ -2,8 +2,8 @@
 
 Ngày lập: 2026-08-11  
 Chủ sản phẩm: Lê Đình Lực  
-Phiên bản: 1.0  
-Trạng thái: Kế hoạch thi công trực thuộc Rulebook 1.1
+Phiên bản: 1.2  
+Trạng thái: Kế hoạch thi công trực thuộc Rulebook 1.3
 
 ## 0. Vai trò của tài liệu
 
@@ -15,7 +15,7 @@ Ba tài liệu có vai trò riêng:
 
 | Tài liệu | Trả lời |
 |---|---|
-| Rulebook 1.1 | Điều gì bắt buộc, điều gì bị cấm, cổng nào phải qua |
+| Rulebook 1.3 | Điều gì bắt buộc, điều gì bị cấm, cổng nào phải qua |
 | Master Execution Plan | Xây theo lớp nào, thứ tự nào, dùng phần nào của OpenClaw, nghiệm thu ra sao |
 | Feature Spec và Decision Log | Phiên build hiện tại làm đúng việc gì và đã chốt lựa chọn nào |
 
@@ -78,10 +78,11 @@ Một người phổ thông có thể:
 1. Tải đúng bản cho máy của mình.
 2. Cài một lần mà không tự cài Node, Git, WSL, OpenClaw hoặc Gateway.
 3. Kết nối provider bằng phương thức được hỗ trợ và nhận kiểm tra live rõ ràng.
-4. Chọn model, agent và Advisor cho từng phiên.
-5. Giao việc, xem kế hoạch quyền, duyệt hành động nhạy cảm và nhận artifact.
-6. Khôi phục sau crash, update lỗi hoặc đổi máy mà không hiểu thuật ngữ hạ tầng.
-7. Mở chế độ Nâng cao để dùng các capability tương thích của OpenClaw.
+4. Khai sinh Agent đầu tiên bằng một cuộc trò chuyện ngắn về tên, vai trò, giọng điệu, avatar và ranh giới mà không chỉnh file kỹ thuật.
+5. Chọn model, agent và Advisor cho từng phiên.
+6. Giao việc, xem kế hoạch quyền, duyệt hành động nhạy cảm và nhận artifact.
+7. Khôi phục sau crash, update lỗi hoặc đổi máy mà không hiểu thuật ngữ hạ tầng.
+8. Mở chế độ Nâng cao để dùng các capability tương thích của OpenClaw.
 
 ### 2.2. Tiêu chuẩn phát hành
 
@@ -97,6 +98,16 @@ Sản phẩm chỉ được quảng cáo hỗ trợ một tổ hợp hệ điề
 
 Mục tiêu trải nghiệm của pilot được chốt trong Pilot Charter. Chỉ số mặc định để kiểm tra là 90% người thử hoàn thành tác vụ đầu trong năm phút mà không mở terminal.
 
+### 2.3. Hành trình ba bước và Worth-Building Gate
+
+Ba bước người dùng nhìn thấy là:
+
+1. **Tải và cài.**
+2. **Kết nối model và khai sinh Agent.**
+3. **Giao việc, duyệt phần nhạy cảm và nhận kết quả.**
+
+Mọi feature phải làm một trong ba bước ngắn hơn, rõ hơn, an toàn hơn hoặc tăng chất lượng kết quả. Public release bị chặn nếu parity cốt lõi chưa đủ, trải nghiệm không vượt benchmark đã chốt hoặc Advisor không chứng minh giá trị ở cả plan gate và final gate.
+
 ## 3. Bản đồ năng lực và quyền sở hữu
 
 | Nhóm năng lực | OpenClaw cung cấp | AI for Boss xây thêm | Cách nghiệm thu |
@@ -105,6 +116,7 @@ Mục tiêu trải nghiệm của pilot được chốt trong Pilot Charter. Ch�
 | Model và provider | Catalog, auth status, probe, provider/plugin | Trung tâm kết nối, hướng dẫn Việt/Anh, live check, revoke | Contract test và live auth bằng tài khoản test |
 | Phiên và chat | Session, history, run, usage, attachment, artifact | Giao diện phiên, model theo phiên, trạng thái tác vụ | Tạo, tiếp tục, crash, reload và history recovery |
 | Agent và phối hợp | Agent, sub-agent, task, goal, steer, swarm/ACP khi khả dụng | Mẫu agent, vai trò, ngân sách, trách nhiệm, provenance | Bài test phân việc, thu kết quả, dừng và giới hạn chi phí |
+| Khai sinh và danh tính | Seed workspace, bootstrap files, `agents set-identity`, workspace/session/auth riêng theo agent | Cuộc trò chuyện khai sinh, staging/verify/resume, avatar, kế thừa hồ sơ người dùng | Crash từng bước, Unicode/avatar, không chạy lặp, không ghi đè Agent khác |
 | Advisor | Agent/session/model/policy primitives | Điều phối review riêng, rubric, read-only, trạng thái đã review | Worker output độc hại, parse fail, budget fail, Advisor fail |
 | Memory | Memory runtime và contract tương thích | Giao diện nguồn, policy ghi nhớ, khu chờ nội dung đáng ngờ | Cách ly phiên, provenance và memory-poisoning test |
 | File và workspace | File/tool contract, workspace và session files | Bộ chọn workspace, allowlist, preview, quarantine | Path traversal, symlink escape, file giả mạo |
@@ -121,8 +133,11 @@ Mục tiêu trải nghiệm của pilot được chốt trong Pilot Charter. Ch�
 | Approval và audit | Operator approvals, audit và event | Approval Inbox, backfill, diễn giải rủi ro | Reconnect không mất yêu cầu, scope và expiry test |
 | Backup | Backup/verify chính thức của OpenClaw | `.aifbp`, `.aifb`, dữ liệu sản phẩm, staging restore | Restore drill, migration, atomic swap và rollback |
 | Cập nhật | Version và migration primitives liên quan | Bundle ký, release train, staged rollout và rollback | Tamper, downgrade, mất điện và rollback test |
+| Always-on | Gateway/service/remote contract của OpenClaw | Headless Supervisor, private ingress, claim, health, backup và tenant isolation | Reboot, claim reuse, cross-tenant, TLS/tunnel, restore và rollback test |
 
 Advisor là phần khác biệt sản phẩm. Nó dùng primitive có sẵn của OpenClaw, còn luật review, rubric, quyền đọc, cấu trúc gói đầu vào và trạng thái nghiệm thu thuộc AI for Boss.
+
+Advisor chạy hai checkpoint khi được bật. Plan gate phải trả `approve`, `revise`, `clarify` hoặc `blocked` trước mutation/tool nhạy cảm. Final gate phải đối chiếu artifact với mục tiêu, tiêu chí hoàn thành, bằng chứng, rủi ro và chi phí trước bàn giao.
 
 ## 4. Kiến trúc triển khai
 
@@ -153,6 +168,14 @@ Control plane doanh nghiệp, để sau Cổng 7
   |-- License và enrollment
   |-- Signed policy và rollout
   `-- Health và audit metadata tối thiểu
+
+AI for Boss Always-on, phát hành theo Cổng 4
+  |-- Desktop/Web Client dùng cùng OpenClaw Adapter
+  `-- Host Linux riêng trong tài khoản khách
+       |-- Private ingress hoặc HTTPS/TLS đã audit
+       |-- Headless Supervisor + Gateway loopback-only
+       |-- Runtime/state/credential/volume riêng
+       `-- Health, auto-restart, backup và rollback
 ```
 
 ### 4.1. Adapter ổn định
@@ -206,18 +229,20 @@ CI phải thất bại khi:
 - Upstream thêm, xóa hoặc đổi capability nhưng manifest chưa được phân loại.
 - Capability đang quảng cáo mất test trên một nền tảng.
 - Một feature dùng state riêng của OpenClaw ngoài contract.
-- Gateway client, protocol package và OpenClaw lệch release train.
+- OpenClaw, protocol version, public RPC docs hoặc source fingerprint lệch Gateway contract lock.
+- Adapter nhập package private, hashed `dist` chunk hoặc beta package không được release train cho phép.
 
 Không dùng riêng `hello-ok.features.methods` làm danh sách đầy đủ. Nó chỉ là một tín hiệu runtime trong nhiều nguồn.
 
 ## 6. Các luồng công việc song song
 
-Sau khi Cổng 0 đạt, dự án vận hành theo mười luồng có dependency rõ ràng.
+Sau khi Cổng 0 đạt, dự án vận hành theo mười một luồng có dependency rõ ràng.
 
 ### Luồng A. Upstream và hợp đồng tương thích
 
 - Chọn một OpenClaw stable release.
-- Khóa Node, Electron, package manager, Gateway client và protocol.
+- Khóa Node, Electron, package manager và Gateway integration surface công khai của đúng tag/commit.
+- Fingerprint workspace package private để phát hiện drift; không bundle hoặc lấy chúng làm dependency.
 - Tạo runtime manifest, capability manifest và license inventory.
 - Tạo protocol diff, capability diff và migration test khi nâng phiên bản.
 
@@ -247,13 +272,15 @@ Sau khi Cổng 0 đạt, dự án vận hành theo mười luồng có dependenc
 ### Luồng E. Phiên, agent và Advisor
 
 - Session lifecycle, artifact và usage.
+- Agent chính ở lần cài đầu và mỗi Agent mới đều chạy bootstrap một lần; ghi `IDENTITY.md`, `USER.md`, `SOUL.md`, đồng bộ danh tính qua contract chính thức rồi mới xóa `BOOTSTRAP.md`.
+- Mỗi Agent có Agent Home, `agentDir`, session và auth profile riêng. Hồ sơ người dùng cấp ứng dụng được kế thừa có kiểm soát để không hỏi lặp; persona, quyền và project grant vẫn riêng theo Agent.
 - Agent template, sub-agent, task và budget.
 - Advisor chạy trong session review riêng, quyền read-only và rubric có schema; người dùng bật/tắt và chọn một hoặc nhiều model đã kết nối cho từng phiên.
 - Worker output luôn là dữ liệu không tin cậy đối với Advisor.
 
 ### Luồng F. Tool, workspace và sandbox
 
-- Workspace grant, file preview và path policy.
+- Tách Agent Home khỏi Không gian dự án; workspace/project grant dùng `none`, `read-only` hoặc `read-write`, có file preview và path policy.
 - Tool catalog, permission preview và Approval Inbox.
 - Browser profile riêng, network policy và quarantine.
 - Sandbox backend chỉ mở sau ADR và spike đạt từng nền tảng.
@@ -285,6 +312,15 @@ Sau khi Cổng 0 đạt, dự án vận hành theo mười luồng có dependenc
 - Website đề xuất bản tải, installer mới là nơi xác minh.
 - Cohort pack, role/industry pack và personal overlay không chứa secret.
 - Sau cùng mới thêm license, enrollment, signed policy, SSO/SCIM và MDM.
+
+### Luồng K. Always-on và remote operations
+
+- Headless Supervisor trên Linux, một instance cho một khách hoặc biên tin cậy.
+- Gateway loopback-only; Tailscale/SSH là đường đầu, HTTPS remote chỉ sau ingress/threat-model review.
+- Dedicated non-root service user, resource limit, health, auto-restart và log sạch secret.
+- One-time claim hết hạn nhanh, device pairing/revoke, backup/restore và signed update.
+- Desktop và Web Client dùng cùng Adapter/release train; không đọc state server trực tiếp.
+- Không dùng shared Gateway hoặc session ID làm tenant boundary. Kubernetes/Fleet chỉ mở bằng ADR sau nhu cầu thật.
 
 ## 7. Lộ trình theo cổng
 
@@ -320,6 +356,7 @@ Snapshot OpenClaw `2026.8.1` đang có trong thư mục nghiên cứu chỉ là 
 - Sơ đồ data flow và nguồn sự thật.
 - Threat model, trust boundary và abuse cases.
 - Provider authentication matrix.
+- Agent identity lifecycle, Agent Home/Không gian dự án data flow và bootstrap contract của release train.
 
 #### Feature 0.4. App shell và CI đa nền tảng
 
@@ -371,15 +408,15 @@ Thứ tự:
 Thứ tự:
 
 1. `2.1` Design system Việt/Anh.
-2. `2.2` Onboarding và Trung tâm kết nối.
+2. `2.2` Onboarding, Trung tâm kết nối và khai sinh Agent chính.
 3. `2.3` Phiên, chat, history, attachment và artifact.
 4. `2.4` Model theo phiên và budget.
-5. `2.5` Agent template và phối hợp nhiều agent.
+5. `2.5` Khai sinh Agent mới, Agent template và phối hợp nhiều agent.
 6. `2.6` Advisor theo phiên, rubric và trạng thái review.
 7. `2.7` Permission preview, Approval Inbox và emergency stop.
 8. `2.8` Ba workflow đầu dành cho chủ doanh nghiệp.
 
-**Điều kiện qua Cổng 2:** ít nhất 10 người không kỹ thuật hoàn thành cài đặt và ba luồng cốt lõi; friction, lỗi hiểu quyền và lỗi dữ liệu được ghi lại rồi sửa trước khi mở rộng.
+**Điều kiện qua Cổng 2:** ít nhất 10 người không kỹ thuật hoàn thành hành trình ba bước và ba luồng cốt lõi; 90% bắt đầu tác vụ đầu trong năm phút, 80% tìm đúng nơi giao việc trong năm giây và hiểu đúng model/Advisor/data egress/approval. Advisor plan/final benchmark cùng independent visual benchmark phải đạt Cổng Worth-Building.
 
 ### Cổng 3. Phủ hệ sinh thái OpenClaw
 
@@ -409,6 +446,8 @@ Thứ tự mở rộng:
 6. Linux ARM64 nếu dependency hỗ trợ.
 7. Website tải bản phù hợp, lựa chọn thủ công và checksum.
 8. Staged updater, rollback và support matrix.
+9. Headless Linux x64 single-tenant; ARM64 khi dependency hỗ trợ.
+10. Remote access, one-time claim, service recovery, backup/restore và cross-tenant isolation test.
 
 Mỗi tổ hợp cần runner sạch và ít nhất một máy thật đại diện. “Build được” và “chạy được trên máy khách” là hai bằng chứng khác nhau.
 
@@ -516,7 +555,7 @@ Máy khách không tự nâng OpenClaw riêng khỏi AI for Boss.
 | 1 | Desktop/platform engineer senior, security reviewer, Đại ca nghiệm thu UX |
 | 2 | Thêm product/frontend hoặc product designer và người kiểm thử phổ thông |
 | 3 | Thêm QA/security chuyên sâu và test lab |
-| 4 | Release engineer, máy/runners đa nền tảng, code-signing owner |
+| 4 | Release engineer, Linux/server operator, máy/runners đa nền tảng, code-signing owner |
 | 5-6 | Support owner, incident owner, pentest độc lập và legal/privacy review |
 | 7 | Backend/control-plane engineer, enterprise security và vận hành dịch vụ |
 
@@ -560,6 +599,8 @@ Hai đường gặp nhau ở Private Alpha. Lúc đó dữ liệu nhu cầu đã
 | Telemetry và support upload | Trước Cổng 5 | Tắt mặc định |
 | Giá và license | Trước Cổng 5 | Chưa khóa người dùng |
 | Control plane provider | Trước Cổng 7 | Chưa có control plane |
+| Provider/định dạng Always-on | Trước Headless Cổng 4 | VPS Linux riêng trong tài khoản khách; chưa khóa hãng |
+| Remote transport production | Trước Headless Cổng 4 | Tailscale/SSH; Gateway loopback-only; remote Browser tắt |
 
 ## 12. Điểm bắt đầu chính xác
 
@@ -589,6 +630,7 @@ Sau Feature 0.1, thứ tự là 0.2, 0.3, 0.4, 0.5 và 0.6. Chỉ sau khi Cổng
 | Model theo phiên | Mục 3, Luồng D và Feature 2.4 |
 | Advisor theo phiên | Mục 3, Luồng E và Feature 2.6 |
 | Nhiều agent | Mục 3, Luồng E và Feature 2.5 |
+| Khai sinh Agent và tách workspace | Mục 2.1/3, Luồng E/F, Feature 0.3, 2.2 và 2.5 |
 | Cơ bản và Nâng cao | Luồng B, capability manifest và Cổng 3 |
 | Gateway vô hình | Kiến trúc mục 4, Supervisor và Cổng 1 |
 | Local-first và quyền tối thiểu | Nguồn sự thật, Luồng F/H/I và security gate |
@@ -597,12 +639,15 @@ Sau Feature 0.1, thứ tự là 0.2, 0.3, 0.4, 0.5 và 0.6. Chỉ sau khi Cổng
 | Blocker Credential Broker | Feature 0.3/0.5, SecretRef contract test trước khi dùng |
 | Blocker provider terms và live auth | Luồng D, Feature 1.4 và capability manifest |
 | Blocker trách nhiệm ngoài AI | Mục 9.2/9.3 và điều kiện Cổng 6 |
+| Hành trình ba bước | Mục 2.3, Luồng B/J và Cổng 1-2-4 |
+| Worth-Building Gate | Mục 2.3, điều kiện Cổng 2 và benchmark trước public release |
+| Always-on riêng | Kiến trúc mục 4, Luồng K, Cổng 4 và tenant-isolation tests |
 
 ## 14. Nguồn kỹ thuật chính
 
 - [OpenClaw Gateway protocol](https://docs.openclaw.ai/gateway/protocol)
 - [Embedding OpenClaw](https://docs.openclaw.ai/gateway/embedding)
-- [Building a Gateway client](https://docs.openclaw.ai/gateway/clients)
+- [Gateway integrations for external apps](https://docs.openclaw.ai/gateway/external-apps)
 - [OpenClaw capabilities overview](https://docs.openclaw.ai/tools)
 - [OpenClaw provider directory](https://docs.openclaw.ai/providers)
 - [OpenClaw plugins](https://docs.openclaw.ai/plugins)

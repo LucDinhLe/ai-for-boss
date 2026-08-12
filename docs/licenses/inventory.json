@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "1.0.0",
+  "capturedAt": "2026-08-11T00:00:00+07:00",
+  "scope": "Feature 0.2 direct release-train components; transitive inventory is generated after the lab install.",
+  "components": [
+    {
+      "name": "OpenClaw",
+      "package": "openclaw",
+      "version": "2026.7.1-2",
+      "license": "MIT",
+      "source": "https://github.com/openclaw/openclaw",
+      "distributionStatus": "candidate"
+    },
+    {
+      "name": "Node.js",
+      "package": "node",
+      "version": "24.19.0",
+      "license": "MIT with bundled third-party notices",
+      "source": "https://github.com/nodejs/node",
+      "distributionStatus": "candidate"
+    },
+    {
+      "name": "Electron",
+      "package": "electron",
+      "version": "43.3.0",
+      "license": "MIT with bundled Chromium and third-party notices",
+      "source": "https://github.com/electron/electron",
+      "distributionStatus": "candidate-metadata-only"
+    },
+    {
+      "name": "pnpm",
+      "package": "pnpm",
+      "version": "11.2.2",
+      "license": "MIT",
+      "source": "https://github.com/pnpm/pnpm",
+      "distributionStatus": "candidate"
+    }
+  ]
+}

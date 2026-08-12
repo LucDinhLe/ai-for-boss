@@ -6,9 +6,9 @@ AI for Boss là phần mềm AI coworker dành cho chủ doanh nghiệp. Sản p
 
 ## Trạng thái
 
-Dự án đã xác minh **Cổng 0, Feature 0.1 — Repo Governance**. Feature kế tiếp theo Master Plan là 0.2, khóa release train; feature này chưa được mở trong commit hiện tại.
+Dự án đang ở **Cổng 0, Feature 0.2 — Khóa release train**. OpenClaw `2026.7.1-2`, Node `24.19.0` và pnpm `11.2.2` đã qua smoke test không credential trong lab WSL2 riêng trên Windows x64. Electron `43.3.0` đã được khóa ở mức metadata.
 
-Hiện repo chỉ chứa nền móng quản trị, tài liệu kiến trúc và kiểm tra tự động. Chưa có bộ cài, OAuth, Gateway nhúng hoặc bản phát hành cho người dùng thật.
+Feature 0.2 đã khóa release train `openclaw@2026.7.1-2` bằng npm integrity, git tag/commit và Gateway WebSocket RPC v4 được upstream công bố cho external app. Hai workspace package Gateway private chỉ được fingerprint làm tham chiếu, không bundle hoặc trộn beta. Repo vẫn chưa có desktop app, OAuth, installer, updater, sandbox sản phẩm hoặc bản phát hành cho người dùng thật; lab WSL2 chỉ là bằng chứng thử nghiệm.
 
 ## Nguyên tắc triển khai
 
@@ -26,6 +26,16 @@ Hiện repo chỉ chứa nền móng quản trị, tài liệu kiến trúc và 
 4. [Decision Log](DECISIONS.md)
 5. [Risk Register](RISKS.md)
 6. [Mẫu Feature Spec](docs/feature-specs/TEMPLATE.md)
+7. [Feature 0.2](docs/feature-specs/0002-lock-release-train.md)
+8. [Báo cáo smoke test Feature 0.2](docs/testing/FEATURE-0.2-WINDOWS-WSL2-SMOKE.md)
+9. [Agent Genesis và biên workspace](docs/architecture/AGENT-GENESIS-AND-WORKSPACE-BOUNDARIES.md)
+10. [Audit mức sẵn sàng đóng gói](docs/release/PRODUCT-READINESS-AUDIT-2026-08-11.md)
+11. [Feature 0.2a — Agent Genesis và packaging readiness](docs/feature-specs/0002a-agent-genesis-packaging-readiness.md)
+12. [Hướng thiết kế Editorial Calm](docs/ux/EDITORIAL-DESIGN-DIRECTION.md)
+13. [Feature 0.2b — Editorial UX direction](docs/feature-specs/0002b-editorial-ux-direction.md)
+14. [Hồ sơ concept icon bị loại](docs/brand/README.md)
+15. [Audit competitive parity, hành trình ba bước và Always-on](docs/release/COMPETITIVE-PARITY-AND-HEADLESS-AUDIT-2026-08-11.md)
+16. [Feature 0.2c — Competitive parity, ba bước và Headless](docs/feature-specs/0002c-competitive-parity-three-step-headless.md)
 
 ## Kiểm tra governance
 
@@ -33,6 +43,7 @@ Chạy trên PowerShell 7 hoặc Windows PowerShell:
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\validate-governance.ps1
+node .\scripts\validate-runtime-manifest.mjs
 ```
 
 `ExecutionPolicy Bypass` chỉ áp dụng cho tiến trình kiểm tra này, không thay đổi chính sách PowerShell toàn máy.

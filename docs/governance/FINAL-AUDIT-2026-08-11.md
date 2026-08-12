@@ -75,7 +75,7 @@ Vòng audit kiểm tra:
 | F07 | High | Backup không secret mâu thuẫn với OpenClaw full backup vốn có thể chứa auth | Tách `.aifbp` sạch secret và `.aifb` luôn mã hóa; dùng backup/verify chính thức | Resolved by design |
 | F08 | High | Feature 0.1 chứa repo, runtime pin, CI, manifest và app shell, vi phạm một feature mỗi phiên | Chia Cổng 0 thành Feature 0.1 đến 0.6 | Resolved |
 | F09 | High | App chưa xác định nguồn sự thật, có nguy cơ copy session/token vào DB riêng | Thêm source-of-truth table; OpenClaw state chỉ truy cập qua RPC | Resolved |
-| F10 | High | Protocol client và Gateway có thể lệch phiên bản | Khóa OpenClaw, gateway client, protocol package, Node và lockfile cùng release train | Resolved |
+| F10 | High | Protocol client và Gateway có thể lệch phiên bản | Khóa OpenClaw, public WebSocket RPC contract, protocol version/doc blob/source fingerprint, Node và lockfile cùng release train | Resolved; package assumption corrected by D-0013 |
 | F11 | Medium | Cổng động có thể dẫn tới dùng `--force` và giết listener khác | Cấm `--force`; retry `EADDRINUSE` có giới hạn; không giết process lạ | Resolved |
 | F12 | Medium | Electron có thể bị dùng như Node khi spawn OpenClaw | Bắt buộc Node binary thật và `OPENCLAW_EXEC_SHELL_SNAPSHOT=0` | Resolved |
 | F13 | Medium | Child process có nguy cơ treo vì stdout/stderr đầy | Bắt buộc tiêu thụ stream ngay khi spawn và test backpressure | Resolved |

@@ -1,0 +1,3100 @@
+[
+  {
+    "name": "ai-for-boss-openclaw-lab",
+    "version": "0.0.0",
+    "path": "/opt/ai-for-boss-lab/runtime",
+    "private": true,
+    "dependencies": {
+      "openclaw": {
+        "from": "openclaw",
+        "version": "2026.7.1-2",
+        "resolved": "https://registry.npmjs.org/openclaw/-/openclaw-2026.7.1-2.tgz",
+        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/openclaw@2026.7.1-2/node_modules/openclaw",
+        "dependencies": {
+          "@modelcontextprotocol/sdk": {
+            "from": "@modelcontextprotocol/sdk",
+            "version": "1.29.0",
+            "resolved": "https://registry.npmjs.org/@modelcontextprotocol/sdk/-/sdk-1.29.0.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk",
+            "deduped": true,
+            "dedupedDependenciesCount": 158
+          },
+          "@mozilla/readability": {
+            "from": "@mozilla/readability",
+            "version": "0.6.0",
+            "resolved": "https://registry.npmjs.org/@mozilla/readability/-/readability-0.6.0.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@mozilla+readability@0.6.0/node_modules/@mozilla/readability"
+          },
+          "@silvia-odwyer/photon-node": {
+            "from": "@silvia-odwyer/photon-node",
+            "version": "0.3.4",
+            "resolved": "https://registry.npmjs.org/@silvia-odwyer/photon-node/-/photon-node-0.3.4.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@silvia-odwyer+photon-node@0.3.4/node_modules/@silvia-odwyer/photon-node"
+          },
+          "chalk": {
+            "from": "chalk",
+            "version": "5.6.2",
+            "resolved": "https://registry.npmjs.org/chalk/-/chalk-5.6.2.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/chalk@5.6.2/node_modules/chalk"
+          },
+          "clawpdf": {
+            "from": "clawpdf",
+            "version": "0.3.0",
+            "resolved": "https://registry.npmjs.org/clawpdf/-/clawpdf-0.3.0.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/clawpdf@0.3.0/node_modules/clawpdf"
+          },
+          "commander": {
+            "from": "commander",
+            "version": "15.0.0",
+            "resolved": "https://registry.npmjs.org/commander/-/commander-15.0.0.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/commander@15.0.0/node_modules/commander"
+          },
+          "croner": {
+            "from": "croner",
+            "version": "10.0.1",
+            "resolved": "https://registry.npmjs.org/croner/-/croner-10.0.1.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/croner@10.0.1/node_modules/croner"
+          },
+          "diff": {
+            "from": "diff",
+            "version": "9.0.0",
+            "resolved": "https://registry.npmjs.org/diff/-/diff-9.0.0.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/diff@9.0.0/node_modules/diff"
+          },
+          "dotenv": {
+            "from": "dotenv",
+            "version": "17.4.2",
+            "resolved": "https://registry.npmjs.org/dotenv/-/dotenv-17.4.2.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/dotenv@17.4.2/node_modules/dotenv"
+          },
+          "express": {
+            "from": "express",
+            "version": "5.2.1",
+            "resolved": "https://registry.npmjs.org/express/-/express-5.2.1.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/express@5.2.1/node_modules/express",
+            "deduped": true,
+            "dedupedDependenciesCount": 123
+          },
+          "grammy": {
+            "from": "grammy",
+            "version": "1.44.0",
+            "resolved": "https://registry.npmjs.org/grammy/-/grammy-1.44.0.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/grammy@1.44.0/node_modules/grammy",
+            "deduped": true,
+            "dedupedDependenciesCount": 7
+          },
+          "highlight.js": {
+            "from": "highlight.js",
+            "version": "11.11.1",
+            "resolved": "https://registry.npmjs.org/highlight.js/-/highlight.js-11.11.1.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/highlight.js@11.11.1/node_modules/highlight.js"
+          },
+          "ignore": {
+            "from": "ignore",
+            "version": "7.0.5",
+            "resolved": "https://registry.npmjs.org/ignore/-/ignore-7.0.5.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ignore@7.0.5/node_modules/ignore"
+          },
+          "jiti": {
+            "from": "jiti",
+            "version": "2.7.0",
+            "resolved": "https://registry.npmjs.org/jiti/-/jiti-2.7.0.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/jiti@2.7.0/node_modules/jiti"
+          },
+          "json5": {
+            "from": "json5",
+            "version": "2.2.3",
+            "resolved": "https://registry.npmjs.org/json5/-/json5-2.2.3.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/json5@2.2.3/node_modules/json5"
+          },
+          "jszip": {
+            "from": "jszip",
+            "version": "3.10.1",
+            "resolved": "https://registry.npmjs.org/jszip/-/jszip-3.10.1.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/jszip@3.10.1/node_modules/jszip",
+            "deduped": true,
+            "dedupedDependenciesCount": 13
+          },
+          "kysely": {
+            "from": "kysely",
+            "version": "0.29.2",
+            "resolved": "https://registry.npmjs.org/kysely/-/kysely-0.29.2.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/kysely@0.29.2/node_modules/kysely"
+          },
+          "minimatch": {
+            "from": "minimatch",
+            "version": "10.2.5",
+            "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-10.2.5.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/minimatch@10.2.5/node_modules/minimatch",
+            "deduped": true,
+            "dedupedDependenciesCount": 2
+          },
+          "openai": {
+            "from": "openai",
+            "version": "6.45.0",
+            "resolved": "https://registry.npmjs.org/openai/-/openai-6.45.0.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/openai@6.45.0_ws@8.21.0_zod@4.4.3/node_modules/openai",
+            "deduped": true,
+            "dedupedDependenciesCount": 2
+          },
+          "partial-json": {
+            "from": "partial-json",
+            "version": "0.1.7",
+            "resolved": "https://registry.npmjs.org/partial-json/-/partial-json-0.1.7.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/partial-json@0.1.7/node_modules/partial-json"
+          },
+          "playwright-core": {
+            "from": "playwright-core",
+            "version": "1.61.1",
+            "resolved": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.61.1.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/playwright-core@1.61.1/node_modules/playwright-core"
+          },
+          "quickjs-wasi": {
+            "from": "quickjs-wasi",
+            "version": "3.0.2",
+            "resolved": "https://registry.npmjs.org/quickjs-wasi/-/quickjs-wasi-3.0.2.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/quickjs-wasi@3.0.2/node_modules/quickjs-wasi"
+          },
+          "tar": {
+            "from": "tar",
+            "version": "7.5.19",
+            "resolved": "https://registry.npmjs.org/tar/-/tar-7.5.19.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/tar@7.5.19/node_modules/tar",
+            "deduped": true,
+            "dedupedDependenciesCount": 7
+          },
+          "tslog": {
+            "from": "tslog",
+            "version": "4.10.2",
+            "resolved": "https://registry.npmjs.org/tslog/-/tslog-4.10.2.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/tslog@4.10.2/node_modules/tslog"
+          },
+          "typebox": {
+            "from": "typebox",
+            "version": "1.3.3",
+            "resolved": "https://registry.npmjs.org/typebox/-/typebox-1.3.3.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/typebox@1.3.3/node_modules/typebox"
+          },
+          "typescript": {
+            "from": "typescript",
+            "version": "6.0.3",
+            "resolved": "https://registry.npmjs.org/typescript/-/typescript-6.0.3.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/typescript@6.0.3/node_modules/typescript"
+          },
+          "undici": {
+            "from": "undici",
+            "version": "8.5.0",
+            "resolved": "https://registry.npmjs.org/undici/-/undici-8.5.0.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/undici@8.5.0/node_modules/undici"
+          },
+          "web-tree-sitter": {
+            "from": "web-tree-sitter",
+            "version": "0.26.10",
+            "resolved": "https://registry.npmjs.org/web-tree-sitter/-/web-tree-sitter-0.26.10.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/web-tree-sitter@0.26.10/node_modules/web-tree-sitter"
+          },
+          "ws": {
+            "from": "ws",
+            "version": "8.21.0",
+            "resolved": "https://registry.npmjs.org/ws/-/ws-8.21.0.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ws@8.21.0/node_modules/ws"
+          },
+          "yaml": {
+            "from": "yaml",
+            "version": "2.9.0",
+            "resolved": "https://registry.npmjs.org/yaml/-/yaml-2.9.0.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml"
+          },
+          "zod": {
+            "from": "zod",
+            "version": "4.4.3",
+            "resolved": "https://registry.npmjs.org/zod/-/zod-4.4.3.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/zod@4.4.3/node_modules/zod"
+          },
+          "@agentclientprotocol/sdk": {
+            "from": "@agentclientprotocol/sdk",
+            "version": "1.1.0",
+            "resolved": "https://registry.npmjs.org/@agentclientprotocol/sdk/-/sdk-1.1.0.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@agentclientprotocol+sdk@1.1.0_zod@4.4.3/node_modules/@agentclientprotocol/sdk",
+            "dependencies": {
+              "zod": {
+                "from": "zod",
+                "version": "4.4.3",
+                "resolved": "https://registry.npmjs.org/zod/-/zod-4.4.3.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/zod@4.4.3/node_modules/zod"
+              }
+            }
+          },
+          "@clack/prompts": {
+            "from": "@clack/prompts",
+            "version": "1.6.0",
+            "resolved": "https://registry.npmjs.org/@clack/prompts/-/prompts-1.6.0.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@clack+prompts@1.6.0/node_modules/@clack/prompts",
+            "dependencies": {
+              "@clack/core": {
+                "from": "@clack/core",
+                "version": "1.4.2",
+                "resolved": "https://registry.npmjs.org/@clack/core/-/core-1.4.2.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@clack+core@1.4.2/node_modules/@clack/core",
+                "deduped": true,
+                "dedupedDependenciesCount": 4
+              },
+              "fast-string-width": {
+                "from": "fast-string-width",
+                "version": "3.0.2",
+                "resolved": "https://registry.npmjs.org/fast-string-width/-/fast-string-width-3.0.2.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/fast-string-width@3.0.2/node_modules/fast-string-width",
+                "deduped": true,
+                "dedupedDependenciesCount": 1
+              },
+              "fast-wrap-ansi": {
+                "from": "fast-wrap-ansi",
+                "version": "0.2.2",
+                "resolved": "https://registry.npmjs.org/fast-wrap-ansi/-/fast-wrap-ansi-0.2.2.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/fast-wrap-ansi@0.2.2/node_modules/fast-wrap-ansi",
+                "deduped": true,
+                "dedupedDependenciesCount": 2
+              },
+              "sisteransi": {
+                "from": "sisteransi",
+                "version": "1.0.5",
+                "resolved": "https://registry.npmjs.org/sisteransi/-/sisteransi-1.0.5.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/sisteransi@1.0.5/node_modules/sisteransi"
+              }
+            }
+          },
+          "@earendil-works/pi-tui": {
+            "from": "@earendil-works/pi-tui",
+            "version": "0.80.3",
+            "resolved": "https://registry.npmjs.org/@earendil-works/pi-tui/-/pi-tui-0.80.3.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@earendil-works+pi-tui@0.80.3/node_modules/@earendil-works/pi-tui",
+            "dependencies": {
+              "get-east-asian-width": {
+                "from": "get-east-asian-width",
+                "version": "1.6.0",
+                "resolved": "https://registry.npmjs.org/get-east-asian-width/-/get-east-asian-width-1.6.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/get-east-asian-width@1.6.0/node_modules/get-east-asian-width"
+              },
+              "marked": {
+                "from": "marked",
+                "version": "18.0.5",
+                "resolved": "https://registry.npmjs.org/marked/-/marked-18.0.5.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/marked@18.0.5/node_modules/marked"
+              }
+            }
+          },
+          "@grammyjs/transformer-throttler": {
+            "from": "@grammyjs/transformer-throttler",
+            "version": "1.2.1",
+            "resolved": "https://registry.npmjs.org/@grammyjs/transformer-throttler/-/transformer-throttler-1.2.1.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@grammyjs+transformer-throttler@1.2.1_grammy@1.44.0/node_modules/@grammyjs/transformer-throttler",
+            "dependencies": {
+              "bottleneck": {
+                "from": "bottleneck",
+                "version": "2.19.5",
+                "resolved": "https://registry.npmjs.org/bottleneck/-/bottleneck-2.19.5.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/bottleneck@2.19.5/node_modules/bottleneck"
+              },
+              "grammy": {
+                "from": "grammy",
+                "version": "1.44.0",
+                "resolved": "https://registry.npmjs.org/grammy/-/grammy-1.44.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/grammy@1.44.0/node_modules/grammy",
+                "deduped": true,
+                "dedupedDependenciesCount": 7
+              }
+            }
+          },
+          "@lydell/node-pty": {
+            "from": "@lydell/node-pty",
+            "version": "1.2.0-beta.12",
+            "resolved": "https://registry.npmjs.org/@lydell/node-pty/-/node-pty-1.2.0-beta.12.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@lydell+node-pty@1.2.0-beta.12/node_modules/@lydell/node-pty",
+            "dependencies": {
+              "@lydell/node-pty-darwin-arm64": {
+                "from": "@lydell/node-pty-darwin-arm64",
+                "version": "1.2.0-beta.12",
+                "resolved": "https://registry.npmjs.org/@lydell/node-pty-darwin-arm64/-/node-pty-darwin-arm64-1.2.0-beta.12.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@lydell+node-pty-darwin-arm64@1.2.0-beta.12/node_modules/@lydell/node-pty-darwin-arm64"
+              },
+              "@lydell/node-pty-darwin-x64": {
+                "from": "@lydell/node-pty-darwin-x64",
+                "version": "1.2.0-beta.12",
+                "resolved": "https://registry.npmjs.org/@lydell/node-pty-darwin-x64/-/node-pty-darwin-x64-1.2.0-beta.12.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@lydell+node-pty-darwin-x64@1.2.0-beta.12/node_modules/@lydell/node-pty-darwin-x64"
+              },
+              "@lydell/node-pty-linux-arm64": {
+                "from": "@lydell/node-pty-linux-arm64",
+                "version": "1.2.0-beta.12",
+                "resolved": "https://registry.npmjs.org/@lydell/node-pty-linux-arm64/-/node-pty-linux-arm64-1.2.0-beta.12.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@lydell+node-pty-linux-arm64@1.2.0-beta.12/node_modules/@lydell/node-pty-linux-arm64"
+              },
+              "@lydell/node-pty-linux-x64": {
+                "from": "@lydell/node-pty-linux-x64",
+                "version": "1.2.0-beta.12",
+                "resolved": "https://registry.npmjs.org/@lydell/node-pty-linux-x64/-/node-pty-linux-x64-1.2.0-beta.12.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@lydell+node-pty-linux-x64@1.2.0-beta.12/node_modules/@lydell/node-pty-linux-x64"
+              },
+              "@lydell/node-pty-win32-arm64": {
+                "from": "@lydell/node-pty-win32-arm64",
+                "version": "1.2.0-beta.12",
+                "resolved": "https://registry.npmjs.org/@lydell/node-pty-win32-arm64/-/node-pty-win32-arm64-1.2.0-beta.12.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@lydell+node-pty-win32-arm64@1.2.0-beta.12/node_modules/@lydell/node-pty-win32-arm64"
+              },
+              "@lydell/node-pty-win32-x64": {
+                "from": "@lydell/node-pty-win32-x64",
+                "version": "1.2.0-beta.12",
+                "resolved": "https://registry.npmjs.org/@lydell/node-pty-win32-x64/-/node-pty-win32-x64-1.2.0-beta.12.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@lydell+node-pty-win32-x64@1.2.0-beta.12/node_modules/@lydell/node-pty-win32-x64"
+              }
+            }
+          },
+          "@mistralai/mistralai": {
+            "from": "@mistralai/mistralai",
+            "version": "2.4.0",
+            "resolved": "https://registry.npmjs.org/@mistralai/mistralai/-/mistralai-2.4.0.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@mistralai+mistralai@2.4.0/node_modules/@mistralai/mistralai",
+            "dependencies": {
+              "@opentelemetry/semantic-conventions": {
+                "from": "@opentelemetry/semantic-conventions",
+                "version": "1.43.0",
+                "resolved": "https://registry.npmjs.org/@opentelemetry/semantic-conventions/-/semantic-conventions-1.43.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@opentelemetry+semantic-conventions@1.43.0/node_modules/@opentelemetry/semantic-conventions"
+              },
+              "ws": {
+                "from": "ws",
+                "version": "8.21.0",
+                "resolved": "https://registry.npmjs.org/ws/-/ws-8.21.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ws@8.21.0/node_modules/ws"
+              },
+              "zod": {
+                "from": "zod",
+                "version": "4.4.3",
+                "resolved": "https://registry.npmjs.org/zod/-/zod-4.4.3.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/zod@4.4.3/node_modules/zod"
+              },
+              "zod-to-json-schema": {
+                "from": "zod-to-json-schema",
+                "version": "3.25.2",
+                "resolved": "https://registry.npmjs.org/zod-to-json-schema/-/zod-to-json-schema-3.25.2.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema",
+                "deduped": true,
+                "dedupedDependenciesCount": 1
+              }
+            }
+          },
+          "@openclaw/proxyline": {
+            "from": "@openclaw/proxyline",
+            "version": "0.3.3",
+            "resolved": "https://registry.npmjs.org/@openclaw/proxyline/-/proxyline-0.3.3.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@openclaw+proxyline@0.3.3_undici@8.5.0/node_modules/@openclaw/proxyline",
+            "dependencies": {
+              "undici": {
+                "from": "undici",
+                "version": "8.5.0",
+                "resolved": "https://registry.npmjs.org/undici/-/undici-8.5.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/undici@8.5.0/node_modules/undici"
+              }
+            }
+          },
+          "chokidar": {
+            "from": "chokidar",
+            "version": "5.0.0",
+            "resolved": "https://registry.npmjs.org/chokidar/-/chokidar-5.0.0.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/chokidar@5.0.0/node_modules/chokidar",
+            "dependencies": {
+              "readdirp": {
+                "from": "readdirp",
+                "version": "5.1.1",
+                "resolved": "https://registry.npmjs.org/readdirp/-/readdirp-5.1.1.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/readdirp@5.1.1/node_modules/readdirp"
+              }
+            }
+          },
+          "hosted-git-info": {
+            "from": "hosted-git-info",
+            "version": "10.1.1",
+            "resolved": "https://registry.npmjs.org/hosted-git-info/-/hosted-git-info-10.1.1.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/hosted-git-info@10.1.1/node_modules/hosted-git-info",
+            "dependencies": {
+              "lru-cache": {
+                "from": "lru-cache",
+                "version": "11.5.2",
+                "resolved": "https://registry.npmjs.org/lru-cache/-/lru-cache-11.5.2.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/lru-cache@11.5.2/node_modules/lru-cache"
+              }
+            }
+          },
+          "proper-lockfile": {
+            "from": "proper-lockfile",
+            "version": "4.1.2",
+            "resolved": "https://registry.npmjs.org/proper-lockfile/-/proper-lockfile-4.1.2.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/proper-lockfile@4.1.2/node_modules/proper-lockfile",
+            "dependencies": {
+              "graceful-fs": {
+                "from": "graceful-fs",
+                "version": "4.2.11",
+                "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.11.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/graceful-fs@4.2.11/node_modules/graceful-fs"
+              },
+              "retry": {
+                "from": "retry",
+                "version": "0.12.0",
+                "resolved": "https://registry.npmjs.org/retry/-/retry-0.12.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/retry@0.12.0/node_modules/retry"
+              },
+              "signal-exit": {
+                "from": "signal-exit",
+                "version": "3.0.7",
+                "resolved": "https://registry.npmjs.org/signal-exit/-/signal-exit-3.0.7.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/signal-exit@3.0.7/node_modules/signal-exit"
+              }
+            }
+          },
+          "rastermill": {
+            "from": "rastermill",
+            "version": "0.3.1",
+            "resolved": "https://registry.npmjs.org/rastermill/-/rastermill-0.3.1.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/rastermill@0.3.1/node_modules/rastermill",
+            "dependencies": {
+              "@silvia-odwyer/photon-node": {
+                "from": "@silvia-odwyer/photon-node",
+                "version": "0.3.4",
+                "resolved": "https://registry.npmjs.org/@silvia-odwyer/photon-node/-/photon-node-0.3.4.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@silvia-odwyer+photon-node@0.3.4/node_modules/@silvia-odwyer/photon-node"
+              }
+            }
+          },
+          "sqlite-vec": {
+            "from": "sqlite-vec",
+            "version": "0.1.9",
+            "resolved": "https://registry.npmjs.org/sqlite-vec/-/sqlite-vec-0.1.9.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/sqlite-vec@0.1.9/node_modules/sqlite-vec",
+            "dependencies": {
+              "sqlite-vec-darwin-arm64": {
+                "from": "sqlite-vec-darwin-arm64",
+                "version": "0.1.9",
+                "resolved": "https://registry.npmjs.org/sqlite-vec-darwin-arm64/-/sqlite-vec-darwin-arm64-0.1.9.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/sqlite-vec-darwin-arm64@0.1.9/node_modules/sqlite-vec-darwin-arm64"
+              },
+              "sqlite-vec-darwin-x64": {
+                "from": "sqlite-vec-darwin-x64",
+                "version": "0.1.9",
+                "resolved": "https://registry.npmjs.org/sqlite-vec-darwin-x64/-/sqlite-vec-darwin-x64-0.1.9.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/sqlite-vec-darwin-x64@0.1.9/node_modules/sqlite-vec-darwin-x64"
+              },
+              "sqlite-vec-linux-arm64": {
+                "from": "sqlite-vec-linux-arm64",
+                "version": "0.1.9",
+                "resolved": "https://registry.npmjs.org/sqlite-vec-linux-arm64/-/sqlite-vec-linux-arm64-0.1.9.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/sqlite-vec-linux-arm64@0.1.9/node_modules/sqlite-vec-linux-arm64"
+              },
+              "sqlite-vec-linux-x64": {
+                "from": "sqlite-vec-linux-x64",
+                "version": "0.1.9",
+                "resolved": "https://registry.npmjs.org/sqlite-vec-linux-x64/-/sqlite-vec-linux-x64-0.1.9.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/sqlite-vec-linux-x64@0.1.9/node_modules/sqlite-vec-linux-x64"
+              },
+              "sqlite-vec-windows-x64": {
+                "from": "sqlite-vec-windows-x64",
+                "version": "0.1.9",
+                "resolved": "https://registry.npmjs.org/sqlite-vec-windows-x64/-/sqlite-vec-windows-x64-0.1.9.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/sqlite-vec-windows-x64@0.1.9/node_modules/sqlite-vec-windows-x64"
+              }
+            }
+          },
+          "tree-sitter-bash": {
+            "from": "tree-sitter-bash",
+            "version": "0.25.1",
+            "resolved": "https://registry.npmjs.org/tree-sitter-bash/-/tree-sitter-bash-0.25.1.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/tree-sitter-bash@0.25.1/node_modules/tree-sitter-bash",
+            "dependencies": {
+              "node-addon-api": {
+                "from": "node-addon-api",
+                "version": "8.9.1",
+                "resolved": "https://registry.npmjs.org/node-addon-api/-/node-addon-api-8.9.1.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/node-addon-api@8.9.1/node_modules/node-addon-api"
+              },
+              "node-gyp-build": {
+                "from": "node-gyp-build",
+                "version": "4.8.4",
+                "resolved": "https://registry.npmjs.org/node-gyp-build/-/node-gyp-build-4.8.4.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/node-gyp-build@4.8.4/node_modules/node-gyp-build"
+              }
+            }
+          },
+          "@anthropic-ai/sdk": {
+            "from": "@anthropic-ai/sdk",
+            "version": "0.109.1",
+            "resolved": "https://registry.npmjs.org/@anthropic-ai/sdk/-/sdk-0.109.1.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@anthropic-ai+sdk@0.109.1_zod@4.4.3/node_modules/@anthropic-ai/sdk",
+            "dependencies": {
+              "zod": {
+                "from": "zod",
+                "version": "4.4.3",
+                "resolved": "https://registry.npmjs.org/zod/-/zod-4.4.3.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/zod@4.4.3/node_modules/zod"
+              },
+              "json-schema-to-ts": {
+                "from": "json-schema-to-ts",
+                "version": "3.1.1",
+                "resolved": "https://registry.npmjs.org/json-schema-to-ts/-/json-schema-to-ts-3.1.1.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/json-schema-to-ts@3.1.1/node_modules/json-schema-to-ts",
+                "dependencies": {
+                  "@babel/runtime": {
+                    "from": "@babel/runtime",
+                    "version": "7.29.7",
+                    "resolved": "https://registry.npmjs.org/@babel/runtime/-/runtime-7.29.7.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@babel+runtime@7.29.7/node_modules/@babel/runtime"
+                  },
+                  "ts-algebra": {
+                    "from": "ts-algebra",
+                    "version": "2.0.0",
+                    "resolved": "https://registry.npmjs.org/ts-algebra/-/ts-algebra-2.0.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ts-algebra@2.0.0/node_modules/ts-algebra"
+                  }
+                }
+              },
+              "standardwebhooks": {
+                "from": "standardwebhooks",
+                "version": "1.0.0",
+                "resolved": "https://registry.npmjs.org/standardwebhooks/-/standardwebhooks-1.0.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/standardwebhooks@1.0.0/node_modules/standardwebhooks",
+                "dependencies": {
+                  "@stablelib/base64": {
+                    "from": "@stablelib/base64",
+                    "version": "1.0.1",
+                    "resolved": "https://registry.npmjs.org/@stablelib/base64/-/base64-1.0.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@stablelib+base64@1.0.1/node_modules/@stablelib/base64"
+                  },
+                  "fast-sha256": {
+                    "from": "fast-sha256",
+                    "version": "1.3.0",
+                    "resolved": "https://registry.npmjs.org/fast-sha256/-/fast-sha256-1.3.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/fast-sha256@1.3.0/node_modules/fast-sha256"
+                  }
+                }
+              }
+            }
+          },
+          "@homebridge/ciao": {
+            "from": "@homebridge/ciao",
+            "version": "1.3.9",
+            "resolved": "https://registry.npmjs.org/@homebridge/ciao/-/ciao-1.3.9.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@homebridge+ciao@1.3.9/node_modules/@homebridge/ciao",
+            "dependencies": {
+              "debug": {
+                "from": "debug",
+                "version": "4.4.3",
+                "resolved": "https://registry.npmjs.org/debug/-/debug-4.4.3.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/debug@4.4.3/node_modules/debug",
+                "deduped": true,
+                "dedupedDependenciesCount": 1
+              },
+              "fast-deep-equal": {
+                "from": "fast-deep-equal",
+                "version": "3.1.3",
+                "resolved": "https://registry.npmjs.org/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/fast-deep-equal@3.1.3/node_modules/fast-deep-equal"
+              },
+              "tslib": {
+                "from": "tslib",
+                "version": "2.8.1",
+                "resolved": "https://registry.npmjs.org/tslib/-/tslib-2.8.1.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/tslib@2.8.1/node_modules/tslib"
+              },
+              "source-map-support": {
+                "from": "source-map-support",
+                "version": "0.5.21",
+                "resolved": "https://registry.npmjs.org/source-map-support/-/source-map-support-0.5.21.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/source-map-support@0.5.21/node_modules/source-map-support",
+                "dependencies": {
+                  "buffer-from": {
+                    "from": "buffer-from",
+                    "version": "1.1.2",
+                    "resolved": "https://registry.npmjs.org/buffer-from/-/buffer-from-1.1.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/buffer-from@1.1.2/node_modules/buffer-from"
+                  },
+                  "source-map": {
+                    "from": "source-map",
+                    "version": "0.6.1",
+                    "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.6.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/source-map@0.6.1/node_modules/source-map"
+                  }
+                }
+              }
+            }
+          },
+          "@openclaw/ai": {
+            "from": "@openclaw/ai",
+            "version": "2026.7.1-2",
+            "resolved": "https://registry.npmjs.org/@openclaw/ai/-/ai-2026.7.1-2.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@openclaw+ai@2026.7.1-2_@modelcontextprotocol+sdk@1.29.0_zod@4.4.3__ws@8.21.0_zod@4.4.3/node_modules/@openclaw/ai",
+            "dependencies": {
+              "@anthropic-ai/sdk": {
+                "from": "@anthropic-ai/sdk",
+                "version": "0.109.1",
+                "resolved": "https://registry.npmjs.org/@anthropic-ai/sdk/-/sdk-0.109.1.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@anthropic-ai+sdk@0.109.1_zod@4.4.3/node_modules/@anthropic-ai/sdk",
+                "deduped": true,
+                "dedupedDependenciesCount": 7
+              },
+              "@google/genai": {
+                "from": "@google/genai",
+                "version": "2.10.0",
+                "resolved": "https://registry.npmjs.org/@google/genai/-/genai-2.10.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@google+genai@2.10.0_@modelcontextprotocol+sdk@1.29.0_zod@4.4.3_/node_modules/@google/genai",
+                "deduped": true,
+                "dedupedDependenciesCount": 205
+              },
+              "@mistralai/mistralai": {
+                "from": "@mistralai/mistralai",
+                "version": "2.4.0",
+                "resolved": "https://registry.npmjs.org/@mistralai/mistralai/-/mistralai-2.4.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@mistralai+mistralai@2.4.0/node_modules/@mistralai/mistralai",
+                "deduped": true,
+                "dedupedDependenciesCount": 4
+              },
+              "partial-json": {
+                "from": "partial-json",
+                "version": "0.1.7",
+                "resolved": "https://registry.npmjs.org/partial-json/-/partial-json-0.1.7.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/partial-json@0.1.7/node_modules/partial-json"
+              },
+              "typebox": {
+                "from": "typebox",
+                "version": "1.3.3",
+                "resolved": "https://registry.npmjs.org/typebox/-/typebox-1.3.3.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/typebox@1.3.3/node_modules/typebox"
+              },
+              "openai": {
+                "from": "openai",
+                "version": "6.45.0",
+                "resolved": "https://registry.npmjs.org/openai/-/openai-6.45.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/openai@6.45.0_ws@8.21.0_zod@4.4.3/node_modules/openai",
+                "dependencies": {
+                  "ws": {
+                    "from": "ws",
+                    "version": "8.21.0",
+                    "resolved": "https://registry.npmjs.org/ws/-/ws-8.21.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ws@8.21.0/node_modules/ws"
+                  },
+                  "zod": {
+                    "from": "zod",
+                    "version": "4.4.3",
+                    "resolved": "https://registry.npmjs.org/zod/-/zod-4.4.3.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/zod@4.4.3/node_modules/zod"
+                  }
+                }
+              }
+            }
+          },
+          "web-push": {
+            "from": "web-push",
+            "version": "3.6.7",
+            "resolved": "https://registry.npmjs.org/web-push/-/web-push-3.6.7.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/web-push@3.6.7/node_modules/web-push",
+            "dependencies": {
+              "http_ece": {
+                "from": "http_ece",
+                "version": "1.2.0",
+                "resolved": "https://registry.npmjs.org/http_ece/-/http_ece-1.2.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/http_ece@1.2.0/node_modules/http_ece"
+              },
+              "https-proxy-agent": {
+                "from": "https-proxy-agent",
+                "version": "7.0.6",
+                "resolved": "https://registry.npmjs.org/https-proxy-agent/-/https-proxy-agent-7.0.6.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/https-proxy-agent@7.0.6/node_modules/https-proxy-agent",
+                "deduped": true,
+                "dedupedDependenciesCount": 2
+              },
+              "jws": {
+                "from": "jws",
+                "version": "4.0.1",
+                "resolved": "https://registry.npmjs.org/jws/-/jws-4.0.1.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/jws@4.0.1/node_modules/jws",
+                "deduped": true,
+                "dedupedDependenciesCount": 5
+              },
+              "minimist": {
+                "from": "minimist",
+                "version": "1.2.8",
+                "resolved": "https://registry.npmjs.org/minimist/-/minimist-1.2.8.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/minimist@1.2.8/node_modules/minimist"
+              },
+              "asn1.js": {
+                "from": "asn1.js",
+                "version": "5.4.1",
+                "resolved": "https://registry.npmjs.org/asn1.js/-/asn1.js-5.4.1.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/asn1.js@5.4.1/node_modules/asn1.js",
+                "dependencies": {
+                  "bn.js": {
+                    "from": "bn.js",
+                    "version": "4.12.5",
+                    "resolved": "https://registry.npmjs.org/bn.js/-/bn.js-4.12.5.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/bn.js@4.12.5/node_modules/bn.js"
+                  },
+                  "inherits": {
+                    "from": "inherits",
+                    "version": "2.0.4",
+                    "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.4.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/inherits@2.0.4/node_modules/inherits"
+                  },
+                  "minimalistic-assert": {
+                    "from": "minimalistic-assert",
+                    "version": "1.0.1",
+                    "resolved": "https://registry.npmjs.org/minimalistic-assert/-/minimalistic-assert-1.0.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/minimalistic-assert@1.0.1/node_modules/minimalistic-assert"
+                  },
+                  "safer-buffer": {
+                    "from": "safer-buffer",
+                    "version": "2.1.2",
+                    "resolved": "https://registry.npmjs.org/safer-buffer/-/safer-buffer-2.1.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/safer-buffer@2.1.2/node_modules/safer-buffer"
+                  }
+                }
+              }
+            }
+          },
+          "@clack/core": {
+            "from": "@clack/core",
+            "version": "1.4.2",
+            "resolved": "https://registry.npmjs.org/@clack/core/-/core-1.4.2.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@clack+core@1.4.2/node_modules/@clack/core",
+            "dependencies": {
+              "sisteransi": {
+                "from": "sisteransi",
+                "version": "1.0.5",
+                "resolved": "https://registry.npmjs.org/sisteransi/-/sisteransi-1.0.5.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/sisteransi@1.0.5/node_modules/sisteransi"
+              },
+              "fast-wrap-ansi": {
+                "from": "fast-wrap-ansi",
+                "version": "0.2.2",
+                "resolved": "https://registry.npmjs.org/fast-wrap-ansi/-/fast-wrap-ansi-0.2.2.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/fast-wrap-ansi@0.2.2/node_modules/fast-wrap-ansi",
+                "dependencies": {
+                  "fast-string-width": {
+                    "from": "fast-string-width",
+                    "version": "3.0.2",
+                    "resolved": "https://registry.npmjs.org/fast-string-width/-/fast-string-width-3.0.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/fast-string-width@3.0.2/node_modules/fast-string-width",
+                    "dependencies": {
+                      "fast-string-truncated-width": {
+                        "from": "fast-string-truncated-width",
+                        "version": "3.0.3",
+                        "resolved": "https://registry.npmjs.org/fast-string-truncated-width/-/fast-string-truncated-width-3.0.3.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/fast-string-truncated-width@3.0.3/node_modules/fast-string-truncated-width"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "file-type": {
+            "from": "file-type",
+            "version": "22.0.1",
+            "resolved": "https://registry.npmjs.org/file-type/-/file-type-22.0.1.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/file-type@22.0.1/node_modules/file-type",
+            "dependencies": {
+              "token-types": {
+                "from": "token-types",
+                "version": "6.1.2",
+                "resolved": "https://registry.npmjs.org/token-types/-/token-types-6.1.2.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/token-types@6.1.2/node_modules/token-types",
+                "deduped": true,
+                "dedupedDependenciesCount": 3
+              },
+              "uint8array-extras": {
+                "from": "uint8array-extras",
+                "version": "1.5.0",
+                "resolved": "https://registry.npmjs.org/uint8array-extras/-/uint8array-extras-1.5.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/uint8array-extras@1.5.0/node_modules/uint8array-extras"
+              },
+              "strtok3": {
+                "from": "strtok3",
+                "version": "10.3.5",
+                "resolved": "https://registry.npmjs.org/strtok3/-/strtok3-10.3.5.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/strtok3@10.3.5/node_modules/strtok3",
+                "dependencies": {
+                  "@tokenizer/token": {
+                    "from": "@tokenizer/token",
+                    "version": "0.3.0",
+                    "resolved": "https://registry.npmjs.org/@tokenizer/token/-/token-0.3.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@tokenizer+token@0.3.0/node_modules/@tokenizer/token"
+                  }
+                }
+              },
+              "@tokenizer/inflate": {
+                "from": "@tokenizer/inflate",
+                "version": "0.4.1",
+                "resolved": "https://registry.npmjs.org/@tokenizer/inflate/-/inflate-0.4.1.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@tokenizer+inflate@0.4.1/node_modules/@tokenizer/inflate",
+                "dependencies": {
+                  "debug": {
+                    "from": "debug",
+                    "version": "4.4.3",
+                    "resolved": "https://registry.npmjs.org/debug/-/debug-4.4.3.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/debug@4.4.3/node_modules/debug",
+                    "deduped": true,
+                    "dedupedDependenciesCount": 1
+                  },
+                  "token-types": {
+                    "from": "token-types",
+                    "version": "6.1.2",
+                    "resolved": "https://registry.npmjs.org/token-types/-/token-types-6.1.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/token-types@6.1.2/node_modules/token-types",
+                    "dependencies": {
+                      "@borewit/text-codec": {
+                        "from": "@borewit/text-codec",
+                        "version": "0.2.2",
+                        "resolved": "https://registry.npmjs.org/@borewit/text-codec/-/text-codec-0.2.2.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@borewit+text-codec@0.2.2/node_modules/@borewit/text-codec"
+                      },
+                      "@tokenizer/token": {
+                        "from": "@tokenizer/token",
+                        "version": "0.3.0",
+                        "resolved": "https://registry.npmjs.org/@tokenizer/token/-/token-0.3.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@tokenizer+token@0.3.0/node_modules/@tokenizer/token"
+                      },
+                      "ieee754": {
+                        "from": "ieee754",
+                        "version": "1.2.1",
+                        "resolved": "https://registry.npmjs.org/ieee754/-/ieee754-1.2.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ieee754@1.2.1/node_modules/ieee754"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "glob": {
+            "from": "glob",
+            "version": "13.0.6",
+            "resolved": "https://registry.npmjs.org/glob/-/glob-13.0.6.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/glob@13.0.6/node_modules/glob",
+            "dependencies": {
+              "minipass": {
+                "from": "minipass",
+                "version": "7.1.3",
+                "resolved": "https://registry.npmjs.org/minipass/-/minipass-7.1.3.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/minipass@7.1.3/node_modules/minipass"
+              },
+              "path-scurry": {
+                "from": "path-scurry",
+                "version": "2.0.2",
+                "resolved": "https://registry.npmjs.org/path-scurry/-/path-scurry-2.0.2.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/path-scurry@2.0.2/node_modules/path-scurry",
+                "dependencies": {
+                  "lru-cache": {
+                    "from": "lru-cache",
+                    "version": "11.5.2",
+                    "resolved": "https://registry.npmjs.org/lru-cache/-/lru-cache-11.5.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/lru-cache@11.5.2/node_modules/lru-cache"
+                  },
+                  "minipass": {
+                    "from": "minipass",
+                    "version": "7.1.3",
+                    "resolved": "https://registry.npmjs.org/minipass/-/minipass-7.1.3.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/minipass@7.1.3/node_modules/minipass"
+                  }
+                }
+              },
+              "minimatch": {
+                "from": "minimatch",
+                "version": "10.2.5",
+                "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-10.2.5.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/minimatch@10.2.5/node_modules/minimatch",
+                "dependencies": {
+                  "brace-expansion": {
+                    "from": "brace-expansion",
+                    "version": "5.0.9",
+                    "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-5.0.9.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/brace-expansion@5.0.9/node_modules/brace-expansion",
+                    "dependencies": {
+                      "balanced-match": {
+                        "from": "balanced-match",
+                        "version": "4.0.4",
+                        "resolved": "https://registry.npmjs.org/balanced-match/-/balanced-match-4.0.4.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/balanced-match@4.0.4/node_modules/balanced-match"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "@grammyjs/runner": {
+            "from": "@grammyjs/runner",
+            "version": "2.0.3",
+            "resolved": "https://registry.npmjs.org/@grammyjs/runner/-/runner-2.0.3.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@grammyjs+runner@2.0.3_grammy@1.44.0/node_modules/@grammyjs/runner",
+            "dependencies": {
+              "abort-controller": {
+                "from": "abort-controller",
+                "version": "3.0.0",
+                "resolved": "https://registry.npmjs.org/abort-controller/-/abort-controller-3.0.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/abort-controller@3.0.0/node_modules/abort-controller",
+                "dependencies": {
+                  "event-target-shim": {
+                    "from": "event-target-shim",
+                    "version": "5.0.1",
+                    "resolved": "https://registry.npmjs.org/event-target-shim/-/event-target-shim-5.0.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/event-target-shim@5.0.1/node_modules/event-target-shim"
+                  }
+                }
+              },
+              "grammy": {
+                "from": "grammy",
+                "version": "1.44.0",
+                "resolved": "https://registry.npmjs.org/grammy/-/grammy-1.44.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/grammy@1.44.0/node_modules/grammy",
+                "dependencies": {
+                  "@grammyjs/types": {
+                    "from": "@grammyjs/types",
+                    "version": "3.28.0",
+                    "resolved": "https://registry.npmjs.org/@grammyjs/types/-/types-3.28.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@grammyjs+types@3.28.0/node_modules/@grammyjs/types"
+                  },
+                  "abort-controller": {
+                    "from": "abort-controller",
+                    "version": "3.0.0",
+                    "resolved": "https://registry.npmjs.org/abort-controller/-/abort-controller-3.0.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/abort-controller@3.0.0/node_modules/abort-controller",
+                    "deduped": true,
+                    "dedupedDependenciesCount": 1
+                  },
+                  "debug": {
+                    "from": "debug",
+                    "version": "4.4.3",
+                    "resolved": "https://registry.npmjs.org/debug/-/debug-4.4.3.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/debug@4.4.3/node_modules/debug",
+                    "deduped": true,
+                    "dedupedDependenciesCount": 1
+                  },
+                  "node-fetch": {
+                    "from": "node-fetch",
+                    "version": "2.7.0",
+                    "resolved": "https://registry.npmjs.org/node-fetch/-/node-fetch-2.7.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/node-fetch@2.7.0/node_modules/node-fetch",
+                    "dependencies": {
+                      "whatwg-url": {
+                        "from": "whatwg-url",
+                        "version": "5.0.0",
+                        "resolved": "https://registry.npmjs.org/whatwg-url/-/whatwg-url-5.0.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/whatwg-url@5.0.0/node_modules/whatwg-url",
+                        "dependencies": {
+                          "tr46": {
+                            "from": "tr46",
+                            "version": "0.0.3",
+                            "resolved": "https://registry.npmjs.org/tr46/-/tr46-0.0.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/tr46@0.0.3/node_modules/tr46"
+                          },
+                          "webidl-conversions": {
+                            "from": "webidl-conversions",
+                            "version": "3.0.1",
+                            "resolved": "https://registry.npmjs.org/webidl-conversions/-/webidl-conversions-3.0.1.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/webidl-conversions@3.0.1/node_modules/webidl-conversions"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "@openclaw/fs-safe": {
+            "from": "@openclaw/fs-safe",
+            "version": "0.4.1",
+            "resolved": "https://registry.npmjs.org/@openclaw/fs-safe/-/fs-safe-0.4.1.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@openclaw+fs-safe@0.4.1/node_modules/@openclaw/fs-safe",
+            "dependencies": {
+              "tar": {
+                "from": "tar",
+                "version": "7.5.19",
+                "resolved": "https://registry.npmjs.org/tar/-/tar-7.5.19.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/tar@7.5.19/node_modules/tar",
+                "dependencies": {
+                  "chownr": {
+                    "from": "chownr",
+                    "version": "3.0.0",
+                    "resolved": "https://registry.npmjs.org/chownr/-/chownr-3.0.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/chownr@3.0.0/node_modules/chownr"
+                  },
+                  "minipass": {
+                    "from": "minipass",
+                    "version": "7.1.3",
+                    "resolved": "https://registry.npmjs.org/minipass/-/minipass-7.1.3.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/minipass@7.1.3/node_modules/minipass"
+                  },
+                  "yallist": {
+                    "from": "yallist",
+                    "version": "5.0.0",
+                    "resolved": "https://registry.npmjs.org/yallist/-/yallist-5.0.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/yallist@5.0.0/node_modules/yallist"
+                  },
+                  "@isaacs/fs-minipass": {
+                    "from": "@isaacs/fs-minipass",
+                    "version": "4.0.1",
+                    "resolved": "https://registry.npmjs.org/@isaacs/fs-minipass/-/fs-minipass-4.0.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@isaacs+fs-minipass@4.0.1/node_modules/@isaacs/fs-minipass",
+                    "dependencies": {
+                      "minipass": {
+                        "from": "minipass",
+                        "version": "7.1.3",
+                        "resolved": "https://registry.npmjs.org/minipass/-/minipass-7.1.3.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/minipass@7.1.3/node_modules/minipass"
+                      }
+                    }
+                  },
+                  "minizlib": {
+                    "from": "minizlib",
+                    "version": "3.1.0",
+                    "resolved": "https://registry.npmjs.org/minizlib/-/minizlib-3.1.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/minizlib@3.1.0/node_modules/minizlib",
+                    "dependencies": {
+                      "minipass": {
+                        "from": "minipass",
+                        "version": "7.1.3",
+                        "resolved": "https://registry.npmjs.org/minipass/-/minipass-7.1.3.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/minipass@7.1.3/node_modules/minipass"
+                      }
+                    }
+                  }
+                }
+              },
+              "jszip": {
+                "from": "jszip",
+                "version": "3.10.1",
+                "resolved": "https://registry.npmjs.org/jszip/-/jszip-3.10.1.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/jszip@3.10.1/node_modules/jszip",
+                "dependencies": {
+                  "pako": {
+                    "from": "pako",
+                    "version": "1.0.11",
+                    "resolved": "https://registry.npmjs.org/pako/-/pako-1.0.11.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/pako@1.0.11/node_modules/pako"
+                  },
+                  "setimmediate": {
+                    "from": "setimmediate",
+                    "version": "1.0.5",
+                    "resolved": "https://registry.npmjs.org/setimmediate/-/setimmediate-1.0.5.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/setimmediate@1.0.5/node_modules/setimmediate"
+                  },
+                  "lie": {
+                    "from": "lie",
+                    "version": "3.3.0",
+                    "resolved": "https://registry.npmjs.org/lie/-/lie-3.3.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/lie@3.3.0/node_modules/lie",
+                    "dependencies": {
+                      "immediate": {
+                        "from": "immediate",
+                        "version": "3.0.6",
+                        "resolved": "https://registry.npmjs.org/immediate/-/immediate-3.0.6.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/immediate@3.0.6/node_modules/immediate"
+                      }
+                    }
+                  },
+                  "readable-stream": {
+                    "from": "readable-stream",
+                    "version": "2.3.8",
+                    "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-2.3.8.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/readable-stream@2.3.8/node_modules/readable-stream",
+                    "dependencies": {
+                      "core-util-is": {
+                        "from": "core-util-is",
+                        "version": "1.0.3",
+                        "resolved": "https://registry.npmjs.org/core-util-is/-/core-util-is-1.0.3.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/core-util-is@1.0.3/node_modules/core-util-is"
+                      },
+                      "inherits": {
+                        "from": "inherits",
+                        "version": "2.0.4",
+                        "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.4.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/inherits@2.0.4/node_modules/inherits"
+                      },
+                      "isarray": {
+                        "from": "isarray",
+                        "version": "1.0.0",
+                        "resolved": "https://registry.npmjs.org/isarray/-/isarray-1.0.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/isarray@1.0.0/node_modules/isarray"
+                      },
+                      "process-nextick-args": {
+                        "from": "process-nextick-args",
+                        "version": "2.0.1",
+                        "resolved": "https://registry.npmjs.org/process-nextick-args/-/process-nextick-args-2.0.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/process-nextick-args@2.0.1/node_modules/process-nextick-args"
+                      },
+                      "safe-buffer": {
+                        "from": "safe-buffer",
+                        "version": "5.1.2",
+                        "resolved": "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.2.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/safe-buffer@5.1.2/node_modules/safe-buffer"
+                      },
+                      "util-deprecate": {
+                        "from": "util-deprecate",
+                        "version": "1.0.2",
+                        "resolved": "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/util-deprecate@1.0.2/node_modules/util-deprecate"
+                      },
+                      "string_decoder": {
+                        "from": "string_decoder",
+                        "version": "1.1.1",
+                        "resolved": "https://registry.npmjs.org/string_decoder/-/string_decoder-1.1.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/string_decoder@1.1.1/node_modules/string_decoder",
+                        "dependencies": {
+                          "safe-buffer": {
+                            "from": "safe-buffer",
+                            "version": "5.1.2",
+                            "resolved": "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.2.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/safe-buffer@5.1.2/node_modules/safe-buffer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "linkedom": {
+            "from": "linkedom",
+            "version": "0.18.12",
+            "resolved": "https://registry.npmjs.org/linkedom/-/linkedom-0.18.12.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/linkedom@0.18.12/node_modules/linkedom",
+            "dependencies": {
+              "cssom": {
+                "from": "cssom",
+                "version": "0.5.0",
+                "resolved": "https://registry.npmjs.org/cssom/-/cssom-0.5.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/cssom@0.5.0/node_modules/cssom"
+              },
+              "html-escaper": {
+                "from": "html-escaper",
+                "version": "3.0.3",
+                "resolved": "https://registry.npmjs.org/html-escaper/-/html-escaper-3.0.3.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/html-escaper@3.0.3/node_modules/html-escaper"
+              },
+              "uhyphen": {
+                "from": "uhyphen",
+                "version": "0.2.0",
+                "resolved": "https://registry.npmjs.org/uhyphen/-/uhyphen-0.2.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/uhyphen@0.2.0/node_modules/uhyphen"
+              },
+              "htmlparser2": {
+                "from": "htmlparser2",
+                "version": "10.1.0",
+                "resolved": "https://registry.npmjs.org/htmlparser2/-/htmlparser2-10.1.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/htmlparser2@10.1.0/node_modules/htmlparser2",
+                "dependencies": {
+                  "domelementtype": {
+                    "from": "domelementtype",
+                    "version": "2.3.0",
+                    "resolved": "https://registry.npmjs.org/domelementtype/-/domelementtype-2.3.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/domelementtype@2.3.0/node_modules/domelementtype"
+                  },
+                  "domhandler": {
+                    "from": "domhandler",
+                    "version": "5.0.3",
+                    "resolved": "https://registry.npmjs.org/domhandler/-/domhandler-5.0.3.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/domhandler@5.0.3/node_modules/domhandler",
+                    "deduped": true,
+                    "dedupedDependenciesCount": 1
+                  },
+                  "domutils": {
+                    "from": "domutils",
+                    "version": "3.2.2",
+                    "resolved": "https://registry.npmjs.org/domutils/-/domutils-3.2.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/domutils@3.2.2/node_modules/domutils",
+                    "deduped": true,
+                    "dedupedDependenciesCount": 6
+                  },
+                  "entities": {
+                    "from": "entities",
+                    "version": "7.0.1",
+                    "resolved": "https://registry.npmjs.org/entities/-/entities-7.0.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/entities@7.0.1/node_modules/entities"
+                  }
+                }
+              },
+              "css-select": {
+                "from": "css-select",
+                "version": "5.2.2",
+                "resolved": "https://registry.npmjs.org/css-select/-/css-select-5.2.2.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/css-select@5.2.2/node_modules/css-select",
+                "dependencies": {
+                  "boolbase": {
+                    "from": "boolbase",
+                    "version": "1.0.0",
+                    "resolved": "https://registry.npmjs.org/boolbase/-/boolbase-1.0.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/boolbase@1.0.0/node_modules/boolbase"
+                  },
+                  "css-what": {
+                    "from": "css-what",
+                    "version": "6.2.2",
+                    "resolved": "https://registry.npmjs.org/css-what/-/css-what-6.2.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/css-what@6.2.2/node_modules/css-what"
+                  },
+                  "domhandler": {
+                    "from": "domhandler",
+                    "version": "5.0.3",
+                    "resolved": "https://registry.npmjs.org/domhandler/-/domhandler-5.0.3.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/domhandler@5.0.3/node_modules/domhandler",
+                    "dependencies": {
+                      "domelementtype": {
+                        "from": "domelementtype",
+                        "version": "2.3.0",
+                        "resolved": "https://registry.npmjs.org/domelementtype/-/domelementtype-2.3.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/domelementtype@2.3.0/node_modules/domelementtype"
+                      }
+                    }
+                  },
+                  "nth-check": {
+                    "from": "nth-check",
+                    "version": "2.1.1",
+                    "resolved": "https://registry.npmjs.org/nth-check/-/nth-check-2.1.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/nth-check@2.1.1/node_modules/nth-check",
+                    "dependencies": {
+                      "boolbase": {
+                        "from": "boolbase",
+                        "version": "1.0.0",
+                        "resolved": "https://registry.npmjs.org/boolbase/-/boolbase-1.0.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/boolbase@1.0.0/node_modules/boolbase"
+                      }
+                    }
+                  },
+                  "domutils": {
+                    "from": "domutils",
+                    "version": "3.2.2",
+                    "resolved": "https://registry.npmjs.org/domutils/-/domutils-3.2.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/domutils@3.2.2/node_modules/domutils",
+                    "dependencies": {
+                      "domelementtype": {
+                        "from": "domelementtype",
+                        "version": "2.3.0",
+                        "resolved": "https://registry.npmjs.org/domelementtype/-/domelementtype-2.3.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/domelementtype@2.3.0/node_modules/domelementtype"
+                      },
+                      "domhandler": {
+                        "from": "domhandler",
+                        "version": "5.0.3",
+                        "resolved": "https://registry.npmjs.org/domhandler/-/domhandler-5.0.3.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/domhandler@5.0.3/node_modules/domhandler",
+                        "deduped": true,
+                        "dedupedDependenciesCount": 1
+                      },
+                      "dom-serializer": {
+                        "from": "dom-serializer",
+                        "version": "2.0.0",
+                        "resolved": "https://registry.npmjs.org/dom-serializer/-/dom-serializer-2.0.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/dom-serializer@2.0.0/node_modules/dom-serializer",
+                        "dependencies": {
+                          "domelementtype": {
+                            "from": "domelementtype",
+                            "version": "2.3.0",
+                            "resolved": "https://registry.npmjs.org/domelementtype/-/domelementtype-2.3.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/domelementtype@2.3.0/node_modules/domelementtype"
+                          },
+                          "domhandler": {
+                            "from": "domhandler",
+                            "version": "5.0.3",
+                            "resolved": "https://registry.npmjs.org/domhandler/-/domhandler-5.0.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/domhandler@5.0.3/node_modules/domhandler",
+                            "deduped": true,
+                            "dedupedDependenciesCount": 1
+                          },
+                          "entities": {
+                            "from": "entities",
+                            "version": "4.5.0",
+                            "resolved": "https://registry.npmjs.org/entities/-/entities-4.5.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/entities@4.5.0/node_modules/entities"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "node-edge-tts": {
+            "from": "node-edge-tts",
+            "version": "1.2.10",
+            "resolved": "https://registry.npmjs.org/node-edge-tts/-/node-edge-tts-1.2.10.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/node-edge-tts@1.2.10/node_modules/node-edge-tts",
+            "dependencies": {
+              "https-proxy-agent": {
+                "from": "https-proxy-agent",
+                "version": "7.0.6",
+                "resolved": "https://registry.npmjs.org/https-proxy-agent/-/https-proxy-agent-7.0.6.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/https-proxy-agent@7.0.6/node_modules/https-proxy-agent",
+                "deduped": true,
+                "dedupedDependenciesCount": 2
+              },
+              "ws": {
+                "from": "ws",
+                "version": "8.21.0",
+                "resolved": "https://registry.npmjs.org/ws/-/ws-8.21.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ws@8.21.0/node_modules/ws"
+              },
+              "yargs": {
+                "from": "yargs",
+                "version": "17.7.3",
+                "resolved": "https://registry.npmjs.org/yargs/-/yargs-17.7.3.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/yargs@17.7.3/node_modules/yargs",
+                "dependencies": {
+                  "escalade": {
+                    "from": "escalade",
+                    "version": "3.2.0",
+                    "resolved": "https://registry.npmjs.org/escalade/-/escalade-3.2.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/escalade@3.2.0/node_modules/escalade"
+                  },
+                  "get-caller-file": {
+                    "from": "get-caller-file",
+                    "version": "2.0.5",
+                    "resolved": "https://registry.npmjs.org/get-caller-file/-/get-caller-file-2.0.5.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/get-caller-file@2.0.5/node_modules/get-caller-file"
+                  },
+                  "require-directory": {
+                    "from": "require-directory",
+                    "version": "2.1.1",
+                    "resolved": "https://registry.npmjs.org/require-directory/-/require-directory-2.1.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/require-directory@2.1.1/node_modules/require-directory"
+                  },
+                  "string-width": {
+                    "from": "string-width",
+                    "version": "4.2.3",
+                    "resolved": "https://registry.npmjs.org/string-width/-/string-width-4.2.3.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/string-width@4.2.3/node_modules/string-width",
+                    "deduped": true,
+                    "dedupedDependenciesCount": 4
+                  },
+                  "y18n": {
+                    "from": "y18n",
+                    "version": "5.0.8",
+                    "resolved": "https://registry.npmjs.org/y18n/-/y18n-5.0.8.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/y18n@5.0.8/node_modules/y18n"
+                  },
+                  "yargs-parser": {
+                    "from": "yargs-parser",
+                    "version": "21.1.1",
+                    "resolved": "https://registry.npmjs.org/yargs-parser/-/yargs-parser-21.1.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/yargs-parser@21.1.1/node_modules/yargs-parser"
+                  },
+                  "cliui": {
+                    "from": "cliui",
+                    "version": "8.0.1",
+                    "resolved": "https://registry.npmjs.org/cliui/-/cliui-8.0.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/cliui@8.0.1/node_modules/cliui",
+                    "dependencies": {
+                      "strip-ansi": {
+                        "from": "strip-ansi",
+                        "version": "6.0.1",
+                        "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-6.0.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/strip-ansi@6.0.1/node_modules/strip-ansi",
+                        "deduped": true,
+                        "dedupedDependenciesCount": 1
+                      },
+                      "string-width": {
+                        "from": "string-width",
+                        "version": "4.2.3",
+                        "resolved": "https://registry.npmjs.org/string-width/-/string-width-4.2.3.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/string-width@4.2.3/node_modules/string-width",
+                        "dependencies": {
+                          "emoji-regex": {
+                            "from": "emoji-regex",
+                            "version": "8.0.0",
+                            "resolved": "https://registry.npmjs.org/emoji-regex/-/emoji-regex-8.0.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/emoji-regex@8.0.0/node_modules/emoji-regex"
+                          },
+                          "is-fullwidth-code-point": {
+                            "from": "is-fullwidth-code-point",
+                            "version": "3.0.0",
+                            "resolved": "https://registry.npmjs.org/is-fullwidth-code-point/-/is-fullwidth-code-point-3.0.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/is-fullwidth-code-point@3.0.0/node_modules/is-fullwidth-code-point"
+                          },
+                          "strip-ansi": {
+                            "from": "strip-ansi",
+                            "version": "6.0.1",
+                            "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-6.0.1.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/strip-ansi@6.0.1/node_modules/strip-ansi",
+                            "dependencies": {
+                              "ansi-regex": {
+                                "from": "ansi-regex",
+                                "version": "5.0.1",
+                                "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-5.0.1.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ansi-regex@5.0.1/node_modules/ansi-regex"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "wrap-ansi": {
+                        "from": "wrap-ansi",
+                        "version": "7.0.0",
+                        "resolved": "https://registry.npmjs.org/wrap-ansi/-/wrap-ansi-7.0.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/wrap-ansi@7.0.0/node_modules/wrap-ansi",
+                        "dependencies": {
+                          "string-width": {
+                            "from": "string-width",
+                            "version": "4.2.3",
+                            "resolved": "https://registry.npmjs.org/string-width/-/string-width-4.2.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/string-width@4.2.3/node_modules/string-width",
+                            "deduped": true,
+                            "dedupedDependenciesCount": 4
+                          },
+                          "strip-ansi": {
+                            "from": "strip-ansi",
+                            "version": "6.0.1",
+                            "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-6.0.1.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/strip-ansi@6.0.1/node_modules/strip-ansi",
+                            "deduped": true,
+                            "dedupedDependenciesCount": 1
+                          },
+                          "ansi-styles": {
+                            "from": "ansi-styles",
+                            "version": "4.3.0",
+                            "resolved": "https://registry.npmjs.org/ansi-styles/-/ansi-styles-4.3.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ansi-styles@4.3.0/node_modules/ansi-styles",
+                            "dependencies": {
+                              "color-convert": {
+                                "from": "color-convert",
+                                "version": "2.0.1",
+                                "resolved": "https://registry.npmjs.org/color-convert/-/color-convert-2.0.1.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/color-convert@2.0.1/node_modules/color-convert",
+                                "dependencies": {
+                                  "color-name": {
+                                    "from": "color-name",
+                                    "version": "1.1.4",
+                                    "resolved": "https://registry.npmjs.org/color-name/-/color-name-1.1.4.tgz",
+                                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/color-name@1.1.4/node_modules/color-name"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "qrcode": {
+            "from": "qrcode",
+            "version": "1.5.4",
+            "resolved": "https://registry.npmjs.org/qrcode/-/qrcode-1.5.4.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/qrcode@1.5.4/node_modules/qrcode",
+            "dependencies": {
+              "dijkstrajs": {
+                "from": "dijkstrajs",
+                "version": "1.0.3",
+                "resolved": "https://registry.npmjs.org/dijkstrajs/-/dijkstrajs-1.0.3.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/dijkstrajs@1.0.3/node_modules/dijkstrajs"
+              },
+              "pngjs": {
+                "from": "pngjs",
+                "version": "5.0.0",
+                "resolved": "https://registry.npmjs.org/pngjs/-/pngjs-5.0.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/pngjs@5.0.0/node_modules/pngjs"
+              },
+              "yargs": {
+                "from": "yargs",
+                "version": "15.4.1",
+                "resolved": "https://registry.npmjs.org/yargs/-/yargs-15.4.1.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/yargs@15.4.1/node_modules/yargs",
+                "dependencies": {
+                  "decamelize": {
+                    "from": "decamelize",
+                    "version": "1.2.0",
+                    "resolved": "https://registry.npmjs.org/decamelize/-/decamelize-1.2.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/decamelize@1.2.0/node_modules/decamelize"
+                  },
+                  "get-caller-file": {
+                    "from": "get-caller-file",
+                    "version": "2.0.5",
+                    "resolved": "https://registry.npmjs.org/get-caller-file/-/get-caller-file-2.0.5.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/get-caller-file@2.0.5/node_modules/get-caller-file"
+                  },
+                  "require-directory": {
+                    "from": "require-directory",
+                    "version": "2.1.1",
+                    "resolved": "https://registry.npmjs.org/require-directory/-/require-directory-2.1.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/require-directory@2.1.1/node_modules/require-directory"
+                  },
+                  "require-main-filename": {
+                    "from": "require-main-filename",
+                    "version": "2.0.0",
+                    "resolved": "https://registry.npmjs.org/require-main-filename/-/require-main-filename-2.0.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/require-main-filename@2.0.0/node_modules/require-main-filename"
+                  },
+                  "set-blocking": {
+                    "from": "set-blocking",
+                    "version": "2.0.0",
+                    "resolved": "https://registry.npmjs.org/set-blocking/-/set-blocking-2.0.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/set-blocking@2.0.0/node_modules/set-blocking"
+                  },
+                  "string-width": {
+                    "from": "string-width",
+                    "version": "4.2.3",
+                    "resolved": "https://registry.npmjs.org/string-width/-/string-width-4.2.3.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/string-width@4.2.3/node_modules/string-width",
+                    "deduped": true,
+                    "dedupedDependenciesCount": 4
+                  },
+                  "which-module": {
+                    "from": "which-module",
+                    "version": "2.0.1",
+                    "resolved": "https://registry.npmjs.org/which-module/-/which-module-2.0.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/which-module@2.0.1/node_modules/which-module"
+                  },
+                  "y18n": {
+                    "from": "y18n",
+                    "version": "4.0.3",
+                    "resolved": "https://registry.npmjs.org/y18n/-/y18n-4.0.3.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/y18n@4.0.3/node_modules/y18n"
+                  },
+                  "yargs-parser": {
+                    "from": "yargs-parser",
+                    "version": "18.1.3",
+                    "resolved": "https://registry.npmjs.org/yargs-parser/-/yargs-parser-18.1.3.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/yargs-parser@18.1.3/node_modules/yargs-parser",
+                    "dependencies": {
+                      "camelcase": {
+                        "from": "camelcase",
+                        "version": "5.3.1",
+                        "resolved": "https://registry.npmjs.org/camelcase/-/camelcase-5.3.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/camelcase@5.3.1/node_modules/camelcase"
+                      },
+                      "decamelize": {
+                        "from": "decamelize",
+                        "version": "1.2.0",
+                        "resolved": "https://registry.npmjs.org/decamelize/-/decamelize-1.2.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/decamelize@1.2.0/node_modules/decamelize"
+                      }
+                    }
+                  },
+                  "cliui": {
+                    "from": "cliui",
+                    "version": "6.0.0",
+                    "resolved": "https://registry.npmjs.org/cliui/-/cliui-6.0.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/cliui@6.0.0/node_modules/cliui",
+                    "dependencies": {
+                      "string-width": {
+                        "from": "string-width",
+                        "version": "4.2.3",
+                        "resolved": "https://registry.npmjs.org/string-width/-/string-width-4.2.3.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/string-width@4.2.3/node_modules/string-width",
+                        "deduped": true,
+                        "dedupedDependenciesCount": 4
+                      },
+                      "strip-ansi": {
+                        "from": "strip-ansi",
+                        "version": "6.0.1",
+                        "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-6.0.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/strip-ansi@6.0.1/node_modules/strip-ansi",
+                        "deduped": true,
+                        "dedupedDependenciesCount": 1
+                      },
+                      "wrap-ansi": {
+                        "from": "wrap-ansi",
+                        "version": "6.2.0",
+                        "resolved": "https://registry.npmjs.org/wrap-ansi/-/wrap-ansi-6.2.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/wrap-ansi@6.2.0/node_modules/wrap-ansi",
+                        "dependencies": {
+                          "ansi-styles": {
+                            "from": "ansi-styles",
+                            "version": "4.3.0",
+                            "resolved": "https://registry.npmjs.org/ansi-styles/-/ansi-styles-4.3.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ansi-styles@4.3.0/node_modules/ansi-styles",
+                            "deduped": true,
+                            "dedupedDependenciesCount": 2
+                          },
+                          "string-width": {
+                            "from": "string-width",
+                            "version": "4.2.3",
+                            "resolved": "https://registry.npmjs.org/string-width/-/string-width-4.2.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/string-width@4.2.3/node_modules/string-width",
+                            "deduped": true,
+                            "dedupedDependenciesCount": 4
+                          },
+                          "strip-ansi": {
+                            "from": "strip-ansi",
+                            "version": "6.0.1",
+                            "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-6.0.1.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/strip-ansi@6.0.1/node_modules/strip-ansi",
+                            "deduped": true,
+                            "dedupedDependenciesCount": 1
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "find-up": {
+                    "from": "find-up",
+                    "version": "4.1.0",
+                    "resolved": "https://registry.npmjs.org/find-up/-/find-up-4.1.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/find-up@4.1.0/node_modules/find-up",
+                    "dependencies": {
+                      "path-exists": {
+                        "from": "path-exists",
+                        "version": "4.0.0",
+                        "resolved": "https://registry.npmjs.org/path-exists/-/path-exists-4.0.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/path-exists@4.0.0/node_modules/path-exists"
+                      },
+                      "locate-path": {
+                        "from": "locate-path",
+                        "version": "5.0.0",
+                        "resolved": "https://registry.npmjs.org/locate-path/-/locate-path-5.0.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/locate-path@5.0.0/node_modules/locate-path",
+                        "dependencies": {
+                          "p-locate": {
+                            "from": "p-locate",
+                            "version": "4.1.0",
+                            "resolved": "https://registry.npmjs.org/p-locate/-/p-locate-4.1.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/p-locate@4.1.0/node_modules/p-locate",
+                            "dependencies": {
+                              "p-limit": {
+                                "from": "p-limit",
+                                "version": "2.3.0",
+                                "resolved": "https://registry.npmjs.org/p-limit/-/p-limit-2.3.0.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/p-limit@2.3.0/node_modules/p-limit",
+                                "dependencies": {
+                                  "p-try": {
+                                    "from": "p-try",
+                                    "version": "2.2.0",
+                                    "resolved": "https://registry.npmjs.org/p-try/-/p-try-2.2.0.tgz",
+                                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/p-try@2.2.0/node_modules/p-try"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "@google/genai": {
+            "from": "@google/genai",
+            "version": "2.10.0",
+            "resolved": "https://registry.npmjs.org/@google/genai/-/genai-2.10.0.tgz",
+            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@google+genai@2.10.0_@modelcontextprotocol+sdk@1.29.0_zod@4.4.3_/node_modules/@google/genai",
+            "dependencies": {
+              "ws": {
+                "from": "ws",
+                "version": "8.21.0",
+                "resolved": "https://registry.npmjs.org/ws/-/ws-8.21.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ws@8.21.0/node_modules/ws"
+              },
+              "p-retry": {
+                "from": "p-retry",
+                "version": "4.6.2",
+                "resolved": "https://registry.npmjs.org/p-retry/-/p-retry-4.6.2.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/p-retry@4.6.2/node_modules/p-retry",
+                "dependencies": {
+                  "@types/retry": {
+                    "from": "@types/retry",
+                    "version": "0.12.0",
+                    "resolved": "https://registry.npmjs.org/@types/retry/-/retry-0.12.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@types+retry@0.12.0/node_modules/@types/retry"
+                  },
+                  "retry": {
+                    "from": "retry",
+                    "version": "0.13.1",
+                    "resolved": "https://registry.npmjs.org/retry/-/retry-0.13.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/retry@0.13.1/node_modules/retry"
+                  }
+                }
+              },
+              "protobufjs": {
+                "from": "protobufjs",
+                "version": "7.6.5",
+                "resolved": "https://registry.npmjs.org/protobufjs/-/protobufjs-7.6.5.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/protobufjs@7.6.5/node_modules/protobufjs",
+                "dependencies": {
+                  "@protobufjs/aspromise": {
+                    "from": "@protobufjs/aspromise",
+                    "version": "1.1.2",
+                    "resolved": "https://registry.npmjs.org/@protobufjs/aspromise/-/aspromise-1.1.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@protobufjs+aspromise@1.1.2/node_modules/@protobufjs/aspromise"
+                  },
+                  "@protobufjs/base64": {
+                    "from": "@protobufjs/base64",
+                    "version": "1.1.2",
+                    "resolved": "https://registry.npmjs.org/@protobufjs/base64/-/base64-1.1.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@protobufjs+base64@1.1.2/node_modules/@protobufjs/base64"
+                  },
+                  "@protobufjs/codegen": {
+                    "from": "@protobufjs/codegen",
+                    "version": "2.0.5",
+                    "resolved": "https://registry.npmjs.org/@protobufjs/codegen/-/codegen-2.0.5.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@protobufjs+codegen@2.0.5/node_modules/@protobufjs/codegen"
+                  },
+                  "@protobufjs/eventemitter": {
+                    "from": "@protobufjs/eventemitter",
+                    "version": "1.1.1",
+                    "resolved": "https://registry.npmjs.org/@protobufjs/eventemitter/-/eventemitter-1.1.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@protobufjs+eventemitter@1.1.1/node_modules/@protobufjs/eventemitter"
+                  },
+                  "@protobufjs/float": {
+                    "from": "@protobufjs/float",
+                    "version": "1.0.2",
+                    "resolved": "https://registry.npmjs.org/@protobufjs/float/-/float-1.0.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@protobufjs+float@1.0.2/node_modules/@protobufjs/float"
+                  },
+                  "@protobufjs/path": {
+                    "from": "@protobufjs/path",
+                    "version": "1.1.2",
+                    "resolved": "https://registry.npmjs.org/@protobufjs/path/-/path-1.1.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@protobufjs+path@1.1.2/node_modules/@protobufjs/path"
+                  },
+                  "@protobufjs/pool": {
+                    "from": "@protobufjs/pool",
+                    "version": "1.1.0",
+                    "resolved": "https://registry.npmjs.org/@protobufjs/pool/-/pool-1.1.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@protobufjs+pool@1.1.0/node_modules/@protobufjs/pool"
+                  },
+                  "@protobufjs/utf8": {
+                    "from": "@protobufjs/utf8",
+                    "version": "1.1.2",
+                    "resolved": "https://registry.npmjs.org/@protobufjs/utf8/-/utf8-1.1.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@protobufjs+utf8@1.1.2/node_modules/@protobufjs/utf8"
+                  },
+                  "long": {
+                    "from": "long",
+                    "version": "5.3.2",
+                    "resolved": "https://registry.npmjs.org/long/-/long-5.3.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/long@5.3.2/node_modules/long"
+                  },
+                  "@protobufjs/fetch": {
+                    "from": "@protobufjs/fetch",
+                    "version": "1.1.1",
+                    "resolved": "https://registry.npmjs.org/@protobufjs/fetch/-/fetch-1.1.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@protobufjs+fetch@1.1.1/node_modules/@protobufjs/fetch",
+                    "dependencies": {
+                      "@protobufjs/aspromise": {
+                        "from": "@protobufjs/aspromise",
+                        "version": "1.1.2",
+                        "resolved": "https://registry.npmjs.org/@protobufjs/aspromise/-/aspromise-1.1.2.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@protobufjs+aspromise@1.1.2/node_modules/@protobufjs/aspromise"
+                      }
+                    }
+                  },
+                  "@types/node": {
+                    "from": "@types/node",
+                    "version": "26.2.0",
+                    "resolved": "https://registry.npmjs.org/@types/node/-/node-26.2.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@types+node@26.2.0/node_modules/@types/node",
+                    "dependencies": {
+                      "undici-types": {
+                        "from": "undici-types",
+                        "version": "8.3.0",
+                        "resolved": "https://registry.npmjs.org/undici-types/-/undici-types-8.3.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/undici-types@8.3.0/node_modules/undici-types"
+                      }
+                    }
+                  }
+                }
+              },
+              "google-auth-library": {
+                "from": "google-auth-library",
+                "version": "10.9.1",
+                "resolved": "https://registry.npmjs.org/google-auth-library/-/google-auth-library-10.9.1.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/google-auth-library@10.9.1/node_modules/google-auth-library",
+                "dependencies": {
+                  "base64-js": {
+                    "from": "base64-js",
+                    "version": "1.5.1",
+                    "resolved": "https://registry.npmjs.org/base64-js/-/base64-js-1.5.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/base64-js@1.5.1/node_modules/base64-js"
+                  },
+                  "google-logging-utils": {
+                    "from": "google-logging-utils",
+                    "version": "1.1.3",
+                    "resolved": "https://registry.npmjs.org/google-logging-utils/-/google-logging-utils-1.1.3.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/google-logging-utils@1.1.3/node_modules/google-logging-utils"
+                  },
+                  "ecdsa-sig-formatter": {
+                    "from": "ecdsa-sig-formatter",
+                    "version": "1.0.11",
+                    "resolved": "https://registry.npmjs.org/ecdsa-sig-formatter/-/ecdsa-sig-formatter-1.0.11.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ecdsa-sig-formatter@1.0.11/node_modules/ecdsa-sig-formatter",
+                    "dependencies": {
+                      "safe-buffer": {
+                        "from": "safe-buffer",
+                        "version": "5.2.1",
+                        "resolved": "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.2.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/safe-buffer@5.2.1/node_modules/safe-buffer"
+                      }
+                    }
+                  },
+                  "gcp-metadata": {
+                    "from": "gcp-metadata",
+                    "version": "8.1.2",
+                    "resolved": "https://registry.npmjs.org/gcp-metadata/-/gcp-metadata-8.1.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/gcp-metadata@8.1.2/node_modules/gcp-metadata",
+                    "dependencies": {
+                      "gaxios": {
+                        "from": "gaxios",
+                        "version": "7.3.0",
+                        "resolved": "https://registry.npmjs.org/gaxios/-/gaxios-7.3.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/gaxios@7.3.0/node_modules/gaxios",
+                        "deduped": true,
+                        "dedupedDependenciesCount": 11
+                      },
+                      "google-logging-utils": {
+                        "from": "google-logging-utils",
+                        "version": "1.1.3",
+                        "resolved": "https://registry.npmjs.org/google-logging-utils/-/google-logging-utils-1.1.3.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/google-logging-utils@1.1.3/node_modules/google-logging-utils"
+                      },
+                      "json-bigint": {
+                        "from": "json-bigint",
+                        "version": "1.0.0",
+                        "resolved": "https://registry.npmjs.org/json-bigint/-/json-bigint-1.0.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/json-bigint@1.0.0/node_modules/json-bigint",
+                        "dependencies": {
+                          "bignumber.js": {
+                            "from": "bignumber.js",
+                            "version": "9.3.1",
+                            "resolved": "https://registry.npmjs.org/bignumber.js/-/bignumber.js-9.3.1.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/bignumber.js@9.3.1/node_modules/bignumber.js"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "jws": {
+                    "from": "jws",
+                    "version": "4.0.1",
+                    "resolved": "https://registry.npmjs.org/jws/-/jws-4.0.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/jws@4.0.1/node_modules/jws",
+                    "dependencies": {
+                      "safe-buffer": {
+                        "from": "safe-buffer",
+                        "version": "5.2.1",
+                        "resolved": "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.2.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/safe-buffer@5.2.1/node_modules/safe-buffer"
+                      },
+                      "jwa": {
+                        "from": "jwa",
+                        "version": "2.0.1",
+                        "resolved": "https://registry.npmjs.org/jwa/-/jwa-2.0.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/jwa@2.0.1/node_modules/jwa",
+                        "dependencies": {
+                          "buffer-equal-constant-time": {
+                            "from": "buffer-equal-constant-time",
+                            "version": "1.0.1",
+                            "resolved": "https://registry.npmjs.org/buffer-equal-constant-time/-/buffer-equal-constant-time-1.0.1.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/buffer-equal-constant-time@1.0.1/node_modules/buffer-equal-constant-time"
+                          },
+                          "ecdsa-sig-formatter": {
+                            "from": "ecdsa-sig-formatter",
+                            "version": "1.0.11",
+                            "resolved": "https://registry.npmjs.org/ecdsa-sig-formatter/-/ecdsa-sig-formatter-1.0.11.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ecdsa-sig-formatter@1.0.11/node_modules/ecdsa-sig-formatter",
+                            "deduped": true,
+                            "dedupedDependenciesCount": 1
+                          },
+                          "safe-buffer": {
+                            "from": "safe-buffer",
+                            "version": "5.2.1",
+                            "resolved": "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.2.1.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/safe-buffer@5.2.1/node_modules/safe-buffer"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "gaxios": {
+                    "from": "gaxios",
+                    "version": "7.3.0",
+                    "resolved": "https://registry.npmjs.org/gaxios/-/gaxios-7.3.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/gaxios@7.3.0/node_modules/gaxios",
+                    "dependencies": {
+                      "extend": {
+                        "from": "extend",
+                        "version": "3.0.2",
+                        "resolved": "https://registry.npmjs.org/extend/-/extend-3.0.2.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/extend@3.0.2/node_modules/extend"
+                      },
+                      "https-proxy-agent": {
+                        "from": "https-proxy-agent",
+                        "version": "7.0.6",
+                        "resolved": "https://registry.npmjs.org/https-proxy-agent/-/https-proxy-agent-7.0.6.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/https-proxy-agent@7.0.6/node_modules/https-proxy-agent",
+                        "dependencies": {
+                          "agent-base": {
+                            "from": "agent-base",
+                            "version": "7.1.4",
+                            "resolved": "https://registry.npmjs.org/agent-base/-/agent-base-7.1.4.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/agent-base@7.1.4/node_modules/agent-base"
+                          },
+                          "debug": {
+                            "from": "debug",
+                            "version": "4.4.3",
+                            "resolved": "https://registry.npmjs.org/debug/-/debug-4.4.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/debug@4.4.3/node_modules/debug",
+                            "deduped": true,
+                            "dedupedDependenciesCount": 1
+                          }
+                        }
+                      },
+                      "node-fetch": {
+                        "from": "node-fetch",
+                        "version": "3.3.2",
+                        "resolved": "https://registry.npmjs.org/node-fetch/-/node-fetch-3.3.2.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/node-fetch@3.3.2/node_modules/node-fetch",
+                        "dependencies": {
+                          "data-uri-to-buffer": {
+                            "from": "data-uri-to-buffer",
+                            "version": "4.0.1",
+                            "resolved": "https://registry.npmjs.org/data-uri-to-buffer/-/data-uri-to-buffer-4.0.1.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/data-uri-to-buffer@4.0.1/node_modules/data-uri-to-buffer"
+                          },
+                          "fetch-blob": {
+                            "from": "fetch-blob",
+                            "version": "3.2.0",
+                            "resolved": "https://registry.npmjs.org/fetch-blob/-/fetch-blob-3.2.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/fetch-blob@3.2.0/node_modules/fetch-blob",
+                            "dependencies": {
+                              "node-domexception": {
+                                "from": "node-domexception",
+                                "version": "1.0.0",
+                                "resolved": "https://registry.npmjs.org/node-domexception/-/node-domexception-1.0.0.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/node-domexception@1.0.0/node_modules/node-domexception"
+                              },
+                              "web-streams-polyfill": {
+                                "from": "web-streams-polyfill",
+                                "version": "3.3.3",
+                                "resolved": "https://registry.npmjs.org/web-streams-polyfill/-/web-streams-polyfill-3.3.3.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/web-streams-polyfill@3.3.3/node_modules/web-streams-polyfill"
+                              }
+                            }
+                          },
+                          "formdata-polyfill": {
+                            "from": "formdata-polyfill",
+                            "version": "4.0.10",
+                            "resolved": "https://registry.npmjs.org/formdata-polyfill/-/formdata-polyfill-4.0.10.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/formdata-polyfill@4.0.10/node_modules/formdata-polyfill",
+                            "dependencies": {
+                              "fetch-blob": {
+                                "from": "fetch-blob",
+                                "version": "3.2.0",
+                                "resolved": "https://registry.npmjs.org/fetch-blob/-/fetch-blob-3.2.0.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/fetch-blob@3.2.0/node_modules/fetch-blob",
+                                "deduped": true,
+                                "dedupedDependenciesCount": 2
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "@modelcontextprotocol/sdk": {
+                "from": "@modelcontextprotocol/sdk",
+                "version": "1.29.0",
+                "resolved": "https://registry.npmjs.org/@modelcontextprotocol/sdk/-/sdk-1.29.0.tgz",
+                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk",
+                "dependencies": {
+                  "content-type": {
+                    "from": "content-type",
+                    "version": "1.0.5",
+                    "resolved": "https://registry.npmjs.org/content-type/-/content-type-1.0.5.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/content-type@1.0.5/node_modules/content-type"
+                  },
+                  "eventsource-parser": {
+                    "from": "eventsource-parser",
+                    "version": "3.1.0",
+                    "resolved": "https://registry.npmjs.org/eventsource-parser/-/eventsource-parser-3.1.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/eventsource-parser@3.1.0/node_modules/eventsource-parser"
+                  },
+                  "hono": {
+                    "from": "hono",
+                    "version": "4.13.1",
+                    "resolved": "https://registry.npmjs.org/hono/-/hono-4.13.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/hono@4.13.1/node_modules/hono"
+                  },
+                  "jose": {
+                    "from": "jose",
+                    "version": "6.2.8",
+                    "resolved": "https://registry.npmjs.org/jose/-/jose-6.2.8.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/jose@6.2.8/node_modules/jose"
+                  },
+                  "json-schema-typed": {
+                    "from": "json-schema-typed",
+                    "version": "8.0.2",
+                    "resolved": "https://registry.npmjs.org/json-schema-typed/-/json-schema-typed-8.0.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/json-schema-typed@8.0.2/node_modules/json-schema-typed"
+                  },
+                  "pkce-challenge": {
+                    "from": "pkce-challenge",
+                    "version": "5.0.1",
+                    "resolved": "https://registry.npmjs.org/pkce-challenge/-/pkce-challenge-5.0.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/pkce-challenge@5.0.1/node_modules/pkce-challenge"
+                  },
+                  "raw-body": {
+                    "from": "raw-body",
+                    "version": "3.0.2",
+                    "resolved": "https://registry.npmjs.org/raw-body/-/raw-body-3.0.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/raw-body@3.0.2/node_modules/raw-body",
+                    "deduped": true,
+                    "dedupedDependenciesCount": 4
+                  },
+                  "zod": {
+                    "from": "zod",
+                    "version": "4.4.3",
+                    "resolved": "https://registry.npmjs.org/zod/-/zod-4.4.3.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/zod@4.4.3/node_modules/zod"
+                  },
+                  "@hono/node-server": {
+                    "from": "@hono/node-server",
+                    "version": "1.19.17",
+                    "resolved": "https://registry.npmjs.org/@hono/node-server/-/node-server-1.19.17.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/@hono+node-server@1.19.17_hono@4.13.1/node_modules/@hono/node-server",
+                    "dependencies": {
+                      "hono": {
+                        "from": "hono",
+                        "version": "4.13.1",
+                        "resolved": "https://registry.npmjs.org/hono/-/hono-4.13.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/hono@4.13.1/node_modules/hono"
+                      }
+                    }
+                  },
+                  "ajv": {
+                    "from": "ajv",
+                    "version": "8.20.0",
+                    "resolved": "https://registry.npmjs.org/ajv/-/ajv-8.20.0.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ajv@8.20.0/node_modules/ajv",
+                    "dependencies": {
+                      "fast-deep-equal": {
+                        "from": "fast-deep-equal",
+                        "version": "3.1.3",
+                        "resolved": "https://registry.npmjs.org/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/fast-deep-equal@3.1.3/node_modules/fast-deep-equal"
+                      },
+                      "fast-uri": {
+                        "from": "fast-uri",
+                        "version": "3.1.5",
+                        "resolved": "https://registry.npmjs.org/fast-uri/-/fast-uri-3.1.5.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/fast-uri@3.1.5/node_modules/fast-uri"
+                      },
+                      "json-schema-traverse": {
+                        "from": "json-schema-traverse",
+                        "version": "1.0.0",
+                        "resolved": "https://registry.npmjs.org/json-schema-traverse/-/json-schema-traverse-1.0.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/json-schema-traverse@1.0.0/node_modules/json-schema-traverse"
+                      },
+                      "require-from-string": {
+                        "from": "require-from-string",
+                        "version": "2.0.2",
+                        "resolved": "https://registry.npmjs.org/require-from-string/-/require-from-string-2.0.2.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/require-from-string@2.0.2/node_modules/require-from-string"
+                      }
+                    }
+                  },
+                  "ajv-formats": {
+                    "from": "ajv-formats",
+                    "version": "3.0.1",
+                    "resolved": "https://registry.npmjs.org/ajv-formats/-/ajv-formats-3.0.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ajv-formats@3.0.1_ajv@8.20.0/node_modules/ajv-formats",
+                    "dependencies": {
+                      "ajv": {
+                        "from": "ajv",
+                        "version": "8.20.0",
+                        "resolved": "https://registry.npmjs.org/ajv/-/ajv-8.20.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ajv@8.20.0/node_modules/ajv",
+                        "deduped": true,
+                        "dedupedDependenciesCount": 4
+                      }
+                    }
+                  },
+                  "cors": {
+                    "from": "cors",
+                    "version": "2.8.6",
+                    "resolved": "https://registry.npmjs.org/cors/-/cors-2.8.6.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/cors@2.8.6/node_modules/cors",
+                    "dependencies": {
+                      "object-assign": {
+                        "from": "object-assign",
+                        "version": "4.1.1",
+                        "resolved": "https://registry.npmjs.org/object-assign/-/object-assign-4.1.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/object-assign@4.1.1/node_modules/object-assign"
+                      },
+                      "vary": {
+                        "from": "vary",
+                        "version": "1.1.2",
+                        "resolved": "https://registry.npmjs.org/vary/-/vary-1.1.2.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/vary@1.1.2/node_modules/vary"
+                      }
+                    }
+                  },
+                  "eventsource": {
+                    "from": "eventsource",
+                    "version": "3.0.7",
+                    "resolved": "https://registry.npmjs.org/eventsource/-/eventsource-3.0.7.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/eventsource@3.0.7/node_modules/eventsource",
+                    "dependencies": {
+                      "eventsource-parser": {
+                        "from": "eventsource-parser",
+                        "version": "3.1.0",
+                        "resolved": "https://registry.npmjs.org/eventsource-parser/-/eventsource-parser-3.1.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/eventsource-parser@3.1.0/node_modules/eventsource-parser"
+                      }
+                    }
+                  },
+                  "express-rate-limit": {
+                    "from": "express-rate-limit",
+                    "version": "8.6.2",
+                    "resolved": "https://registry.npmjs.org/express-rate-limit/-/express-rate-limit-8.6.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/express-rate-limit@8.6.2_express@5.2.1/node_modules/express-rate-limit",
+                    "dependencies": {
+                      "debug": {
+                        "from": "debug",
+                        "version": "4.4.3",
+                        "resolved": "https://registry.npmjs.org/debug/-/debug-4.4.3.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/debug@4.4.3/node_modules/debug",
+                        "deduped": true,
+                        "dedupedDependenciesCount": 1
+                      },
+                      "express": {
+                        "from": "express",
+                        "version": "5.2.1",
+                        "resolved": "https://registry.npmjs.org/express/-/express-5.2.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/express@5.2.1/node_modules/express",
+                        "deduped": true,
+                        "dedupedDependenciesCount": 123
+                      },
+                      "ip-address": {
+                        "from": "ip-address",
+                        "version": "10.5.0",
+                        "resolved": "https://registry.npmjs.org/ip-address/-/ip-address-10.5.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ip-address@10.5.0/node_modules/ip-address"
+                      }
+                    }
+                  },
+                  "zod-to-json-schema": {
+                    "from": "zod-to-json-schema",
+                    "version": "3.25.2",
+                    "resolved": "https://registry.npmjs.org/zod-to-json-schema/-/zod-to-json-schema-3.25.2.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/zod-to-json-schema@3.25.2_zod@4.4.3/node_modules/zod-to-json-schema",
+                    "dependencies": {
+                      "zod": {
+                        "from": "zod",
+                        "version": "4.4.3",
+                        "resolved": "https://registry.npmjs.org/zod/-/zod-4.4.3.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/zod@4.4.3/node_modules/zod"
+                      }
+                    }
+                  },
+                  "cross-spawn": {
+                    "from": "cross-spawn",
+                    "version": "7.0.6",
+                    "resolved": "https://registry.npmjs.org/cross-spawn/-/cross-spawn-7.0.6.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn",
+                    "dependencies": {
+                      "path-key": {
+                        "from": "path-key",
+                        "version": "3.1.1",
+                        "resolved": "https://registry.npmjs.org/path-key/-/path-key-3.1.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/path-key@3.1.1/node_modules/path-key"
+                      },
+                      "shebang-command": {
+                        "from": "shebang-command",
+                        "version": "2.0.0",
+                        "resolved": "https://registry.npmjs.org/shebang-command/-/shebang-command-2.0.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/shebang-command@2.0.0/node_modules/shebang-command",
+                        "dependencies": {
+                          "shebang-regex": {
+                            "from": "shebang-regex",
+                            "version": "3.0.0",
+                            "resolved": "https://registry.npmjs.org/shebang-regex/-/shebang-regex-3.0.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/shebang-regex@3.0.0/node_modules/shebang-regex"
+                          }
+                        }
+                      },
+                      "which": {
+                        "from": "which",
+                        "version": "2.0.2",
+                        "resolved": "https://registry.npmjs.org/which/-/which-2.0.2.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/which@2.0.2/node_modules/which",
+                        "dependencies": {
+                          "isexe": {
+                            "from": "isexe",
+                            "version": "2.0.0",
+                            "resolved": "https://registry.npmjs.org/isexe/-/isexe-2.0.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/isexe@2.0.0/node_modules/isexe"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "express": {
+                    "from": "express",
+                    "version": "5.2.1",
+                    "resolved": "https://registry.npmjs.org/express/-/express-5.2.1.tgz",
+                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/express@5.2.1/node_modules/express",
+                    "dependencies": {
+                      "content-disposition": {
+                        "from": "content-disposition",
+                        "version": "1.1.0",
+                        "resolved": "https://registry.npmjs.org/content-disposition/-/content-disposition-1.1.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/content-disposition@1.1.0/node_modules/content-disposition"
+                      },
+                      "content-type": {
+                        "from": "content-type",
+                        "version": "1.0.5",
+                        "resolved": "https://registry.npmjs.org/content-type/-/content-type-1.0.5.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/content-type@1.0.5/node_modules/content-type"
+                      },
+                      "cookie": {
+                        "from": "cookie",
+                        "version": "0.7.2",
+                        "resolved": "https://registry.npmjs.org/cookie/-/cookie-0.7.2.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/cookie@0.7.2/node_modules/cookie"
+                      },
+                      "cookie-signature": {
+                        "from": "cookie-signature",
+                        "version": "1.2.2",
+                        "resolved": "https://registry.npmjs.org/cookie-signature/-/cookie-signature-1.2.2.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/cookie-signature@1.2.2/node_modules/cookie-signature"
+                      },
+                      "debug": {
+                        "from": "debug",
+                        "version": "4.4.3",
+                        "resolved": "https://registry.npmjs.org/debug/-/debug-4.4.3.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/debug@4.4.3/node_modules/debug",
+                        "deduped": true,
+                        "dedupedDependenciesCount": 1
+                      },
+                      "depd": {
+                        "from": "depd",
+                        "version": "2.0.0",
+                        "resolved": "https://registry.npmjs.org/depd/-/depd-2.0.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/depd@2.0.0/node_modules/depd"
+                      },
+                      "encodeurl": {
+                        "from": "encodeurl",
+                        "version": "2.0.0",
+                        "resolved": "https://registry.npmjs.org/encodeurl/-/encodeurl-2.0.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/encodeurl@2.0.0/node_modules/encodeurl"
+                      },
+                      "escape-html": {
+                        "from": "escape-html",
+                        "version": "1.0.3",
+                        "resolved": "https://registry.npmjs.org/escape-html/-/escape-html-1.0.3.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/escape-html@1.0.3/node_modules/escape-html"
+                      },
+                      "etag": {
+                        "from": "etag",
+                        "version": "1.8.1",
+                        "resolved": "https://registry.npmjs.org/etag/-/etag-1.8.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/etag@1.8.1/node_modules/etag"
+                      },
+                      "fresh": {
+                        "from": "fresh",
+                        "version": "2.0.0",
+                        "resolved": "https://registry.npmjs.org/fresh/-/fresh-2.0.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/fresh@2.0.0/node_modules/fresh"
+                      },
+                      "http-errors": {
+                        "from": "http-errors",
+                        "version": "2.0.1",
+                        "resolved": "https://registry.npmjs.org/http-errors/-/http-errors-2.0.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/http-errors@2.0.1/node_modules/http-errors",
+                        "deduped": true,
+                        "dedupedDependenciesCount": 5
+                      },
+                      "merge-descriptors": {
+                        "from": "merge-descriptors",
+                        "version": "2.0.0",
+                        "resolved": "https://registry.npmjs.org/merge-descriptors/-/merge-descriptors-2.0.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/merge-descriptors@2.0.0/node_modules/merge-descriptors"
+                      },
+                      "mime-types": {
+                        "from": "mime-types",
+                        "version": "3.0.2",
+                        "resolved": "https://registry.npmjs.org/mime-types/-/mime-types-3.0.2.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/mime-types@3.0.2/node_modules/mime-types",
+                        "deduped": true,
+                        "dedupedDependenciesCount": 1
+                      },
+                      "on-finished": {
+                        "from": "on-finished",
+                        "version": "2.4.1",
+                        "resolved": "https://registry.npmjs.org/on-finished/-/on-finished-2.4.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/on-finished@2.4.1/node_modules/on-finished",
+                        "deduped": true,
+                        "dedupedDependenciesCount": 1
+                      },
+                      "parseurl": {
+                        "from": "parseurl",
+                        "version": "1.3.3",
+                        "resolved": "https://registry.npmjs.org/parseurl/-/parseurl-1.3.3.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/parseurl@1.3.3/node_modules/parseurl"
+                      },
+                      "qs": {
+                        "from": "qs",
+                        "version": "6.15.3",
+                        "resolved": "https://registry.npmjs.org/qs/-/qs-6.15.3.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/qs@6.15.3/node_modules/qs",
+                        "deduped": true,
+                        "dedupedDependenciesCount": 39
+                      },
+                      "range-parser": {
+                        "from": "range-parser",
+                        "version": "1.3.0",
+                        "resolved": "https://registry.npmjs.org/range-parser/-/range-parser-1.3.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/range-parser@1.3.0/node_modules/range-parser"
+                      },
+                      "statuses": {
+                        "from": "statuses",
+                        "version": "2.0.2",
+                        "resolved": "https://registry.npmjs.org/statuses/-/statuses-2.0.2.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/statuses@2.0.2/node_modules/statuses"
+                      },
+                      "type-is": {
+                        "from": "type-is",
+                        "version": "2.1.0",
+                        "resolved": "https://registry.npmjs.org/type-is/-/type-is-2.1.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/type-is@2.1.0/node_modules/type-is",
+                        "deduped": true,
+                        "dedupedDependenciesCount": 3
+                      },
+                      "vary": {
+                        "from": "vary",
+                        "version": "1.1.2",
+                        "resolved": "https://registry.npmjs.org/vary/-/vary-1.1.2.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/vary@1.1.2/node_modules/vary"
+                      },
+                      "finalhandler": {
+                        "from": "finalhandler",
+                        "version": "2.1.1",
+                        "resolved": "https://registry.npmjs.org/finalhandler/-/finalhandler-2.1.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/finalhandler@2.1.1/node_modules/finalhandler",
+                        "dependencies": {
+                          "debug": {
+                            "from": "debug",
+                            "version": "4.4.3",
+                            "resolved": "https://registry.npmjs.org/debug/-/debug-4.4.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/debug@4.4.3/node_modules/debug",
+                            "deduped": true,
+                            "dedupedDependenciesCount": 1
+                          },
+                          "encodeurl": {
+                            "from": "encodeurl",
+                            "version": "2.0.0",
+                            "resolved": "https://registry.npmjs.org/encodeurl/-/encodeurl-2.0.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/encodeurl@2.0.0/node_modules/encodeurl"
+                          },
+                          "escape-html": {
+                            "from": "escape-html",
+                            "version": "1.0.3",
+                            "resolved": "https://registry.npmjs.org/escape-html/-/escape-html-1.0.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/escape-html@1.0.3/node_modules/escape-html"
+                          },
+                          "on-finished": {
+                            "from": "on-finished",
+                            "version": "2.4.1",
+                            "resolved": "https://registry.npmjs.org/on-finished/-/on-finished-2.4.1.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/on-finished@2.4.1/node_modules/on-finished",
+                            "deduped": true,
+                            "dedupedDependenciesCount": 1
+                          },
+                          "parseurl": {
+                            "from": "parseurl",
+                            "version": "1.3.3",
+                            "resolved": "https://registry.npmjs.org/parseurl/-/parseurl-1.3.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/parseurl@1.3.3/node_modules/parseurl"
+                          },
+                          "statuses": {
+                            "from": "statuses",
+                            "version": "2.0.2",
+                            "resolved": "https://registry.npmjs.org/statuses/-/statuses-2.0.2.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/statuses@2.0.2/node_modules/statuses"
+                          }
+                        }
+                      },
+                      "once": {
+                        "from": "once",
+                        "version": "1.4.0",
+                        "resolved": "https://registry.npmjs.org/once/-/once-1.4.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/once@1.4.0/node_modules/once",
+                        "dependencies": {
+                          "wrappy": {
+                            "from": "wrappy",
+                            "version": "1.0.2",
+                            "resolved": "https://registry.npmjs.org/wrappy/-/wrappy-1.0.2.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/wrappy@1.0.2/node_modules/wrappy"
+                          }
+                        }
+                      },
+                      "proxy-addr": {
+                        "from": "proxy-addr",
+                        "version": "2.0.7",
+                        "resolved": "https://registry.npmjs.org/proxy-addr/-/proxy-addr-2.0.7.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/proxy-addr@2.0.7/node_modules/proxy-addr",
+                        "dependencies": {
+                          "forwarded": {
+                            "from": "forwarded",
+                            "version": "0.2.0",
+                            "resolved": "https://registry.npmjs.org/forwarded/-/forwarded-0.2.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/forwarded@0.2.0/node_modules/forwarded"
+                          },
+                          "ipaddr.js": {
+                            "from": "ipaddr.js",
+                            "version": "1.9.1",
+                            "resolved": "https://registry.npmjs.org/ipaddr.js/-/ipaddr.js-1.9.1.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ipaddr.js@1.9.1/node_modules/ipaddr.js"
+                          }
+                        }
+                      },
+                      "router": {
+                        "from": "router",
+                        "version": "2.2.0",
+                        "resolved": "https://registry.npmjs.org/router/-/router-2.2.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/router@2.2.0/node_modules/router",
+                        "dependencies": {
+                          "debug": {
+                            "from": "debug",
+                            "version": "4.4.3",
+                            "resolved": "https://registry.npmjs.org/debug/-/debug-4.4.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/debug@4.4.3/node_modules/debug",
+                            "deduped": true,
+                            "dedupedDependenciesCount": 1
+                          },
+                          "depd": {
+                            "from": "depd",
+                            "version": "2.0.0",
+                            "resolved": "https://registry.npmjs.org/depd/-/depd-2.0.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/depd@2.0.0/node_modules/depd"
+                          },
+                          "is-promise": {
+                            "from": "is-promise",
+                            "version": "4.0.0",
+                            "resolved": "https://registry.npmjs.org/is-promise/-/is-promise-4.0.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/is-promise@4.0.0/node_modules/is-promise"
+                          },
+                          "parseurl": {
+                            "from": "parseurl",
+                            "version": "1.3.3",
+                            "resolved": "https://registry.npmjs.org/parseurl/-/parseurl-1.3.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/parseurl@1.3.3/node_modules/parseurl"
+                          },
+                          "path-to-regexp": {
+                            "from": "path-to-regexp",
+                            "version": "8.4.2",
+                            "resolved": "https://registry.npmjs.org/path-to-regexp/-/path-to-regexp-8.4.2.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/path-to-regexp@8.4.2/node_modules/path-to-regexp"
+                          }
+                        }
+                      },
+                      "send": {
+                        "from": "send",
+                        "version": "1.2.1",
+                        "resolved": "https://registry.npmjs.org/send/-/send-1.2.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/send@1.2.1/node_modules/send",
+                        "dependencies": {
+                          "debug": {
+                            "from": "debug",
+                            "version": "4.4.3",
+                            "resolved": "https://registry.npmjs.org/debug/-/debug-4.4.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/debug@4.4.3/node_modules/debug",
+                            "deduped": true,
+                            "dedupedDependenciesCount": 1
+                          },
+                          "encodeurl": {
+                            "from": "encodeurl",
+                            "version": "2.0.0",
+                            "resolved": "https://registry.npmjs.org/encodeurl/-/encodeurl-2.0.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/encodeurl@2.0.0/node_modules/encodeurl"
+                          },
+                          "escape-html": {
+                            "from": "escape-html",
+                            "version": "1.0.3",
+                            "resolved": "https://registry.npmjs.org/escape-html/-/escape-html-1.0.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/escape-html@1.0.3/node_modules/escape-html"
+                          },
+                          "etag": {
+                            "from": "etag",
+                            "version": "1.8.1",
+                            "resolved": "https://registry.npmjs.org/etag/-/etag-1.8.1.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/etag@1.8.1/node_modules/etag"
+                          },
+                          "fresh": {
+                            "from": "fresh",
+                            "version": "2.0.0",
+                            "resolved": "https://registry.npmjs.org/fresh/-/fresh-2.0.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/fresh@2.0.0/node_modules/fresh"
+                          },
+                          "http-errors": {
+                            "from": "http-errors",
+                            "version": "2.0.1",
+                            "resolved": "https://registry.npmjs.org/http-errors/-/http-errors-2.0.1.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/http-errors@2.0.1/node_modules/http-errors",
+                            "deduped": true,
+                            "dedupedDependenciesCount": 5
+                          },
+                          "mime-types": {
+                            "from": "mime-types",
+                            "version": "3.0.2",
+                            "resolved": "https://registry.npmjs.org/mime-types/-/mime-types-3.0.2.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/mime-types@3.0.2/node_modules/mime-types",
+                            "deduped": true,
+                            "dedupedDependenciesCount": 1
+                          },
+                          "ms": {
+                            "from": "ms",
+                            "version": "2.1.3",
+                            "resolved": "https://registry.npmjs.org/ms/-/ms-2.1.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ms@2.1.3/node_modules/ms"
+                          },
+                          "on-finished": {
+                            "from": "on-finished",
+                            "version": "2.4.1",
+                            "resolved": "https://registry.npmjs.org/on-finished/-/on-finished-2.4.1.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/on-finished@2.4.1/node_modules/on-finished",
+                            "deduped": true,
+                            "dedupedDependenciesCount": 1
+                          },
+                          "range-parser": {
+                            "from": "range-parser",
+                            "version": "1.3.0",
+                            "resolved": "https://registry.npmjs.org/range-parser/-/range-parser-1.3.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/range-parser@1.3.0/node_modules/range-parser"
+                          },
+                          "statuses": {
+                            "from": "statuses",
+                            "version": "2.0.2",
+                            "resolved": "https://registry.npmjs.org/statuses/-/statuses-2.0.2.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/statuses@2.0.2/node_modules/statuses"
+                          }
+                        }
+                      },
+                      "serve-static": {
+                        "from": "serve-static",
+                        "version": "2.2.1",
+                        "resolved": "https://registry.npmjs.org/serve-static/-/serve-static-2.2.1.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/serve-static@2.2.1/node_modules/serve-static",
+                        "dependencies": {
+                          "encodeurl": {
+                            "from": "encodeurl",
+                            "version": "2.0.0",
+                            "resolved": "https://registry.npmjs.org/encodeurl/-/encodeurl-2.0.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/encodeurl@2.0.0/node_modules/encodeurl"
+                          },
+                          "escape-html": {
+                            "from": "escape-html",
+                            "version": "1.0.3",
+                            "resolved": "https://registry.npmjs.org/escape-html/-/escape-html-1.0.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/escape-html@1.0.3/node_modules/escape-html"
+                          },
+                          "parseurl": {
+                            "from": "parseurl",
+                            "version": "1.3.3",
+                            "resolved": "https://registry.npmjs.org/parseurl/-/parseurl-1.3.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/parseurl@1.3.3/node_modules/parseurl"
+                          },
+                          "send": {
+                            "from": "send",
+                            "version": "1.2.1",
+                            "resolved": "https://registry.npmjs.org/send/-/send-1.2.1.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/send@1.2.1/node_modules/send",
+                            "deduped": true,
+                            "dedupedDependenciesCount": 11
+                          }
+                        }
+                      },
+                      "accepts": {
+                        "from": "accepts",
+                        "version": "2.0.0",
+                        "resolved": "https://registry.npmjs.org/accepts/-/accepts-2.0.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/accepts@2.0.0/node_modules/accepts",
+                        "dependencies": {
+                          "negotiator": {
+                            "from": "negotiator",
+                            "version": "1.0.0",
+                            "resolved": "https://registry.npmjs.org/negotiator/-/negotiator-1.0.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/negotiator@1.0.0/node_modules/negotiator"
+                          },
+                          "mime-types": {
+                            "from": "mime-types",
+                            "version": "3.0.2",
+                            "resolved": "https://registry.npmjs.org/mime-types/-/mime-types-3.0.2.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/mime-types@3.0.2/node_modules/mime-types",
+                            "dependencies": {
+                              "mime-db": {
+                                "from": "mime-db",
+                                "version": "1.54.0",
+                                "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.54.0.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/mime-db@1.54.0/node_modules/mime-db"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "body-parser": {
+                        "from": "body-parser",
+                        "version": "2.3.0",
+                        "resolved": "https://registry.npmjs.org/body-parser/-/body-parser-2.3.0.tgz",
+                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/body-parser@2.3.0/node_modules/body-parser",
+                        "dependencies": {
+                          "bytes": {
+                            "from": "bytes",
+                            "version": "3.1.2",
+                            "resolved": "https://registry.npmjs.org/bytes/-/bytes-3.1.2.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/bytes@3.1.2/node_modules/bytes"
+                          },
+                          "content-type": {
+                            "from": "content-type",
+                            "version": "2.0.0",
+                            "resolved": "https://registry.npmjs.org/content-type/-/content-type-2.0.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/content-type@2.0.0/node_modules/content-type"
+                          },
+                          "debug": {
+                            "from": "debug",
+                            "version": "4.4.3",
+                            "resolved": "https://registry.npmjs.org/debug/-/debug-4.4.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/debug@4.4.3/node_modules/debug",
+                            "dependencies": {
+                              "ms": {
+                                "from": "ms",
+                                "version": "2.1.3",
+                                "resolved": "https://registry.npmjs.org/ms/-/ms-2.1.3.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ms@2.1.3/node_modules/ms"
+                              }
+                            }
+                          },
+                          "http-errors": {
+                            "from": "http-errors",
+                            "version": "2.0.1",
+                            "resolved": "https://registry.npmjs.org/http-errors/-/http-errors-2.0.1.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/http-errors@2.0.1/node_modules/http-errors",
+                            "dependencies": {
+                              "depd": {
+                                "from": "depd",
+                                "version": "2.0.0",
+                                "resolved": "https://registry.npmjs.org/depd/-/depd-2.0.0.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/depd@2.0.0/node_modules/depd"
+                              },
+                              "inherits": {
+                                "from": "inherits",
+                                "version": "2.0.4",
+                                "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.4.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/inherits@2.0.4/node_modules/inherits"
+                              },
+                              "setprototypeof": {
+                                "from": "setprototypeof",
+                                "version": "1.2.0",
+                                "resolved": "https://registry.npmjs.org/setprototypeof/-/setprototypeof-1.2.0.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/setprototypeof@1.2.0/node_modules/setprototypeof"
+                              },
+                              "statuses": {
+                                "from": "statuses",
+                                "version": "2.0.2",
+                                "resolved": "https://registry.npmjs.org/statuses/-/statuses-2.0.2.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/statuses@2.0.2/node_modules/statuses"
+                              },
+                              "toidentifier": {
+                                "from": "toidentifier",
+                                "version": "1.0.1",
+                                "resolved": "https://registry.npmjs.org/toidentifier/-/toidentifier-1.0.1.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/toidentifier@1.0.1/node_modules/toidentifier"
+                              }
+                            }
+                          },
+                          "iconv-lite": {
+                            "from": "iconv-lite",
+                            "version": "0.7.3",
+                            "resolved": "https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.7.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/iconv-lite@0.7.3/node_modules/iconv-lite",
+                            "dependencies": {
+                              "safer-buffer": {
+                                "from": "safer-buffer",
+                                "version": "2.1.2",
+                                "resolved": "https://registry.npmjs.org/safer-buffer/-/safer-buffer-2.1.2.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/safer-buffer@2.1.2/node_modules/safer-buffer"
+                              }
+                            }
+                          },
+                          "on-finished": {
+                            "from": "on-finished",
+                            "version": "2.4.1",
+                            "resolved": "https://registry.npmjs.org/on-finished/-/on-finished-2.4.1.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/on-finished@2.4.1/node_modules/on-finished",
+                            "dependencies": {
+                              "ee-first": {
+                                "from": "ee-first",
+                                "version": "1.1.1",
+                                "resolved": "https://registry.npmjs.org/ee-first/-/ee-first-1.1.1.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/ee-first@1.1.1/node_modules/ee-first"
+                              }
+                            }
+                          },
+                          "raw-body": {
+                            "from": "raw-body",
+                            "version": "3.0.2",
+                            "resolved": "https://registry.npmjs.org/raw-body/-/raw-body-3.0.2.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/raw-body@3.0.2/node_modules/raw-body",
+                            "dependencies": {
+                              "bytes": {
+                                "from": "bytes",
+                                "version": "3.1.2",
+                                "resolved": "https://registry.npmjs.org/bytes/-/bytes-3.1.2.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/bytes@3.1.2/node_modules/bytes"
+                              },
+                              "http-errors": {
+                                "from": "http-errors",
+                                "version": "2.0.1",
+                                "resolved": "https://registry.npmjs.org/http-errors/-/http-errors-2.0.1.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/http-errors@2.0.1/node_modules/http-errors",
+                                "deduped": true,
+                                "dedupedDependenciesCount": 5
+                              },
+                              "iconv-lite": {
+                                "from": "iconv-lite",
+                                "version": "0.7.3",
+                                "resolved": "https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.7.3.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/iconv-lite@0.7.3/node_modules/iconv-lite",
+                                "deduped": true,
+                                "dedupedDependenciesCount": 1
+                              },
+                              "unpipe": {
+                                "from": "unpipe",
+                                "version": "1.0.0",
+                                "resolved": "https://registry.npmjs.org/unpipe/-/unpipe-1.0.0.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/unpipe@1.0.0/node_modules/unpipe"
+                              }
+                            }
+                          },
+                          "type-is": {
+                            "from": "type-is",
+                            "version": "2.1.0",
+                            "resolved": "https://registry.npmjs.org/type-is/-/type-is-2.1.0.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/type-is@2.1.0/node_modules/type-is",
+                            "dependencies": {
+                              "content-type": {
+                                "from": "content-type",
+                                "version": "2.0.0",
+                                "resolved": "https://registry.npmjs.org/content-type/-/content-type-2.0.0.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/content-type@2.0.0/node_modules/content-type"
+                              },
+                              "media-typer": {
+                                "from": "media-typer",
+                                "version": "1.1.1",
+                                "resolved": "https://registry.npmjs.org/media-typer/-/media-typer-1.1.1.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/media-typer@1.1.1/node_modules/media-typer"
+                              },
+                              "mime-types": {
+                                "from": "mime-types",
+                                "version": "3.0.2",
+                                "resolved": "https://registry.npmjs.org/mime-types/-/mime-types-3.0.2.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/mime-types@3.0.2/node_modules/mime-types",
+                                "deduped": true,
+                                "dedupedDependenciesCount": 1
+                              }
+                            }
+                          },
+                          "qs": {
+                            "from": "qs",
+                            "version": "6.15.3",
+                            "resolved": "https://registry.npmjs.org/qs/-/qs-6.15.3.tgz",
+                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/qs@6.15.3/node_modules/qs",
+                            "dependencies": {
+                              "es-define-property": {
+                                "from": "es-define-property",
+                                "version": "1.0.1",
+                                "resolved": "https://registry.npmjs.org/es-define-property/-/es-define-property-1.0.1.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/es-define-property@1.0.1/node_modules/es-define-property"
+                              },
+                              "side-channel": {
+                                "from": "side-channel",
+                                "version": "1.1.1",
+                                "resolved": "https://registry.npmjs.org/side-channel/-/side-channel-1.1.1.tgz",
+                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/side-channel@1.1.1/node_modules/side-channel",
+                                "dependencies": {
+                                  "es-errors": {
+                                    "from": "es-errors",
+                                    "version": "1.3.0",
+                                    "resolved": "https://registry.npmjs.org/es-errors/-/es-errors-1.3.0.tgz",
+                                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/es-errors@1.3.0/node_modules/es-errors"
+                                  },
+                                  "object-inspect": {
+                                    "from": "object-inspect",
+                                    "version": "1.13.4",
+                                    "resolved": "https://registry.npmjs.org/object-inspect/-/object-inspect-1.13.4.tgz",
+                                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/object-inspect@1.13.4/node_modules/object-inspect"
+                                  },
+                                  "side-channel-list": {
+                                    "from": "side-channel-list",
+                                    "version": "1.0.1",
+                                    "resolved": "https://registry.npmjs.org/side-channel-list/-/side-channel-list-1.0.1.tgz",
+                                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/side-channel-list@1.0.1/node_modules/side-channel-list",
+                                    "dependencies": {
+                                      "es-errors": {
+                                        "from": "es-errors",
+                                        "version": "1.3.0",
+                                        "resolved": "https://registry.npmjs.org/es-errors/-/es-errors-1.3.0.tgz",
+                                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/es-errors@1.3.0/node_modules/es-errors"
+                                      },
+                                      "object-inspect": {
+                                        "from": "object-inspect",
+                                        "version": "1.13.4",
+                                        "resolved": "https://registry.npmjs.org/object-inspect/-/object-inspect-1.13.4.tgz",
+                                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/object-inspect@1.13.4/node_modules/object-inspect"
+                                      }
+                                    }
+                                  },
+                                  "side-channel-weakmap": {
+                                    "from": "side-channel-weakmap",
+                                    "version": "1.0.2",
+                                    "resolved": "https://registry.npmjs.org/side-channel-weakmap/-/side-channel-weakmap-1.0.2.tgz",
+                                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/side-channel-weakmap@1.0.2/node_modules/side-channel-weakmap",
+                                    "dependencies": {
+                                      "call-bound": {
+                                        "from": "call-bound",
+                                        "version": "1.0.4",
+                                        "resolved": "https://registry.npmjs.org/call-bound/-/call-bound-1.0.4.tgz",
+                                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/call-bound@1.0.4/node_modules/call-bound",
+                                        "deduped": true,
+                                        "dedupedDependenciesCount": 21
+                                      },
+                                      "es-errors": {
+                                        "from": "es-errors",
+                                        "version": "1.3.0",
+                                        "resolved": "https://registry.npmjs.org/es-errors/-/es-errors-1.3.0.tgz",
+                                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/es-errors@1.3.0/node_modules/es-errors"
+                                      },
+                                      "get-intrinsic": {
+                                        "from": "get-intrinsic",
+                                        "version": "1.3.0",
+                                        "resolved": "https://registry.npmjs.org/get-intrinsic/-/get-intrinsic-1.3.0.tgz",
+                                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/get-intrinsic@1.3.0/node_modules/get-intrinsic",
+                                        "deduped": true,
+                                        "dedupedDependenciesCount": 17
+                                      },
+                                      "object-inspect": {
+                                        "from": "object-inspect",
+                                        "version": "1.13.4",
+                                        "resolved": "https://registry.npmjs.org/object-inspect/-/object-inspect-1.13.4.tgz",
+                                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/object-inspect@1.13.4/node_modules/object-inspect"
+                                      },
+                                      "side-channel-map": {
+                                        "from": "side-channel-map",
+                                        "version": "1.0.1",
+                                        "resolved": "https://registry.npmjs.org/side-channel-map/-/side-channel-map-1.0.1.tgz",
+                                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/side-channel-map@1.0.1/node_modules/side-channel-map",
+                                        "deduped": true,
+                                        "dedupedDependenciesCount": 25
+                                      }
+                                    }
+                                  },
+                                  "side-channel-map": {
+                                    "from": "side-channel-map",
+                                    "version": "1.0.1",
+                                    "resolved": "https://registry.npmjs.org/side-channel-map/-/side-channel-map-1.0.1.tgz",
+                                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/side-channel-map@1.0.1/node_modules/side-channel-map",
+                                    "dependencies": {
+                                      "es-errors": {
+                                        "from": "es-errors",
+                                        "version": "1.3.0",
+                                        "resolved": "https://registry.npmjs.org/es-errors/-/es-errors-1.3.0.tgz",
+                                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/es-errors@1.3.0/node_modules/es-errors"
+                                      },
+                                      "get-intrinsic": {
+                                        "from": "get-intrinsic",
+                                        "version": "1.3.0",
+                                        "resolved": "https://registry.npmjs.org/get-intrinsic/-/get-intrinsic-1.3.0.tgz",
+                                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/get-intrinsic@1.3.0/node_modules/get-intrinsic",
+                                        "deduped": true,
+                                        "dedupedDependenciesCount": 17
+                                      },
+                                      "object-inspect": {
+                                        "from": "object-inspect",
+                                        "version": "1.13.4",
+                                        "resolved": "https://registry.npmjs.org/object-inspect/-/object-inspect-1.13.4.tgz",
+                                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/object-inspect@1.13.4/node_modules/object-inspect"
+                                      },
+                                      "call-bound": {
+                                        "from": "call-bound",
+                                        "version": "1.0.4",
+                                        "resolved": "https://registry.npmjs.org/call-bound/-/call-bound-1.0.4.tgz",
+                                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/call-bound@1.0.4/node_modules/call-bound",
+                                        "dependencies": {
+                                          "call-bind-apply-helpers": {
+                                            "from": "call-bind-apply-helpers",
+                                            "version": "1.0.2",
+                                            "resolved": "https://registry.npmjs.org/call-bind-apply-helpers/-/call-bind-apply-helpers-1.0.2.tgz",
+                                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/call-bind-apply-helpers@1.0.2/node_modules/call-bind-apply-helpers",
+                                            "dependencies": {
+                                              "es-errors": {
+                                                "from": "es-errors",
+                                                "version": "1.3.0",
+                                                "resolved": "https://registry.npmjs.org/es-errors/-/es-errors-1.3.0.tgz",
+                                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/es-errors@1.3.0/node_modules/es-errors"
+                                              },
+                                              "function-bind": {
+                                                "from": "function-bind",
+                                                "version": "1.1.2",
+                                                "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz",
+                                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/function-bind@1.1.2/node_modules/function-bind"
+                                              }
+                                            }
+                                          },
+                                          "get-intrinsic": {
+                                            "from": "get-intrinsic",
+                                            "version": "1.3.0",
+                                            "resolved": "https://registry.npmjs.org/get-intrinsic/-/get-intrinsic-1.3.0.tgz",
+                                            "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/get-intrinsic@1.3.0/node_modules/get-intrinsic",
+                                            "dependencies": {
+                                              "call-bind-apply-helpers": {
+                                                "from": "call-bind-apply-helpers",
+                                                "version": "1.0.2",
+                                                "resolved": "https://registry.npmjs.org/call-bind-apply-helpers/-/call-bind-apply-helpers-1.0.2.tgz",
+                                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/call-bind-apply-helpers@1.0.2/node_modules/call-bind-apply-helpers",
+                                                "deduped": true,
+                                                "dedupedDependenciesCount": 2
+                                              },
+                                              "es-define-property": {
+                                                "from": "es-define-property",
+                                                "version": "1.0.1",
+                                                "resolved": "https://registry.npmjs.org/es-define-property/-/es-define-property-1.0.1.tgz",
+                                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/es-define-property@1.0.1/node_modules/es-define-property"
+                                              },
+                                              "es-errors": {
+                                                "from": "es-errors",
+                                                "version": "1.3.0",
+                                                "resolved": "https://registry.npmjs.org/es-errors/-/es-errors-1.3.0.tgz",
+                                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/es-errors@1.3.0/node_modules/es-errors"
+                                              },
+                                              "function-bind": {
+                                                "from": "function-bind",
+                                                "version": "1.1.2",
+                                                "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz",
+                                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/function-bind@1.1.2/node_modules/function-bind"
+                                              },
+                                              "gopd": {
+                                                "from": "gopd",
+                                                "version": "1.2.0",
+                                                "resolved": "https://registry.npmjs.org/gopd/-/gopd-1.2.0.tgz",
+                                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/gopd@1.2.0/node_modules/gopd"
+                                              },
+                                              "has-symbols": {
+                                                "from": "has-symbols",
+                                                "version": "1.1.0",
+                                                "resolved": "https://registry.npmjs.org/has-symbols/-/has-symbols-1.1.0.tgz",
+                                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/has-symbols@1.1.0/node_modules/has-symbols"
+                                              },
+                                              "math-intrinsics": {
+                                                "from": "math-intrinsics",
+                                                "version": "1.1.0",
+                                                "resolved": "https://registry.npmjs.org/math-intrinsics/-/math-intrinsics-1.1.0.tgz",
+                                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/math-intrinsics@1.1.0/node_modules/math-intrinsics"
+                                              },
+                                              "es-object-atoms": {
+                                                "from": "es-object-atoms",
+                                                "version": "1.1.2",
+                                                "resolved": "https://registry.npmjs.org/es-object-atoms/-/es-object-atoms-1.1.2.tgz",
+                                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/es-object-atoms@1.1.2/node_modules/es-object-atoms",
+                                                "dependencies": {
+                                                  "es-errors": {
+                                                    "from": "es-errors",
+                                                    "version": "1.3.0",
+                                                    "resolved": "https://registry.npmjs.org/es-errors/-/es-errors-1.3.0.tgz",
+                                                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/es-errors@1.3.0/node_modules/es-errors"
+                                                  }
+                                                }
+                                              },
+                                              "hasown": {
+                                                "from": "hasown",
+                                                "version": "2.0.4",
+                                                "resolved": "https://registry.npmjs.org/hasown/-/hasown-2.0.4.tgz",
+                                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/hasown@2.0.4/node_modules/hasown",
+                                                "dependencies": {
+                                                  "function-bind": {
+                                                    "from": "function-bind",
+                                                    "version": "1.1.2",
+                                                    "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz",
+                                                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/function-bind@1.1.2/node_modules/function-bind"
+                                                  }
+                                                }
+                                              },
+                                              "get-proto": {
+                                                "from": "get-proto",
+                                                "version": "1.0.1",
+                                                "resolved": "https://registry.npmjs.org/get-proto/-/get-proto-1.0.1.tgz",
+                                                "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/get-proto@1.0.1/node_modules/get-proto",
+                                                "dependencies": {
+                                                  "es-object-atoms": {
+                                                    "from": "es-object-atoms",
+                                                    "version": "1.1.2",
+                                                    "resolved": "https://registry.npmjs.org/es-object-atoms/-/es-object-atoms-1.1.2.tgz",
+                                                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/es-object-atoms@1.1.2/node_modules/es-object-atoms",
+                                                    "deduped": true,
+                                                    "dedupedDependenciesCount": 1
+                                                  },
+                                                  "dunder-proto": {
+                                                    "from": "dunder-proto",
+                                                    "version": "1.0.1",
+                                                    "resolved": "https://registry.npmjs.org/dunder-proto/-/dunder-proto-1.0.1.tgz",
+                                                    "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/dunder-proto@1.0.1/node_modules/dunder-proto",
+                                                    "dependencies": {
+                                                      "call-bind-apply-helpers": {
+                                                        "from": "call-bind-apply-helpers",
+                                                        "version": "1.0.2",
+                                                        "resolved": "https://registry.npmjs.org/call-bind-apply-helpers/-/call-bind-apply-helpers-1.0.2.tgz",
+                                                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/call-bind-apply-helpers@1.0.2/node_modules/call-bind-apply-helpers",
+                                                        "deduped": true,
+                                                        "dedupedDependenciesCount": 2
+                                                      },
+                                                      "es-errors": {
+                                                        "from": "es-errors",
+                                                        "version": "1.3.0",
+                                                        "resolved": "https://registry.npmjs.org/es-errors/-/es-errors-1.3.0.tgz",
+                                                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/es-errors@1.3.0/node_modules/es-errors"
+                                                      },
+                                                      "gopd": {
+                                                        "from": "gopd",
+                                                        "version": "1.2.0",
+                                                        "resolved": "https://registry.npmjs.org/gopd/-/gopd-1.2.0.tgz",
+                                                        "path": "/opt/ai-for-boss-lab/runtime/node_modules/.pnpm/gopd@1.2.0/node_modules/gopd"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+]
