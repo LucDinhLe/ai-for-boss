@@ -43,6 +43,10 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Giao diện ba bước Việt/Anh cho kiểm tra shell, kết nối mô phỏng, khai sinh Agent preview và task draft-only với permission/budget preview.
 - Unit, contract và validator Feature 0.5 cho Unicode, input rỗng/quá dài, double submit, snapshot lỗi, CSP offline và preload read-only.
 - QA harness Feature 0.5 dùng đúng production bundle để đi xuyên ba bước và lưu bằng chứng ở 1440×900, 1024×768 và 980×680.
+- ADR Feature 0.6 so sánh local managed container, remote OpenShell/SSH và native OS restrictions bằng 18 nguồn chính thức; khuyến nghị local container có điều kiện nhưng giữ product execution tắt.
+- Manifest/schema sandbox feasibility khóa evidence taxonomy, ba hướng, ba họ OS, capability lock, review gate và mặc định fail closed.
+- Probe fixture-only chỉ đọc platform hints, tạo một thư mục tạm rỗng, kiểm canonical containment, tái ủy quyền ngay trước cleanup và xóa không recursive; không tạo child file, cài runtime, dùng credential, network hoặc process sandbox thật.
+- Validator cùng contract tests Feature 0.6 từ chối backend thiếu, silent fallback, evidence promotion giả, platform mismatch, stale report, realpath escape, cleanup failure và mở capability nguy hiểm.
 
 ### Changed
 
@@ -58,6 +62,7 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - First-run snapshot chuyển sang schema `0.5.1-preview` với exact-shape và invariant matrix; snapshot thiếu, thừa hoặc mâu thuẫn bị loại toàn bộ về trạng thái sạch.
 - Preview Genesis không còn giả lập runtime promotion: hồ sơ hợp lệ chỉ được duyệt ở `STAGING`; `ACTIVE` và xóa bootstrap đòi bằng chứng từ `trusted-supervisor-runtime`.
 - Hồ sơ Genesis bổ sung emoji/avatar và ưu tiên; model selector khóa theo fixture đã kết nối; readiness chỉ báo đạt khi preload bridge thật sự sẵn sàng; màn cuối hiển thị kế hoạch mẫu ba bước xác định.
+- Capability inventory, threat model, Decision Log và Risk Register truy vết khuyến nghị sandbox nhưng giữ R-001 cùng mọi capability execution ở trạng thái mở/blocked.
 
 ### Security
 
@@ -72,9 +77,13 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Renderer Feature 0.4 không có Node, network, webview hay mutable IPC; production DevTools tắt và contract lỗi chuyển degraded state.
 - ASAR validator fail-closed nếu package lẫn source, dependency tree hoặc source map; artifact vẫn unsigned và non-distributable.
 - Renderer không nắm promotion evidence; state machine từ chối từng tổ hợp từng có thể tạo `ACTIVE` bất khả thi và giữ `reportReady=false` cho toàn bộ preview.
+- Sandbox policy giữ `execution=blocked`, sandbox off, workspace/network none, không automatic fallback và không tuyên bố presence/CI runner là isolation proof.
 
 ### Verified
 
+- Feature 0.6 local đạt 25/25 targeted tests, 80/80 full suite, lint, typecheck, build, validators, governance 105/124/52, dependency audit, Draft 2020-12 schema validation, diff hygiene và Windows package/ASAR sau khi khóa Node 24 action pins và harden governance recursion; CI exact Node `24.19.0` trên HEAD còn chờ.
+- Probe source được khóa bằng exact reviewed-source SHA-256 trước AST allowlist; ba direction được khóa bằng semantic digest để schema/manifest co-mutation không thể xóa một nền tảng hoặc viết lại isolation/network/capability claims.
+- Governance CI cài exact pnpm và frozen dependency graph trước khi load AST policy; clean-tree regression chặn lỗi `ERR_MODULE_NOT_FOUND` bị local `node_modules` che khuất.
 - Correction pass Feature 0.5 đạt 55/55 test, lint, typecheck, validator, Windows package/ASAR, dependency audit và CI Windows/macOS/Linux/governance trên commit `3ab90e1`.
 - QA tương tác production bundle đi xuyên bước 1–3, validation lỗi, Việt/Anh, sáng/tối và ba viewport 1440×900, 1024×768, 980×680 mà không tràn ngang. Human usability và screen-reader run vẫn chưa thực hiện.
 - Audit đóng Feature 0.3 xác nhận chuỗi tài liệu không còn ghi release train

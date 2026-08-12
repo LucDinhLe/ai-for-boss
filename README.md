@@ -1,8 +1,11 @@
 # AI for Boss
 
-**Phần mềm AI Agent dành cho chủ doanh nghiệp, nhà quản lý và người làm chuyên môn.**
+**Tầm nhìn sản phẩm AI Agent dành cho chủ doanh nghiệp, nhà quản lý và người làm chuyên môn.**
 
-AI for Boss được xây dựng trên nền tảng mã nguồn mở OpenClaw, giúp người dùng dễ dàng cài đặt, tạo, quản lý và giao việc cho AI Agent qua một giao diện đơn giản, an toàn và dễ sử dụng.
+AI for Boss đang được xây dựng trên nền tảng mã nguồn mở OpenClaw, hướng tới việc giúp người dùng dễ dàng cài đặt, tạo, quản lý và giao việc cho AI Agent qua một giao diện đơn giản, an toàn và dễ sử dụng.
+
+> [!IMPORTANT]
+> **Trạng thái hiện tại:** dự án đang ở Cổng 0, chỉ có app shell và prototype first-run bằng dữ liệu giả. Chưa có installer, OpenClaw/Gateway nhúng, kết nối provider thật, sandbox sản phẩm, Supervisor, updater hoặc artifact được ký để phân phối. Các khả năng bên dưới là **mục tiêu sản phẩm** trừ khi hồ sơ release ghi rõ đã kiểm chứng; không capability nào đang được quảng cáo là production-ready.
 
 ## Vì sao AI for Boss ra đời?
 
@@ -19,25 +22,25 @@ Sau khi cài đặt, họ vẫn phải tự giải quyết nhiều câu hỏi qu
 - Chi phí sử dụng được kiểm soát như thế nào?
 - Làm sao biết kết quả của Agent đủ tin cậy để sử dụng?
 
-AI for Boss đưa toàn bộ hành trình này vào một phần mềm thống nhất, dễ hiểu và phù hợp với người không chuyên kỹ thuật.
+Mục tiêu của AI for Boss là đưa toàn bộ hành trình này vào một phần mềm thống nhất, dễ hiểu và phù hợp với người không chuyên kỹ thuật.
 
-## Ba bước để bắt đầu
+## Hành trình mục tiêu gồm ba bước
 
-Người dùng có thể bắt đầu với AI for Boss qua ba bước:
+Khi đạt các cổng phát hành, người dùng dự kiến bắt đầu với AI for Boss qua ba bước:
 
 1. Cài đặt phần mềm.
 2. Kết nối mô hình và tạo AI Agent.
 3. Giao công việc đầu tiên.
 
-Các thành phần kỹ thuật được quản lý phía sau. Người dùng tập trung vào mục tiêu, dữ liệu, quyết định và kết quả công việc.
+Các thành phần kỹ thuật sẽ được quản lý phía sau. Người dùng tập trung vào mục tiêu, dữ liệu, quyết định và kết quả công việc.
 
 ## AI for Boss mang lại lợi ích gì?
 
 ### Cài đặt dễ dàng
 
-AI for Boss hoạt động trên Windows, macOS và Linux như một phần mềm desktop thông thường.
+Mục tiêu phát hành là hỗ trợ Windows, macOS và Linux theo ma trận đã được kiểm thử của từng bản.
 
-Người dùng không cần tự cài đặt hoặc vận hành OpenClaw, Gateway, Node.js, Git, WSL hay package manager.
+Khi bộ cài đạt Cổng 4, người dùng sẽ không cần tự cài đặt hoặc vận hành OpenClaw, Gateway, Node.js, Git, WSL hay package manager.
 
 ### Tạo AI Agent theo nhu cầu riêng
 
@@ -51,11 +54,11 @@ Người dùng có thể thiết lập cho Agent:
 - Thứ tự ưu tiên.
 - Ranh giới và những hành động cần xin phép.
 
-Mỗi Agent có danh tính, phiên làm việc, bộ nhớ và quyền truy cập riêng.
+Thiết kế mục tiêu yêu cầu mỗi Agent có danh tính, phiên làm việc, bộ nhớ và quyền truy cập riêng; biên này chưa được triển khai hoặc kiểm chứng trong runtime sản phẩm.
 
 ### Kết nối mô hình AI của người dùng
 
-AI for Boss hỗ trợ kết nối với nhiều nhà cung cấp mô hình như OpenAI, Anthropic, Google và các mô hình tương thích khác.
+Kế hoạch sản phẩm hỗ trợ kết nối với nhiều nhà cung cấp mô hình như OpenAI, Anthropic, Google và các mô hình tương thích khác sau khi từng connector qua contract, điều khoản và live test.
 
 Người dùng sử dụng tài khoản của chính mình, lựa chọn mô hình phù hợp với từng công việc và chủ động kiểm soát chi phí.
 
@@ -63,7 +66,7 @@ Người dùng sử dụng tài khoản của chính mình, lựa chọn mô hì
 
 Người dùng chỉ cần mô tả mục tiêu hoặc kết quả mong muốn.
 
-AI Agent có thể:
+AI Agent dự kiến có thể:
 
 - Làm rõ yêu cầu.
 - Lập kế hoạch thực hiện.
@@ -75,7 +78,7 @@ AI Agent có thể:
 
 ### Quản lý nhiều AI Agent
 
-Người dùng có thể tạo nhiều Agent cho các vai trò khác nhau:
+Kế hoạch sản phẩm cho phép tạo nhiều Agent cho các vai trò khác nhau:
 
 - Trợ lý điều hành.
 - Phân tích kinh doanh.
@@ -85,11 +88,11 @@ Người dùng có thể tạo nhiều Agent cho các vai trò khác nhau:
 - Tổng hợp tài liệu.
 - Theo dõi kế hoạch và công việc.
 
-Mỗi Agent có không gian riêng, giúp hạn chế việc lẫn danh tính, dữ liệu, bộ nhớ và quyền truy cập.
+Kiến trúc mục tiêu tách không gian từng Agent để hạn chế việc lẫn danh tính, dữ liệu, bộ nhớ và quyền truy cập; capability này tiếp tục bị khóa tới khi có enforcement và isolation test thực thi.
 
 ### Kiểm soát dữ liệu, quyền và chi phí
 
-Trước khi Agent thực hiện hành động quan trọng, người dùng có thể kiểm tra:
+Theo thiết kế mục tiêu, trước khi Agent thực hiện hành động quan trọng, người dùng có thể kiểm tra:
 
 - Dữ liệu nào sẽ được sử dụng.
 - Dữ liệu có rời khỏi thiết bị hay không.
@@ -102,7 +105,7 @@ Người dùng luôn giữ quyền quyết định cuối cùng.
 
 ### Advisor kiểm tra kế hoạch và kết quả
 
-AI for Boss sử dụng Advisor tại hai checkpoint:
+Thiết kế mục tiêu sử dụng Advisor tại hai checkpoint:
 
 1. Kiểm tra kế hoạch trước khi Agent thực hiện.
 2. Kiểm tra kết quả trước khi bàn giao cho người dùng.
@@ -111,7 +114,7 @@ Advisor giúp phát hiện yêu cầu chưa rõ, giả định thiếu cơ sở,
 
 ### Quản lý tập trung trong một giao diện
 
-AI for Boss tập trung các hoạt động quan trọng vào một ứng dụng:
+Kế hoạch sản phẩm tập trung các hoạt động quan trọng vào một ứng dụng:
 
 - Cài đặt và cập nhật.
 - Kết nối mô hình.
@@ -150,7 +153,7 @@ OpenClaw cung cấp nền tảng cho các khả năng như:
 - Quản lý tệp và dữ liệu.
 - Chẩn đoán và phục hồi.
 
-Trên nền tảng đó, AI for Boss phát triển thêm lớp trải nghiệm và quản trị dành cho người dùng phổ thông:
+Trên nền tảng đó, AI for Boss đang phát triển lớp trải nghiệm và quản trị dành cho người dùng phổ thông:
 
 - Ứng dụng desktop đa nền tảng.
 - Quy trình cài đặt và khởi tạo.

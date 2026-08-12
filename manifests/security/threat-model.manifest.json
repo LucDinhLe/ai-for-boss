@@ -65,7 +65,7 @@
       "requiredControls": ["Supervisor-only process ownership", "Dynamic endpoint", "Device identity and scoped handshake", "Build ID and release train checks", "Private ingress and certificate/host verification"],
       "failClosedBehavior": "Do not adopt, kill or connect to the unknown process; enter diagnostic state.",
       "evidenceGate": "Gate 1 foreign-process tests and Gate 4 remote identity tests",
-      "riskRefs": ["R-005", "R-020", "R-023"],
+      "riskRefs": ["R-005", "R-020", "R-023", "R-029"],
       "residualRisk": { "severity": "High", "status": "mitigated-by-design-untested", "reason": "The ownership and identity contracts are specified but not implemented." }
     },
     {
@@ -79,7 +79,7 @@
       "requiredControls": ["OS key store via tested SecretRef for static secret", "OpenClaw native auth store with per-user ACL for OAuth", "No-secret IPC/argv/log", "Encrypted full backup", "Redaction plus post-export inspection"],
       "failClosedBehavior": "Disable connector, revoke credential when exposure is suspected and produce a secret-free incident record.",
       "evidenceGate": "Feature 0.5 secret baseline, three-OS SecretRef contract, support-bundle and restore tests",
-      "riskRefs": ["R-002", "R-003", "R-006"],
+      "riskRefs": ["R-002", "R-003", "R-006", "R-029"],
       "residualRisk": { "severity": "Critical", "status": "open", "reason": "Credential Broker and redaction pipeline are not implemented." }
     },
     {
@@ -149,7 +149,7 @@
       "requiredControls": ["nodeIntegration off", "contextIsolation and renderer sandbox", "CSP and navigation allowlist", "IPC schema and sender validation", "Protected named pipe/Unix socket", "No production remote debugging"],
       "failClosedBehavior": "Reject IPC or connection and stop privileged action without exposing a reusable credential.",
       "evidenceGate": "Feature 0.4/0.5 Electron security tests and Gate 1 local process attack tests",
-      "riskRefs": ["R-001", "R-002", "R-020", "R-025"],
+      "riskRefs": ["R-001", "R-002", "R-020", "R-025", "R-028", "R-030"],
       "residualRisk": { "severity": "Critical", "status": "open", "reason": "Desktop shell and IPC baseline are not built." }
     },
     {
@@ -177,7 +177,7 @@
       "requiredControls": ["Canonical path before authorization", "Workspace allowlist and grant", "No link boundary bypass", "Type/size/content checks", "Download quarantine", "Sandbox"],
       "failClosedBehavior": "Reject read/write/execute, quarantine the file and leave the destination unchanged.",
       "evidenceGate": "Feature 0.6 and Gate 3 file/sandbox adversarial suite on each OS",
-      "riskRefs": ["R-001", "R-013"],
+      "riskRefs": ["R-001", "R-013", "R-028", "R-030"],
       "residualRisk": { "severity": "Critical", "status": "open", "reason": "Cross-platform sandbox and file policy are unproven." }
     },
     {
@@ -233,7 +233,7 @@
       "requiredControls": ["One full instance per customer or true trust boundary", "Separate OS user/host, state, credential and volume", "Cross-tenant test", "Minimal approved control-plane metadata", "No shared Gateway"],
       "failClosedBehavior": "Deny provisioning or connection when isolation cannot be proven; do not fall back to shared runtime.",
       "evidenceGate": "Headless Gate 4 cross-tenant suite and Gate 7 tenant-isolation review",
-      "riskRefs": ["R-020", "R-021", "R-022"],
+      "riskRefs": ["R-020", "R-021", "R-022", "R-029"],
       "residualRisk": { "severity": "Critical", "status": "mitigated-by-design-untested", "reason": "Per-customer architecture is chosen but no headless product exists." }
     }
   ],

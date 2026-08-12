@@ -2,10 +2,39 @@ $ErrorActionPreference = 'Stop'
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $failures = [System.Collections.Generic.List[string]]::new()
-$ignoredGeneratedPathPattern = '[\\/](?:\.git|node_modules|dist|out)[\\/]'
+$ignoredDirectoryNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+foreach ($directoryName in @('.git', 'node_modules', 'dist', 'out')) {
+  [void]$ignoredDirectoryNames.Add($directoryName)
+}
 
 function Add-Failure([string]$message) {
   $failures.Add($message)
+}
+
+function Get-RepositoryFiles([string]$root) {
+  $pendingDirectories = [System.Collections.Generic.Stack[string]]::new()
+  $pendingDirectories.Push($root)
+
+  while ($pendingDirectories.Count -gt 0) {
+    $currentDirectory = $pendingDirectories.Pop()
+    try {
+      $entries = Get-ChildItem -LiteralPath $currentDirectory -Force -ErrorAction Stop
+    }
+    catch {
+      Add-Failure "Unable to enumerate repository path: $currentDirectory"
+      continue
+    }
+
+    foreach ($entry in $entries) {
+      if ($entry.PSIsContainer) {
+        if (-not $ignoredDirectoryNames.Contains($entry.Name)) {
+          $pendingDirectories.Push($entry.FullName)
+        }
+        continue
+      }
+      $entry
+    }
+  }
 }
 
 $requiredFiles = @(
@@ -73,6 +102,18 @@ $requiredFiles = @(
   'docs/feature-specs/0005-first-run-journey.md',
   'docs/release/FEATURE-0.4-AUDIT.md',
   'docs/release/FEATURE-0.5-AUDIT.md',
+  'docs/feature-specs/0006-sandbox-feasibility.md',
+  'docs/architecture/SANDBOX-FEASIBILITY-ADR.md',
+  'docs/release/FEATURE-0.6-AUDIT.md',
+  'manifests/security/sandbox-feasibility.manifest.json',
+  'manifests/security/sandbox-feasibility.schema.json',
+  'manifests/security/sandbox-feasibility-probe.schema.json',
+  'src/sandbox/feasibility-policy.mjs',
+  'src/sandbox/feasibility-probe.mjs',
+  'scripts/spike/sandbox-feasibility-probe.mjs',
+  'scripts/validate-feature-0.6.mjs',
+  'tests/contract/sandbox-feasibility-contract.test.mjs',
+  'PROGRESS.md',
   'package.json',
   'pnpm-workspace.yaml',
   'pnpm-lock.yaml',
@@ -177,9 +218,20 @@ if (Test-Path -LiteralPath $readinessAuditPath -PathType Leaf) {
   }
 }
 
-$forbiddenEnvFiles = Get-ChildItem -LiteralPath $repoRoot -Recurse -Force -File |
+$feature06AuditPath = Join-Path $repoRoot 'docs/release/FEATURE-0.6-AUDIT.md'
+if (Test-Path -LiteralPath $feature06AuditPath -PathType Leaf) {
+  $feature06AuditText = Get-Content -LiteralPath $feature06AuditPath -Raw
+  foreach ($term in @('spike-tested', 'documented-primary-source', 'assumption-pending', 'blocked-or-not-feasible', 'không chứng minh isolation')) {
+    if (-not $feature06AuditText.Contains($term)) {
+      Add-Failure "Feature 0.6 audit is missing evidence/boundary term: $term"
+    }
+  }
+}
+
+$repositoryFiles = @(Get-RepositoryFiles $repoRoot)
+
+$forbiddenEnvFiles = $repositoryFiles |
   Where-Object {
-    $_.FullName -notmatch $ignoredGeneratedPathPattern -and
     $_.Name -match '^\.env(?:\..+)?$' -and
     $_.Name -ne '.env.example'
   }
@@ -196,9 +248,8 @@ $secretPatterns = @(
 )
 
 $textExtensions = @('.md', '.txt', '.json', '.yml', '.yaml', '.ps1', '.js', '.mjs', '.cjs', '.ts', '.tsx', '.css', '.html')
-$candidateFiles = Get-ChildItem -LiteralPath $repoRoot -Recurse -Force -File |
+$candidateFiles = $repositoryFiles |
   Where-Object {
-    $_.FullName -notmatch $ignoredGeneratedPathPattern -and
     $textExtensions -contains $_.Extension.ToLowerInvariant()
   }
 

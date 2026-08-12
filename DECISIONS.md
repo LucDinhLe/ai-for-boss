@@ -44,7 +44,7 @@ Mỗi quyết định có hệ quả phải ghi owner, ngày, trạng thái, lý
 Các quyết định sau tiếp tục theo Decision Register của Rulebook:
 
 - Phiên bản OpenClaw, Node, Electron và package manager ở Feature 0.2.
-- Sandbox local, remote hoặc native ở Feature 0.6.
+- Sandbox local, remote hoặc native: Feature 0.6 đã tạo khuyến nghị D-0018; Product Owner và senior platform/security review chưa chấp nhận backend production.
 - Giấy phép sản phẩm trước Cổng 4.
 - Telemetry và support upload trước Cổng 5.
 - Giá và license thương mại trước Cổng 5.
@@ -172,3 +172,14 @@ Các lệnh cấm trộn beta và coi placeholder là production vẫn giữ ngu
 - Quyết định: Hành trình first-run bằng fixture chỉ duyệt hồ sơ Genesis tới `STAGING`. `ACTIVE`, `bootstrapRetained=false` và `reportReady=true` chỉ hợp lệ khi state machine nhận đủ sáu promotion check từ nguồn `trusted-supervisor-runtime`; renderer không sở hữu hoặc truyền nguồn bằng chứng này.
 - Hệ quả: Snapshot dùng exact schema và invariant matrix; dữ liệu thiếu, thừa, sai giới hạn hoặc tổ hợp state bất khả thi bị từ chối toàn bộ. Preview vẫn cho phép tạo task `draft-only` cùng kế hoạch mẫu để test UX, nhưng không được diễn giải thành Agent/runtime đã hoạt động.
 - Phương án bị loại: Hard-code toàn bộ check là đạt trong UI; coi preview approval là runtime promotion; hoặc phục hồi một phần snapshot không đáng tin.
+
+## D-0018. Khuyến nghị sandbox local managed container có điều kiện
+
+- Ngày: 2026-08-12
+- Owner: Hermes/Codex đề xuất kỹ thuật; Lê Đình Lực và senior platform/security reviewer cần chấp nhận trước khi triển khai
+- Nhãn: `GATED_HYPOTHESIS`
+- Trạng thái: Đề xuất, chưa chấp nhận làm backend production
+- Quyết định đề xuất: Ưu tiên nghiên cứu container runtime cục bộ do AI for Boss quản lý. OpenShell/SSH chỉ là hướng opt-in sau khi có production-readiness; native restrictions chỉ làm defense-in-depth. Product default vẫn `execution=blocked`, `sandboxMode=off`, workspace/network `none`.
+- Hệ quả: Không mở host exec, elevated, Browser nhạy cảm, network, credential injection, Docker socket, host namespace hoặc bind mount ngoài project grant. Cần test sandbox thật trên Windows/macOS/Linux, installer/usability, recovery/update và adversarial escape trước khi promote.
+- Phương án bị loại: OpenShell alpha làm default; native restrictions riêng lẻ làm backend đa nền tảng; fallback âm thầm về host khi backend vắng hoặc lỗi.
+- Bằng chứng: `docs/architecture/SANDBOX-FEASIBILITY-ADR.md`, manifest/schema, exact reviewed-source và semantic-direction digests, fixture-only probe cùng contract tests Feature 0.6. Bằng chứng này không chứng minh isolation thực tế.
