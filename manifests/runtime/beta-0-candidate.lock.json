@@ -9,7 +9,8 @@
   "why": [
     "The locked train pins openclaw 2026.7.1-2 from 2026-07-18. At capture time npm stable is 2026.9.1, two release cycles ahead.",
     "OpenClaw publishes @openclaw/gateway-client and @openclaw/gateway-protocol as stable packages from 2026.8.1 onward. D-0013 assumed no public client package exists and planned a hand-rolled WebSocket client; that assumption is now false, so the candidate consumes the published packages instead.",
-    "The published package set ships docs/gateway/embedding.md, a first-party contract for supervising the Gateway as a child process. Beta 0 follows it rather than inventing a lifecycle."
+    "The published package set ships docs/gateway/embedding.md, a first-party contract for supervising the Gateway as a child process. Beta 0 follows it rather than inventing a lifecycle.",
+    "The first Windows CI run showed the Gateway starts and completes the operator handshake natively, with no Linux subsystem, then fast-fails inside libuv's filesystem watcher when its state directory is an 8.3 short path. The host now resolves paths to their long form before handing them to the child (R-034)."
   ],
   "components": [
     {

@@ -57,6 +57,7 @@ Mục tiêu phụ: đưa bố cục ba cột mà Product Owner đã chốt ở g
 - Runtime agent mặc định trong một thư mục state trắng là `codex`, và harness đó vắng mặt. Chọn runtime và nhà cung cấp là việc của bước sau.
 - CI runner chứng minh nền tảng chạy được, không chứng minh máy khách sạch hay trải nghiệm cài đặt.
 - Danh sách `client.id` của Gateway là tập đóng; ứng dụng bên thứ ba xưng `gateway-client` và mang tên sản phẩm ở `clientDisplayName`.
+- Windows chạy Gateway nguyên bản, không cần Linux subsystem. Điều kiện là mọi đường dẫn trao cho tiến trình con phải ở dạng dài; đây là phát hiện của lượt CI đầu tiên, không phải giả định.
 
 ## 7. Trường hợp biên và hành vi khi lỗi
 
@@ -74,6 +75,7 @@ Mục tiêu phụ: đưa bố cục ba cột mà Product Owner đã chốt ở g
 | Tệp danh tính hỏng hoặc bị sửa | Thay bằng danh tính mới thay vì tin |
 | Lượt chạy lỗi vì thiếu harness | Hiển thị nguyên văn lỗi của Gateway, không nuốt |
 | Thoát ứng dụng | Ngắt adapter, SIGTERM tiến trình con, SIGKILL sau 5 giây |
+| Thư mục dữ liệu là đường dẫn 8.3 trên Windows | Host giải sang dạng dài trước khi trao cho tiến trình con; nếu không, bộ theo dõi tệp của libuv fast-fail và Gateway sập thành vòng lặp (R-034) |
 
 ## 8. Tiêu chí nghiệm thu
 

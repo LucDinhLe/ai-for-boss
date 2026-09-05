@@ -1,5 +1,5 @@
 import path from "node:path";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, realpathSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { app, BrowserWindow, ipcMain, session } from "electron";
 import {
@@ -49,10 +49,25 @@ function publishStatus(patch) {
   }
 }
 
+/**
+ * Windows can hand back an 8.3 short path (C:\Users\RUNNER~1\...). libuv's
+ * filesystem watcher compares the event filename against the watched directory
+ * and fast-fails the process when the two spellings differ, which crashes the
+ * Gateway in a restart loop. Resolving to the long form first avoids handing a
+ * short path to the child at all. See R-034.
+ */
+function longPath(candidate) {
+  try {
+    return realpathSync.native(candidate);
+  } catch {
+    return candidate;
+  }
+}
+
 function stateDirectory() {
-  const directory = path.join(app.getPath("userData"), "openclaw-state");
+  const directory = path.join(longPath(app.getPath("userData")), "openclaw-state");
   mkdirSync(directory, { recursive: true });
-  return directory;
+  return longPath(directory);
 }
 
 async function startRuntime() {

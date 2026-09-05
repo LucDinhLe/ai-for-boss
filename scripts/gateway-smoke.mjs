@@ -10,7 +10,7 @@
  * Usage: node scripts/gateway-smoke.mjs [--out <file>]
  */
 
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, realpathSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -60,8 +60,23 @@ function packageVersion(specifier) {
   return JSON.parse(readFileSync(path.join(packageRoot(specifier), "package.json"), "utf8")).version;
 }
 
+/**
+ * Windows hands out 8.3 short paths (C:\\Users\\RUNNER~1\\...) in places like the
+ * temp directory. libuv's filesystem watcher compares the event filename with
+ * the watched directory and fast-fails the whole process when the two spellings
+ * differ, so every path handed to the Gateway is resolved to its long form
+ * first. See docs/feature-specs/0007 and R-034.
+ */
+function longPath(candidate) {
+  try {
+    return realpathSync.native(candidate);
+  } catch {
+    return candidate;
+  }
+}
+
 async function main() {
-  const stateDirectory = mkdtempSync(path.join(os.tmpdir(), "aifb-smoke-"));
+  const stateDirectory = longPath(mkdtempSync(path.join(longPath(os.tmpdir()), "aifb-smoke-")));
   const startedAt = Date.now();
   const record = {
     recordedAt: new Date().toISOString(),
