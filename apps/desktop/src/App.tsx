@@ -1,308 +1,421 @@
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  approvePreviewGenesis,
-  CONNECTION_FIXTURES,
-  connectFixture,
-  createInitialFirstRunState,
-  createTaskDraft,
-  verifyInternalInstall
-} from "./first-run-machine.mjs";
+  call,
+  getRuntimeStatus,
+  IDLE_STATUS,
+  onGatewayEvent,
+  onRuntimeStatus,
+  readContextUsage,
+  shortSessionKey,
+  toTranscriptMessage,
+  type ContextUsage,
+  type ModelSummary,
+  type RuntimeStatus,
+  type SessionSummary,
+  type TranscriptMessage
+} from "./gateway-client";
 
-type Locale = "vi" | "en";
-type Theme = "light" | "dark";
-
-const fallbackStatus: ShellStatus = {
-  schemaVersion: "0.4.0",
-  classification: "experimental-internal",
-  product: { name: "AI for Boss", version: "0.0.0-dev", attribution: "Built on OpenClaw" },
-  releaseTrain: { id: "loading", openclaw: "loading", electron: "loading", node: "loading", pnpm: "loading" },
-  contractSummary: { capabilityFamilies: 0, advertisableCapabilities: 0, authModes: 0, sourcesOfTruth: 0, dataFlows: 0, threats: 0 },
-  featureState: { shell: "loading", gateway: "not-implemented", providerConnection: "not-implemented", agentGenesis: "not-implemented", advisor: "preview-only", tools: "blocked" }
+const SUPERVISOR_LABELS: Record<RuntimeStatus["supervisor"], string> = {
+  idle: "Chưa khởi động",
+  starting: "Đang khởi động",
+  ready: "Đang chạy",
+  restarting: "Đang khởi động lại",
+  "safe-mode": "Chế độ an toàn"
 };
 
-const copy = {
-  vi: {
-    badge: "TYPE C · NỘI BỘ · DỮ LIỆU GIẢ",
-    preview: "Feature 0.5 · dữ liệu giả · experimental-internal",
-    railTitle: "Ba bước để bắt đầu.",
-    railBody: "Đi đủ hành trình bằng dữ liệu mô phỏng. Kết nối và hành động thật vẫn khóa.",
-    steps: ["Cài đặt", "Kết nối & khai sinh", "Giao việc đầu tiên"],
-    installKicker: "BƯỚC 1 · CÀI ĐẶT",
-    installTitle: "Xác minh nền tảng trước khi đi tiếp.",
-    installLead: "Bước này chỉ kiểm tra app shell và release train đã khóa. Bản hiện tại chưa phải installer, chưa ký số và chưa dành cho người dùng thật.",
-    checks: ["Electron shell và biên renderer đã nạp", "Không có kết nối mạng từ renderer", "Gateway, OAuth và tool thật tiếp tục bị khóa"],
-    verify: "Xác minh bản nội bộ",
-    connectKicker: "BƯỚC 2 · KẾT NỐI VÀ KHAI SINH",
-    connectTitle: "Chọn model giả, rồi đặt bản sắc cho Agent.",
-    connectLead: "Mọi lựa chọn ở đây chỉ là fixture kiểm thử. Không nhập khóa, không gọi provider và không có dữ liệu rời máy.",
-    mock: "MÔ PHỎNG · KHÔNG KẾT NỐI",
-    fixture: "Model thử nghiệm",
-    connect: "Dùng kết nối giả này",
-    connected: "Đã chọn fixture",
-    name: "Tên Agent",
-    role: "Vai trò",
-    tone: "Giọng điệu",
-    emoji: "Emoji đại diện",
-    address: "Cách xưng hô",
-    priority: "Ưu tiên làm việc",
-    boundary: "Ranh giới",
-    requiredField: "Vui lòng nhập nội dung có ý nghĩa.",
-    birth: "Xác nhận bản sắc và tiếp tục",
-    assignKicker: "BƯỚC 3 · GIAO VIỆC ĐẦU TIÊN",
-    assignTitle: "Nói kết quả anh/chị muốn có.",
-    assignLead: "Hệ thống chỉ tạo một bản giao việc nội bộ. Task không chạy, không gọi model và không trừ token.",
-    task: "Mục tiêu công việc",
-    taskRequired: "Vui lòng mô tả kết quả muốn có.",
-    taskPlaceholder: "Ví dụ: Lập kế hoạch ưu tiên cho tuần tới, gồm ba việc quan trọng nhất…",
-    permissionTitle: "Trước khi giao việc",
-    data: "Dữ liệu rời máy",
-    none: "Không có",
-    permissions: "Tool và quyền thật",
-    budget: "Chi phí thật",
-    zero: "0 token",
-    create: "Tạo bản giao việc thử nghiệm",
-    completeKicker: "HOÀN THÀNH BA BƯỚC",
-    completeTitle: "Bản giao việc đầu tiên đã sẵn sàng để kiểm thử.",
-    completeLead: "Đây là draft nội bộ. Gateway, OpenClaw runtime và Advisor chưa chạy.",
-    advisor: "Advisor giữ hai checkpoint nền",
-    advisorNote: "Chưa có runtime · không tự pass",
-    samplePlan: "Kế hoạch mẫu · chưa thực thi",
-    planSteps: [
-      "Làm rõ tiêu chí hoàn thành và giới hạn của mục tiêu.",
-      "Chuẩn bị dữ liệu, quyền và các bước thực hiện an toàn.",
-      "Giữ Advisor ở checkpoint kế hoạch và checkpoint đầu cuối."
-    ],
-    again: "Làm lại demo",
-    context: "HỢP ĐỒNG AN TOÀN",
-    genesis: "Agent Genesis",
-    bootstrap: "BOOTSTRAP.md",
-    reportReady: "Báo Agent sẵn sàng",
-    gateway: "Gateway / OAuth",
-    stateSource: "Nguồn trạng thái",
-    retained: "Được giữ",
-    removed: "Xóa cuối · chỉ mô phỏng",
-    yesPreview: "Có · preview",
-    no: "Không",
-    unavailable: "Chưa kết nối",
-    memoryOnly: "Demo trong bộ nhớ",
-    contractError: "Shell contract chưa sẵn sàng. Hành trình giữ ở Bước 1.",
-    formError: "Trạng thái chưa đủ an toàn để tiếp tục. Dữ liệu trước đó được giữ nguyên.",
-    theme: "Đổi giao diện",
-    language: "Đổi ngôn ngữ",
-    builtOn: "Built on OpenClaw"
-  },
-  en: {
-    badge: "TYPE C · INTERNAL · MOCK DATA",
-    preview: "Feature 0.5 · mock data · experimental-internal",
-    railTitle: "Three steps to begin.",
-    railBody: "Complete the journey with simulated data. Live connections and actions stay locked.",
-    steps: ["Install", "Connect & create", "First assignment"],
-    installKicker: "STEP 1 · INSTALL",
-    installTitle: "Verify the foundation before moving on.",
-    installLead: "This step checks only the application shell and locked release train. The build is unsigned, is not an installer, and is not user-ready.",
-    checks: ["Electron shell and renderer boundary loaded", "Renderer outbound network remains denied", "Gateway, OAuth, and real tools remain locked"],
-    verify: "Verify internal build",
-    connectKicker: "STEP 2 · CONNECT AND CREATE",
-    connectTitle: "Choose a mock model, then shape your Agent.",
-    connectLead: "Every choice here is a test fixture. Enter no key, call no provider, and send no data off-device.",
-    mock: "SIMULATION · NOT CONNECTED",
-    fixture: "Test model",
-    connect: "Use this mock connection",
-    connected: "Fixture selected",
-    name: "Agent name",
-    role: "Role",
-    tone: "Tone",
-    emoji: "Representative emoji",
-    address: "How to address you",
-    priority: "Working priority",
-    boundary: "Boundary",
-    requiredField: "Enter meaningful content to continue.",
-    birth: "Confirm identity and continue",
-    assignKicker: "STEP 3 · FIRST ASSIGNMENT",
-    assignTitle: "Describe the outcome you want.",
-    assignLead: "The system creates one internal assignment only. It runs no task, calls no model, and spends no tokens.",
-    task: "Work objective",
-    taskRequired: "Describe the outcome you want.",
-    taskPlaceholder: "Example: Plan next week's priorities and identify the top three actions…",
-    permissionTitle: "Before assignment",
-    data: "Data leaving device",
-    none: "None",
-    permissions: "Real tools and permissions",
-    budget: "Real cost",
-    zero: "0 tokens",
-    create: "Create test assignment",
-    completeKicker: "THREE STEPS COMPLETE",
-    completeTitle: "Your first assignment is ready for testing.",
-    completeLead: "This is an internal draft. Gateway, OpenClaw runtime, and Advisor are not running.",
-    advisor: "Advisor keeps two background checkpoints",
-    advisorNote: "No runtime · never auto-passed",
-    samplePlan: "Sample plan · not executed",
-    planSteps: [
-      "Clarify the success criteria and boundaries of the objective.",
-      "Prepare the data, permissions, and safe execution steps.",
-      "Keep Advisor at the plan and final-review checkpoints."
-    ],
-    again: "Reset demo",
-    context: "SAFETY CONTRACT",
-    genesis: "Agent Genesis",
-    bootstrap: "BOOTSTRAP.md",
-    reportReady: "Report Agent ready",
-    gateway: "Gateway / OAuth",
-    stateSource: "State source",
-    retained: "Retained",
-    removed: "Removed last · simulation only",
-    yesPreview: "Yes · preview",
-    no: "No",
-    unavailable: "Not connected",
-    memoryOnly: "In-memory demo",
-    contractError: "The shell contract is unavailable. The journey stays at Step 1.",
-    formError: "The state is not safe to advance. Previous data was preserved.",
-    theme: "Change theme",
-    language: "Change language",
-    builtOn: "Built on OpenClaw"
-  }
-} as const;
-
-const defaultIdentity = {
-  name: "Tôm",
-  role: "Trợ lý điều hành",
-  tone: "Rõ ràng, điềm tĩnh",
-  emoji: "🦐",
-  userAddress: "Anh/chị",
-  priority: "Ưu tiên việc quan trọng, giải thích ngắn gọn",
-  boundary: "Xin duyệt trước hành động nhạy cảm"
+const SUPERVISOR_DETAILS: Record<string, string> = {
+  "node-runtime-missing": "Không tìm thấy Node runtime đi kèm.",
+  "openclaw-package-missing": "Không tìm thấy gói OpenClaw đã cài.",
+  "invalid-config": "Cấu hình OpenClaw không hợp lệ và không tự sửa được.",
+  "restart-limit-reached": "Gateway dừng nhiều lần liên tiếp nên đã ngừng tự khởi động lại.",
+  "spawn-failed": "Không khởi chạy được tiến trình OpenClaw."
 };
 
-async function requestShellStatus() {
-  if (!window.aiForBoss) return null;
-  try {
-    return await window.aiForBoss.getShellStatus();
-  } catch {
-    return null;
-  }
+function formatTokens(value: number): string {
+  if (value >= 1000) return `${Math.round(value / 1000)}k`;
+  return String(value);
+}
+
+function useRuntime() {
+  const [status, setStatus] = useState<RuntimeStatus>(IDLE_STATUS);
+  useEffect(() => {
+    let active = true;
+    getRuntimeStatus().then((initial) => {
+      if (active) setStatus(initial);
+    });
+    const unsubscribe = onRuntimeStatus((next) => setStatus(next));
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, []);
+  return status;
+}
+
+function ContextMeter({ usage }: { usage: ContextUsage }) {
+  const ceiling = usage.contextTokens;
+  const used = usage.usedTokens;
+  const ratio = ceiling && used ? Math.min(used / ceiling, 1) : 0;
+  const known = Boolean(ceiling && used !== null);
+  const level = ratio >= 0.85 ? "high" : ratio >= 0.7 ? "warn" : "calm";
+
+  return (
+    <div className="context-meter" title="Dung lượng cửa sổ ngữ cảnh của phiên">
+      <span className="context-meter__label">Ngữ cảnh</span>
+      <span className="context-meter__track" aria-hidden="true">
+        <span className={`context-meter__fill context-meter__fill--${level}`} style={{ width: `${ratio * 100}%` }} />
+      </span>
+      <span className="context-meter__value">
+        {known
+          ? `${formatTokens(used as number)} / ${formatTokens(ceiling as number)} · ${Math.round(ratio * 100)}%`
+          : ceiling
+            ? `chưa có số liệu / ${formatTokens(ceiling)}`
+            : "chưa có số liệu"}
+      </span>
+    </div>
+  );
+}
+
+function AdvisorSlot() {
+  return (
+    <div className="advisor-slot" aria-live="polite">
+      <span className="advisor-slot__dot" aria-hidden="true" />
+      <div>
+        <strong>Advisor</strong>
+        <p>
+          Cổng kế hoạch và cổng nghiệm thu sẽ chạy trong một phiên rà soát riêng, chỉ đọc. Bản thử nghiệm 0 chưa bật
+          Advisor; ô này giữ đúng chỗ của nó trong bố cục.
+        </p>
+      </div>
+      <span className="advisor-slot__state">chưa bật</span>
+    </div>
+  );
 }
 
 function App() {
-  const [locale, setLocale] = useState<Locale>("vi");
-  const [theme, setTheme] = useState<Theme>("light");
-  const [status, setStatus] = useState<ShellStatus>(fallbackStatus);
-  const [bridgeReady, setBridgeReady] = useState(false);
-  const [journey, setJourney] = useState(createInitialFirstRunState);
-  const [fixtureId, setFixtureId] = useState(CONNECTION_FIXTURES[0].id);
-  const [identity, setIdentity] = useState(defaultIdentity);
-  const [goal, setGoal] = useState("");
-  const stageHeadingRef = useRef<HTMLHeadingElement>(null);
-  const text = copy[locale];
+  const runtime = useRuntime();
+  const [shell, setShell] = useState<ShellStatus | null>(null);
+  const [sessions, setSessions] = useState<SessionSummary[]>([]);
+  const [models, setModels] = useState<ModelSummary[]>([]);
+  const [activeKey, setActiveKey] = useState<string | null>(null);
+  const [messages, setMessages] = useState<TranscriptMessage[]>([]);
+  const [usage, setUsage] = useState<ContextUsage>({ usedTokens: null, contextTokens: null, model: null });
+  const [draft, setDraft] = useState("");
+  const [runState, setRunState] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const transcriptRef = useRef<HTMLDivElement | null>(null);
+  // Event handlers registered once still need the session the user is looking
+  // at now, so the key is mirrored into a ref from an effect rather than during
+  // render.
+  const activeKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    document.documentElement.lang = locale;
-  }, [locale, theme]);
+    activeKeyRef.current = activeKey;
+  }, [activeKey]);
 
   useEffect(() => {
-    let active = true;
-    void requestShellStatus().then((nextStatus) => {
-      if (!active) return;
-      if (nextStatus) setStatus(nextStatus);
-      setBridgeReady(Boolean(nextStatus && nextStatus.releaseTrain.id !== "unavailable"));
-    });
-    return () => { active = false; };
+    window.aiForBoss?.getShellStatus().then(setShell).catch(() => setShell(null));
   }, []);
 
+  const refreshSessions = useCallback(async () => {
+    try {
+      const result = await call<{ sessions?: SessionSummary[]; items?: SessionSummary[] }>("sessions.list", {
+        limit: 30,
+        sortBy: "updatedAt"
+      });
+      setSessions(result.sessions ?? result.items ?? []);
+    } catch (error) {
+      setNotice(String((error as Error)?.message ?? error));
+    }
+  }, []);
+
+  const loadHistory = useCallback(async (key: string) => {
+    try {
+      const history = await call<Record<string, unknown>>("chat.history", { sessionKey: key, limit: 200 });
+      const raw = (history.messages ?? []) as Record<string, unknown>[];
+      const mapped = raw
+        .map((entry, index) => toTranscriptMessage(entry, `${key}-${index}`))
+        .filter((entry): entry is TranscriptMessage => entry !== null);
+      setMessages(mapped);
+      setUsage(readContextUsage(history));
+    } catch (error) {
+      setNotice(String((error as Error)?.message ?? error));
+    }
+  }, []);
+
+  const openSession = useCallback(
+    async (key: string) => {
+      setActiveKey(key);
+      setMessages([]);
+      setRunState(null);
+      await call("sessions.messages.subscribe", { key }).catch(() => {});
+      await loadHistory(key);
+    },
+    [loadHistory]
+  );
+
   useEffect(() => {
-    stageHeadingRef.current?.focus();
-  }, [journey.stage]);
+    if (!runtime.connected) return;
+    let cancelled = false;
+    (async () => {
+      await refreshSessions();
+      try {
+        const catalogue = await call<{ models?: ModelSummary[] }>("models.list");
+        if (!cancelled) setModels(catalogue.models ?? []);
+      } catch {
+        if (!cancelled) setModels([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [runtime.connected, refreshSessions]);
 
-  const step = journey.stage === "INSTALL" ? 1 : journey.stage === "CONNECT" ? 2 : 3;
-  const error = useMemo(() => {
-    if (!journey.lastError) return null;
-    if (journey.lastError === "shell-contract-unavailable") return text.contractError;
-    if (["identity-required-fields-missing", "identity-field-too-long", "assignment-input-missing", "assignment-too-long"].includes(journey.lastError)) return null;
-    return text.formError;
-  }, [journey.lastError, text]);
+  useEffect(() => {
+    const unsubscribe = onGatewayEvent(({ event, payload }) => {
+      if (!payload) return;
+      const key = typeof payload.sessionKey === "string" ? payload.sessionKey : null;
 
-  const identityFieldMissing = (field: keyof typeof defaultIdentity) =>
-    journey.lastError === "identity-required-fields-missing" && !identity[field].trim();
-  const missingTask = journey.lastError === "assignment-input-missing" && !goal.trim();
-  const readinessChecks = text.checks.map((label, index) => ({ label, passed: index === 0 ? bridgeReady : true }));
+      if (event === "session.message" && key && key === activeKeyRef.current) {
+        const message = toTranscriptMessage(
+          (payload.message ?? {}) as Record<string, unknown>,
+          String(payload.messageId ?? Date.now())
+        );
+        if (!message) return;
+        setMessages((current) =>
+          current.some((entry) => entry.id === message.id) ? current : [...current, message]
+        );
+        return;
+      }
 
-  function handleGenesis(event: FormEvent) {
-    event.preventDefault();
-    setJourney((current) => approvePreviewGenesis(current, identity));
-  }
+      if (event === "chat" && key && key === activeKeyRef.current) {
+        const state = typeof payload.state === "string" ? payload.state : null;
+        setRunState(state);
+        if (state === "error" && typeof payload.errorMessage === "string") {
+          setNotice(payload.errorMessage);
+        }
+        if (state === "error" || state === "done" || state === "final") {
+          setBusy(false);
+          void loadHistory(key);
+        }
+        return;
+      }
 
-  function handleTask(event: FormEvent) {
-    event.preventDefault();
-    setJourney((current) => createTaskDraft(current, { requestId: "first-assignment-preview", goal }));
-  }
+      if (event === "sessions.changed") {
+        void refreshSessions();
+      }
+    });
+    return unsubscribe;
+  }, [loadHistory, refreshSessions]);
 
-  function updateIdentity(field: keyof typeof defaultIdentity, value: string) {
-    setIdentity((current) => ({ ...current, [field]: value }));
-    setJourney((current) => ["identity-required-fields-missing", "identity-field-too-long"].includes(current.lastError ?? "")
-      ? { ...current, lastError: null }
-      : current);
-  }
+  useEffect(() => {
+    const node = transcriptRef.current;
+    if (node) node.scrollTop = node.scrollHeight;
+  }, [messages.length, runState]);
 
-  function updateGoal(value: string) {
-    setGoal(value);
-    setJourney((current) => ["assignment-input-missing", "assignment-too-long"].includes(current.lastError ?? "")
-      ? { ...current, lastError: null }
-      : current);
-  }
+  const createSession = useCallback(async () => {
+    setNotice(null);
+    const key = `aifb-${Date.now().toString(36)}`;
+    try {
+      const created = await call<{ key: string }>("sessions.create", {
+        key,
+        displayName: "Phiên mới",
+        label: key
+      });
+      await refreshSessions();
+      await openSession(created.key ?? key);
+    } catch (error) {
+      setNotice(String((error as Error)?.message ?? error));
+    }
+  }, [openSession, refreshSessions]);
 
-  function resetDemo() {
-    setJourney(createInitialFirstRunState());
-    setFixtureId(CONNECTION_FIXTURES[0].id);
-    setIdentity(defaultIdentity);
-    setGoal("");
-  }
+  const send = useCallback(
+    async (event: FormEvent) => {
+      event.preventDefault();
+      const text = draft.trim();
+      if (!text || !activeKey || busy) return;
+      setDraft("");
+      setBusy(true);
+      setRunState("started");
+      setMessages((current) => [
+        ...current,
+        { id: `local-${Date.now()}`, role: "user", content: text, timestamp: Date.now(), pending: true }
+      ]);
+      try {
+        await call("sessions.send", { key: activeKey, message: text });
+      } catch (error) {
+        setBusy(false);
+        setNotice(String((error as Error)?.message ?? error));
+      }
+    },
+    [activeKey, busy, draft]
+  );
 
-  async function handleInstallVerification() {
-    const nextStatus = await requestShellStatus();
-    const ready = Boolean(nextStatus && nextStatus.releaseTrain.id !== "unavailable");
-    if (nextStatus) setStatus(nextStatus);
-    setBridgeReady(ready);
-    setJourney((current) => verifyInternalInstall(current, ready));
-  }
+  const abort = useCallback(async () => {
+    if (!activeKey) return;
+    await call("chat.abort", { sessionKey: activeKey }).catch(() => {});
+    setBusy(false);
+  }, [activeKey]);
+
+  const availableModels = useMemo(() => models.filter((model) => model.available !== false), [models]);
+  const supervisorLabel = SUPERVISOR_LABELS[runtime.supervisor] ?? runtime.supervisor;
+  const supervisorDetail = runtime.detail ? (SUPERVISOR_DETAILS[runtime.detail] ?? runtime.detail) : null;
 
   return (
-    <main className="first-run-shell">
-      <aside className="journey-rail" aria-label={locale === "vi" ? "Hành trình khởi tạo" : "First-run journey"}>
-        <header className="brand-block"><div className="brand-glyph" aria-hidden="true"><span /><span /></div><div><strong>AI for Boss</strong><small>{text.builtOn}</small></div></header>
-        <section className="journey-intro"><span className="internal-badge">{text.badge}</span><h1>{text.railTitle}</h1><p>{text.railBody}</p></section>
-        <ol className="stepper">
-          {text.steps.map((title, index) => <li key={title} aria-current={step === index + 1 && journey.stage !== "COMPLETE" ? "step" : undefined} className={step === index + 1 ? "current" : step > index + 1 || journey.stage === "COMPLETE" ? "done" : ""}><span>0{index + 1}</span><strong>{title}</strong></li>)}
-        </ol>
-        <footer className="rail-footer"><span className={`health-dot ${bridgeReady ? "ready" : ""}`} /><div><strong>{status.releaseTrain.id}</strong><small>OpenClaw {status.releaseTrain.openclaw} · Electron {status.releaseTrain.electron}</small></div></footer>
+    <div className="workspace">
+      <aside className="workspace__rail">
+        <div className="brand-block">
+          <span className="brand-glyph" aria-hidden="true">
+            <span />
+            <span />
+          </span>
+          <span>
+            <strong>AI for Boss</strong>
+            <small>BUILT ON OPENCLAW</small>
+          </span>
+        </div>
+
+        <div className="rail-actions">
+          <button type="button" onClick={createSession} disabled={!runtime.connected}>
+            Phiên mới
+          </button>
+        </div>
+
+        <nav className="session-list" aria-label="Danh sách phiên">
+          {sessions.length === 0 ? (
+            <p className="empty-hint">
+              {runtime.connected ? "Chưa có phiên nào. Bấm “Phiên mới” để bắt đầu." : "Đang chờ OpenClaw khởi động…"}
+            </p>
+          ) : (
+            sessions.map((session) => (
+              <button
+                key={session.key}
+                type="button"
+                className={session.key === activeKey ? "session-item session-item--active" : "session-item"}
+                onClick={() => openSession(session.key)}
+              >
+                <strong>{session.displayName ?? session.label ?? shortSessionKey(session.key)}</strong>
+                <small>{shortSessionKey(session.key)}</small>
+              </button>
+            ))
+          )}
+        </nav>
       </aside>
 
-      <section className="journey-main">
-        <header className="topbar"><span className="preview-badge">{text.preview}</span><div className="top-actions"><button type="button" className="quiet-button" aria-label={text.language} onClick={() => setLocale(locale === "vi" ? "en" : "vi")}>{locale === "vi" ? "EN" : "VI"}</button><button type="button" className="quiet-button" aria-label={text.theme} onClick={() => setTheme(theme === "light" ? "dark" : "light")}>{theme === "light" ? "◐" : "◑"}</button></div></header>
-        <div className="stage-wrap">
-          {journey.stage === "INSTALL" && <section className="stage-card" data-stage="install-check"><p className="kicker">{text.installKicker}</p><h2 ref={stageHeadingRef} tabIndex={-1}>{text.installTitle}</h2><p className="stage-lead">{text.installLead}</p><ul className="check-list" aria-live="polite">{readinessChecks.map((item) => <li key={item.label} className={item.passed ? "passed" : "pending"}><span aria-hidden="true">{item.passed ? "✓" : "…"}</span>{item.label}</li>)}</ul><button className="primary-button" type="button" onClick={() => void handleInstallVerification()}>{text.verify}</button></section>}
+      <main className="workspace__main">
+        <header className="workspace__header">
+          <div>
+            <h1>{activeKey ? shortSessionKey(activeKey) : "Chưa mở phiên"}</h1>
+            <p>
+              {runtime.connected
+                ? `OpenClaw ${runtime.serverVersion ?? "?"} · giao thức v${runtime.protocol ?? "?"}`
+                : supervisorLabel}
+            </p>
+          </div>
+          <span className={`run-pill run-pill--${runState ?? "idle"}`}>
+            {busy ? "Đang chạy" : runState === "error" ? "Lỗi" : "Sẵn sàng"}
+          </span>
+        </header>
 
-          {journey.stage === "CONNECT" && <section className="stage-card wide" data-stage="connect-genesis"><span className="mock-banner">{text.mock}</span><p className="kicker">{text.connectKicker}</p><h2 ref={stageHeadingRef} tabIndex={-1}>{text.connectTitle}</h2><p className="stage-lead">{text.connectLead}</p>
-            <div className="form-grid"><label className="span-2">{text.fixture}<select disabled={journey.connection.status === "connected-fixture"} value={journey.connection.fixtureId ?? fixtureId} onChange={(event) => setFixtureId(event.target.value)}>{CONNECTION_FIXTURES.map((fixture) => <option key={fixture.id} value={fixture.id}>{fixture.provider} · {fixture.model}</option>)}</select></label></div>
-            {journey.connection.status !== "connected-fixture" ? <div className="form-actions"><span /><button className="primary-button" type="button" onClick={() => setJourney((current) => connectFixture(current, fixtureId))}>{text.connect}</button></div> : <form onSubmit={handleGenesis} noValidate><div className="agent-chip"><span aria-hidden="true">{identity.emoji || "◌"}</span><div><strong>{text.connected}</strong><small>{text.mock}</small></div></div><div className="form-grid">
-              <label>{text.name}<input required maxLength={200} aria-invalid={identityFieldMissing("name")} aria-describedby={identityFieldMissing("name") ? "name-error" : undefined} value={identity.name} onChange={(event) => updateIdentity("name", event.target.value)} />{identityFieldMissing("name") && <em id="name-error">{text.requiredField}</em>}</label>
-              <label>{text.role}<input required maxLength={200} aria-invalid={identityFieldMissing("role")} aria-describedby={identityFieldMissing("role") ? "role-error" : undefined} value={identity.role} onChange={(event) => updateIdentity("role", event.target.value)} />{identityFieldMissing("role") && <em id="role-error">{text.requiredField}</em>}</label>
-              <label>{text.tone}<input required maxLength={200} aria-invalid={identityFieldMissing("tone")} aria-describedby={identityFieldMissing("tone") ? "tone-error" : undefined} value={identity.tone} onChange={(event) => updateIdentity("tone", event.target.value)} />{identityFieldMissing("tone") && <em id="tone-error">{text.requiredField}</em>}</label>
-              <label>{text.emoji}<input required maxLength={200} aria-invalid={identityFieldMissing("emoji")} aria-describedby={identityFieldMissing("emoji") ? "emoji-error" : undefined} value={identity.emoji} onChange={(event) => updateIdentity("emoji", event.target.value)} />{identityFieldMissing("emoji") && <em id="emoji-error">{text.requiredField}</em>}</label>
-              <label>{text.address}<input required maxLength={200} aria-invalid={identityFieldMissing("userAddress")} aria-describedby={identityFieldMissing("userAddress") ? "address-error" : undefined} value={identity.userAddress} onChange={(event) => updateIdentity("userAddress", event.target.value)} />{identityFieldMissing("userAddress") && <em id="address-error">{text.requiredField}</em>}</label>
-              <label>{text.priority}<input required maxLength={200} aria-invalid={identityFieldMissing("priority")} aria-describedby={identityFieldMissing("priority") ? "priority-error" : undefined} value={identity.priority} onChange={(event) => updateIdentity("priority", event.target.value)} />{identityFieldMissing("priority") && <em id="priority-error">{text.requiredField}</em>}</label>
-              <label className="span-2">{text.boundary}<textarea required maxLength={200} aria-invalid={identityFieldMissing("boundary")} aria-describedby={identityFieldMissing("boundary") ? "boundary-error" : undefined} value={identity.boundary} onChange={(event) => updateIdentity("boundary", event.target.value)} />{identityFieldMissing("boundary") && <em id="boundary-error">{text.requiredField}</em>}</label>
-            </div><div className="form-actions"><span /><button className="primary-button" type="submit">{text.birth}</button></div></form>}
-          </section>}
+        <AdvisorSlot />
 
-          {journey.stage === "ASSIGN" && <section className="stage-card" data-stage="first-assignment"><p className="kicker">{text.assignKicker}</p><h2 ref={stageHeadingRef} tabIndex={-1}>{text.assignTitle}</h2><p className="stage-lead">{text.assignLead}</p><form onSubmit={handleTask} noValidate><label className="task-field">{text.task}<textarea required maxLength={1200} aria-invalid={missingTask} aria-describedby={missingTask ? "task-error" : undefined} placeholder={text.taskPlaceholder} value={goal} onChange={(event) => updateGoal(event.target.value)} />{missingTask && <em id="task-error">{text.taskRequired}</em>}</label><section className="permission-preview"><h3>{text.permissionTitle}</h3><dl><div><dt>{text.data}</dt><dd>{text.none}</dd></div><div><dt>{text.permissions}</dt><dd>{text.none}</dd></div><div><dt>{text.budget}</dt><dd>{text.zero}</dd></div></dl></section><div className="form-actions"><span /><button className="primary-button" type="submit">{text.create}</button></div></form></section>}
-
-          {journey.stage === "COMPLETE" && <section className="stage-card" data-stage="complete"><p className="kicker">{text.completeKicker}</p><h2 ref={stageHeadingRef} tabIndex={-1}>{text.completeTitle}</h2><p className="stage-lead">{text.completeLead}</p><article className="mock-plan"><header><span aria-hidden="true">◇</span><div><strong>{text.samplePlan}</strong><small>{text.advisor} · {text.advisorNote}</small></div></header><ol>{journey.task.draft?.plan.map((stepId, index) => <li key={stepId}>{text.planSteps[index]}</li>)}</ol></article><blockquote className="stage-lead">“{journey.task.draft?.goal}”</blockquote><button className="secondary-button" type="button" onClick={resetDemo}>{text.again}</button></section>}
-          {error && <p className="form-error" role="alert">{error}</p>}
+        <div className="transcript" ref={transcriptRef}>
+          {messages.length === 0 ? (
+            <p className="empty-hint">
+              Bản thử nghiệm 0 mở đúng một cửa sổ trò chuyện trên lõi OpenClaw thật. Chưa kết nối nhà cung cấp model nên
+              lượt chạy sẽ báo lỗi thiếu khoá; đó là hành vi đúng ở bước này.
+            </p>
+          ) : (
+            messages.map((message) => (
+              <article key={message.id} className={`bubble bubble--${message.role}`}>
+                <span className="bubble__role">{message.role === "user" ? "Bạn" : "Agent"}</span>
+                <p>{message.content}</p>
+              </article>
+            ))
+          )}
         </div>
-      </section>
 
-      <aside className="safety-panel" aria-label={locale === "vi" ? "Hợp đồng an toàn" : "Safety contract"}><p className="eyebrow">{text.context}</p><div className="lock-orbit" aria-hidden="true"><span>⌁</span></div><dl className="safety-list"><div><dt>{text.genesis}</dt><dd>{journey.genesis.state}</dd></div><div><dt>{text.bootstrap}</dt><dd>{journey.genesis.bootstrapRetained ? text.retained : text.removed}</dd></div><div><dt>{text.reportReady}</dt><dd>{journey.genesis.reportReady ? text.yesPreview : text.no}</dd></div><div><dt>{text.gateway}</dt><dd>{text.unavailable}</dd></div><div><dt>{text.stateSource}</dt><dd>{text.memoryOnly}</dd></div><div><dt>Advisor plan / final</dt><dd>pending-runtime</dd></div></dl><footer><span>INTERNAL</span><p>{status.classification}<br />{text.mock}</p></footer></aside>
-    </main>
+        {notice ? (
+          <div className="notice" role="status">
+            <strong>Thông báo từ Gateway</strong>
+            <p>{notice}</p>
+            <button type="button" onClick={() => setNotice(null)}>
+              Đóng
+            </button>
+          </div>
+        ) : null}
+
+        <form className="composer" onSubmit={send}>
+          <label className="sr-only" htmlFor="composer-input">
+            Nội dung gửi cho agent
+          </label>
+          <textarea
+            id="composer-input"
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            placeholder={activeKey ? "Giao việc cho agent…" : "Mở hoặc tạo một phiên trước khi giao việc"}
+            disabled={!activeKey || !runtime.connected}
+            rows={3}
+          />
+          <div className="composer__footer">
+            <span className="model-pill">
+              {usage.model ?? availableModels[0]?.id ?? "chưa có model khả dụng"}
+            </span>
+            <div className="composer__actions">
+              {busy ? (
+                <button type="button" onClick={abort}>
+                  Dừng
+                </button>
+              ) : null}
+              <button type="submit" disabled={!activeKey || !runtime.connected || draft.trim().length === 0}>
+                Gửi
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <footer className="statusbar">
+          <span className={`statusbar__dot statusbar__dot--${runtime.connected ? "ready" : runtime.supervisor}`} />
+          <span>{supervisorLabel}</span>
+          {supervisorDetail ? <span className="statusbar__detail">{supervisorDetail}</span> : null}
+          <ContextMeter usage={usage} />
+        </footer>
+      </main>
+
+      <aside className="workspace__panel">
+        <h2>Trạng thái nền</h2>
+        <dl>
+          <dt>Gateway</dt>
+          <dd>{runtime.connected ? "đã kết nối" : supervisorLabel}</dd>
+          <dt>Phiên bản OpenClaw</dt>
+          <dd>{runtime.serverVersion ?? "—"}</dd>
+          <dt>Giao thức</dt>
+          <dd>{runtime.protocol ? `v${runtime.protocol}` : "—"}</dd>
+          <dt>Node runtime</dt>
+          <dd className="mono">{runtime.nodeRuntime ?? "—"}</dd>
+          <dt>Thư mục dữ liệu</dt>
+          <dd className="mono">{runtime.stateDirectory ?? "—"}</dd>
+          <dt>Model khả dụng</dt>
+          <dd>{availableModels.length}</dd>
+        </dl>
+
+        <h2>Ranh giới của bản này</h2>
+        <ul className="boundary-list">
+          <li>Gateway chỉ nghe loopback, token sinh mới mỗi lần mở app.</li>
+          <li>Giao diện không tự mở kết nối mạng; mọi lệnh đi qua danh sách cho phép ở tiến trình chính.</li>
+          <li>Chưa bật tool, duyệt hành động, Advisor, dự án và bộ cài.</li>
+        </ul>
+
+        {shell ? (
+          <p className="panel-footnote">
+            {shell.product.name} {shell.product.version} · {shell.classification}
+          </p>
+        ) : null}
+
+        {runtime.lastError ? <p className="panel-error">{runtime.lastError}</p> : null}
+      </aside>
+    </div>
   );
 }
 

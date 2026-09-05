@@ -22,22 +22,25 @@ Stop if any required file is missing, its governance hash fails, or the requeste
 
 ## Current scope
 
-**Gate 0, Feature 0.6 — Sandbox feasibility ADR and fixture-only spike** is the
-active scope on `feature/0.6-sandbox-feasibility`, based on the verified Feature
-0.5 checkpoint `cf5edc5`. The active Feature Spec is
-`docs/feature-specs/0006-sandbox-feasibility.md`.
+**Beta 0 — supervised OpenClaw runtime and one chat window** is in progress on
+`experiment/beta-0`, from the merge of Feature 0.5 and Feature 0.6 at `8f43070`.
+The Feature Spec is `docs/feature-specs/0007-beta-0-supervised-openclaw.md`.
 
-Feature 0.6 compares local managed containers, remote OpenShell/SSH and native
-OS restrictions. Its policy, probe and tests may prove fail-closed contract
-logic, platform-presence hints and temporary-fixture containment only. They do
-not prove real sandbox isolation or make an execution backend production-ready.
+Gate 0 work is merged: Feature 0.4 contains the Electron shell, sandboxed
+renderer and experimental CI package matrix; Feature 0.5 contains the fixture
+first-run journey, now living at `apps/desktop/src/first-run/`; Feature 0.6
+contains the sandbox ADR and probe. Independent senior platform/security review
+is still an open Gate 0 requirement.
 
-Keep product host execution, elevated execution, sensitive browser automation,
-unrestricted network, arbitrary workspace mounts and credential injection
-blocked. Do not install or start Docker, OpenShell, SSH hosts, VMs, services or
-system software without explicit approval. Do not implement Supervisor, Gateway,
-OAuth or Feature 1.1 in this working session. Senior platform/security review
-and Product Owner backend acceptance remain Gate 0 requirements.
+Beta 0 adds the Gateway Supervisor, host-owned device identity, the adapter over
+the published `@openclaw/gateway-client`, a closed IPC bridge and a single chat
+window. It runs the `oc-2026.9.1-candidate.1` candidate train, which is not the
+locked release train and must not be described as one.
+
+Do not add installer or updater logic, provider OAuth or API keys, agent runtime
+selection, real Advisor orchestration, tools, approvals, browser, terminal,
+plugins, skills or project management during beta 0. The sandbox defaults from
+D-0018 stay closed.
 
 ## Build discipline
 

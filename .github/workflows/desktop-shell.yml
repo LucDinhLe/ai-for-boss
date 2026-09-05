@@ -58,6 +58,20 @@ jobs:
       - name: Audit dependency graph
         run: pnpm audit --audit-level high
 
+      # Beta 0 answers the platform question with the product's own Supervisor
+      # and adapter, on a real OpenClaw install, before any packaging claim.
+      - name: Smoke the supervised OpenClaw Gateway
+        run: pnpm smoke:gateway
+
+      - name: Upload gateway smoke evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1, Node 24
+        with:
+          name: ai-for-boss-${{ matrix.label }}-gateway-smoke
+          path: artifacts/beta-0/
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Package current platform
         run: pnpm package:desktop
 

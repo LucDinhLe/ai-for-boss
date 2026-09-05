@@ -1,56 +1,38 @@
 # PROGRESS — AI for Boss
 
-Cập nhật: 2026-08-12
-Nhánh: `feature/0.6-sandbox-feasibility`
-Base: `cf5edc5` của `feature/0.5-first-run-journey`
+Cập nhật: 2026-09-05
+Nhánh: `experiment/beta-0`
+Base: `8f43070` (hợp nhất `feature/0.6-sandbox-feasibility` vào nhánh thử nghiệm)
 
 ## Phạm vi phiên này
 
-Feature 0.6: sandbox feasibility ADR và spike tối thiểu. Không triển khai Supervisor, Gateway, OAuth, runtime sandbox thật hoặc Feature 1.1 trong cùng phiên.
+Beta 0: nuôi một Gateway OpenClaw thật bên trong ứng dụng và mở một cửa sổ trò chuyện tối thiểu trên đó. Không làm bộ cài, updater, kết nối nhà cung cấp model, Advisor thật, tool, duyệt hành động hay quản lý dự án.
 
-## Đã hoàn thành trong worktree
+## Đã hoàn thành
 
-- So sánh local managed container, OpenShell/SSH và native OS restrictions bằng nguồn chính thức.
-- Tạo ADR, manifest/schema và khuyến nghị `preferred-contingent` cho local managed container.
-- Giữ mặc định sản phẩm: execution blocked, sandbox off, workspace/network none, không automatic fallback.
-- Tạo policy, probe fixture-only, validator và contract tests.
-- Probe không cài phần mềm, không credential, không network và không spawn sandbox/runtime thật.
-- Bổ sung test unsupported OS, cleanup failure đã làm sạch, realpath escape, platform mismatch, stale report, forged promotion và silent fallback.
-- Promotion policy khóa độc lập Product Owner acceptance, independent review, real three-OS isolation evidence và bảy control bắt buộc; validator từ chối cả khi schema cùng manifest bị hạ cấp đồng thời.
-- Source guard yêu cầu exact reviewed-source SHA-256 rồi áp dụng TypeScript AST allowlist; exact probe report schema chặn field/path/env/capability giả; claim ledger tách upstream fact, analyst inference, product policy và assumption.
-- Semantic direction digests khóa exact ba-OS coverage cùng isolation, network và remaining-blocked-capability claims độc lập với schema.
-- Governance workflow cài frozen dependency graph trước contract tests; clean staged-tree repro đã bắt việc local `node_modules` từng che lỗi thiếu `typescript` trên CI.
-- GitHub Actions `checkout`, `setup-node` và `upload-artifact` đã được nâng sang release chính thức dùng Node 24 và khóa bằng commit SHA; Feature validator chặn tag trôi nổi cùng các SHA Node 20 cũ.
-- Probe đã bỏ child-file read/write và recursive cleanup sau khi reviewer tái hiện write-before-containment; hiện chỉ tạo thư mục tạm rỗng, tái canonicalize ngay trước `rmdirSync` và fail closed nếu root đổi.
-- Promotion readiness có `pending`, `rejected`, `eligible`, nhưng mọi trạng thái đều `activationAllowed:false` trong Feature 0.6.
-- Threat manifest liên kết R-028/R-029/R-030 với T-02/T-03/T-08/T-10/T-14 và Feature validator kiểm tra Decision/Risk/Threat/Capability/Readiness/Audit/Handoff.
-- Cập nhật Decision Log, Risk Register, capability inventory, threat model, changelog và governance required-file list.
+- Supervisor: cổng loopback do hệ điều hành cấp, token sinh mới mỗi lần mở, spawn gói `openclaw` đã cài bằng Node runtime thật, bộ biến môi trường nhúng theo `docs/gateway/embedding.md`, xử lý mã thoát 78 bằng một lượt `doctor --fix`, khởi động lại tối đa ba lần mỗi phút rồi Safe Mode, tắt sạch khi thoát.
+- Danh tính thiết bị Ed25519 do host giữ; `deviceId` dẫn xuất bằng đúng luật của Gateway; device token lưu theo vai trò; tệp hỏng hoặc bị sửa thì thay chứ không tin.
+- Adapter trên `@openclaw/gateway-client` công khai: handshake, vai trò `operator` với ba scope của chat, danh sách 18 phương thức cho phép, 7 sự kiện được chuyển tiếp.
+- Cầu IPC đóng: ba kênh gọi vào, một helper nhận sự kiện, mọi lệnh kiểm tra người gửi rồi đối chiếu danh sách cho phép ở tiến trình chính.
+- Cửa sổ trò chuyện: danh sách phiên, tạo phiên, gửi và dừng lượt chạy, transcript theo thời gian thực, đồng hồ dung lượng ngữ cảnh, bảng trạng thái nền, ô Advisor ghi rõ "chưa bật", tiếng Việt.
+- Hành trình first-run bằng fixture chuyển sang `apps/desktop/src/first-run/`, giữ nguyên mọi bất biến Feature 0.5.
+- Smoke tích hợp chạy chính Supervisor và Adapter của sản phẩm; thêm vào CI cho Windows, macOS và Linux.
+- Candidate train `oc-2026.9.1-candidate.1` tách khỏi locked train, kèm năm điều kiện chưa đạt.
 
-## Đã kiểm chứng local
+## Bằng chứng
 
-- Targeted Feature 0.6: 25/25.
-- Full suite: 80/80.
-- Lint, typecheck, Vite build và validators Feature 0.4/0.5/0.6: pass.
-- Governance: 105 required files, 124 text files, 52 Markdown files.
-- Dependency audit: không có lỗ hổng đã biết.
-- JSON Schema Draft 2020-12/manifest và `git diff --check`: pass.
-- Windows package/ASAR: 75 files, 13 allowlisted entries, unsigned/non-distributable.
+- `pnpm verify` xanh: 105 test, lint, typecheck, build, bốn validator.
+- `artifacts/beta-0/gateway-smoke-linux-x64.json`: handshake đạt trong 7,5 giây, giao thức v4, máy chủ 2026.9.1, 388 phương thức, bảy RPC đọc đạt, `config.patch` bị chặn đúng như thiết kế, không dùng Linux subsystem.
+- `artifacts/beta-0/app-launch-linux-x64.json`: ứng dụng Electron chạy thật dưới Xvfb, nuôi tiến trình con, được Gateway duyệt thiết bị với vai trò `operator`, lần mở thứ hai dùng lại danh tính đã lưu.
+- `artifacts/beta-0/gateway-handshake.json`: danh mục đầy đủ 388 phương thức và 61 sự kiện của bản đã ghim, dùng làm cơ sở cho các bước sau.
 
-## Bàn giao kỹ thuật đã hoàn tất
+## Chưa xong và biết rõ
 
-- Hai review AI độc lập cùng exact fingerprint `86f595e4…cda1` đều PASS, không có finding Critical/High; review này không thay senior human review.
-- Implementation checkpoint `25d523baa6212c88a8a35797daf59226f3ba3588` đã push lên `feature/0.6-sandbox-feasibility`.
-- Draft PR #6 target `feature/0.5-first-run-journey` vẫn mở ở trạng thái Draft.
-- CI trên implementation checkpoint xanh 4/4: Windows, macOS, Linux và governance; không còn cảnh báo action runtime Node 20.
+- Windows và macOS chưa có bằng chứng; câu trả lời cho câu hỏi WSL2 nằm ở lượt CI đầu tiên trên nhánh này (R-031).
+- Runtime agent mặc định là `codex` và harness đó vắng mặt, nên lượt chạy báo lỗi trước khi gọi model. Ứng dụng hiển thị nguyên văn lỗi (R-032).
+- Bản đóng gói vẫn chưa mang theo Node runtime nên chưa chạy được trên máy sạch; đó là việc của bước bộ cài.
+- Senior platform/security review độc lập vẫn là điều kiện chưa đạt của Cổng 0.
 
-## Gate còn mở
+## Bước nhỏ kế tiếp
 
-- Product Owner chưa chấp nhận backend production.
-- Senior platform reviewer và independent security reviewer chưa ký.
-- Chưa chạy Docker/OpenShell/SSH/AppContainer/App Sandbox/Linux sandbox thật.
-- Chưa test máy người dùng thật, cài đặt, recovery/update hoặc adversarial escape của backend.
-- R-001, R-028, R-029 và R-030 tiếp tục mở; capability host exec/elevated/browser/network/credential vẫn khóa.
-
-## Điểm tiếp theo
-
-Feature 0.6 đã bàn giao kỹ thuật. Sau khi Gate 0 có quyết định Product Owner và chữ ký reviewer bắt buộc, phiên riêng kế tiếp mới được mở Feature 1.1: Supervisor spawn OpenClaw nhúng trên Windows x64. Không nối runtime trước sandbox/review gate. Implementation checkpoint là `25d523baa6212c88a8a35797daf59226f3ba3588`; commit đóng hồ sơ được giữ riêng để rollback độc lập.
+Đọc kết quả smoke ba nền tảng từ CI của nhánh này, rồi quyết định: chọn agent runtime `openclaw` cùng đường xác thực nhà cung cấp (bước 2), hay xử lý trước ràng buộc WSL nếu Windows thất bại.

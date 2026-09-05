@@ -60,13 +60,23 @@ for (const [key, expected] of Object.entries(expectedPreferences)) {
   requireEqual(options.webPreferences[key], expected, `webPreferences.${key}`);
 }
 
+// Beta 0 (D-0018) widens the preload from one read call to the three invoke
+// channels and one receive helper the supervised runtime needs. The surface
+// stays closed: renderer→main is invoke-only against a named allowlist, and
+// main→renderer carries only events the adapter already filtered.
 const preloadInvokes = [...preload.matchAll(/ipcRenderer\.invoke\(([^)]+)\)/g)];
-requireEqual(preloadInvokes.length, 1, "preload invoke count");
-if (!preload.includes('"aifb:shell-status"')) {
-  failures.push("preload does not use the allowlisted shell-status channel");
+requireEqual(preloadInvokes.length, 3, "preload invoke count");
+for (const channel of ["aifb:shell-status", "aifb:gateway-request", "aifb:gateway-status"]) {
+  if (!preload.includes(`"${channel}"`)) {
+    failures.push(`preload does not use the allowlisted channel ${channel}`);
+  }
 }
-if (/ipcRenderer\.(?:send|sendSync|on|once)\s*\(/.test(preload)) {
-  failures.push("preload exposes a forbidden mutable or subscription IPC method");
+if (/ipcRenderer\.(?:send|sendSync|once)\s*\(/.test(preload)) {
+  failures.push("preload exposes a forbidden mutable IPC method");
+}
+requireEqual([...preload.matchAll(/ipcRenderer\.on\s*\(/g)].length, 1, "preload subscription helper count");
+if (!preload.includes("ipcRenderer.removeListener")) {
+  failures.push("preload subscriptions cannot be released");
 }
 if (!main.includes("app.enableSandbox()")) {
   failures.push("Electron main does not enable the global sandbox");

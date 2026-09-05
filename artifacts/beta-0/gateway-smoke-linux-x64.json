@@ -1,0 +1,48 @@
+{
+  "recordedAt": "2026-09-05T05:14:58.758Z",
+  "scope": "AI for Boss beta 0 — supervised OpenClaw Gateway, isolated state, no provider credential",
+  "host": {
+    "platform": "linux",
+    "arch": "x64",
+    "release": "6.18.44-fc-v24",
+    "node": "v24.19.0"
+  },
+  "linuxSubsystemUsed": false,
+  "supervisor": {
+    "nodeExecutable": "resolved",
+    "openclawEntryResolved": true,
+    "boundPort": true,
+    "state": "ready",
+    "stoppedCleanly": true
+  },
+  "handshake": {
+    "connected": true,
+    "elapsedMs": 7541,
+    "protocol": 4,
+    "serverVersion": "2026.9.1",
+    "methodCount": 388,
+    "scopes": [
+      "operator.read",
+      "operator.write",
+      "operator.approvals"
+    ],
+    "deviceTokenMinted": true
+  },
+  "probes": {
+    "health": "ok",
+    "models.list": "ok",
+    "models.authStatus": "ok",
+    "sessions.list": "ok",
+    "agents.list": "ok",
+    "projects.list": "ok",
+    "usage.status": "ok",
+    "config.patch": "blocked: Method not allowed for the renderer: config.patch"
+  },
+  "failures": [],
+  "runtime": {
+    "openclaw": "2026.9.1",
+    "gatewayClient": "2026.9.1",
+    "gatewayProtocol": "2026.9.1"
+  },
+  "allowlistSize": 18
+}

@@ -106,3 +106,23 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 ### Blocked
 
 - Chưa có Supervisor, AI for Boss Gateway Adapter, sandbox sản phẩm, installer, updater hoặc signing identity; chưa được phát hành cho người dùng.
+
+### Beta 0 — OpenClaw được giám sát (2026-09-05, nhánh `experiment/beta-0`)
+
+- Supervisor trong tiến trình chính Electron nuôi một Gateway OpenClaw thật: cổng loopback do hệ điều hành cấp, token sinh mới mỗi lần mở, bộ biến môi trường nhúng theo `docs/gateway/embedding.md`, khởi động lại có giới hạn, Safe Mode và tắt sạch khi thoát.
+- Danh tính thiết bị Ed25519 do ứng dụng giữ, `deviceId` dẫn xuất đúng luật Gateway, device token lưu theo vai trò; tệp hỏng hoặc bị sửa thì thay chứ không tin.
+- Adapter trên `@openclaw/gateway-client` đã phát hành công khai, thay cho kế hoạch tự viết client trong D-0013.
+- Cầu IPC đóng: ba kênh renderer gọi vào, một helper nhận sự kiện, danh sách 18 phương thức cho phép và 7 sự kiện được chuyển tiếp, có test chặn `config.patch`, `tools.invoke`, `terminal.open`, `plugins.install` và các bề mặt chưa xây.
+- Cửa sổ trò chuyện đầu tiên trên lõi thật: danh sách phiên, tạo phiên, gửi và dừng lượt chạy, transcript theo thời gian thực, đồng hồ dung lượng ngữ cảnh, bảng trạng thái nền, chỗ dành cho Advisor ghi rõ "chưa bật", toàn bộ tiếng Việt.
+- Hành trình first-run bằng fixture chuyển sang `apps/desktop/src/first-run/`, giữ nguyên mọi bất biến của Feature 0.5.
+- Smoke tích hợp chạy chính Supervisor và Adapter của sản phẩm, thêm vào CI cho Windows, macOS và Linux, ghi bằng chứng máy đọc được vào `artifacts/beta-0/`.
+- Candidate train `oc-2026.9.1-candidate.1` tách khỏi locked train, kèm năm điều kiện chưa đạt để được promote.
+
+### Changed
+
+- Bề mặt preload mở rộng từ một lệnh đọc lên ba kênh gọi vào và một helper nhận sự kiện; validator và contract test được cập nhật để khoá đúng bề mặt mới thay vì nới lỏng.
+
+### Known
+
+- Runtime agent mặc định của OpenClaw trong thư mục state trắng là `codex` và harness đó vắng mặt, nên lượt chạy báo lỗi trước khi gọi model. Beta 0 hiển thị nguyên văn lỗi; chọn runtime và nhà cung cấp là việc của bước sau (R-032).
+- Câu hỏi Windows có cần WSL2 hay không chưa có câu trả lời cho tới khi CI chạy smoke trên runner Windows (R-031).
