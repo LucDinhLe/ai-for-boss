@@ -322,3 +322,49 @@ label em { min-height: 13px; color: var(--danger); font-size: 9px; font-style: n
 .boundary-list { margin: 0 0 20px; padding-left: 16px; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .panel-footnote { margin: 0; color: var(--muted); font-size: 11px; }
 .panel-error { margin: 12px 0 0; padding: 9px 11px; border: 1px solid var(--danger); border-radius: 8px; color: var(--danger); font-size: 11.5px; line-height: 1.5; }
+
+/* ---------------------------------------------------------------------------
+   Connect screen. The provider list is whatever OpenClaw reports, so the layout
+   has to hold an unknown number of groups without turning into a wall.
+   --------------------------------------------------------------------------- */
+
+.connect { display: flex; flex-direction: column; gap: 14px; overflow-y: auto; width: 100%; height: 100%; padding: 28px 32px 36px; background: var(--surface); }
+.connect__header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.connect__header h1 { margin: 0; font-size: 17px; font-weight: 600; }
+.connect__header button { padding: 6px 12px; border: 1px solid var(--hairline); border-radius: 7px; background: transparent; font-size: 12.5px; }
+.connect h2 { margin: 12px 0 2px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.connect h3 { margin: 0 0 5px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.connect__lead { max-width: 74ch; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.connect__hint { margin: 0; color: var(--muted); font-size: 12px; }
+
+.connect__options { display: flex; flex-direction: column; gap: 6px; }
+.connect__options--row { flex-direction: row; gap: 8px; }
+.connect__options button, .connect__group button {
+  display: block;
+  padding: 10px 13px;
+  border: 1px solid var(--hairline);
+  border-radius: 9px;
+  background: var(--paper);
+  text-align: left;
+}
+.connect__options button:hover:not(:disabled), .connect__group button:hover:not(:disabled) { border-color: var(--copper); background: var(--copper-soft); }
+.connect__options strong, .connect__group strong { display: block; font-size: 13px; font-weight: 500; }
+.connect__options small, .connect__group small { display: block; margin-top: 2px; color: var(--muted); font-size: 11.5px; line-height: 1.45; }
+.connect__options--row button { min-width: 116px; text-align: center; }
+
+.connect__groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(258px, 1fr)); gap: 14px; }
+.connect__group { display: flex; flex-direction: column; gap: 5px; }
+
+.connect__origin { padding: 11px 13px; border: 1px solid var(--hairline); border-radius: 9px; background: var(--paper-deep); }
+.connect__origin--primary { border-style: dashed; }
+.connect__origin pre { margin: 0; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.55; white-space: pre-wrap; }
+.connect__note { margin: 0 0 7px; color: var(--muted); font-size: 11.5px; }
+
+.connect__form { display: flex; gap: 8px; }
+.connect__form input { flex: 1; padding: 9px 12px; border: 1px solid var(--hairline); border-radius: 8px; background: var(--paper); font-size: 13px; }
+.connect__form button { padding: 9px 16px; border: 1px solid var(--copper); border-radius: 8px; background: var(--copper-soft); font-size: 12.5px; }
+
+.connect__footer { display: flex; align-items: center; gap: 12px; margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--hairline); }
+.connect__footer button { padding: 8px 15px; border: 1px solid var(--copper); border-radius: 8px; background: var(--copper-soft); font-size: 12.5px; }
+.connect__verdict { color: var(--muted); font-size: 12.5px; }
+.connect__error { margin: 0; padding: 10px 12px; border: 1px solid var(--danger); border-radius: 8px; color: var(--danger); font-size: 12.5px; line-height: 1.5; word-break: break-word; }

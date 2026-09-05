@@ -22,6 +22,7 @@ import {
   resolveNodeExecutable
 } from "../apps/desktop/electron/supervisor.mjs";
 import { GatewayAdapter, ALLOWED_METHODS } from "../apps/desktop/electron/gateway-adapter.mjs";
+import { SetupChannel, SETUP_METHODS } from "../apps/desktop/electron/setup-channel.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const requireFromDesktop = createRequire(path.join(repoRoot, "apps", "desktop", "package.json"));
@@ -193,6 +194,35 @@ async function main() {
       record.probes["config.patch"] = `blocked: ${error?.message ?? error}`;
     }
     record.allowlistSize = ALLOWED_METHODS.length;
+
+    // The Connect screen runs on a second, admin-scoped connection. Prove it
+    // reaches the provider catalogue and refuses everything else.
+    const setup = new SetupChannel({ stateDirectory, appVersion: "0.0.0-beta0-smoke", logger: { warn: () => {} } });
+    setup.connect({ url: `ws://127.0.0.1:${port}`, token: supervisor.token });
+    const setupDeadline = Date.now() + 60_000;
+    while (Date.now() < setupDeadline && !setup.connected) await wait(500);
+    record.setup = { connected: setup.connected, allowlistSize: SETUP_METHODS.length, scopes: setup.grantedScopes };
+    if (!setup.connected) {
+      record.failures.push("setup channel did not connect");
+    } else {
+      try {
+        const detected = await setup.request("openclaw.setup.detect", {});
+        record.setup.manualProviders = (detected?.manualProviders ?? []).length;
+        record.setup.candidates = (detected?.candidates ?? []).map((entry) => entry.kind);
+        record.setup.providerGroups = [...new Set((detected?.manualProviders ?? []).map((entry) => entry.groupLabel))].length;
+        if (record.setup.manualProviders === 0) record.failures.push("setup.detect returned no providers");
+      } catch (error) {
+        record.setup.detect = `failed: ${error?.message ?? error}`;
+        record.failures.push(`openclaw.setup.detect failed: ${error?.message ?? error}`);
+      }
+      try {
+        await setup.request("config.patch", {});
+        record.failures.push("setup channel allowed an admin method outside its allowlist");
+      } catch (error) {
+        record.setup.configPatch = `blocked: ${error?.message ?? error}`;
+      }
+    }
+    await setup.disconnect();
   }
 
   record.supervisor.stateTransitions = supervisorStates;

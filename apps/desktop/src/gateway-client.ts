@@ -8,6 +8,7 @@ export type RuntimeStatus = {
   supervisor: "idle" | "starting" | "ready" | "restarting" | "safe-mode";
   detail: string | null;
   connected: boolean;
+  setupReady: boolean;
   serverVersion: string | null;
   protocol: number | null;
   nodeRuntime: string | null;
@@ -52,6 +53,7 @@ export const IDLE_STATUS: RuntimeStatus = {
   supervisor: "idle",
   detail: null,
   connected: false,
+  setupReady: false,
   serverVersion: null,
   protocol: null,
   nodeRuntime: null,

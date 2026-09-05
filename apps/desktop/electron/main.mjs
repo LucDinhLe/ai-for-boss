@@ -10,6 +10,7 @@ import {
   GATEWAY_REQUEST_CHANNEL,
   GATEWAY_STATUS_CHANNEL,
   GATEWAY_STATUS_EVENT_CHANNEL,
+  SETUP_REQUEST_CHANNEL,
   SHELL_STATUS_CHANNEL
 } from "./security-policy.mjs";
 import { createUnavailableShellContract, loadShellContract } from "./shell-contract.mjs";
@@ -20,6 +21,7 @@ import {
   resolveOpenClawEntry
 } from "./supervisor.mjs";
 import { GatewayAdapter } from "./gateway-adapter.mjs";
+import { SetupChannel } from "./setup-channel.mjs";
 
 const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
 const CONNECT_RETRY_MS = 1_000;
@@ -29,10 +31,13 @@ let mainWindow = null;
 let shellStatus = createUnavailableShellContract();
 let supervisor = null;
 let adapter = null;
+let setupChannel = null;
+let gatewayEndpoint = null;
 let runtimeStatus = {
   supervisor: SUPERVISOR_STATES.IDLE,
   detail: null,
   connected: false,
+  setupReady: false,
   serverVersion: null,
   protocol: null,
   nodeRuntime: null,
@@ -130,8 +135,31 @@ async function startRuntime() {
     }
   });
 
+  setupChannel = new SetupChannel({
+    stateDirectory: directory,
+    appVersion: app.getVersion(),
+    onStatus: (status) => publishStatus({ setupReady: status.phase === "connected" })
+  });
+
   const { port, token } = await supervisor.start();
-  await connectWithRetry({ url: `ws://127.0.0.1:${port}`, token });
+  gatewayEndpoint = { url: `ws://127.0.0.1:${port}`, token };
+  await connectWithRetry(gatewayEndpoint);
+  setupChannel.connect(gatewayEndpoint);
+}
+
+/**
+ * Activating a provider asks the Gateway to restart. The child is ours, so the
+ * host restarts it and reconnects both channels rather than leaving the app
+ * pointed at a process that is going away.
+ */
+async function restartGatewayForSetup() {
+  publishStatus({ connected: false, setupReady: false, detail: "provider-activated" });
+  await Promise.all([adapter?.disconnect(), setupChannel?.disconnect()]);
+  await supervisor?.stop();
+  const { port, token } = await supervisor.start();
+  gatewayEndpoint = { url: `ws://127.0.0.1:${port}`, token };
+  await connectWithRetry(gatewayEndpoint);
+  setupChannel.connect(gatewayEndpoint);
 }
 
 /**
@@ -204,6 +232,27 @@ ipcMain.handle(GATEWAY_REQUEST_CHANNEL, async (event, payload) => {
   return adapter.request(method, payload?.params);
 });
 
+ipcMain.handle(SETUP_REQUEST_CHANNEL, async (event, payload) => {
+  if (!isTrustedRendererEvent(event, mainWindow)) {
+    throw new Error("Untrusted setup request");
+  }
+  const method = payload?.method;
+  if (typeof method !== "string") {
+    throw new Error("Setup request requires a method name");
+  }
+  if (!setupChannel) {
+    throw new Error("Setup channel is not running");
+  }
+  const result = await setupChannel.request(method, payload?.params);
+  if (result?.gatewayRestartRequired) {
+    // Restart before returning so the renderer never talks to a dead child.
+    await restartGatewayForSetup().catch((error) => {
+      publishStatus({ lastError: String(error?.message ?? error) });
+    });
+  }
+  return result;
+});
+
 app.on("web-contents-created", (_event, contents) => {
   contents.on("will-attach-webview", (event) => event.preventDefault());
 });
@@ -237,6 +286,7 @@ app.on("before-quit", (event) => {
   event.preventDefault();
   Promise.resolve()
     .then(() => adapter?.disconnect())
+    .then(() => setupChannel?.disconnect())
     .then(() => supervisor?.stop())
     .catch(() => {})
     .finally(() => app.exit(0));

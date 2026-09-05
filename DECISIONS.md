@@ -207,3 +207,35 @@ Các lệnh cấm trộn beta và coi placeholder là production vẫn giữ ngu
 - Hệ quả: Capability manifest, SBOM, license inventory và bằng chứng lab Feature 0.2 giữ nguyên bản đã kiểm, không bị viết lại theo phiên bản mới. Candidate mang sẵn danh sách điều kiện chưa đạt, và validator từ chối mọi mục bằng chứng tự nhận `spike-tested` mà không có tệp bằng chứng đúng nền tảng.
 - Điều kiện promote: capability diff giữa hai train, SBOM và license inventory mới, smoke đạt trên Windows x64 và macOS arm64, chọn được agent runtime cùng đường xác thực nhà cung cấp, và senior platform/security review.
 - Phương án bị loại: Sửa thẳng locked manifest lên `2026.9.1` và cập nhật các hợp đồng theo phiên bản mới mà chưa chạy lại capability diff; cách đó biến tài liệu thành lời khai thay vì bằng chứng.
+
+## D-0021. Quyền admin đi qua một kênh riêng, không nới scope của adapter chat
+
+- Ngày: 2026-09-05
+- Owner: Fable đề xuất kỹ thuật; Lê Đình Lực chấp nhận cho màn hình Kết nối
+- Nhãn: `TECHNICAL_DECISION`
+- Trạng thái: Chấp nhận
+- Bối cảnh: `openclaw.setup.*` và `wizard.*` là đường duy nhất để nối nhà cung cấp model qua RPC, và cả hai đòi scope `operator.admin`. Adapter chat của beta 0 chỉ xin ba scope của chat, và contract test cấm nó mang admin.
+- Quyết định: Mở một kết nối thứ hai trong tiến trình chính mang `operator.admin`, dùng riêng cho việc nối model, với danh sách mười phương thức và một bộ chặn theo tiền tố loại bỏ `config.`, `secrets.`, `plugins.`, `tools.`, `exec.`, `terminal.`, `node.`, `channels.`, `cron.`, `skills.`. Adapter chat giữ nguyên scope cũ.
+- Hệ quả: Giao diện không bao giờ có một kênh admin tổng quát; nó chỉ xin được đúng mười lệnh của việc nối model. Token thiết bị của kênh này lưu dưới khoá vai trò riêng nên không đè lên token của adapter chat. Bù lại có hai kết nối phải quản lý vòng đời, và cả hai phải nối lại sau khi Gateway khởi động lại.
+- Phương án bị loại: Thêm `operator.admin` vào adapter chat và nới contract test; cách đó cho giao diện chạm tới mọi lệnh admin của lõi chỉ để phục vụ một màn hình.
+
+## D-0022. Danh mục nhà cung cấp lấy từ lõi lúc chạy
+
+- Ngày: 2026-09-05
+- Owner: Lê Đình Lực quyết định sản phẩm
+- Nhãn: `PRODUCT_DECISION`
+- Trạng thái: Chấp nhận
+- Chỉ thị: "OpenClaw cứ có kết nối gì thì bê ra kết nối đó."
+- Quyết định: Màn hình Kết nối vẽ đúng danh mục `openclaw.setup.detect` trả về, gồm cả các mục tự phát hiện trên máy. Vỏ không giữ danh sách nhà cung cấp riêng và không ghi cứng tên nhà nào; validator cùng contract test từ chối nếu có.
+- Hệ quả: Nhà cung cấp OpenClaw thêm sau này tự xuất hiện, không phải phát hành lại vỏ. Đổi lại vỏ không kiểm soát được thứ tự hay cách gom nhóm ngoài những gì lõi cung cấp, và số mục thay đổi theo plugin đã cài nên không được đưa vào tài liệu quảng bá.
+- Phương án bị loại: Chọn sẵn vài nhà cung cấp cho gọn màn hình; cách đó đóng băng danh mục và bắt người dùng chờ bản mới mỗi lần thượng nguồn thêm nhà.
+
+## D-0023. Tiếng Việt hai tầng cho các bước của lõi
+
+- Ngày: 2026-09-05
+- Owner: Lê Đình Lực quyết định sản phẩm
+- Nhãn: `PRODUCT_DECISION`
+- Trạng thái: Chấp nhận, vá dần ở các bản sau
+- Quyết định: Khung và nút luôn tiếng Việt. Nội dung bước do lõi trả về được dịch khi nhận ra chữ ký quen thuộc; bước lạ hiện nguyên văn kèm ghi chú nói rõ đây là chữ của OpenClaw.
+- Hệ quả: Không bao giờ dịch sai một câu hỏi về bảo mật, và bản dịch mở rộng dần theo từng bản mà không chặn phát hành. Đổi lại người dùng vẫn gặp tiếng Anh ở những bước chưa phủ.
+- Phương án bị loại: Dịch toàn bộ bằng bảng ánh xạ theo câu chữ, vỡ âm thầm khi thượng nguồn sửa một từ; hoặc để nguyên tiếng Anh toàn bộ trong một sản phẩm Việt.

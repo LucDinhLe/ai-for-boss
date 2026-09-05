@@ -39,6 +39,7 @@ declare global {
     supervisor: "idle" | "starting" | "ready" | "restarting" | "safe-mode";
     detail: string | null;
     connected: boolean;
+    setupReady: boolean;
     serverVersion: string | null;
     protocol: number | null;
     nodeRuntime: string | null;
@@ -60,6 +61,9 @@ declare global {
         getStatus: () => Promise<GatewayRuntimeStatus>;
         onStatus: (listener: (status: GatewayRuntimeStatus) => void) => () => void;
         onEvent: (listener: (event: GatewayEventFrame) => void) => () => void;
+      }>;
+      setup: Readonly<{
+        request: <T = Record<string, unknown>>(method: string, params?: unknown) => Promise<T>;
       }>;
     }>;
   }

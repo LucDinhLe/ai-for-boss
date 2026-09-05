@@ -64,7 +64,7 @@ test("renderer preload boundary stays request-shaped and allowlisted", () => {
   const preload = read("apps/desktop/electron/preload.cjs");
   // The fixture journey still reads shell status only; beta 0 (D-0019) added
   // the supervised-runtime channels beside it without loosening the shape.
-  assert.equal([...preload.matchAll(/ipcRenderer\.invoke\(/g)].length, 3);
+  assert.equal([...preload.matchAll(/ipcRenderer\.invoke\(/g)].length, 4);
   assert.match(preload, /getShellStatus/);
   assert.doesNotMatch(preload, /ipcRenderer\.(?:send|sendSync|once)\s*\(/);
 });

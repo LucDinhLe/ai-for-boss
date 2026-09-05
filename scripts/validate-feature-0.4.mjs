@@ -60,13 +60,14 @@ for (const [key, expected] of Object.entries(expectedPreferences)) {
   requireEqual(options.webPreferences[key], expected, `webPreferences.${key}`);
 }
 
-// Beta 0 (D-0018) widens the preload from one read call to the three invoke
-// channels and one receive helper the supervised runtime needs. The surface
+// Beta 0 (D-0019) widened the preload from one read call to the invoke
+// channels and one receive helper the supervised runtime needs; the Connect
+// screen (D-0021) adds a fourth, whose admin scope stays in the main process. The surface
 // stays closed: renderer→main is invoke-only against a named allowlist, and
 // main→renderer carries only events the adapter already filtered.
 const preloadInvokes = [...preload.matchAll(/ipcRenderer\.invoke\(([^)]+)\)/g)];
-requireEqual(preloadInvokes.length, 3, "preload invoke count");
-for (const channel of ["aifb:shell-status", "aifb:gateway-request", "aifb:gateway-status"]) {
+requireEqual(preloadInvokes.length, 4, "preload invoke count");
+for (const channel of ["aifb:shell-status", "aifb:gateway-request", "aifb:gateway-status", "aifb:setup-request"]) {
   if (!preload.includes(`"${channel}"`)) {
     failures.push(`preload does not use the allowlisted channel ${channel}`);
   }

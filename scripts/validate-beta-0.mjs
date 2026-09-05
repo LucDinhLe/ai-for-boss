@@ -9,6 +9,7 @@ import {
   isAllowedMethod
 } from "../apps/desktop/electron/gateway-adapter.mjs";
 import { EMBEDDING_ENV } from "../apps/desktop/electron/supervisor.mjs";
+import { SETUP_METHODS, SETUP_SCOPES, isForbiddenOnSetupChannel, isSetupMethod } from "../apps/desktop/electron/setup-channel.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const failures = [];
@@ -22,7 +23,11 @@ for (const requiredPath of [
   "apps/desktop/electron/gateway-adapter.mjs",
   "apps/desktop/electron/device-identity.mjs",
   "apps/desktop/src/gateway-client.ts",
+  "apps/desktop/electron/setup-channel.mjs",
+  "apps/desktop/src/connect/ConnectScreen.tsx",
+  "apps/desktop/src/connect/wizard-vi.ts",
   "scripts/gateway-smoke.mjs",
+  "tests/contract/setup-channel-contract.test.mjs",
   "tests/contract/beta-0-runtime-contract.test.mjs",
   "tests/unit/supervisor.test.mjs",
   "tests/unit/device-identity.test.mjs"
@@ -86,9 +91,41 @@ if (OPERATOR_SCOPES.includes("operator.admin") || OPERATOR_SCOPES.includes("oper
   failures.push("adapter requests scopes beyond the chat surface");
 }
 
+// Provider connection needs admin, so it lives on its own connection with its
+// own short allowlist. Admin must never leak onto the chat adapter.
+if (!SETUP_SCOPES.includes("operator.admin")) {
+  failures.push("the setup channel cannot connect a provider without admin scope");
+}
+if (OPERATOR_SCOPES.includes("operator.admin")) {
+  failures.push("the chat adapter carries admin scope");
+}
+for (const method of ["config.patch", "secrets.store.set", "plugins.install", "tools.invoke", "terminal.open"]) {
+  if (isSetupMethod(method) || !isForbiddenOnSetupChannel(method)) {
+    failures.push(`the setup channel can reach ${method}`);
+  }
+}
+if (!SETUP_METHODS.includes("openclaw.setup.detect")) {
+  failures.push("the setup channel cannot read the provider catalogue");
+}
+
+// The provider list belongs to OpenClaw. A hard-coded provider in the shell
+// freezes the catalogue the day upstream adds one.
+const connect = read("apps/desktop/src/connect/ConnectScreen.tsx");
+for (const provider of ["openai", "anthropic", "gemini", "openrouter", "copilot", "ollama"]) {
+  if (new RegExp(`["'\`][^"'\`]*${provider}`, "i").test(connect)) {
+    failures.push(`the Connect screen hard-codes ${provider}`);
+  }
+}
+if (!connect.includes("openclaw.setup.detect") || !connect.includes("manualProviders")) {
+  failures.push("the Connect screen does not render the catalogue the Gateway reports");
+}
+if (!read("apps/desktop/src/connect/wizard-vi.ts").includes("recognised")) {
+  failures.push("unrecognised wizard text has no verbatim fallback");
+}
+
 // The renderer stays a pure view: no sockets, no storage, no direct transport.
 if (/localStorage|sessionStorage|indexedDB|new WebSocket\s*\(|XMLHttpRequest|fetch\s*\(/.test(
-  `${renderer}\n${rendererBridge}`
+  `${renderer}\n${rendererBridge}\n${connect}`
 )) {
   failures.push("renderer opens its own transport or persistence");
 }
