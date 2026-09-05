@@ -95,11 +95,21 @@ async function main() {
     gatewayProtocol: packageVersion("@openclaw/gateway-protocol")
   };
 
+  const childLog = [];
+  // Gateway logs are ANSI-coloured; strip the escapes so the evidence file and
+  // the CI log stay readable.
+  const ansi = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, "g");
+  const remember = (line) => {
+    const text = String(line).replace(ansi, "").trim();
+    if (text) childLog.push(text.slice(0, 300));
+  };
+  const supervisorStates = [];
   const supervisor = new GatewaySupervisor({
     stateDirectory,
     nodeExecutable,
     openclawEntry,
-    logger: { info: () => {}, warn: () => {}, error: () => {} }
+    logger: { info: remember, warn: remember, error: remember },
+    onStateChange: ({ state, detail }) => supervisorStates.push(detail ? `${state}:${detail}` : state)
   });
 
   let hello = null;
@@ -139,12 +149,24 @@ async function main() {
     record.handshake.deviceTokenMinted = Boolean(adapter.hello?.auth?.deviceToken);
 
     for (const method of READ_PROBES) {
-      try {
-        await adapter.request(method, method === "sessions.list" ? { limit: 1 } : undefined);
+      const params = method === "sessions.list" ? { limit: 1 } : undefined;
+      let lastError = null;
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        try {
+          await adapter.request(method, params);
+          lastError = null;
+          break;
+        } catch (error) {
+          lastError = error;
+          await wait(2_000);
+        }
+      }
+      if (lastError) {
+        const detail = JSON.stringify(lastError?.details ?? lastError?.error ?? {});
+        record.probes[method] = `failed: ${lastError?.message ?? lastError}${detail === "{}" ? "" : ` ${detail}`}`;
+        record.failures.push(`${method} failed: ${lastError?.message ?? lastError}`);
+      } else {
         record.probes[method] = "ok";
-      } catch (error) {
-        record.probes[method] = `failed: ${error?.message ?? error}`;
-        record.failures.push(`${method} failed`);
       }
     }
 
@@ -157,6 +179,12 @@ async function main() {
     }
     record.allowlistSize = ALLOWED_METHODS.length;
   }
+
+  record.supervisor.stateTransitions = supervisorStates;
+  record.supervisor.stateAtEnd = supervisor.state;
+  record.supervisor.lastChildExit = supervisor.lastExit;
+  record.supervisor.adapterStillConnected = adapter.connected;
+  record.childLog = childLog.slice(-25);
 
   await adapter.disconnect();
   await supervisor.stop();
@@ -175,6 +203,13 @@ function finish(record, stateDirectory, exitCode) {
   const verdict = exitCode === 0 ? "PASS" : "FAIL";
   console.log(`[beta-0 smoke] ${verdict} on ${record.host.platform}/${record.host.arch}`);
   console.log(`[beta-0 smoke] handshake=${record.handshake.connected ? "ok" : "no"} evidence=${outPath}`);
+  if (exitCode !== 0) {
+    console.log(`[beta-0 smoke] supervisor=${JSON.stringify(record.supervisor ?? {})}`);
+    for (const [method, outcome] of Object.entries(record.probes ?? {})) {
+      console.log(`[beta-0 smoke] probe ${method}: ${outcome}`);
+    }
+    for (const line of record.childLog ?? []) console.log(`[beta-0 smoke] child | ${line}`);
+  }
   for (const failure of record.failures) console.error(` - ${failure}`);
   process.exit(exitCode);
 }
