@@ -126,3 +126,22 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 - Runtime agent mặc định của OpenClaw trong thư mục state trắng là `codex` và harness đó vắng mặt, nên lượt chạy báo lỗi trước khi gọi model. Beta 0 hiển thị nguyên văn lỗi; chọn runtime và nhà cung cấp là việc của bước sau (R-032).
 - Câu hỏi Windows có cần WSL2 hay không chưa có câu trả lời cho tới khi CI chạy smoke trên runner Windows (R-031).
+
+### Kiểm chứng nhà cung cấp (2026-09-05, nhánh `feature/provider-verification`)
+
+#### Added
+
+- `scripts/provider-verify.mjs` chạy trọn luồng kết nối trên chính Supervisor, SetupChannel và GatewayAdapter mà ứng dụng ship: đọc danh mục, lái trình hướng dẫn, gọi `openclaw.setup.verify`, rồi gửi một lượt chat thật và ghi runtime của trợ lý trước cùng sau khi kích hoạt.
+- `pnpm verify:provider --list` in ra đúng những đường kết nối lõi đang có, không cần khoá và không đụng cấu hình.
+- Bộ lọc bí mật cho mọi thứ ra khỏi tiến trình; câu trả lời cho bước bí mật không được ghi dưới bất kỳ dạng nào, có test riêng.
+- `docs/testing/BETA-0-PROVIDER-VERIFICATION.md` mô tả cách chạy, cách đọc bằng chứng và điều kiện để coi R-032 là đóng.
+
+#### Changed
+
+- R-032 giữ nguyên trạng thái Open nhưng nay có đường kiểm rõ ràng; risk chỉ đóng khi tệp bằng chứng có `r032.chatReachedModel` đúng.
+- `validate-beta-0.mjs` chặn harness nhận khoá qua dòng lệnh, ghi cứng tên nhà cung cấp, hay tự mở kết nối ngoài các mô-đun của ứng dụng.
+
+#### Known
+
+- Danh mục lõi hiện trả về một ứng viên tự phát hiện và mười sáu nhà cung cấp khai báo tay trên Linux; con số này đổi theo phiên bản lõi và plugin đã cài nên không dùng cho tài liệu quảng bá.
+- Hai điều treo của bước Kết nối vẫn treo cho tới khi có một nhà cung cấp thật; harness là công cụ để đóng chúng, không phải bằng chứng thay thế.

@@ -27,6 +27,9 @@ for (const requiredPath of [
   "apps/desktop/src/connect/ConnectScreen.tsx",
   "apps/desktop/src/connect/wizard-vi.ts",
   "scripts/gateway-smoke.mjs",
+  "scripts/provider-verify.mjs",
+  "docs/testing/BETA-0-PROVIDER-VERIFICATION.md",
+  "tests/unit/provider-verify.test.mjs",
   "tests/contract/setup-channel-contract.test.mjs",
   "tests/contract/beta-0-runtime-contract.test.mjs",
   "tests/unit/supervisor.test.mjs",
@@ -121,6 +124,26 @@ if (!connect.includes("openclaw.setup.detect") || !connect.includes("manualProvi
 }
 if (!read("apps/desktop/src/connect/wizard-vi.ts").includes("recognised")) {
   failures.push("unrecognised wizard text has no verbatim fallback");
+}
+
+// The provider-verification harness is the only place a real credential ever
+// enters the project, so it may not take one from argv, may not name a
+// provider, and may not open a connection outside the shipped modules (D-0024).
+const providerVerify = read("scripts/provider-verify.mjs");
+if (!providerVerify.includes("process.env.AIFB_PROVIDER_SECRET")) {
+  failures.push("the provider harness does not read its credential from the environment");
+}
+if (/--secret|--api-key|--token\b/.test(providerVerify)) {
+  failures.push("the provider harness accepts a credential on the command line");
+}
+if (/new GatewayClient|new WebSocket\s*\(/.test(providerVerify)) {
+  failures.push("the provider harness opens a connection outside the shipped modules");
+}
+const harnessCode = providerVerify.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+for (const provider of ["openai", "anthropic", "gemini", "openrouter", "copilot", "ollama"]) {
+  if (new RegExp(`["'\`][^"'\`]*${provider}`, "i").test(harnessCode)) {
+    failures.push(`the provider harness hard-codes ${provider}`);
+  }
 }
 
 // The renderer stays a pure view: no sockets, no storage, no direct transport.

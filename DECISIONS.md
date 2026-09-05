@@ -239,3 +239,14 @@ Các lệnh cấm trộn beta và coi placeholder là production vẫn giữ ngu
 - Quyết định: Khung và nút luôn tiếng Việt. Nội dung bước do lõi trả về được dịch khi nhận ra chữ ký quen thuộc; bước lạ hiện nguyên văn kèm ghi chú nói rõ đây là chữ của OpenClaw.
 - Hệ quả: Không bao giờ dịch sai một câu hỏi về bảo mật, và bản dịch mở rộng dần theo từng bản mà không chặn phát hành. Đổi lại người dùng vẫn gặp tiếng Anh ở những bước chưa phủ.
 - Phương án bị loại: Dịch toàn bộ bằng bảng ánh xạ theo câu chữ, vỡ âm thầm khi thượng nguồn sửa một từ; hoặc để nguyên tiếng Anh toàn bộ trong một sản phẩm Việt.
+
+## D-0024. Kiểm chứng nhà cung cấp bằng harness chạy được, không bằng ảnh chụp
+
+- Ngày: 2026-09-05
+- Owner: Lê Đình Lực quyết định sản phẩm, Platform thực thi
+- Nhãn: `PLATFORM_DECISION`
+- Trạng thái: Chấp nhận
+- Bối cảnh: Hai điều còn treo của bước Kết nối chỉ kiểm được khi có một nhà cung cấp thật. Chờ tới lúc có khoá rồi mới nghĩ cách kiểm là cách chắc chắn kiểm bằng mắt và không để lại gì.
+- Quyết định: Viết `scripts/provider-verify.mjs` chạy đúng Supervisor, SetupChannel và GatewayAdapter mà ứng dụng ship, ở chế độ không giao diện. Khoá chỉ nhận qua biến môi trường `AIFB_PROVIDER_SECRET`. Bằng chứng ghi ra `artifacts/beta-0/` sau khi lọc mọi trường có tên gợi bí mật. Bước nhập tự do và bước hành động dừng chờ người thay vì đoán.
+- Hệ quả: Lúc Product Owner có khoá hoặc có công cụ dòng lệnh đã đăng nhập, việc đóng hai điều treo là một lệnh và một tệp bằng chứng kiểm lại được, chạy lại được trên máy khác. Đổi lại kho có thêm một đường chạy thật cần giữ đồng bộ với vỏ, nên contract test buộc harness dùng lại mô-đun của ứng dụng thay vì tự mở kết nối.
+- Phương án bị loại: Kiểm bằng tay trên giao diện rồi chụp màn hình; không lặp lại được, không kiểm ngược được, và không nói được gì về runtime của trợ lý sau khi kích hoạt.
