@@ -20,6 +20,12 @@ Các blocker nghiêm trọng nhất hiện nay:
 6. Advisor, policy, approval và agentic security suite chưa được triển khai.
 7. Always-on mới khóa kiến trúc một instance riêng, chưa có remote claim hoặc pentest.
 
+### 1.1. Cập nhật Feature 0.6
+
+Feature 0.6 đã khóa mặc định `execution=blocked`, sandbox off, workspace/network none và không fallback sang host. Contract tests bao phủ backend thiếu, evidence promotion giả, platform mismatch, stale report, realpath escape và cleanup failure bằng fixture tổng hợp.
+
+Bằng chứng đó không làm R-001 đóng: Docker/OpenShell/SSH/AppContainer/App Sandbox/Linux primitives chưa được chạy như sandbox sản phẩm; CI runner không phải máy khách và presence không phải isolation proof. Local managed container chỉ là khuyến nghị có điều kiện, remote là opt-in research, native restriction là defense-in-depth. R-028, R-029 và R-030 giữ các rủi ro backend tương ứng ở trạng thái mở.
+
 ## 2. Biên tin cậy
 
 ```mermaid
@@ -51,7 +57,7 @@ Chi tiết máy đọc được nằm tại [threat-model.manifest.json](../../m
 | T-07 | Advisor bị thao túng hoặc biến lỗi thành pass | Feature 2.6 và Cổng 3 |
 | T-08 | Renderer, IPC hoặc local process vượt quyền | Feature 0.4, 0.5 và Cổng 1 |
 | T-09 | Model tự cấp quyền, tự duyệt hoặc hành động quá mức | Feature 2.7 và Cổng 3 |
-| T-10 | Path traversal, symlink escape, file giả mạo hoặc archive bomb | Feature 0.6 và Cổng 3 |
+| T-10 | Path traversal, symlink escape, file giả mạo hoặc archive bomb | Fixture realpath/cleanup ở Feature 0.6; adversarial backend thật ở Cổng 3 |
 | T-11 | Bootstrap, migration hoặc restore tạo trạng thái nửa vời | Feature 2.2, 2.5 và Cổng 4 |
 | T-12 | Plugin, MCP, channel hoặc connector vượt contract | Cổng 3 |
 | T-13 | Replay, concurrency hoặc vòng lặp gây mutation trùng/denial-of-wallet | Cổng 1 và 3 |

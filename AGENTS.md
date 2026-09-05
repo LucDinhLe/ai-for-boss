@@ -22,19 +22,22 @@ Stop if any required file is missing, its governance hash fails, or the requeste
 
 ## Current scope
 
-**Gate 0, Feature 0.5 — First-run journey is implemented and verified** from
-the Feature 0.4 commit `58c5283`; Draft PR #5 remains unmerged. Independent
-senior platform/security review remains a Gate 0 requirement. The Feature Spec is
-`docs/feature-specs/0005-first-run-journey.md`.
+**Gate 0, Feature 0.6 — Sandbox feasibility ADR and fixture-only spike** is the
+active scope on `feature/0.6-sandbox-feasibility`, based on the verified Feature
+0.5 checkpoint `cf5edc5`. The active Feature Spec is
+`docs/feature-specs/0006-sandbox-feasibility.md`.
 
-Feature 0.4 contains the Electron shell, sandboxed renderer, minimal preload
-boundary, honest placeholder state and experimental CI package matrix. It
-consumes the Feature 0.3 capability/source/threat contracts.
+Feature 0.6 compares local managed containers, remote OpenShell/SSH and native
+OS restrictions. Its policy, probe and tests may prove fail-closed contract
+logic, platform-presence hints and temporary-fixture containment only. They do
+not prove real sandbox isolation or make an execution backend production-ready.
 
-Do not add live OAuth/provider implementations, production Gateway supervision,
-installer/updater release logic, host execution, sensitive browser actions,
-real credentials or product sandbox claims during Feature 0.5. The sandbox
-decision remains Feature 0.6.
+Keep product host execution, elevated execution, sensitive browser automation,
+unrestricted network, arbitrary workspace mounts and credential injection
+blocked. Do not install or start Docker, OpenShell, SSH hosts, VMs, services or
+system software without explicit approval. Do not implement Supervisor, Gateway,
+OAuth or Feature 1.1 in this working session. Senior platform/security review
+and Product Owner backend acceptance remain Gate 0 requirements.
 
 ## Build discipline
 
