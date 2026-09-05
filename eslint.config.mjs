@@ -5,8 +5,11 @@ import tseslint from "typescript-eslint";
 
 const nodeGlobals = {
   Buffer: "readonly",
+  clearTimeout: "readonly",
   console: "readonly",
   process: "readonly",
+  queueMicrotask: "readonly",
+  setTimeout: "readonly",
   structuredClone: "readonly"
 };
 

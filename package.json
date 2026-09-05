@@ -17,8 +17,10 @@
     "test": "node --test tests/contract/*.test.mjs tests/unit/*.test.mjs",
     "package:desktop": "corepack pnpm run build && node scripts/package-desktop.mjs",
     "qa:prepare": "corepack pnpm run build && node scripts/generate-feature-0.5-qa.mjs",
-    "validate:desktop": "node scripts/validate-feature-0.4.mjs && node scripts/validate-feature-0.5.mjs",
-    "verify": "corepack pnpm run lint && corepack pnpm run typecheck && corepack pnpm run test && corepack pnpm run build && corepack pnpm run validate:desktop"
+    "validate:sandbox": "node scripts/validate-feature-0.6.mjs",
+    "validate:desktop": "node scripts/validate-feature-0.4.mjs && node scripts/validate-feature-0.5.mjs && node scripts/validate-feature-0.6.mjs && node scripts/validate-beta-0.mjs",
+    "verify": "corepack pnpm run lint && corepack pnpm run typecheck && corepack pnpm run test && corepack pnpm run build && corepack pnpm run validate:desktop",
+    "smoke:gateway": "node scripts/gateway-smoke.mjs"
   },
   "devDependencies": {
     "@electron/packager": "20.2.1",

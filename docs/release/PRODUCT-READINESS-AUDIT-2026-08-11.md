@@ -7,7 +7,7 @@ Phạm vi: Từ repo hiện tại tới sản phẩm cho người phổ thông t
 
 ## 1. Kết luận điều hành
 
-**AI for Boss chưa thể đóng gói hoặc phát hành cho người dùng.** Repo hiện có governance, release train đã khóa, capability/auth/source/threat contract, Gateway contract lock, desktop shell và first-run prototype nội bộ bằng dữ liệu giả. Repo chưa có Supervisor, Gateway Adapter, onboarding/runtime thật, sandbox sản phẩm, installer, updater hoặc artifact đã ký.
+**AI for Boss chưa thể đóng gói hoặc phát hành cho người dùng.** Repo hiện có governance, release train đã khóa, capability/auth/source/threat contract, Gateway contract lock, desktop shell, first-run prototype nội bộ và sandbox feasibility contract bằng dữ liệu giả. Repo chưa có Supervisor, Gateway Adapter, onboarding/runtime thật, sandbox sản phẩm, installer, updater hoặc artifact đã ký.
 
 Update cùng ngày đã gỡ blocker Feature 0.2:
 
@@ -36,6 +36,7 @@ Audit competitive parity bổ sung cùng ngày xác nhận sản phẩm cũng ch
 | Lab | WSL2 riêng, không mount ổ Windows, không credential | Đạt mục tiêu Feature 0.2 |
 | Product UX | Desktop shell và first-run prototype ba bước bằng fixture `live:false` | Có vertical slice nội bộ; chưa có human usability |
 | Desktop/Supervisor/Adapter | Electron/React shell có secure renderer boundary; Supervisor/Adapter chưa có | Shell thử nghiệm, runtime chưa có |
+| Sandbox feasibility | ADR, manifest/schema, fail-closed policy và fixture-only probe | Có khuyến nghị kỹ thuật; chưa có backend hoặc isolation proof |
 | Installer/updater/signing | Chưa có | Chưa có |
 | Pilot/security/legal | Chưa thực hiện | Chưa có |
 
@@ -59,9 +60,9 @@ Feature 0.3 đã hoàn thành ở mức contract. Các phần còn lại của C
 
 - Feature 0.4: Electron shell, renderer sandbox và CI Windows/macOS/Linux đã có; artifact vẫn experimental/unsigned.
 - Feature 0.5: first-run vertical slice đang ở correction pass; IPC ghi, release policy đầy đủ, redaction và incident skeleton vẫn là acceptance gap của Cổng 0.
-- Feature 0.6: ADR và spike sandbox trên từng họ hệ điều hành.
+- Feature 0.6: ADR/manifest/policy cùng fixture-only probe đã có; CI ba OS chỉ kiểm contract/presence/temp-boundary. Product Owner và senior platform/security review chưa chấp nhận backend; sandbox thật vẫn chưa triển khai.
 
-Không được mở host exec, elevated hoặc browser nhạy cảm trước Feature 0.6.
+Không được mở host exec, elevated hoặc browser nhạy cảm chỉ vì Feature 0.6 đã có ADR; các capability này tiếp tục khóa cho tới khi backend thật đạt review và implementation/security gate.
 
 ### 3.3. Tích hợp lõi Windows
 
@@ -230,7 +231,7 @@ Mỗi OS/architecture được quảng cáo cần runner sạch và ít nhất m
 
 | Quyết định | Hạn | Mặc định an toàn |
 |---|---|---|
-| Sandbox local/remote/native | Feature 0.6 | Tool nguy hiểm tắt |
+| Sandbox local/remote/native | Sau Feature 0.6 ADR và trước Feature 1.1 product exec | Khuyến nghị local managed container có điều kiện; execution/sandbox/workspace/network vẫn tắt |
 | License nguồn và thương mại | Trước Cổng 4 | Repo private, không phân phối |
 | Windows installer và signing provider | Trước Cổng 4 | Không phát hành unsigned |
 | macOS Developer account/certificate owner | Trước Cổng 4 | Không phát hành macOS |
@@ -242,7 +243,7 @@ Mỗi OS/architecture được quảng cáo cần runner sạch và ít nhất m
 
 ## 11. Đường ngắn nhất tới bản người dùng tải được
 
-1. Hoàn thành Feature 0.4 đến 0.6 và review kiến trúc độc lập.
+1. Bàn giao Feature 0.4 đến 0.6, Product Owner chốt sandbox direction và hoàn thành review kiến trúc độc lập.
 2. Thuê hoặc chỉ định một desktop/platform engineer senior chịu trách nhiệm.
 3. Làm Windows x64 technical spike với Supervisor/Gateway Adapter.
 4. Hoàn thành onboarding, Agent Genesis, session/model/Advisor và recovery tối thiểu.

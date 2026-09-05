@@ -1,0 +1,572 @@
+{
+  "$schema": "./sandbox-feasibility.schema.json",
+  "schemaVersion": "1.0.0",
+  "releaseTrainId": "oc-2026.7.1-2-locked.1",
+  "capturedAt": "2026-08-12T01:00:00+07:00",
+  "evidencePolicy": {
+    "levels": [
+      "spike-tested",
+      "documented-primary-source",
+      "assumption-pending",
+      "blocked-or-not-feasible"
+    ],
+    "presenceIsIsolationProof": false,
+    "ciRunnerIsUserDeviceProof": false,
+    "advertisingRequiresRealProductEvidence": true
+  },
+  "spikeBoundary": {
+    "fixtureOnly": true,
+    "mayInstallSoftware": false,
+    "mayUseCredentials": false,
+    "mayUseNetwork": false,
+    "maySpawnProcesses": false,
+    "mayWriteOutsideOsTemp": false,
+    "claimsIsolation": false
+  },
+  "probeSourceLocks": [
+    {
+      "path": "src/sandbox/feasibility-probe.mjs",
+      "sha256": "69b8b7927a1900b72b8d577ed0827c98ef0b016a18470407e4ac90f226602a82"
+    },
+    {
+      "path": "scripts/spike/sandbox-feasibility-probe.mjs",
+      "sha256": "30e6884e567b36917287b2b59f838c191c383f0e3deb2337a0610b9ebacad5a9"
+    }
+  ],
+  "reviewGate": {
+    "status": "pending",
+    "requiredReviewers": [
+      "Senior platform reviewer",
+      "Independent security reviewer"
+    ],
+    "productOwnerDecision": "pending"
+  },
+  "promotionPolicy": {
+    "enabled": false,
+    "requiresProductOwnerAcceptance": true,
+    "requiresIndependentReview": true,
+    "requiresRealProductIsolationEvidence": true,
+    "requiredPlatforms": [
+      "win32",
+      "darwin",
+      "linux"
+    ],
+    "requiredControls": [
+      "filesystem-containment",
+      "network-deny-by-default",
+      "process-boundary",
+      "credential-isolation",
+      "backend-health",
+      "failure-recovery",
+      "update-rollback"
+    ],
+    "allowsPresenceOnlyEvidence": false,
+    "allowsCiRunnerAsUserDeviceEvidence": false
+  },
+  "safeDefault": {
+    "execution": "blocked",
+    "sandboxMode": "off",
+    "workspaceAccess": "none",
+    "networkEgress": "none",
+    "productHostExec": false,
+    "elevatedExec": false,
+    "sensitiveBrowser": false,
+    "automaticFallback": false,
+    "advertisable": false,
+    "reason": "No backend has independent review plus real three-OS product evidence."
+  },
+  "governanceTraceability": {
+    "decisionRefs": [
+      "D-0018"
+    ],
+    "riskThreatRefs": {
+      "R-001": [
+        "T-06",
+        "T-08",
+        "T-09",
+        "T-10"
+      ],
+      "R-020": [
+        "T-02",
+        "T-05",
+        "T-08",
+        "T-12",
+        "T-14"
+      ],
+      "R-028": [
+        "T-08",
+        "T-10"
+      ],
+      "R-029": [
+        "T-02",
+        "T-03",
+        "T-14"
+      ],
+      "R-030": [
+        "T-08",
+        "T-10"
+      ]
+    }
+  },
+  "directions": [
+    {
+      "id": "local-managed-container",
+      "name": "Container runtime cục bộ do AI for Boss quản lý",
+      "decision": "preferred-contingent",
+      "evidenceLevel": "documented-primary-source",
+      "sourceRefs": [
+        "SRC-01",
+        "SRC-03",
+        "SRC-04",
+        "SRC-05",
+        "SRC-06",
+        "SRC-07"
+      ],
+      "isolation": {
+        "rating": "medium-to-strong-when-hardened",
+        "basis": "OpenClaw Docker uses container namespaces and defaults to no network, read-only root and all capabilities dropped; Docker still shares a host or VM kernel and the daemon is a privileged attack surface unless rootless.",
+        "testedInFeature": false
+      },
+      "platforms": {
+        "windows": "conditional-on-supported-virtualization-backend-and-runtime",
+        "macos": "conditional-on-supported-virtualization-backend-and-runtime",
+        "linux": "conditional-on-kernel-runtime-and-policy-prerequisites"
+      },
+      "installationAndPrivilege": [
+        "A container engine or desktop VM backend must exist and remain healthy.",
+        "Windows per-user Docker Desktop can install without admin, but WSL 2 or another supported VM backend and hardware virtualization remain prerequisites.",
+        "macOS can avoid selected privileged helpers, but default setup requests limited privileged configuration.",
+        "Linux rootless Docker reduces daemon privilege but requires subordinate UID/GID prerequisites."
+      ],
+      "dataAndNetwork": {
+        "workspace": "Local bind or isolated copy; any bind expands host exposure.",
+        "networkDefault": "none",
+        "externalDataTransfer": "No sandbox data leaves the device unless a separately approved provider or network route is enabled.",
+        "lockedControls": [
+          "No host Docker socket inside an agent container",
+          "No host network or container namespace join",
+          "No external bind outside approved project roots",
+          "No secret in container environment metadata"
+        ]
+      },
+      "costLicenseDependency": {
+        "software": "Locked OpenClaw source is MIT. Docker Engine/Moby open-source licensing differs from Docker Desktop subscription terms.",
+        "commercial": "Docker Desktop requires a paid subscription for larger enterprises under Docker terms; redistribution and embedding require legal review.",
+        "externalDependency": "Container engine, image supply chain and OS virtualization stack."
+      },
+      "recoveryUpdateFailure": {
+        "failure": "Missing daemon, image or platform prerequisite must fail closed without host-exec fallback.",
+        "recovery": "Recreate the sandbox from verified config and image; keep user-owned workspace canonical only through an explicit grant.",
+        "update": "Pin image/runtime compatibility, stage updates and retain a rollback path."
+      },
+      "ordinaryUserFit": "possible-after-dedicated-installer-health-recovery-and-usability-evidence",
+      "remainingBlockedCapabilities": [
+        "product host exec",
+        "elevated exec",
+        "sensitive browser automation",
+        "external bind mounts",
+        "network egress",
+        "unattended execution"
+      ]
+    },
+    {
+      "id": "remote-openshell-ssh",
+      "name": "Sandbox từ xa qua OpenShell hoặc SSH",
+      "decision": "optional-research-only",
+      "evidenceLevel": "documented-primary-source",
+      "sourceRefs": [
+        "SRC-01",
+        "SRC-02",
+        "SRC-08",
+        "SRC-09",
+        "SRC-10"
+      ],
+      "isolation": {
+        "rating": "depends-on-remote-operator-and-policy",
+        "basis": "OpenClaw moves tool execution to an SSH-accessible host or OpenShell-managed environment. NVIDIA labels OpenShell alpha software; AI for Boss therefore does not accept it as a production default without later maturity, security and operations evidence.",
+        "testedInFeature": false
+      },
+      "platforms": {
+        "windows": "generic-ssh-client-possible-openshell-windows-experimental",
+        "macos": "client-and-runtime-prerequisites-required",
+        "linux": "client-and-runtime-prerequisites-required"
+      },
+      "installationAndPrivilege": [
+        "Requires OpenSSH client plus host identity material for generic SSH.",
+        "OpenShell requires plugin, CLI, account or gateway access and sandbox policy.",
+        "Remote compute, lifecycle and policy are outside the local desktop trust boundary."
+      ],
+      "dataAndNetwork": {
+        "workspace": "SSH seeds a remote-canonical workspace; OpenShell mirror uploads and downloads every exec turn while remote mode seeds once and keeps remote state canonical.",
+        "networkDefault": "controlled-by-remote-host-or-openshell-policy",
+        "externalDataTransfer": "Selected workspace content, tool input/output and metadata cross the network to the remote environment.",
+        "lockedControls": [
+          "Strict host verification",
+          "No silent mirror or remote-mode switch",
+          "No production OpenShell while upstream labels it alpha",
+          "No sensitive browser because locked backends do not support it"
+        ]
+      },
+      "costLicenseDependency": {
+        "software": "OpenShell is Apache-2.0 and the locked OpenClaw plugin is under the OpenClaw MIT repository.",
+        "commercial": "Remote compute, storage, egress, support and account pricing are operator/provider costs; no product cost model is proven.",
+        "externalDependency": "Network, remote host identity, account, policy service and remote lifecycle."
+      },
+      "recoveryUpdateFailure": {
+        "failure": "Network, SSH identity, host-key or remote lifecycle failure must stop the task and preserve local state.",
+        "recovery": "SSH/OpenShell recreate can delete remote canonical state and reseed; recovery requires explicit user-visible state ownership.",
+        "update": "Client, plugin, remote gateway, image and policy versions must remain compatible."
+      },
+      "ordinaryUserFit": "not-ready-for-default",
+      "remainingBlockedCapabilities": [
+        "production use of alpha OpenShell",
+        "sensitive browser automation",
+        "credential injection",
+        "customer data upload without consent",
+        "shared multi-tenant fallback"
+      ]
+    },
+    {
+      "id": "native-os-restrictions",
+      "name": "Cơ chế hạn chế native theo từng hệ điều hành",
+      "decision": "rejected-as-primary-backend",
+      "evidenceLevel": "documented-primary-source",
+      "sourceRefs": [
+        "SRC-11",
+        "SRC-12",
+        "SRC-13",
+        "SRC-14",
+        "SRC-15",
+        "SRC-16",
+        "SRC-17",
+        "SRC-18"
+      ],
+      "isolation": {
+        "rating": "inconsistent-across-platforms",
+        "basis": "Windows AppContainer, macOS App Sandbox and Linux namespaces/seccomp/Landlock/cgroup expose different contracts. Linux seccomp documentation explicitly says syscall filtering alone is not a sandbox.",
+        "testedInFeature": false
+      },
+      "platforms": {
+        "windows": "appcontainer-and-hypervisor-options-exist",
+        "macos": "entitlement-and-code-signing-model-exists",
+        "linux": "multiple-kernel-primitives-must-be-composed-and-feature-detected"
+      },
+      "installationAndPrivilege": [
+        "Windows AppContainer needs a dedicated launcher, capability and ACL design; Windows Sandbox excludes Home and is an optional VM feature.",
+        "macOS App Sandbox requires entitlements and signed helper design; arbitrary toolchains need explicit helper packaging and inheritance.",
+        "Linux needs a maintained composition of namespaces, seccomp, Landlock and cgroup with kernel and distribution compatibility handling."
+      ],
+      "dataAndNetwork": {
+        "workspace": "Must be implemented separately for each OS and cannot reuse one cross-platform OpenClaw backend contract.",
+        "networkDefault": "varies-by-os-and-primitive",
+        "externalDataTransfer": "Native controls do not define provider or application data egress by themselves.",
+        "lockedControls": [
+          "No Job Object-only sandbox claim",
+          "No seccomp-only sandbox claim",
+          "No App Sandbox claim for unsigned arbitrary child tools",
+          "No Windows Sandbox automation as a product backend without lifecycle evidence"
+        ]
+      },
+      "costLicenseDependency": {
+        "software": "OS APIs have no separate runtime subscription, but implementation, signing and maintenance costs are high.",
+        "commercial": "Windows edition constraints and Apple Developer signing/distribution requirements remain.",
+        "externalDependency": "OS version, kernel features, code signing, entitlements and platform-specific security expertise."
+      },
+      "recoveryUpdateFailure": {
+        "failure": "Any unsupported primitive or launcher failure must deny execution, which creates many platform-specific failure branches.",
+        "recovery": "Requires separate process-tree cleanup, storage cleanup and policy migration per OS.",
+        "update": "Every OS update can change available primitives, entitlements, kernel ABI or compatibility."
+      },
+      "ordinaryUserFit": "not-feasible-as-one-cross-platform-default",
+      "remainingBlockedCapabilities": [
+        "all product execution",
+        "elevated execution",
+        "sensitive browser automation",
+        "cross-platform workspace write",
+        "unattended automation"
+      ]
+    }
+  ],
+  "recommendation": {
+    "primaryDirection": "local-managed-container",
+    "status": "preferred-contingent",
+    "safeProductDefault": "blocked",
+    "secondaryDirection": "remote-openshell-ssh-as-explicit-opt-in-after-production-readiness",
+    "nativeRole": "defense-in-depth-for-product-components-not-primary-agent-backend",
+    "nextEvidenceRequired": [
+      "Senior platform and independent security review",
+      "Product Owner selection of runtime ownership and commercial dependency",
+      "Real Docker-compatible sandbox tests on supported Windows macOS and Linux machines",
+      "Installer privilege and ordinary-user usability study",
+      "Crash update rollback and daemon-unavailable recovery tests",
+      "Network egress and filesystem escape adversarial tests"
+    ]
+  },
+  "lockedCapabilityIds": [
+    "workspace.files-grants",
+    "tools.exec-approvals",
+    "browser.web-automation",
+    "always-on.private-instance"
+  ],
+  "claims": [
+    {
+      "claimId": "CLM-01",
+      "directionId": "local-managed-container",
+      "classification": "upstream-fact",
+      "statement": "Locked OpenClaw Docker defaults are no network, read-only root, and all capabilities dropped.",
+      "sourceRefs": [
+        "SRC-01"
+      ],
+      "sectionLocators": [
+        "Docker backend; Defaults"
+      ],
+      "promotionEligible": false
+    },
+    {
+      "claimId": "CLM-02",
+      "directionId": "local-managed-container",
+      "classification": "upstream-fact",
+      "statement": "Docker rootless mode runs daemon and containers without root privileges when prerequisites are met.",
+      "sourceRefs": [
+        "SRC-04"
+      ],
+      "sectionLocators": [
+        "Rootless mode; Prerequisites"
+      ],
+      "promotionEligible": false
+    },
+    {
+      "claimId": "CLM-03",
+      "directionId": "local-managed-container",
+      "classification": "analyst-inference",
+      "statement": "A hardened managed local container is the preferred contingent implementation direction.",
+      "sourceRefs": [
+        "SRC-01",
+        "SRC-03",
+        "SRC-04",
+        "SRC-05",
+        "SRC-06",
+        "SRC-07"
+      ],
+      "sectionLocators": [
+        "ADR Recommendation; local managed container analysis"
+      ],
+      "promotionEligible": false
+    },
+    {
+      "claimId": "CLM-04",
+      "directionId": "remote-openshell-ssh",
+      "classification": "upstream-fact",
+      "statement": "OpenShell uses remote managed sandboxes and NVIDIA labels the reviewed software alpha.",
+      "sourceRefs": [
+        "SRC-01",
+        "SRC-02",
+        "SRC-08",
+        "SRC-09"
+      ],
+      "sectionLocators": [
+        "OpenClaw OpenShell backend; NVIDIA README alpha notice; Support Matrix"
+      ],
+      "promotionEligible": false
+    },
+    {
+      "claimId": "CLM-05",
+      "directionId": "remote-openshell-ssh",
+      "classification": "product-policy",
+      "statement": "OpenShell and SSH remain explicit opt-in research only and cannot become the production default in Feature 0.6.",
+      "sourceRefs": [
+        "SRC-01",
+        "SRC-02",
+        "SRC-08",
+        "SRC-09",
+        "SRC-10"
+      ],
+      "sectionLocators": [
+        "ADR Decision; D-0018"
+      ],
+      "promotionEligible": false
+    },
+    {
+      "claimId": "CLM-06",
+      "directionId": "native-os-restrictions",
+      "classification": "upstream-fact",
+      "statement": "Windows, macOS, and Linux expose different isolation primitives, and seccomp filtering alone is not a sandbox.",
+      "sourceRefs": [
+        "SRC-11",
+        "SRC-12",
+        "SRC-13",
+        "SRC-14",
+        "SRC-15",
+        "SRC-16",
+        "SRC-17",
+        "SRC-18"
+      ],
+      "sectionLocators": [
+        "Platform API overviews; seccomp Caveats"
+      ],
+      "promotionEligible": false
+    },
+    {
+      "claimId": "CLM-07",
+      "directionId": "native-os-restrictions",
+      "classification": "analyst-inference",
+      "statement": "Native OS restrictions are defense-in-depth and not one primary cross-platform agent backend.",
+      "sourceRefs": [
+        "SRC-11",
+        "SRC-12",
+        "SRC-13",
+        "SRC-14",
+        "SRC-15",
+        "SRC-16",
+        "SRC-17",
+        "SRC-18"
+      ],
+      "sectionLocators": [
+        "ADR Recommendation; native restrictions analysis"
+      ],
+      "promotionEligible": false
+    },
+    {
+      "claimId": "CLM-08",
+      "directionId": "local-managed-container",
+      "classification": "assumption",
+      "statement": "A dedicated installer and recovery flow may make a managed local container usable for ordinary nontechnical users.",
+      "sourceRefs": [
+        "SRC-05",
+        "SRC-06"
+      ],
+      "sectionLocators": [
+        "Windows install prerequisites; Mac permission requirements"
+      ],
+      "promotionEligible": false
+    }
+  ],
+  "sources": [
+    {
+      "id": "SRC-01",
+      "url": "https://github.com/openclaw/openclaw/blob/v2026.7.1-2/docs/gateway/sandboxing.md",
+      "accessedAt": "2026-08-12",
+      "scope": "locked OpenClaw Docker SSH and OpenShell contract",
+      "evidenceLevel": "documented-primary-source"
+    },
+    {
+      "id": "SRC-02",
+      "url": "https://github.com/openclaw/openclaw/blob/v2026.7.1-2/docs/gateway/openshell.md",
+      "accessedAt": "2026-08-12",
+      "scope": "locked OpenShell modes lifecycle and limits",
+      "evidenceLevel": "documented-primary-source"
+    },
+    {
+      "id": "SRC-03",
+      "url": "https://docs.docker.com/engine/security/",
+      "accessedAt": "2026-08-12",
+      "scope": "container isolation daemon attack surface and cgroups",
+      "evidenceLevel": "documented-primary-source"
+    },
+    {
+      "id": "SRC-04",
+      "url": "https://docs.docker.com/engine/security/rootless/",
+      "accessedAt": "2026-08-12",
+      "scope": "rootless prerequisites and user namespaces",
+      "evidenceLevel": "documented-primary-source"
+    },
+    {
+      "id": "SRC-05",
+      "url": "https://docs.docker.com/desktop/setup/install/windows-install/",
+      "accessedAt": "2026-08-12",
+      "scope": "Windows prerequisites privilege and subscription threshold",
+      "evidenceLevel": "documented-primary-source"
+    },
+    {
+      "id": "SRC-06",
+      "url": "https://docs.docker.com/desktop/setup/install/mac-permission-requirements/",
+      "accessedAt": "2026-08-12",
+      "scope": "macOS privilege model",
+      "evidenceLevel": "documented-primary-source"
+    },
+    {
+      "id": "SRC-07",
+      "url": "https://docs.docker.com/subscription/desktop-license/",
+      "accessedAt": "2026-08-12",
+      "scope": "Docker Desktop license terms",
+      "evidenceLevel": "documented-primary-source"
+    },
+    {
+      "id": "SRC-08",
+      "url": "https://github.com/NVIDIA/OpenShell/blob/dd2b4e3bc0688bdd59f90030f7c1d52511d6e354/README.md",
+      "accessedAt": "2026-08-12",
+      "scope": "OpenShell controls and upstream alpha maturity label",
+      "evidenceLevel": "documented-primary-source"
+    },
+    {
+      "id": "SRC-09",
+      "url": "https://docs.nvidia.com/openshell/reference/support-matrix",
+      "accessedAt": "2026-08-12",
+      "scope": "OpenShell platform and driver support",
+      "evidenceLevel": "documented-primary-source"
+    },
+    {
+      "id": "SRC-10",
+      "url": "https://docs.nvidia.com/openshell/resources/license",
+      "accessedAt": "2026-08-12",
+      "scope": "OpenShell Apache-2.0 license",
+      "evidenceLevel": "documented-primary-source"
+    },
+    {
+      "id": "SRC-11",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/secauthz/appcontainer-isolation",
+      "accessedAt": "2026-08-12",
+      "scope": "Windows AppContainer isolation",
+      "evidenceLevel": "documented-primary-source"
+    },
+    {
+      "id": "SRC-12",
+      "url": "https://learn.microsoft.com/en-us/windows/security/application-security/application-isolation/windows-sandbox/",
+      "accessedAt": "2026-08-12",
+      "scope": "Windows Sandbox isolation editions network and persistence",
+      "evidenceLevel": "documented-primary-source"
+    },
+    {
+      "id": "SRC-13",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects",
+      "accessedAt": "2026-08-12",
+      "scope": "Windows Job Object resource and process-tree controls",
+      "evidenceLevel": "documented-primary-source"
+    },
+    {
+      "id": "SRC-14",
+      "url": "https://developer.apple.com/documentation/security/app-sandbox",
+      "accessedAt": "2026-08-12",
+      "scope": "macOS App Sandbox entitlements",
+      "evidenceLevel": "documented-primary-source"
+    },
+    {
+      "id": "SRC-15",
+      "url": "https://developer.apple.com/documentation/xcode/embedding-a-helper-tool-in-a-sandboxed-app",
+      "accessedAt": "2026-08-12",
+      "scope": "signed sandboxed helper requirements",
+      "evidenceLevel": "documented-primary-source"
+    },
+    {
+      "id": "SRC-16",
+      "url": "https://docs.kernel.org/userspace-api/seccomp_filter.html",
+      "accessedAt": "2026-08-12",
+      "scope": "Linux seccomp scope and limitation",
+      "evidenceLevel": "documented-primary-source"
+    },
+    {
+      "id": "SRC-17",
+      "url": "https://docs.kernel.org/userspace-api/landlock.html",
+      "accessedAt": "2026-08-12",
+      "scope": "Linux Landlock feature detection and access control",
+      "evidenceLevel": "documented-primary-source"
+    },
+    {
+      "id": "SRC-18",
+      "url": "https://docs.kernel.org/admin-guide/cgroup-v2.html",
+      "accessedAt": "2026-08-12",
+      "scope": "Linux cgroup resource control",
+      "evidenceLevel": "documented-primary-source"
+    }
+  ]
+}

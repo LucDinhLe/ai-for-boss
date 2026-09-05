@@ -1,0 +1,136 @@
+{
+  "$schema": "./beta-0-candidate.schema.json",
+  "schemaVersion": "1.0.0",
+  "candidateTrainId": "oc-2026.9.1-candidate.1",
+  "supersedesLockedTrainId": "oc-2026.7.1-2-locked.1",
+  "status": "candidate",
+  "capturedAt": "2026-09-05T12:20:00+07:00",
+  "purpose": "Beta 0 runs the product Supervisor and Gateway adapter against this candidate to answer one question with evidence: does the embedded Gateway serve authenticated RPC natively on each target platform, or does a platform need a Linux subsystem. A candidate is never advertised, never promoted automatically, and never treated as the locked release train.",
+  "why": [
+    "The locked train pins openclaw 2026.7.1-2 from 2026-07-18. At capture time npm stable is 2026.9.1, two release cycles ahead.",
+    "OpenClaw publishes @openclaw/gateway-client and @openclaw/gateway-protocol as stable packages from 2026.8.1 onward. D-0013 assumed no public client package exists and planned a hand-rolled WebSocket client; that assumption is now false, so the candidate consumes the published packages instead.",
+    "The published package set ships docs/gateway/embedding.md, a first-party contract for supervising the Gateway as a child process. Beta 0 follows it rather than inventing a lifecycle.",
+    "The first Windows CI run showed the Gateway starts and completes the operator handshake natively, with no Linux subsystem, then fast-fails inside libuv's filesystem watcher when its state directory is an 8.3 short path. The host now resolves paths to their long form before handing them to the child (R-034)."
+  ],
+  "components": [
+    {
+      "name": "openclaw",
+      "version": "2026.9.1",
+      "role": "runtime",
+      "source": "https://registry.npmjs.org/openclaw/-/openclaw-2026.9.1.tgz",
+      "integrity": "sha512-0Ve0631CdgkJDwd4NNG1BawIdF5yCL2sO+Tts8amStw+H6vKURTj0K4rOa4+hFpJk1Dnw5LyKl5twzwX1VtA2w==",
+      "buildId": "ad6fe23",
+      "license": "MIT"
+    },
+    {
+      "name": "@openclaw/gateway-client",
+      "version": "2026.9.1",
+      "role": "gateway-client",
+      "source": "https://registry.npmjs.org/@openclaw/gateway-client/-/gateway-client-2026.9.1.tgz",
+      "integrity": "sha512-rgnSYSp2tlZtEoI3MbxbJX3HP3NBXsRsF0oT1cRlYmUMMDvM1IR9jPumIxj0tfFAiAQKYWsGFz7BLwwKo9zJZA==",
+      "license": "MIT"
+    },
+    {
+      "name": "@openclaw/gateway-protocol",
+      "version": "2026.9.1",
+      "role": "gateway-protocol",
+      "source": "https://registry.npmjs.org/@openclaw/gateway-protocol/-/gateway-protocol-2026.9.1.tgz",
+      "integrity": "sha512-ZCwptkiGaW7TL5QnEND7pdvLy3LSuXmfXxIQYg5TogImmUFmY+iaKTHHxnj+4UZ5sCKgZsxr455YSH/3HMwl4w==",
+      "license": "MIT"
+    }
+  ],
+  "integrationSurface": {
+    "protocolVersion": 4,
+    "transport": "websocket-text-json",
+    "clientId": "gateway-client",
+    "role": "operator",
+    "scopes": [
+      "operator.read",
+      "operator.write",
+      "operator.approvals"
+    ],
+    "referenceDocuments": [
+      {
+        "path": "docs/gateway/external-apps.md",
+        "source": "npm-package",
+        "sha256": "93a311221d9eb4afcfb34a02365b07a4bc9d9d48b6672bb65fb8c1f50cbf14cc"
+      },
+      {
+        "path": "docs/gateway/protocol.md",
+        "source": "npm-package",
+        "sha256": "254b2071b0735faa36072fa4ce2031c50a56959015d2c1232dceea1b6dea65cb"
+      },
+      {
+        "path": "docs/gateway/embedding.md",
+        "source": "npm-package",
+        "sha256": "ca67e03994f21446bfeca58c95c2cb624dde767b9983a89982627145f80dfb90"
+      },
+      {
+        "path": "docs/gateway/clients.md",
+        "source": "npm-package",
+        "sha256": "bd2ba3a23283f2d95b0fb29fdecd5a8d53da945780d5abcc9129b20f1a1fbde5"
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "platform": "linux",
+      "architecture": "x64",
+      "level": "spike-tested",
+      "artifact": "artifacts/beta-0/gateway-smoke-linux-x64.json",
+      "linuxSubsystemUsed": false,
+      "ciArtifact": {
+        "runId": "33948858928",
+        "workflow": "Desktop shell #16",
+        "commit": "ac4b9e2",
+        "conclusion": "success",
+        "url": "https://github.com/LucDinhLe/ai-for-boss/actions/runs/33948858928",
+        "name": "ai-for-boss-linux-gateway-smoke",
+        "sha256": "8f78b10a7b27e983545f915cbdd8587d711089ab241810fc39bf7bdd9d60d68d"
+      }
+    },
+    {
+      "platform": "win32",
+      "architecture": "x64",
+      "level": "spike-tested",
+      "artifact": null,
+      "linuxSubsystemUsed": false,
+      "ciArtifact": {
+        "runId": "33948858928",
+        "workflow": "Desktop shell #16",
+        "commit": "ac4b9e2",
+        "conclusion": "success",
+        "url": "https://github.com/LucDinhLe/ai-for-boss/actions/runs/33948858928",
+        "name": "ai-for-boss-windows-gateway-smoke",
+        "sha256": "573143acc3a291f210a00ee9a6895ad27358f2f02b215ba0b3ca1298963878c1"
+      },
+      "note": "The Gateway starts, listens and completes the operator handshake natively on windows-latest, with no Linux subsystem. Run 15 on the same runner crashed in libuv's filesystem watcher until the host resolved its state directory out of 8.3 short form (R-034)."
+    },
+    {
+      "platform": "darwin",
+      "architecture": "arm64",
+      "level": "spike-tested",
+      "artifact": null,
+      "linuxSubsystemUsed": false,
+      "ciArtifact": {
+        "runId": "33948858928",
+        "workflow": "Desktop shell #16",
+        "commit": "ac4b9e2",
+        "conclusion": "success",
+        "url": "https://github.com/LucDinhLe/ai-for-boss/actions/runs/33948858928",
+        "name": "ai-for-boss-macos-gateway-smoke",
+        "sha256": "1686666f99e14f711bb3422d231ca1e260947edfccbac7dcc237dbbd94f38d16"
+      },
+      "note": "Passes on macos-14 (Apple Silicon runner)."
+    }
+  ],
+  "promotionBlockers": [
+    "Capability manifest diff between 2026.7.1-2 and the candidate has not been produced; the 23 locked capability families still describe the older train.",
+    "SBOM baseline and third-party license inventory have not been regenerated for the candidate dependency tree.",
+    "Three-platform smoke passes on CI runners only. A clean Windows machine and a real Mac have not installed or run the app, and CI proves neither the installer nor the user experience.",
+    "The default agent runtime in a fresh state directory is codex, whose harness plugin is absent; a supported runtime and provider path has not been chosen or tested.",
+    "Independent senior platform and security review of the supervised runtime has not happened."
+  ],
+  "advertisable": false,
+  "appLaunchEvidence": "artifacts/beta-0/app-launch-linux-x64.json"
+}

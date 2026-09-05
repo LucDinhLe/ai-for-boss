@@ -22,19 +22,25 @@ Stop if any required file is missing, its governance hash fails, or the requeste
 
 ## Current scope
 
-**Gate 0, Feature 0.5 — First-run journey is implemented and verified** from
-the Feature 0.4 commit `58c5283`; Draft PR #5 remains unmerged. Independent
-senior platform/security review remains a Gate 0 requirement. The Feature Spec is
-`docs/feature-specs/0005-first-run-journey.md`.
+**Beta 0 — supervised OpenClaw runtime and one chat window** is in progress on
+`experiment/beta-0`, from the merge of Feature 0.5 and Feature 0.6 at `8f43070`.
+The Feature Spec is `docs/feature-specs/0007-beta-0-supervised-openclaw.md`.
 
-Feature 0.4 contains the Electron shell, sandboxed renderer, minimal preload
-boundary, honest placeholder state and experimental CI package matrix. It
-consumes the Feature 0.3 capability/source/threat contracts.
+Gate 0 work is merged: Feature 0.4 contains the Electron shell, sandboxed
+renderer and experimental CI package matrix; Feature 0.5 contains the fixture
+first-run journey, now living at `apps/desktop/src/first-run/`; Feature 0.6
+contains the sandbox ADR and probe. Independent senior platform/security review
+is still an open Gate 0 requirement.
 
-Do not add live OAuth/provider implementations, production Gateway supervision,
-installer/updater release logic, host execution, sensitive browser actions,
-real credentials or product sandbox claims during Feature 0.5. The sandbox
-decision remains Feature 0.6.
+Beta 0 adds the Gateway Supervisor, host-owned device identity, the adapter over
+the published `@openclaw/gateway-client`, a closed IPC bridge and a single chat
+window. It runs the `oc-2026.9.1-candidate.1` candidate train, which is not the
+locked release train and must not be described as one.
+
+Do not add installer or updater logic, provider OAuth or API keys, agent runtime
+selection, real Advisor orchestration, tools, approvals, browser, terminal,
+plugins, skills or project management during beta 0. The sandbox defaults from
+D-0018 stay closed.
 
 ## Build discipline
 

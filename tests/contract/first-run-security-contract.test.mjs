@@ -19,7 +19,7 @@ function contrastRatio(left, right) {
 }
 
 test("first-run UI labels provider, task, and artifact states as mock/internal", () => {
-  const app = read("apps/desktop/src/App.tsx");
+  const app = read("apps/desktop/src/first-run/first-run-journey.tsx");
   for (const marker of [
     "Feature 0.5 · dữ liệu giả",
     "MÔ PHỎNG · KHÔNG KẾT NỐI",
@@ -32,14 +32,14 @@ test("first-run UI labels provider, task, and artifact states as mock/internal",
 });
 
 test("first-run source contains no persistence, outbound transport, or process execution", () => {
-  const combined = `${read("apps/desktop/src/first-run-machine.mjs")}\n${read("apps/desktop/src/App.tsx")}`;
+  const combined = `${read("apps/desktop/src/first-run-machine.mjs")}\n${read("apps/desktop/src/first-run/first-run-journey.tsx")}`;
   assert.doesNotMatch(combined, /localStorage|sessionStorage|indexedDB|fetch\s*\(|XMLHttpRequest|new WebSocket\s*\(/);
   assert.doesNotMatch(combined, /writeFile|unlink|rmSync|spawn\s*\(|exec\s*\(/);
   assert.doesNotMatch(combined, /(?:^|[^A-Za-z])sk-[A-Za-z0-9_-]{20,}|gh[pousr]_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}/);
 });
 
 test("renderer cannot self-assert trusted Genesis promotion evidence", () => {
-  const app = read("apps/desktop/src/App.tsx");
+  const app = read("apps/desktop/src/first-run/first-run-journey.tsx");
   assert.match(app, /approvePreviewGenesis/);
   assert.doesNotMatch(app, /approveGenesis|PASSING_PROMOTION_CHECKS|trusted-supervisor-runtime/);
   assert.match(app, /emoji/);
@@ -60,11 +60,13 @@ test("light theme text colors and minimum viewport remain accessible", () => {
   assert.match(styles, /button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible/);
 });
 
-test("renderer preload boundary remains one read-only shell-status request", () => {
+test("renderer preload boundary stays request-shaped and allowlisted", () => {
   const preload = read("apps/desktop/electron/preload.cjs");
-  assert.equal([...preload.matchAll(/ipcRenderer\.invoke\(/g)].length, 1);
+  // The fixture journey still reads shell status only; beta 0 (D-0019) added
+  // the supervised-runtime channels beside it without loosening the shape.
+  assert.equal([...preload.matchAll(/ipcRenderer\.invoke\(/g)].length, 3);
   assert.match(preload, /getShellStatus/);
-  assert.doesNotMatch(preload, /ipcRenderer\.(?:send|sendSync|on|once)\s*\(/);
+  assert.doesNotMatch(preload, /ipcRenderer\.(?:send|sendSync|once)\s*\(/);
 });
 
 test("renderer CSP remains offline and scripts remain local", () => {

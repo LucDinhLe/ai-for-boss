@@ -44,7 +44,7 @@ Mỗi quyết định có hệ quả phải ghi owner, ngày, trạng thái, lý
 Các quyết định sau tiếp tục theo Decision Register của Rulebook:
 
 - Phiên bản OpenClaw, Node, Electron và package manager ở Feature 0.2.
-- Sandbox local, remote hoặc native ở Feature 0.6.
+- Sandbox local, remote hoặc native: Feature 0.6 đã tạo khuyến nghị D-0018; Product Owner và senior platform/security review chưa chấp nhận backend production.
 - Giấy phép sản phẩm trước Cổng 4.
 - Telemetry và support upload trước Cổng 5.
 - Giá và license thương mại trước Cổng 5.
@@ -172,3 +172,38 @@ Các lệnh cấm trộn beta và coi placeholder là production vẫn giữ ngu
 - Quyết định: Hành trình first-run bằng fixture chỉ duyệt hồ sơ Genesis tới `STAGING`. `ACTIVE`, `bootstrapRetained=false` và `reportReady=true` chỉ hợp lệ khi state machine nhận đủ sáu promotion check từ nguồn `trusted-supervisor-runtime`; renderer không sở hữu hoặc truyền nguồn bằng chứng này.
 - Hệ quả: Snapshot dùng exact schema và invariant matrix; dữ liệu thiếu, thừa, sai giới hạn hoặc tổ hợp state bất khả thi bị từ chối toàn bộ. Preview vẫn cho phép tạo task `draft-only` cùng kế hoạch mẫu để test UX, nhưng không được diễn giải thành Agent/runtime đã hoạt động.
 - Phương án bị loại: Hard-code toàn bộ check là đạt trong UI; coi preview approval là runtime promotion; hoặc phục hồi một phần snapshot không đáng tin.
+
+## D-0018. Khuyến nghị sandbox local managed container có điều kiện
+
+- Ngày: 2026-08-12
+- Owner: Hermes/Codex đề xuất kỹ thuật; Lê Đình Lực và senior platform/security reviewer cần chấp nhận trước khi triển khai
+- Nhãn: `GATED_HYPOTHESIS`
+- Trạng thái: Đề xuất, chưa chấp nhận làm backend production
+- Quyết định đề xuất: Ưu tiên nghiên cứu container runtime cục bộ do AI for Boss quản lý. OpenShell/SSH chỉ là hướng opt-in sau khi có production-readiness; native restrictions chỉ làm defense-in-depth. Product default vẫn `execution=blocked`, `sandboxMode=off`, workspace/network `none`.
+- Hệ quả: Không mở host exec, elevated, Browser nhạy cảm, network, credential injection, Docker socket, host namespace hoặc bind mount ngoài project grant. Cần test sandbox thật trên Windows/macOS/Linux, installer/usability, recovery/update và adversarial escape trước khi promote.
+- Phương án bị loại: OpenShell alpha làm default; native restrictions riêng lẻ làm backend đa nền tảng; fallback âm thầm về host khi backend vắng hoặc lỗi.
+- Bằng chứng: `docs/architecture/SANDBOX-FEASIBILITY-ADR.md`, manifest/schema, exact reviewed-source và semantic-direction digests, fixture-only probe cùng contract tests Feature 0.6. Bằng chứng này không chứng minh isolation thực tế.
+
+## D-0019. Dùng gói Gateway công khai của OpenClaw thay vì tự viết client
+
+- Ngày: 2026-09-05
+- Owner: Fable đề xuất kỹ thuật; Lê Đình Lực chấp nhận cho beta 0; senior platform/security reviewer vẫn cần trước Cổng 1
+- Nhãn: `TECHNICAL_DECISION`
+- Trạng thái: Chấp nhận cho beta 0; thay thế D-0013 ở phần nguồn client
+- Bối cảnh: D-0013 ngày 2026-08-11 ghi rằng `@openclaw/gateway-client` và `@openclaw/gateway-protocol` là package private `0.0.0-private`, nên AI for Boss phải tự dựng client WebSocket trên tài liệu công khai. Từ release train `2026.8.1`, hai package này đã được phát hành công khai trên npm kèm schema, validator, kiểu TypeScript, registry định danh client, lớp device auth, reconnect và projection cho transcript. Gói `openclaw` còn kèm `docs/gateway/embedding.md`, hợp đồng chính thức cho việc nuôi Gateway như tiến trình con.
+- Quyết định: Beta 0 phụ thuộc trực tiếp vào hai package công khai đã ghim và tuân theo `embedding.md`. Không tự viết lại handshake, chữ ký thiết bị, reconnect hay projection.
+- Hệ quả: Lớp Adapter mỏng đi đáng kể và bám đúng phiên bản wire. Đổi lại, hai package trở thành thành phần được ghim trong candidate train, phải nâng cùng nhịp với `openclaw`, và mọi lần nâng phải chạy lại smoke ba nền tảng. Bề mặt IPC mở rộng từ một lệnh đọc lên ba kênh gọi vào và một kênh nhận, vẫn đóng theo danh sách cho phép có test.
+- Phạm vi không đổi: Không vendor package private, không import dist chunk băm, không dàn phẳng gói `openclaw`, không đọc state riêng của OpenClaw.
+- Phương án bị loại: Giữ nguyên D-0013 và tự viết client trên một release train đã cũ hai kỳ; hoặc bám bản `2026.7.1-2` vốn chưa có package công khai nên không thể hưởng hợp đồng nhúng.
+- Bằng chứng: `manifests/runtime/beta-0-candidate.lock.json`, `artifacts/beta-0/`, `tests/contract/beta-0-runtime-contract.test.mjs`.
+
+## D-0020. Train 2026.9.1 là candidate, không phải locked
+
+- Ngày: 2026-09-05
+- Owner: Fable đề xuất; Lê Đình Lực quyết định thời điểm promote
+- Nhãn: `GATED_HYPOTHESIS`
+- Trạng thái: Chấp nhận cho beta 0
+- Quyết định: Beta 0 chạy trên `oc-2026.9.1-candidate.1` được ghi trong một tài liệu riêng, tách hẳn khỏi `runtime-manifest.lock.json`. Locked train vẫn là `oc-2026.7.1-2-locked.1` cho tới khi đủ điều kiện promote.
+- Hệ quả: Capability manifest, SBOM, license inventory và bằng chứng lab Feature 0.2 giữ nguyên bản đã kiểm, không bị viết lại theo phiên bản mới. Candidate mang sẵn danh sách điều kiện chưa đạt, và validator từ chối mọi mục bằng chứng tự nhận `spike-tested` mà không có tệp bằng chứng đúng nền tảng.
+- Điều kiện promote: capability diff giữa hai train, SBOM và license inventory mới, smoke đạt trên Windows x64 và macOS arm64, chọn được agent runtime cùng đường xác thực nhà cung cấp, và senior platform/security review.
+- Phương án bị loại: Sửa thẳng locked manifest lên `2026.9.1` và cập nhật các hợp đồng theo phiên bản mới mà chưa chạy lại capability diff; cách đó biến tài liệu thành lời khai thay vì bằng chứng.

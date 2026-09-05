@@ -34,13 +34,18 @@ test("renderer navigation is constrained to the exact local entry point", () => 
   assert.equal(isAllowedNavigation("file:///app/other.html", "file:///app/index.html"), false);
 });
 
-test("preload exposes one read-only, allowlisted IPC request", () => {
+test("preload exposes only allowlisted, invoke-shaped IPC requests", () => {
   const preload = read("apps/desktop/electron/preload.cjs");
 
   assert.equal(SHELL_STATUS_CHANNEL, "aifb:shell-status");
-  assert.equal([...preload.matchAll(/ipcRenderer\.invoke\(/g)].length, 1);
+  // Beta 0 (D-0019) adds the two supervised-runtime channels. The shape stays
+  // request/response against named channels; nothing fire-and-forget appears.
+  assert.equal([...preload.matchAll(/ipcRenderer\.invoke\(/g)].length, 3);
   assert.match(preload, /getShellStatus/);
-  assert.doesNotMatch(preload, /ipcRenderer\.(?:send|sendSync|on|once)\s*\(/);
+  assert.doesNotMatch(preload, /ipcRenderer\.(?:send|sendSync|once)\s*\(/);
+  // One receive helper, and it must hand back an unsubscribe.
+  assert.equal([...preload.matchAll(/ipcRenderer\.on\s*\(/g)].length, 1);
+  assert.match(preload, /ipcRenderer\.removeListener/);
 });
 
 test("main process does not opt out of the sandbox or web security", () => {

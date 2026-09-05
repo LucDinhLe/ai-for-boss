@@ -46,6 +46,12 @@ Nguồn máy đọc được: [openclaw-2026.7.1-2.capability-manifest.json](../
 
 Tổng cộng: 23/23 nhóm trong Master Plan đã được ánh xạ; 9 `WRAPPED`, 8 `RESTRICTED`, 6 `BLOCKED`.
 
+### 2.1. Cập nhật feasibility Feature 0.6
+
+ADR Feature 0.6 khuyến nghị có điều kiện hướng local managed container, nhưng chưa có backend thật hoặc bằng chứng isolation. Vì vậy các nhóm Workspace/file, Tool/exec, Browser/web và Always-on tiếp tục treatment hiện tại; mọi record vẫn `advertisable: false`.
+
+Probe Feature 0.6 chỉ chứng minh fail-closed decision logic, platform-presence hints và một thư mục tạm rỗng được tạo, canonicalize, tái kiểm trước khi xóa không recursive. Nó không đủ để chuyển bất kỳ capability nào sang `WRAPPED`, `REUSED` hoặc production-ready. OpenShell/SSH chỉ là hướng nghiên cứu opt-in; native restrictions chỉ là defense-in-depth.
+
 ## 3. Nguồn bằng chứng
 
 Manifest dùng tài liệu đi kèm đúng npm package `openclaw@2026.7.1-2`, package đã được khóa bằng npm integrity và gắn với tag/commit trong Gateway contract. Nguồn cốt lõi gồm:

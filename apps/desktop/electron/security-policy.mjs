@@ -1,5 +1,28 @@
 export const SHELL_STATUS_CHANNEL = "aifb:shell-status";
 
+/** Renderer → main. Every call is checked against the adapter method allowlist. */
+export const GATEWAY_REQUEST_CHANNEL = "aifb:gateway-request";
+
+/** Renderer → main. Returns supervisor and connection state, never credentials. */
+export const GATEWAY_STATUS_CHANNEL = "aifb:gateway-status";
+
+/** Main → renderer. Runtime status transitions. */
+export const GATEWAY_STATUS_EVENT_CHANNEL = "aifb:gateway-status-changed";
+
+/** Main → renderer. Allowlisted Gateway events. */
+export const GATEWAY_EVENT_CHANNEL = "aifb:gateway-event";
+
+export const RENDERER_INVOKE_CHANNELS = Object.freeze([
+  SHELL_STATUS_CHANNEL,
+  GATEWAY_REQUEST_CHANNEL,
+  GATEWAY_STATUS_CHANNEL
+]);
+
+export const MAIN_TO_RENDERER_CHANNELS = Object.freeze([
+  GATEWAY_STATUS_EVENT_CHANNEL,
+  GATEWAY_EVENT_CHANNEL
+]);
+
 export function createWindowOptions({ preloadPath, isPackaged }) {
   return {
     width: 1440,

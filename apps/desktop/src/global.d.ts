@@ -35,9 +35,32 @@ declare global {
     reason?: string;
   };
 
+  type GatewayRuntimeStatus = {
+    supervisor: "idle" | "starting" | "ready" | "restarting" | "safe-mode";
+    detail: string | null;
+    connected: boolean;
+    serverVersion: string | null;
+    protocol: number | null;
+    nodeRuntime: string | null;
+    stateDirectory: string | null;
+    lastError: string | null;
+  };
+
+  type GatewayEventFrame = {
+    event: string;
+    payload: Record<string, unknown> | null;
+    seq: number | null;
+  };
+
   interface Window {
     aiForBoss?: Readonly<{
       getShellStatus: () => Promise<ShellStatus>;
+      gateway: Readonly<{
+        request: <T = Record<string, unknown>>(method: string, params?: unknown) => Promise<T>;
+        getStatus: () => Promise<GatewayRuntimeStatus>;
+        onStatus: (listener: (status: GatewayRuntimeStatus) => void) => () => void;
+        onEvent: (listener: (event: GatewayEventFrame) => void) => () => void;
+      }>;
     }>;
   }
 }
