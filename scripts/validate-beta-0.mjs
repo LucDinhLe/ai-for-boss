@@ -135,23 +135,49 @@ for (const component of candidate.components) {
   }
 }
 
+const PLATFORM_ARTIFACT_LABEL = { win32: "windows", darwin: "macos", linux: "linux" };
+
 for (const entry of candidate.evidence) {
+  const label = `${entry.platform}/${entry.architecture}`;
   if (entry.level !== "spike-tested") {
-    if (entry.artifact !== null || entry.linuxSubsystemUsed !== null) {
-      failures.push(`${entry.platform}/${entry.architecture} claims evidence it has not produced`);
+    if (entry.artifact !== null || entry.linuxSubsystemUsed !== null || entry.ciArtifact) {
+      failures.push(`${label} claims evidence it has not produced`);
     }
     continue;
   }
-  if (!entry.artifact || !fs.existsSync(path.join(repoRoot, entry.artifact))) {
-    failures.push(`${entry.platform}/${entry.architecture} is spike-tested without a stored artifact`);
+
+  // Evidence is either a record stored in the repository or a CI artifact
+  // pinned by run and digest. Both are checkable; a bare claim is not.
+  if (!entry.artifact && !entry.ciArtifact) {
+    failures.push(`${label} is spike-tested without a stored or pinned artifact`);
     continue;
   }
-  const record = JSON.parse(fs.readFileSync(path.join(repoRoot, entry.artifact), "utf8"));
-  if (record.host?.platform !== entry.platform || record.host?.arch !== entry.architecture) {
-    failures.push(`${entry.artifact} was recorded on a different platform than it is filed under`);
+
+  if (entry.artifact) {
+    if (!fs.existsSync(path.join(repoRoot, entry.artifact))) {
+      failures.push(`${label} points at a missing artifact ${entry.artifact}`);
+    } else {
+      const record = JSON.parse(fs.readFileSync(path.join(repoRoot, entry.artifact), "utf8"));
+      if (record.host?.platform !== entry.platform || record.host?.arch !== entry.architecture) {
+        failures.push(`${entry.artifact} was recorded on a different platform than it is filed under`);
+      }
+      if (record.handshake?.connected !== true || (record.failures ?? []).length > 0) {
+        failures.push(`${entry.artifact} does not record a clean handshake`);
+      }
+    }
   }
-  if (record.handshake?.connected !== true || (record.failures ?? []).length > 0) {
-    failures.push(`${entry.artifact} does not record a clean handshake`);
+
+  if (entry.ciArtifact) {
+    const expected = PLATFORM_ARTIFACT_LABEL[entry.platform];
+    if (!entry.ciArtifact.name.includes(expected)) {
+      failures.push(`${label} is filed against CI artifact ${entry.ciArtifact.name}`);
+    }
+    if (entry.ciArtifact.conclusion !== "success") {
+      failures.push(`${label} cites a CI run that did not succeed`);
+    }
+    if (!entry.ciArtifact.url.includes(entry.ciArtifact.runId)) {
+      failures.push(`${label} cites a CI URL that does not match its run id`);
+    }
   }
 }
 

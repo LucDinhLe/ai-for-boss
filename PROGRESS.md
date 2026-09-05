@@ -25,6 +25,13 @@ Beta 0: nuôi một Gateway OpenClaw thật bên trong ứng dụng và mở m�
 - `artifacts/beta-0/gateway-smoke-linux-x64.json`: handshake đạt trong 7,5 giây, giao thức v4, máy chủ 2026.9.1, 388 phương thức, bảy RPC đọc đạt, `config.patch` bị chặn đúng như thiết kế, không dùng Linux subsystem.
 - `artifacts/beta-0/app-launch-linux-x64.json`: ứng dụng Electron chạy thật dưới Xvfb, nuôi tiến trình con, được Gateway duyệt thiết bị với vai trò `operator`, lần mở thứ hai dùng lại danh tính đã lưu.
 - `artifacts/beta-0/gateway-handshake.json`: danh mục đầy đủ 388 phương thức và 61 sự kiện của bản đã ghim, dùng làm cơ sở cho các bước sau.
+- CI Desktop shell #16 (commit `ac4b9e2`) xanh cả ba nền tảng, mỗi nền tảng để lại một artifact smoke có digest: Windows `573143ac…`, macOS `1686666f…`, Linux `8f78b10a…`.
+
+## Câu hỏi WSL đã có câu trả lời
+
+Windows chạy Gateway **nguyên bản, không cần WSL2**. Runner `windows-latest` khởi động tiến trình con bằng Node thật, Gateway lắng nghe với 13 plugin và handshake `operator` hoàn tất.
+
+Lượt CI đầu tiên trên Windows lộ một lỗi thật: khi thư mục dữ liệu là đường dẫn 8.3 (`C:\Users\RUNNER~1\…`), bộ theo dõi tệp libuv bên trong OpenClaw tự bắn `Assertion failed: !_wcsnicmp` và giết tiến trình với mã `3221226505`, Gateway sập thành vòng lặp khởi động lại. Supervisor xử lý đúng, ba lần rồi Safe Mode. Host nay giải mọi đường dẫn sang dạng dài bằng `realpathSync.native` trước khi trao cho tiến trình con, và lượt sau xanh. Ghi ở R-034, còn nợ một báo cáo ngược thượng nguồn.
 
 ## Kế thừa từ Feature 0.6 (`feature/0.6-sandbox-feasibility`)
 

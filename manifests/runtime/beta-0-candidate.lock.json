@@ -78,27 +78,56 @@
       "architecture": "x64",
       "level": "spike-tested",
       "artifact": "artifacts/beta-0/gateway-smoke-linux-x64.json",
-      "linuxSubsystemUsed": false
+      "linuxSubsystemUsed": false,
+      "ciArtifact": {
+        "runId": "33948858928",
+        "workflow": "Desktop shell #16",
+        "commit": "ac4b9e2",
+        "conclusion": "success",
+        "url": "https://github.com/LucDinhLe/ai-for-boss/actions/runs/33948858928",
+        "name": "ai-for-boss-linux-gateway-smoke",
+        "sha256": "8f78b10a7b27e983545f915cbdd8587d711089ab241810fc39bf7bdd9d60d68d"
+      }
     },
     {
       "platform": "win32",
       "architecture": "x64",
-      "level": "assumption-pending",
+      "level": "spike-tested",
       "artifact": null,
-      "linuxSubsystemUsed": null
+      "linuxSubsystemUsed": false,
+      "ciArtifact": {
+        "runId": "33948858928",
+        "workflow": "Desktop shell #16",
+        "commit": "ac4b9e2",
+        "conclusion": "success",
+        "url": "https://github.com/LucDinhLe/ai-for-boss/actions/runs/33948858928",
+        "name": "ai-for-boss-windows-gateway-smoke",
+        "sha256": "573143acc3a291f210a00ee9a6895ad27358f2f02b215ba0b3ca1298963878c1"
+      },
+      "note": "The Gateway starts, listens and completes the operator handshake natively on windows-latest, with no Linux subsystem. Run 15 on the same runner crashed in libuv's filesystem watcher until the host resolved its state directory out of 8.3 short form (R-034)."
     },
     {
       "platform": "darwin",
       "architecture": "arm64",
-      "level": "assumption-pending",
+      "level": "spike-tested",
       "artifact": null,
-      "linuxSubsystemUsed": null
+      "linuxSubsystemUsed": false,
+      "ciArtifact": {
+        "runId": "33948858928",
+        "workflow": "Desktop shell #16",
+        "commit": "ac4b9e2",
+        "conclusion": "success",
+        "url": "https://github.com/LucDinhLe/ai-for-boss/actions/runs/33948858928",
+        "name": "ai-for-boss-macos-gateway-smoke",
+        "sha256": "1686666f99e14f711bb3422d231ca1e260947edfccbac7dcc237dbbd94f38d16"
+      },
+      "note": "Passes on macos-14 (Apple Silicon runner)."
     }
   ],
   "promotionBlockers": [
     "Capability manifest diff between 2026.7.1-2 and the candidate has not been produced; the 23 locked capability families still describe the older train.",
     "SBOM baseline and third-party license inventory have not been regenerated for the candidate dependency tree.",
-    "Windows x64 and macOS arm64 smoke evidence is missing, so the native-versus-Linux-subsystem question is unanswered on those platforms.",
+    "Three-platform smoke passes on CI runners only. A clean Windows machine and a real Mac have not installed or run the app, and CI proves neither the installer nor the user experience.",
     "The default agent runtime in a fresh state directory is codex, whose harness plugin is absent; a supported runtime and provider path has not been chosen or tested.",
     "Independent senior platform and security review of the supervised runtime has not happened."
   ],

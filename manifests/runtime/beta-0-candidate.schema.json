@@ -207,6 +207,53 @@
               "boolean",
               "null"
             ]
+          },
+          "note": {
+            "type": "string",
+            "minLength": 10
+          },
+          "ciArtifact": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "runId",
+              "workflow",
+              "commit",
+              "conclusion",
+              "url",
+              "name",
+              "sha256"
+            ],
+            "properties": {
+              "runId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "workflow": {
+                "type": "string",
+                "minLength": 1
+              },
+              "commit": {
+                "type": "string",
+                "minLength": 1
+              },
+              "conclusion": {
+                "type": "string",
+                "minLength": 1
+              },
+              "url": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
           }
         }
       }
