@@ -26,6 +26,11 @@ Beta 0: nuôi một Gateway OpenClaw thật bên trong ứng dụng và mở m�
 - `artifacts/beta-0/app-launch-linux-x64.json`: ứng dụng Electron chạy thật dưới Xvfb, nuôi tiến trình con, được Gateway duyệt thiết bị với vai trò `operator`, lần mở thứ hai dùng lại danh tính đã lưu.
 - `artifacts/beta-0/gateway-handshake.json`: danh mục đầy đủ 388 phương thức và 61 sự kiện của bản đã ghim, dùng làm cơ sở cho các bước sau.
 
+## Kế thừa từ Feature 0.6 (`feature/0.6-sandbox-feasibility`)
+
+- Product Owner chưa chấp nhận backend production nào cho sandbox; mặc định vẫn là execution blocked, sandbox off, workspace và network `none`, không tự fallback về host.
+- R-028, R-029 và R-030 vẫn Open: container daemon và bind mount mở rộng blast radius, remote sandbox làm dữ liệu rời thiết bị, native restriction khác nhau theo OS tạo parity giả. Beta 0 không chạm vào ba rủi ro này và không mở bất kỳ đường thực thi nào.
+
 ## Chưa xong và biết rõ
 
 - Windows và macOS chưa có bằng chứng; câu trả lời cho câu hỏi WSL2 nằm ở lượt CI đầu tiên trên nhánh này (R-031).
