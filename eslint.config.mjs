@@ -7,10 +7,12 @@ const nodeGlobals = {
   Buffer: "readonly",
   clearTimeout: "readonly",
   console: "readonly",
+  fetch: "readonly",
   process: "readonly",
   queueMicrotask: "readonly",
   setTimeout: "readonly",
-  structuredClone: "readonly"
+  structuredClone: "readonly",
+  URL: "readonly"
 };
 
 const browserGlobals = {

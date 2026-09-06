@@ -63,7 +63,28 @@ jobs:
       - name: Smoke the supervised OpenClaw Gateway
         run: pnpm smoke:gateway
 
-      - name: Upload gateway smoke evidence
+      # Stage the runtime the package carries, then prove the package starts
+      # its Gateway with nothing on PATH. Together these are the claim the
+      # installer will rest on: a clean machine needs nothing installed.
+      - name: Stage the bundled Node runtime and OpenClaw
+        run: pnpm stage:runtime
+
+      - name: Package current platform
+        run: pnpm package:desktop
+
+      - name: Validate experimental artifact inventory
+        run: node scripts/validate-feature-0.4.mjs --require-artifact
+
+      - name: Smoke the packaged runtime with nothing on PATH
+        run: pnpm smoke:packaged
+
+      # A packaged Electron app is hundreds of megabytes, and three of them on
+      # every pull-request run exhausted the account's artifact storage. The
+      # inventory carries the sha256 of app.asar and the file counts the
+      # validator checks, so pull requests keep the evidence and drop the
+      # payload; a run on main or a manual run still uploads the whole package.
+      # Evidence from both smokes travels together, and stays small.
+      - name: Upload runtime evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1, Node 24
         with:
@@ -72,21 +93,17 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      - name: Package current platform
-        run: pnpm package:desktop
-
-      - name: Validate experimental artifact inventory
-        run: node scripts/validate-feature-0.4.mjs --require-artifact
-
-      # A packaged Electron app is hundreds of megabytes, and three of them on
-      # every pull-request run exhausted the account's artifact storage. The
-      # inventory carries the sha256 of app.asar and the file counts the
-      # validator checks, so pull requests keep the evidence and drop the
-      # payload; a run on main or a manual run still uploads the whole package.
+      # The packaged app now carries a Node runtime and a full OpenClaw install,
+      # so it is close to a gigabyte per platform. Uploading three of those on
+      # every run exhausted the account's artifact storage and taught nothing:
+      # the inventory carries the app.asar digest, the bundled runtime digest
+      # and the file counts the validator checks, and the package rebuilds from
+      # a pinned manifest. The installer gate will publish a real signed
+      # artifact; until then only the evidence travels.
       - name: Upload internal artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1, Node 24
         with:
           name: ai-for-boss-${{ matrix.label }}-experimental-internal
-          path: ${{ github.event_name == 'pull_request' && 'out/desktop/artifact-inventory.json' || 'out/desktop/' }}
+          path: out/desktop/artifact-inventory.json
           if-no-files-found: error
           retention-days: 7

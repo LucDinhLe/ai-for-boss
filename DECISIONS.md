@@ -272,3 +272,24 @@ Các lệnh cấm trộn beta và coi placeholder là production vẫn giữ ngu
 - Quyết định: Tiến trình chính coi một phiên cài đặt kết thúc là tín hiệu khởi động lại, ngoài cờ `gatewayRestartRequired` đã có. Phiên bị huỷ không kích hoạt khởi động lại.
 - Hệ quả: Người dùng bấm kiểm tra kết nối là thấy kết quả thật, không gặp một câu tiếng Anh khó hiểu. Đổi lại mỗi lần kết nối xong có một quãng vài giây Gateway khởi động lại, và trạng thái nền phải nói rõ điều đó.
 
+## D-0027. Gói mang theo Node runtime, ghim và kiểm digest
+
+- Ngày: 2026-09-06
+- Owner: Platform
+- Nhãn: `PLATFORM_DECISION`
+- Trạng thái: Chấp nhận
+- Quyết định: Ứng dụng đóng gói mang theo nhị phân `node` lấy từ bản phân phối chính thức, phiên bản và sha256 ghim trong `manifests/runtime/bundled-runtime.lock.json`. Script chuẩn bị so digest trước khi giải nén và dừng hẳn khi lệch. Chỉ nhị phân `node` được lấy, npm và corepack ở ngoài.
+- Hệ quả: Máy người dùng không cần cài gì. Đổi lại kho phải nâng ghim mỗi lần đổi phiên bản Node, và gói nặng thêm khoảng 121 MB.
+- Phương án bị loại: Dựa vào Node có sẵn trên máy; phần lớn người dùng không có, và bản có sẵn thường nằm ngoài khoảng OpenClaw chấp nhận.
+
+## D-0028. OpenClaw đi cùng gói dưới dạng bản cài thật
+
+- Ngày: 2026-09-06
+- Owner: Platform
+- Nhãn: `PLATFORM_DECISION`
+- Trạng thái: Chấp nhận
+- Bối cảnh: `node_modules` bị loại khỏi `app.asar` một cách cố ý, nên gói không hề có OpenClaw. Ở môi trường phát triển, phân giải trong workspace che mất điều đó.
+- Quyết định: Gói mang một cây `node_modules` thật của OpenClaw, đặt cạnh ứng dụng chứ không nhét vào `app.asar`. Danh sách gói được phép chạy script cài đặt đọc từ `pnpm-workspace.yaml`.
+- Hệ quả: Tiến trình con giải phụ thuộc y như lúc phát triển, gồm cả plugin đi kèm và nhị phân biên dịch sẵn. Đổi lại gói nặng thêm khoảng 528 MB và `app.asar` vẫn giữ được danh sách tệp đóng.
+- Phương án bị loại: Gộp OpenClaw vào một tệp bundle; nó nạp plugin và nhị phân theo đường dẫn lúc chạy, gộp lại là tự chuốc một lớp lỗi không cần thiết.
+

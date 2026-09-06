@@ -1,0 +1,32 @@
+{
+  "recordedAt": "2026-09-06T02:37:02.919Z",
+  "scope": "AI for Boss — the packaged app starts its Gateway with nothing installed on the host",
+  "host": {
+    "platform": "linux",
+    "arch": "x64",
+    "release": "6.18.44-fc-v24",
+    "node": "v24.19.0"
+  },
+  "package": {
+    "directory": "AI for Boss-linux-x64"
+  },
+  "bundled": {
+    "nodeExecutable": "runtime/node/node",
+    "nodeFromPackage": true,
+    "openclawEntry": "openclaw/node_modules/openclaw/openclaw.mjs",
+    "declared": {
+      "nodeVersion": "24.19.0",
+      "nodeBinarySha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+      "openclawVersion": "2026.9.1",
+      "gatewayClientVersion": "2026.9.1",
+      "gatewayProtocolVersion": "2026.9.1"
+    }
+  },
+  "handshake": {
+    "connected": true,
+    "elapsedMs": 15570,
+    "serverVersion": "2026.9.1",
+    "health": "ok"
+  },
+  "failures": []
+}

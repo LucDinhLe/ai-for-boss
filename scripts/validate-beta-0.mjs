@@ -28,6 +28,10 @@ for (const requiredPath of [
   "apps/desktop/src/connect/wizard-vi.ts",
   "scripts/gateway-smoke.mjs",
   "scripts/provider-verify.mjs",
+  "scripts/stage-runtime.mjs",
+  "scripts/packaged-runtime-smoke.mjs",
+  "manifests/runtime/bundled-runtime.lock.json",
+  "tests/unit/bundled-runtime.test.mjs",
   "docs/testing/BETA-0-PROVIDER-VERIFICATION.md",
   "tests/unit/provider-verify.test.mjs",
   "tests/contract/setup-channel-contract.test.mjs",
@@ -167,6 +171,16 @@ if (!connect.includes("wizard.status") || !connect.includes('kind: "api-key"')) 
 }
 if (!main.includes("finishesSetup")) {
   failures.push("a finished setup wizard does not restart the Gateway");
+}
+
+// A packaged app that finds Node on the host proves nothing about a clean
+// machine, so the check that says otherwise must strip PATH before resolving.
+const packagedSmoke = read("scripts/packaged-runtime-smoke.mjs");
+if (!packagedSmoke.includes('PATH: ""') || !packagedSmoke.includes("nodeFromPackage")) {
+  failures.push("the packaged runtime check can be rescued by a Node on the host");
+}
+if (!read("apps/desktop/electron/supervisor.mjs").includes('path.join(resourcesPath, "openclaw"')) {
+  failures.push("a packaged app cannot resolve the OpenClaw install it carries");
 }
 
 // The renderer stays a pure view: no sockets, no storage, no direct transport.

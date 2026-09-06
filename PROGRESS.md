@@ -25,6 +25,7 @@ Beta 0: nuôi một Gateway OpenClaw thật bên trong ứng dụng và mở m�
 - `artifacts/beta-0/gateway-smoke-linux-x64.json`: handshake đạt trong 7,5 giây, giao thức v4, máy chủ 2026.9.1, 388 phương thức, bảy RPC đọc đạt, `config.patch` bị chặn đúng như thiết kế, không dùng Linux subsystem.
 - `artifacts/beta-0/app-launch-linux-x64.json`: ứng dụng Electron chạy thật dưới Xvfb, nuôi tiến trình con, được Gateway duyệt thiết bị với vai trò `operator`, lần mở thứ hai dùng lại danh tính đã lưu.
 - `artifacts/beta-0/gateway-handshake.json`: danh mục đầy đủ 388 phương thức và 61 sự kiện của bản đã ghim, dùng làm cơ sở cho các bước sau.
+- `artifacts/beta-0/packaged-runtime-linux-x64.json`: gói đã đóng khởi động Gateway với `PATH` rỗng, dùng node và OpenClaw của chính nó, handshake 15,6 giây, `health` đạt.
 - `artifacts/beta-0/provider-verify-linux-x64.json`: kết nối thật đầu cuối trên Linux, `verify` đạt sau 1.865 ms với `anthropic/claude-opus-5`, model của trợ lý rời mặc định `openai/gpt-5.6-sol`, một lượt chat có trả lời sau 8.465 ms, không có failure.
 - `pnpm verify:provider --list` trên Linux đọc được danh mục lõi: một ứng viên tự phát hiện và mười sáu nhà cung cấp khai báo tay, gom thành mười bốn nhóm.
 - CI Desktop shell #16 (commit `ac4b9e2`) xanh cả ba nền tảng, mỗi nền tảng để lại một artifact smoke có digest: Windows `573143ac…`, macOS `1686666f…`, Linux `8f78b10a…`.
@@ -43,9 +44,10 @@ Lượt CI đầu tiên trên Windows lộ một lỗi thật: khi thư mục d�
 ## Chưa xong và biết rõ
 
 - Lần kiểm nhà cung cấp thật mới chạy trên Linux. Windows và macOS chưa chạy, đó là điều kiện chưa đạt còn lại của candidate train (R-032).
-- Bản đóng gói vẫn chưa mang theo Node runtime nên chưa chạy được trên máy sạch; đó là việc của bước bộ cài.
+- Gói đã mang theo Node runtime và OpenClaw, nhưng nặng khoảng 900 MB một nền tảng nên chưa đưa cho người dùng tải được (R-035).
+- Bộ cài thật, chữ ký số và cập nhật tự động vẫn chưa có.
 - Senior platform/security review độc lập vẫn là điều kiện chưa đạt của Cổng 0.
 
 ## Bước nhỏ kế tiếp
 
-Bộ cài mang theo Node runtime, để chạy được lần kiểm này trên một máy Windows sạch.
+Giảm dung lượng gói xuống mức tải được, rồi bọc nó thành bộ cài Windows.

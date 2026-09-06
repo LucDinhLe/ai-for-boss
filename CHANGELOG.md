@@ -166,3 +166,24 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - R-032 đóng trên Linux, còn mở trên Windows và macOS.
 - Điều kiện chưa đạt của candidate train về runtime `codex` được thay bằng điều kiện chạy lại lần kiểm này trên Windows và macOS.
 
+### Gói tự chạy trên máy trắng (2026-09-06, nhánh `feature/connect-screen`)
+
+#### Added
+
+- `manifests/runtime/bundled-runtime.lock.json` ghim phiên bản Node cùng sha256 cho Windows, macOS và Linux, chép từ SHASUMS chính thức.
+- `pnpm stage:runtime` tải Node đã ghim, so digest trước khi giải nén, lấy đúng một nhị phân, rồi cài cây OpenClaw đúng phiên bản mà `apps/desktop` ghim.
+- `pnpm smoke:packaged` chạy Supervisor và Adapter với `PATH` rỗng, chứng minh gói khởi động Gateway bằng chính runtime nó mang theo. Bằng chứng ở `artifacts/beta-0/packaged-runtime-linux-x64.json`.
+- Bản kiểm kê ghi thêm `bundledRuntime` và `selfContained`; validator Feature 0.4 đối chiếu với manifest.
+
+#### Fixed
+
+- Gói của Feature 0.4 không hề chứa OpenClaw, vì `node_modules` bị loại khỏi `app.asar` còn môi trường phát triển thì luôn phân giải được trong workspace. Gói nay mang một bản cài thật và `resolveOpenClawEntry` ưu tiên nó.
+
+#### Changed
+
+- CI chuẩn bị runtime trước khi đóng gói và chạy thêm bài kiểm gói, rồi chỉ tải lên bằng chứng, không tải lên gói gần một gigabyte.
+
+#### Known
+
+- Gói nặng khoảng 900 MB một nền tảng. Phải giảm trước khi làm bộ cài phát hành (R-035).
+

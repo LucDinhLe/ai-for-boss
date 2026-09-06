@@ -91,7 +91,7 @@ async function startRuntime() {
 
   let openclawEntry;
   try {
-    openclawEntry = resolveOpenClawEntry();
+    openclawEntry = resolveOpenClawEntry(undefined, { resourcesPath: process.resourcesPath });
   } catch (error) {
     publishStatus({
       supervisor: SUPERVISOR_STATES.SAFE_MODE,

@@ -116,6 +116,23 @@ if (process.argv.includes("--require-artifact")) {
     if (inventory.fileCount < 2 || inventory.totalBytes <= 0 || !inventory.appAsar?.sha256) {
       failures.push("desktop artifact inventory is incomplete");
     }
+    // A self-contained package must declare exactly the runtime the manifest
+    // pins, and the shell-only package must not pretend to be one.
+    const bundledRuntime = JSON.parse(readText("manifests/runtime/bundled-runtime.lock.json"));
+    if (inventory.selfContained) {
+      requireEqual(inventory.bundledRuntime?.nodeVersion, bundledRuntime.node.version, "bundled Node version");
+      requireEqual(
+        inventory.bundledRuntime?.openclawVersion,
+        desktopPackage.dependencies?.openclaw,
+        "bundled OpenClaw version"
+      );
+      if (!/^[0-9a-f]{64}$/.test(inventory.bundledRuntime?.nodeBinarySha256 ?? "")) {
+        failures.push("bundled Node binary has no recorded digest");
+      }
+    } else if (inventory.bundledRuntime) {
+      failures.push("inventory declares a bundled runtime while reporting the package is not self-contained");
+    }
+
     const asarEntries = inventory.appAsar?.entries ?? [];
     if (
       asarEntries.length !== inventory.appAsar?.entryCount ||
