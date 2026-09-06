@@ -250,3 +250,25 @@ Các lệnh cấm trộn beta và coi placeholder là production vẫn giữ ngu
 - Quyết định: Viết `scripts/provider-verify.mjs` chạy đúng Supervisor, SetupChannel và GatewayAdapter mà ứng dụng ship, ở chế độ không giao diện. Khoá chỉ nhận qua biến môi trường `AIFB_PROVIDER_SECRET`. Bằng chứng ghi ra `artifacts/beta-0/` sau khi lọc mọi trường có tên gợi bí mật. Bước nhập tự do và bước hành động dừng chờ người thay vì đoán.
 - Hệ quả: Lúc Product Owner có khoá hoặc có công cụ dòng lệnh đã đăng nhập, việc đóng hai điều treo là một lệnh và một tệp bằng chứng kiểm lại được, chạy lại được trên máy khác. Đổi lại kho có thêm một đường chạy thật cần giữ đồng bộ với vỏ, nên contract test buộc harness dùng lại mô-đun của ứng dụng thay vì tự mở kết nối.
 - Phương án bị loại: Kiểm bằng tay trên giao diện rồi chụp màn hình; không lặp lại được, không kiểm ngược được, và không nói được gì về runtime của trợ lý sau khi kích hoạt.
+
+## D-0025. Hai hình dạng kích hoạt nhà cung cấp, vỏ mở cả hai
+
+- Ngày: 2026-09-05
+- Owner: Lê Đình Lực quyết định sản phẩm, Platform thực thi
+- Nhãn: `PLATFORM_DECISION`
+- Trạng thái: Chấp nhận, đã kiểm bằng lần chạy thật
+- Bối cảnh: Chạy thật lần đầu cho thấy `openclaw.setup.auth.start` từ chối nhà cung cấp chỉ nhận khoá dán tay, nguyên văn "That provider setup is not available on this Gateway". Lõi có hai đường riêng, `provider-auth` cho đăng nhập có hướng dẫn và `api-key` cho khoá hoặc token dán vào.
+- Quyết định: Khi người dùng chọn một nhà cung cấp, màn hình Kết nối hỏi khoá trước rồi gọi `openclaw.setup.activate.start` với `kind: "api-key"`, đồng thời luôn có nút đăng nhập bằng trình duyệt đi đường `auth.start`. Vỏ không đoán nhà nào thuộc đường nào và vẫn không ghi cứng tên nhà cung cấp.
+- Hệ quả: Mọi nhà cung cấp trong danh mục đều kết nối được, kể cả nhà chỉ có một trong hai đường. Đổi lại người dùng thấy một ô nhập khoá ngay cả với nhà cung cấp chỉ đăng nhập bằng trình duyệt, nên nút thứ hai phải luôn hiện.
+- Phương án bị loại: Đọc siêu dữ liệu để tự chọn đường; siêu dữ liệu đó không có trong `openclaw.setup.detect` nên vỏ sẽ phải đoán, và đoán sai thì người dùng gặp một lỗi không hiểu được.
+
+## D-0026. Bước xong của trình hướng dẫn là tín hiệu khởi động lại Gateway
+
+- Ngày: 2026-09-05
+- Owner: Platform
+- Nhãn: `PLATFORM_DECISION`
+- Trạng thái: Chấp nhận, đã kiểm bằng lần chạy thật
+- Bối cảnh: Cấu hình nhà cung cấp được ghi vào một Gateway đang chạy, và tiến trình con vẫn phục vụ cấu hình cũ cho tới khi khởi động lại. `openclaw.setup.verify` trả về "settings are saved but not active yet" cho tới lúc đó, còn trình hướng dẫn báo xong mà không hề yêu cầu khởi động lại.
+- Quyết định: Tiến trình chính coi một phiên cài đặt kết thúc là tín hiệu khởi động lại, ngoài cờ `gatewayRestartRequired` đã có. Phiên bị huỷ không kích hoạt khởi động lại.
+- Hệ quả: Người dùng bấm kiểm tra kết nối là thấy kết quả thật, không gặp một câu tiếng Anh khó hiểu. Đổi lại mỗi lần kết nối xong có một quãng vài giây Gateway khởi động lại, và trạng thái nền phải nói rõ điều đó.
+

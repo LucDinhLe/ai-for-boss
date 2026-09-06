@@ -147,3 +147,22 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Chạy thật trên máy Product Owner lộ hai lỗi của harness và đã sửa: thiếu bước khởi động lại Gateway sau khi kích hoạt, và gọi phiên chat bằng `sessionId` thay vì `key`.
 - Đường Claude Code chỉ đi được ở nơi đã đăng nhập sẵn; trên máy ảo Linux lõi báo "installed, not logged in" nên chưa đóng được R-032.
 - Hai điều treo của bước Kết nối vẫn treo cho tới khi có một nhà cung cấp thật; harness là công cụ để đóng chúng, không phải bằng chứng thay thế.
+
+### Kết nối nhà cung cấp thật (2026-09-05, nhánh `feature/connect-screen`)
+
+#### Added
+
+- `artifacts/beta-0/provider-verify-linux-x64.json`: bằng chứng máy đọc được cho một lần kết nối thật đầu cuối, gồm verify đạt, model của trợ lý đổi khỏi mặc định, và một lượt chat có trả lời.
+- Màn hình Kết nối hỏi khoá trước khi kích hoạt và vẫn giữ nút đăng nhập bằng trình duyệt, phủ cả hai hình dạng kích hoạt của lõi (D-0025).
+
+#### Fixed
+
+- Trình hướng dẫn trả về không kèm bước bị hiểu nhầm là đã xong, làm luồng kết thúc trước khi kết nối được gì. Vỏ nay đọc lại bằng `wizard.status` và chỉ dừng ở trạng thái kết thúc tường minh.
+- Nhà cung cấp nhận khoá dán tay bị lõi từ chối vì gọi nhầm đường `provider-auth`; nay đi đúng đường `api-key`.
+- Sau khi kết nối xong, Gateway không khởi động lại nên `verify` luôn báo "saved but not active yet". Tiến trình chính nay coi phiên cài đặt kết thúc là tín hiệu khởi động lại (D-0026).
+
+#### Changed
+
+- R-032 đóng trên Linux, còn mở trên Windows và macOS.
+- Điều kiện chưa đạt của candidate train về runtime `codex` được thay bằng điều kiện chạy lại lần kiểm này trên Windows và macOS.
+

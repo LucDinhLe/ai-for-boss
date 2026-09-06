@@ -26,13 +26,32 @@ type DetectResult = {
   workspace?: string;
 };
 
-type Session = { sessionId: string; step: WizardStep | null; done: boolean };
+/**
+ * A wizard call returns as soon as the session is running, so the reply often
+ * carries no step at all. The step is read back from `wizard.status` until one
+ * arrives or the session ends; treating "no step" as "finished" would end the
+ * flow before the provider is ever connected.
+ */
+type WizardReply = {
+  sessionId?: string;
+  step?: WizardStep;
+  done?: boolean;
+  status?: string;
+  error?: string;
+};
+
+type Session = { sessionId: string; step: WizardStep };
+
+const SETTLE_POLL_MS = 700;
+const SETTLE_TIMEOUT_MS = 90_000;
 
 function setupCall<T = Record<string, unknown>>(method: string, params?: unknown): Promise<T> {
   const api = typeof window === "undefined" ? undefined : window.aiForBoss?.setup;
   if (!api) return Promise.reject(new Error("Cầu nối cài đặt chưa sẵn sàng."));
   return api.request(method, params) as Promise<T>;
 }
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function groupProviders(providers: ManualProvider[]): [string, ManualProvider[]][] {
   const groups = new Map<string, ManualProvider[]>();
@@ -44,9 +63,14 @@ function groupProviders(providers: ManualProvider[]): [string, ManualProvider[]]
   return [...groups.entries()];
 }
 
+function isFinished(reply: WizardReply | null): boolean {
+  return reply?.done === true || reply?.status === "done" || reply?.status === "completed";
+}
+
 export default function ConnectScreen({ onDone }: { onDone: () => void }) {
   const [detect, setDetect] = useState<DetectResult | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [keyPrompt, setKeyPrompt] = useState<ManualProvider | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [verdict, setVerdict] = useState<string | null>(null);
@@ -77,52 +101,101 @@ export default function ConnectScreen({ onDone }: { onDone: () => void }) {
     };
   }, []);
 
-  const applyResult = useCallback(
-    (result: { sessionId?: string; step?: WizardStep; done?: boolean }) => {
-      setAnswer("");
-      if (result?.done || !result?.step) {
-        setSession(null);
-        void refreshDetect();
-        return;
+  /** Waits for the wizard to hand over a step, or to say it is finished. */
+  const settle = useCallback(
+    async (sessionId: string, first: WizardReply) => {
+      const deadline = Date.now() + SETTLE_TIMEOUT_MS;
+      let current: WizardReply | null = first;
+      while (Date.now() < deadline) {
+        if (isFinished(current)) {
+          setSession(null);
+          setAnswer("");
+          await refreshDetect();
+          return;
+        }
+        if (current?.step) {
+          setSession({ sessionId, step: current.step });
+          setAnswer("");
+          return;
+        }
+        if (current?.status === "error") {
+          setSession(null);
+          setError(current.error ?? "Trình hướng dẫn dừng với lỗi.");
+          return;
+        }
+        await sleep(SETTLE_POLL_MS);
+        current = await setupCall<WizardReply>("wizard.status", { sessionId });
       }
-      setSession({ sessionId: result.sessionId ?? session?.sessionId ?? "", step: result.step, done: false });
+      setSession(null);
+      setError("Trình hướng dẫn không trả về bước nào trong thời gian chờ.");
     },
-    [refreshDetect, session?.sessionId]
+    [refreshDetect]
   );
 
   const run = useCallback(
-    async (work: () => Promise<unknown>) => {
+    async (sessionId: string, work: () => Promise<WizardReply>) => {
       setBusy(true);
       setError(null);
       try {
-        applyResult((await work()) as never);
+        await settle(sessionId, await work());
       } catch (caught) {
         setError(String((caught as Error)?.message ?? caught));
       } finally {
         setBusy(false);
       }
     },
-    [applyResult]
+    [settle]
   );
 
-  const startCandidate = (candidate: Candidate) =>
-    run(() =>
+  const startCandidate = (candidate: Candidate) => {
+    const sessionId = crypto.randomUUID();
+    return run(sessionId, () =>
       setupCall("openclaw.setup.activate.start", {
         kind: candidate.kind,
-        sessionId: crypto.randomUUID(),
+        sessionId,
         modelRef: candidate.modelRef
       })
     );
+  };
 
-  const startProvider = (provider: ManualProvider) =>
-    run(() => setupCall("openclaw.setup.auth.start", { sessionId: crypto.randomUUID(), authChoice: provider.id }));
+  /**
+   * Two activation shapes, and the core picks a different path for each. A
+   * pasted key or token is the `api-key` activation and carries the secret up
+   * front. A browser sign-in is `auth.start`, which refuses any provider that
+   * only takes a pasted secret. The screen offers both and names neither
+   * provider.
+   */
+  const startWithKey = (provider: ManualProvider, secret: string) => {
+    const sessionId = crypto.randomUUID();
+    setKeyPrompt(null);
+    return run(sessionId, () =>
+      setupCall("openclaw.setup.activate.start", {
+        sessionId,
+        kind: "api-key",
+        authChoice: provider.id,
+        apiKey: secret
+      })
+    );
+  };
 
-  const answerStep = (value: unknown) =>
-    run(() => setupCall("wizard.next", { sessionId: session?.sessionId, answer: { stepId: session?.step?.id, value } }));
+  const startGuided = (provider: ManualProvider) => {
+    const sessionId = crypto.randomUUID();
+    setKeyPrompt(null);
+    return run(sessionId, () => setupCall("openclaw.setup.auth.start", { sessionId, authChoice: provider.id }));
+  };
+
+  const answerStep = (value: unknown) => {
+    if (!session) return Promise.resolve();
+    return run(session.sessionId, () =>
+      setupCall("wizard.next", { sessionId: session.sessionId, answer: { stepId: session.step.id, value } })
+    );
+  };
 
   const cancel = async () => {
     if (session?.sessionId) await setupCall("wizard.cancel", { sessionId: session.sessionId }).catch(() => {});
     setSession(null);
+    setKeyPrompt(null);
+    setAnswer("");
     setError(null);
   };
 
@@ -147,7 +220,49 @@ export default function ConnectScreen({ onDone }: { onDone: () => void }) {
     }
   };
 
-  if (session?.step) {
+  if (keyPrompt) {
+    const submitKey = (event: FormEvent) => {
+      event.preventDefault();
+      if (answer.trim().length > 0) void startWithKey(keyPrompt, answer.trim());
+    };
+
+    return (
+      <section className="connect">
+        <header className="connect__header">
+          <h1>{keyPrompt.label}</h1>
+          <button type="button" onClick={cancel} disabled={busy}>
+            {CHROME.cancel}
+          </button>
+        </header>
+
+        <p className="connect__lead">{CHROME.pasteKeyHint}</p>
+        {keyPrompt.hint ? <p className="connect__hint">{keyPrompt.hint}</p> : null}
+
+        <form className="connect__form" onSubmit={submitKey}>
+          <input
+            type="password"
+            value={answer}
+            placeholder={CHROME.pasteKey}
+            onChange={(event) => setAnswer(event.target.value)}
+            autoFocus
+          />
+          <button type="submit" disabled={busy || answer.trim().length === 0}>
+            {busy ? CHROME.working : CHROME.connectWithKey}
+          </button>
+        </form>
+
+        <div className="connect__options connect__options--row">
+          <button type="button" disabled={busy} onClick={() => void startGuided(keyPrompt)}>
+            {CHROME.signInBrowser}
+          </button>
+        </div>
+
+        {error ? <p className="connect__error">{error}</p> : null}
+      </section>
+    );
+  }
+
+  if (session) {
     const step = session.step;
     const local = localiseStep(step);
     const submitText = (event: FormEvent) => {
@@ -267,7 +382,16 @@ export default function ConnectScreen({ onDone }: { onDone: () => void }) {
           <div key={group} className="connect__group">
             <h3>{group}</h3>
             {providers.map((provider) => (
-              <button key={provider.id} type="button" disabled={busy} onClick={() => void startProvider(provider)}>
+              <button
+                key={provider.id}
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  setAnswer("");
+                  setError(null);
+                  setKeyPrompt(provider);
+                }}
+              >
                 <strong>{provider.label}</strong>
                 {provider.hint ? <small>{provider.hint}</small> : null}
               </button>

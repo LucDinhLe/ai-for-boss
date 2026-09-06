@@ -1,0 +1,360 @@
+{
+  "recordedAt": "2026-09-06T02:00:36.623Z",
+  "scope": "AI for Boss beta 0 — real provider auth end to end, then one chat turn (R-032)",
+  "host": {
+    "platform": "linux",
+    "arch": "x64",
+    "release": "6.8.0-136-generic",
+    "node": "v22.23.2"
+  },
+  "runtime": {
+    "openclaw": "2026.9.1",
+    "gatewayClient": "2026.9.1",
+    "gatewayProtocol": "2026.9.1"
+  },
+  "request": {
+    "provider": "setup-token",
+    "candidate": null,
+    "interactive": false,
+    "mode": "api-key"
+  },
+  "catalogue": {
+    "setupComplete": false,
+    "candidates": [
+      {
+        "kind": "claude-cli",
+        "modelRef": "claude-cli/claude-opus-5",
+        "label": "Claude Code",
+        "detail": "installed, not logged in — run `claude auth login`, then check again",
+        "credentials": false,
+        "recommended": false,
+        "brandId": "claude"
+      }
+    ],
+    "providerCount": 16,
+    "groups": [
+      "OpenAI",
+      "OpenRouter",
+      "xAI (Grok)",
+      "Google",
+      "Anthropic",
+      "Copilot",
+      "Hugging Face",
+      "LiteLLM",
+      "LM Studio",
+      "MiniMax",
+      "NVIDIA",
+      "Ollama",
+      "OpenCode",
+      "Together AI"
+    ]
+  },
+  "wizard": {
+    "steps": [],
+    "completed": true,
+    "lastStatus": {
+      "status": "done"
+    }
+  },
+  "verify": {
+    "ok": true,
+    "latencyMs": 1865,
+    "modelRef": "anthropic/claude-opus-5"
+  },
+  "authStatus": {
+    "before": {
+      "ts": 1788660044245,
+      "providers": [],
+      "providerCapabilities": [
+        {
+          "provider": "anthropic",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "clawrouter",
+          "apiKeySupported": true,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "copilot-proxy",
+          "apiKeySupported": false,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "github-copilot",
+          "apiKeySupported": false,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "google",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "google-vertex",
+          "apiKeySupported": true,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "huggingface",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "litellm",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "lmstudio",
+          "apiKeySupported": false,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "microsoft-foundry",
+          "apiKeySupported": true,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "minimax",
+          "apiKeySupported": false,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "minimax-portal",
+          "apiKeySupported": false,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "nvidia",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "ollama",
+          "apiKeySupported": false,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "ollama-cloud",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "openai",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "opencode-go",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "openrouter",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "sglang",
+          "apiKeySupported": false,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "together",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "vllm",
+          "apiKeySupported": false,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "xai",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        }
+      ]
+    },
+    "after": {
+      "ts": 1788660059790,
+      "providers": [
+        {
+          "provider": "anthropic",
+          "displayName": "Claude",
+          "status": "static",
+          "profiles": [
+            {
+              "profileId": "[deep]",
+              "type": "[deep]",
+              "status": "[deep]",
+              "logoutSupported": "[deep]"
+            }
+          ]
+        }
+      ],
+      "providerCapabilities": [
+        {
+          "provider": "anthropic",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "clawrouter",
+          "apiKeySupported": true,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "copilot-proxy",
+          "apiKeySupported": false,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "github-copilot",
+          "apiKeySupported": false,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "google",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "google-vertex",
+          "apiKeySupported": true,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "huggingface",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "litellm",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "lmstudio",
+          "apiKeySupported": false,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "microsoft-foundry",
+          "apiKeySupported": true,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "minimax",
+          "apiKeySupported": false,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "minimax-portal",
+          "apiKeySupported": false,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "nvidia",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "ollama",
+          "apiKeySupported": false,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "ollama-cloud",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "openai",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "opencode-go",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "openrouter",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "sglang",
+          "apiKeySupported": false,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "together",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        },
+        {
+          "provider": "vllm",
+          "apiKeySupported": false,
+          "quickApiKeySetup": false
+        },
+        {
+          "provider": "xai",
+          "apiKeySupported": true,
+          "quickApiKeySetup": true
+        }
+      ]
+    }
+  },
+  "agentRuntime": {
+    "before": [
+      {
+        "id": "main",
+        "runtime": null,
+        "model": {
+          "primary": "openai/gpt-5.6-sol"
+        },
+        "available": null
+      }
+    ],
+    "after": [
+      {
+        "id": "main",
+        "runtime": null,
+        "model": {
+          "primary": "anthropic/claude-opus-5"
+        },
+        "available": null
+      }
+    ]
+  },
+  "chatTurn": {
+    "prompt": "Xin chào, trả lời ngắn gọn: 2+2 bằng mấy?",
+    "replied": true,
+    "elapsedMs": 8465,
+    "detail": null,
+    "sessionKey": "agent:main:aifb-verify-mtp60ndy",
+    "reply": "2 + 2 = 4.\n\nNhân"
+  },
+  "failures": [],
+  "activation": {
+    "sessionId": "a451f147-6836-456c-9183-94489bfc1e43",
+    "done": false,
+    "status": "running"
+  },
+  "gatewayRestarted": true,
+  "models": {
+    "total": 1,
+    "available": 1,
+    "firstAvailable": "claude-opus-5"
+  },
+  "r032": {
+    "agentModelBefore": "openai/gpt-5.6-sol",
+    "agentModelAfter": "anthropic/claude-opus-5",
+    "leftDefault": true,
+    "chatReachedModel": true
+  }
+}

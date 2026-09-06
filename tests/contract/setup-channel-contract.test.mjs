@@ -115,3 +115,33 @@ test("unrecognised wizard text is shown verbatim rather than guessed at", () => 
   assert.ok(connect.includes("local.recognised"));
   assert.ok(connect.includes("CHROME.unrecognised"));
 });
+
+test("the Connect screen waits for a wizard step instead of ending the flow", () => {
+  const connect = fs.readFileSync(path.join(repoRoot, "apps/desktop/src/connect/ConnectScreen.tsx"), "utf8");
+  assert.ok(connect.includes("wizard.status"), "the screen never polls for the step the wizard is preparing");
+  assert.ok(
+    /done === true \|\| \w+\?\.status === "done"/.test(connect),
+    "only an explicit completion may end the wizard"
+  );
+});
+
+test("the Connect screen offers both activation shapes and names no provider", () => {
+  const connect = fs.readFileSync(path.join(repoRoot, "apps/desktop/src/connect/ConnectScreen.tsx"), "utf8");
+  assert.ok(connect.includes('kind: "api-key"'), "a pasted key must use the api-key activation");
+  assert.ok(connect.includes("openclaw.setup.auth.start"), "browser sign-in must stay available");
+  const withoutComments = connect.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  for (const provider of ["openai", "anthropic", "gemini", "openrouter", "copilot", "ollama"]) {
+    assert.equal(
+      new RegExp(`["'\`][^"'\`]*${provider}`, "i").test(withoutComments),
+      false,
+      `the Connect screen hard-codes ${provider}`
+    );
+  }
+});
+
+test("a finished setup wizard restarts the Gateway before anything reads the new settings", () => {
+  const main = fs.readFileSync(path.join(repoRoot, "apps/desktop/electron/main.mjs"), "utf8");
+  assert.ok(main.includes("finishesSetup"), "no restart trigger for a wizard that reports done");
+  assert.ok(main.includes('method === "wizard.cancel"'), "a cancelled wizard must not restart the Gateway");
+  assert.ok(main.includes("restartGatewayForSetup"));
+});

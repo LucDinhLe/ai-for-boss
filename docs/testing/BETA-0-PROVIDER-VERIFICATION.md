@@ -59,7 +59,23 @@ Thứ nhất, kích hoạt xong thì Gateway phải khởi động lại rồi m
 
 Thứ hai, phiên chat định danh bằng `key`, không phải `sessionId`. Harness gọi `sessions.create`, `sessions.messages.subscribe` và `sessions.send` đúng hình dạng mà cửa sổ chat đang dùng, vì một hình dạng tự nghĩ ra thì không chứng minh được gì.
 
-Thứ ba, đường Claude Code cần một bản Claude Code đã đăng nhập ngay trên máy chạy Gateway. Trên máy ảo Linux của ứng dụng desktop, lõi phát hiện được nhị phân nhưng báo thẳng "installed, not logged in — run `claude auth login`, then check again", nên `models.list` về 0 và không có lượt chạy nào. Muốn đi đường này thì hoặc chạy trên chính nơi đã đăng nhập, hoặc dùng `claude setup-token` để lấy một token dài hạn rồi kết nối qua nhà cung cấp `setup-token`.
+Thứ ba, đường Claude Code cần một bản Claude Code đã đăng nhập ngay trên máy chạy Gateway. Trên máy ảo Linux của ứng dụng desktop, lõi phát hiện được nhị phân nhưng báo thẳng "installed, not logged in — run `claude auth login`, then check again", nên `models.list` về 0 và không có lượt chạy nào. Đường đi được là `claude setup-token` trên máy đã đăng nhập, lấy token dài hạn rồi kết nối qua nhà cung cấp `setup-token`.
+
+Thứ tư, lõi có hai hình dạng kích hoạt và chọn nhánh mã khác nhau cho mỗi hình dạng. `openclaw.setup.auth.start` dành cho đăng nhập có hướng dẫn và từ chối nhà cung cấp chỉ nhận khoá dán tay, nguyên văn "That provider setup is not available on this Gateway". Khoá hoặc token dán tay phải đi `openclaw.setup.activate.start` với `kind: "api-key"` và `apiKey` truyền ngay từ đầu. Xem D-0025.
+
+Thứ năm, một lời gọi trình hướng dẫn trả về ngay khi phiên bắt đầu chạy, thường chưa kèm bước nào. Vắng bước nghĩa là chờ, không phải xong. Bước thật đọc lại bằng `wizard.status` cho tới khi có, và chỉ trạng thái kết thúc tường minh mới được coi là xong. Xem D-0026.
+
+## Kết quả lần chạy đóng cổng
+
+Ngày 2026-09-05, trên Linux, với token `setup-token` do Product Owner cung cấp:
+
+- `openclaw.setup.verify` đạt sau 1.865 ms, model `anthropic/claude-opus-5`.
+- Model chính của trợ lý chuyển từ `openai/gpt-5.6-sol` sang `anthropic/claude-opus-5`.
+- `models.list` từ 0 lên 1 model dùng được.
+- Một lượt chat thật có trả lời sau 8.465 ms.
+- `failures` rỗng.
+
+Bằng chứng nằm trong kho tại `artifacts/beta-0/provider-verify-linux-x64.json`, và validator từ chối nếu tệp này không còn đạt. Windows và macOS chưa chạy lần này, đó là điều kiện chưa đạt còn lại của candidate train.
 
 ## Điều harness không bao giờ ghi
 

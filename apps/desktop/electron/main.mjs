@@ -232,6 +232,19 @@ ipcMain.handle(GATEWAY_REQUEST_CHANNEL, async (event, payload) => {
   return adapter.request(method, payload?.params);
 });
 
+/**
+ * A finished setup wizard writes provider settings into a Gateway that is
+ * already running, and the running child keeps serving the old ones until it
+ * restarts: `openclaw.setup.verify` answers "saved but not active yet" until
+ * then. The wizard reports completion without asking for a restart, so the host
+ * treats a finished setup session as the trigger.
+ */
+function finishesSetup(method, result) {
+  if (!result || typeof result !== "object") return false;
+  if (!/^(wizard\.|openclaw\.setup\.)/.test(method) || method === "wizard.cancel") return false;
+  return result.done === true || result.status === "done" || result.status === "completed";
+}
+
 ipcMain.handle(SETUP_REQUEST_CHANNEL, async (event, payload) => {
   if (!isTrustedRendererEvent(event, mainWindow)) {
     throw new Error("Untrusted setup request");
@@ -244,8 +257,9 @@ ipcMain.handle(SETUP_REQUEST_CHANNEL, async (event, payload) => {
     throw new Error("Setup channel is not running");
   }
   const result = await setupChannel.request(method, payload?.params);
-  if (result?.gatewayRestartRequired) {
-    // Restart before returning so the renderer never talks to a dead child.
+  if (result?.gatewayRestartRequired || finishesSetup(method, result)) {
+    // Restart before returning so the renderer never talks to a dead child, and
+    // so the next `verify` reads the settings that were just written.
     await restartGatewayForSetup().catch((error) => {
       publishStatus({ lastError: String(error?.message ?? error) });
     });

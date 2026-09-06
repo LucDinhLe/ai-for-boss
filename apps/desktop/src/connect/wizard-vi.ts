@@ -95,5 +95,10 @@ export const CHROME = {
   allProviders: "Tất cả nơi cung cấp",
   verifying: "Đang gọi thử model…",
   verified: "Kết nối dùng được",
-  verifyFailed: "Chưa dùng được"
+  verifyFailed: "Chưa dùng được",
+  pasteKey: "Dán khoá hoặc token",
+  pasteKeyHint:
+    "Dán khoá API hoặc token bạn lấy từ nhà cung cấp. Khoá được lưu trên máy này. Nếu nhà cung cấp cho đăng nhập bằng trình duyệt thì bấm nút bên dưới.",
+  connectWithKey: "Kết nối bằng khoá",
+  signInBrowser: "Đăng nhập bằng trình duyệt"
 } as const;

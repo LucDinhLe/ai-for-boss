@@ -39,6 +39,12 @@ const requireFromDesktop = createRequire(path.join(repoRoot, "apps", "desktop", 
 export const SECRET_KEY_PATTERN = /key|token|secret|password|credential|authorization|cookie|bearer/i;
 
 /**
+ * Names that read like a secret and never are. Without this the evidence hides
+ * the very fields that make it readable, such as which session was used.
+ */
+export const SAFE_KEY_NAMES = new Set(["key", "sessionKey", "idempotencyKey", "publicKey", "keys"]);
+
+/**
  * Anything that leaves this process — the evidence file, a log line — passes
  * through here first. A provider secret must never survive the run.
  */
@@ -51,7 +57,8 @@ export function redact(value, depth = 0) {
   if (typeof value !== "object") return String(value);
   const out = {};
   for (const [key, entry] of Object.entries(value)) {
-    const secretShaped = SECRET_KEY_PATTERN.test(key) && (typeof entry === "string" || typeof entry === "object");
+    const secretShaped =
+      !SAFE_KEY_NAMES.has(key) && SECRET_KEY_PATTERN.test(key) && (typeof entry === "string" || typeof entry === "object");
     out[key] = secretShaped ? "[redacted]" : redact(entry, depth + 1);
   }
   return out;
@@ -117,8 +124,11 @@ function packageVersion(specifier) {
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+/** Progress goes to stdout as it happens, so a run cut short still says where it got to. */
+const step = (message) => console.log(`[provider-verify] ${message}`);
+
 function parseArgs(argv) {
-  const options = { answers: new Map(), interactive: false, list: false, fresh: false, prompt: "Xin chào, trả lời ngắn gọn: 2+2 bằng mấy?" };
+  const options = { answers: new Map(), interactive: false, list: false, fresh: false, chatTimeoutMs: 120_000, prompt: "Xin chào, trả lời ngắn gọn: 2+2 bằng mấy?" };
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index];
     const next = () => argv[(index += 1)];
@@ -127,6 +137,7 @@ function parseArgs(argv) {
     else if (flag === "--state-dir") options.stateDirectory = next();
     else if (flag === "--out") options.out = next();
     else if (flag === "--prompt") options.prompt = next();
+    else if (flag === "--chat-timeout") options.chatTimeoutMs = Math.max(5, Number(next()) || 0) * 1000;
     else if (flag === "--answer") {
       const pair = next() ?? "";
       const separator = pair.indexOf("=");
@@ -200,6 +211,7 @@ async function main() {
   });
   const setup = new SetupChannel({ stateDirectory, appVersion: "0.0.0-provider-verify", logger: { warn: () => {} } });
 
+  step("starting the gateway");
   const { port } = await supervisor.start();
   const url = `ws://127.0.0.1:${port}`;
   adapter.connect({ url, token: supervisor.token });
@@ -234,6 +246,7 @@ async function main() {
     record.agentRuntime.before = summariseAgents(result);
   });
 
+  step("connected; reading the catalogue");
   const detected = await safely("openclaw.setup.detect", () => setup.request("openclaw.setup.detect", {}));
   const manualProviders = detected?.manualProviders ?? [];
   const candidates = detected?.candidates ?? [];
@@ -261,7 +274,13 @@ async function main() {
     return finish(record, outPath, 1);
   }
 
+  step(`starting ${options.candidate ? `candidate ${options.candidate}` : `provider ${options.provider}`}${secret ? " with a supplied secret" : ""}`);
   const sessionId = randomUUID();
+  // OpenClaw has two activation shapes and picks a different code path for each.
+  // `auth.start` is the guided one (browser sign-in, device code) and refuses a
+  // provider that only takes a pasted secret. A provider plus a secret is the
+  // `api-key` activation instead. The candidate list is the third shape.
+  record.request.mode = options.candidate ? "candidate" : secret ? "api-key" : "provider-auth";
   const started = options.candidate
     ? await safely("openclaw.setup.activate.start", () =>
         setup.request("openclaw.setup.activate.start", {
@@ -270,9 +289,18 @@ async function main() {
           modelRef: candidates.find((entry) => entry.kind === options.candidate)?.modelRef
         })
       )
-    : await safely("openclaw.setup.auth.start", () =>
-        setup.request("openclaw.setup.auth.start", { sessionId, authChoice: options.provider })
-      );
+    : secret
+      ? await safely("openclaw.setup.activate.start (api-key)", () =>
+          setup.request("openclaw.setup.activate.start", {
+            sessionId,
+            kind: "api-key",
+            authChoice: options.provider,
+            apiKey: secret
+          })
+        )
+      : await safely("openclaw.setup.auth.start", () =>
+          setup.request("openclaw.setup.auth.start", { sessionId, authChoice: options.provider })
+        );
 
   record.activation = redact(started);
   if (started) {
@@ -286,8 +314,10 @@ async function main() {
     // so `verify` answers "saved but not active yet" until the child restarts.
     // The desktop app restarts on `gatewayRestartRequired`; the harness always
     // restarts after a completed activation, then reconnects both channels.
+    step("activation done; restarting the gateway");
     record.gatewayRestarted = await restart({ supervisor, adapter, setup, record });
 
+    step("verifying the connection");
     await safely("openclaw.setup.verify", () => setup.request("openclaw.setup.verify", {}), (result) => {
       record.verify = redact(result);
       if (result?.ok !== true) record.failures.push(`verify did not pass: ${result?.status ?? ""} ${result?.error ?? ""}`.trim());
@@ -308,9 +338,11 @@ async function main() {
     });
 
     // R-032: activation only counts if a turn actually reaches a model.
+    step("sending one chat turn");
     const turn = await runChatTurn({
       adapter,
       prompt: options.prompt,
+      timeoutMs: options.chatTimeoutMs,
       subscribe: (handler) => {
         eventSink = handler;
         return () => {
@@ -321,10 +353,16 @@ async function main() {
     record.chatTurn = turn;
     if (!turn.replied) record.failures.push(`chat turn produced no model reply: ${turn.detail ?? "timeout"}`);
 
-    const runtimes = new Set((record.agentRuntime.after ?? []).map((entry) => entry.runtime).filter(Boolean));
+    // R-032 asks whether the agent leaves the default it cannot run. The agent
+    // record carries the model it will use, so the before/after pair is the
+    // readable half of the answer and the chat turn is the decisive half.
+    const primaryModel = (agents) => agents?.[0]?.model?.primary ?? agents?.[0]?.model ?? null;
+    const before = primaryModel(record.agentRuntime.before);
+    const after = primaryModel(record.agentRuntime.after);
     record.r032 = {
-      runtimesAfterActivation: [...runtimes],
-      leftCodexDefault: runtimes.size > 0 && ![...runtimes].every((runtime) => runtime === "codex"),
+      agentModelBefore: before,
+      agentModelAfter: after,
+      leftDefault: Boolean(after && after !== before),
       chatReachedModel: Boolean(turn.replied)
     };
     if (!record.r032.chatReachedModel) record.failures.push("R-032 stays open: no model reply after activation");
@@ -374,27 +412,61 @@ function summariseAgents(result) {
   }));
 }
 
+/**
+ * Waits for the wizard to hand over a step. `wizard.next` and the two start
+ * calls return as soon as the session is running, so the step itself is read
+ * back from `wizard.status` until one appears or the session finishes.
+ */
+async function settle({ setup, sessionId, result, record, timeoutMs = 90_000 }) {
+  let current = result;
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (current?.done === true || current?.status === "done" || current?.status === "completed") {
+      record.wizard.lastStatus = redact(current);
+      return { done: true };
+    }
+    if (current?.step) return { step: current.step };
+    if (current?.status && !["running", "pending", "starting"].includes(current.status)) {
+      record.wizard.lastStatus = redact(current);
+      return { reason: `wizard status ${current.status}: ${JSON.stringify(redact(current)).slice(0, 400)}` };
+    }
+    await wait(700);
+    try {
+      current = await setup.request("wizard.status", { sessionId });
+    } catch (error) {
+      record.failures.push(`wizard.status: ${error?.message ?? error}`);
+      return { reason: `wizard.status failed: ${error?.message ?? error}` };
+    }
+  }
+  return { reason: "wizard produced no step in time" };
+}
+
 async function driveWizard({ setup, sessionId, started, options, secret, record }) {
   let current = started;
   const rl = options.interactive ? createInterface({ input: process.stdin, output: process.stdout }) : null;
   try {
     for (let turn = 0; turn < 40; turn += 1) {
-      if (current?.done || !current?.step) return { completed: true, reason: "wizard reported done" };
-      const step = current.step;
-      const planned = planAnswer(step, { secret, answers: options.answers });
+      // A wizard answers `{done:false, status:"running"}` with no step while it
+      // is still preparing one, so an absent step means "wait", never "done".
+      // Only an explicit `done` ends the run.
+      const settled = await settle({ setup, sessionId, result: current, record });
+      if (settled.done) return { completed: true, reason: "wizard reported done" };
+      if (!settled.step) return { completed: false, reason: settled.reason ?? "wizard produced no step" };
+      const step_ = settled.step;
+      const planned = planAnswer(step_, { secret, answers: options.answers });
       let value = planned.value;
       let source = planned.reason;
 
       if (value === null && rl) {
-        console.log(`\n[${step.type}] ${step.title ?? ""}`);
-        if (step.message) console.log(step.message);
-        if (Array.isArray(step.options)) {
-          step.options.forEach((option, position) => console.log(`  ${position + 1}. ${option.label ?? option.value}`));
+        console.log(`\n[${step_.type}] ${step_.title ?? ""}`);
+        if (step_.message) console.log(step_.message);
+        if (Array.isArray(step_.options)) {
+          step_.options.forEach((option, position) => console.log(`  ${position + 1}. ${option.label ?? option.value}`));
         }
-        const typed = await rl.question(step.secret ? "Giá trị (ẩn khi ghi bằng chứng): " : "Trả lời: ");
-        if (step.type === "select" && /^\d+$/.test(typed.trim())) {
-          value = step.options?.[Number(typed.trim()) - 1]?.value ?? typed;
-        } else if (step.type === "confirm") {
+        const typed = await rl.question(step_.secret ? "Giá trị (ẩn khi ghi bằng chứng): " : "Trả lời: ");
+        if (step_.type === "select" && /^\d+$/.test(typed.trim())) {
+          value = step_.options?.[Number(typed.trim()) - 1]?.value ?? typed;
+        } else if (step_.type === "confirm") {
           value = !/^(n|no|không|khong)$/i.test(typed.trim());
         } else {
           value = typed;
@@ -402,21 +474,22 @@ async function driveWizard({ setup, sessionId, started, options, secret, record 
         source = "answered interactively";
       }
 
+      step(`wizard [${step_.type}] ${step_.title ?? step_.id} — ${source}`);
       record.wizard.steps.push({
-        id: step.id,
-        type: step.type,
-        title: step.title ?? null,
-        secret: Boolean(step.secret),
+        id: step_.id,
+        type: step_.type,
+        title: step_.title ?? null,
+        secret: Boolean(step_.secret),
         answerSource: source,
         answered: value !== null
       });
 
       if (value === null) {
         await setup.request("wizard.cancel", { sessionId }).catch(() => {});
-        return { completed: false, reason: `${step.type} step "${step.title ?? step.id}" — ${planned.reason}` };
+        return { completed: false, reason: `${step_.type} step "${step_.title ?? step_.id}" — ${planned.reason}` };
       }
 
-      current = await setup.request("wizard.next", { sessionId, answer: { stepId: step.id, value } });
+      current = await setup.request("wizard.next", { sessionId, answer: { stepId: step_.id, value } });
     }
     await setup.request("wizard.cancel", { sessionId }).catch(() => {});
     return { completed: false, reason: "wizard did not finish within 40 steps" };
@@ -428,7 +501,7 @@ async function driveWizard({ setup, sessionId, started, options, secret, record 
   }
 }
 
-async function runChatTurn({ adapter, prompt, subscribe }) {
+async function runChatTurn({ adapter, prompt, subscribe, timeoutMs = 120_000 }) {
   const outcome = { prompt, replied: false, elapsedMs: 0, detail: null };
   const startedAt = Date.now();
   try {
@@ -463,7 +536,7 @@ async function runChatTurn({ adapter, prompt, subscribe }) {
     await adapter.request("sessions.messages.subscribe", { key: sessionKey });
     await adapter.request("sessions.send", { key: sessionKey, message: prompt });
 
-    const deadline = Date.now() + 120_000;
+    const deadline = Date.now() + timeoutMs;
     while (Date.now() < deadline && !replied) await wait(500);
     stop?.();
 
@@ -474,7 +547,7 @@ async function runChatTurn({ adapter, prompt, subscribe }) {
       // A run that never reached a model leaves its reason in the transcript.
       const history = await adapter.request("chat.history", { sessionKey, limit: 20 }).catch(() => null);
       const last = (history?.messages ?? []).at(-1) ?? null;
-      outcome.detail = last ? `no assistant reply within 120s; last entry ${JSON.stringify(redact(last)).slice(0, 300)}` : "no assistant message within 120s";
+      outcome.detail = last ? `no assistant reply within ${Math.round(timeoutMs / 1000)}s; last entry ${JSON.stringify(redact(last)).slice(0, 300)}` : `no assistant message within ${Math.round(timeoutMs / 1000)}s`;
     }
     return outcome;
   } catch (error) {

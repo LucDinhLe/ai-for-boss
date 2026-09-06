@@ -38,6 +38,7 @@ for (const requiredPath of [
   if (!fs.existsSync(path.join(repoRoot, requiredPath))) failures.push(`missing ${requiredPath}`);
 }
 
+const readJsonEarly = (relativePath) => JSON.parse(read(relativePath));
 const supervisor = read("apps/desktop/electron/supervisor.mjs");
 const adapter = read("apps/desktop/electron/gateway-adapter.mjs");
 const main = read("apps/desktop/electron/main.mjs");
@@ -144,6 +145,28 @@ for (const provider of ["openai", "anthropic", "gemini", "openrouter", "copilot"
   if (new RegExp(`["'\`][^"'\`]*${provider}`, "i").test(harnessCode)) {
     failures.push(`the provider harness hard-codes ${provider}`);
   }
+}
+
+// The gate is closed by an evidence file, not by a sentence in a document.
+const providerEvidencePath = "artifacts/beta-0/provider-verify-linux-x64.json";
+if (!fs.existsSync(path.join(repoRoot, providerEvidencePath))) {
+  failures.push(`missing ${providerEvidencePath}`);
+} else {
+  const evidence = readJsonEarly(providerEvidencePath);
+  if (evidence.verify?.ok !== true) failures.push("provider evidence does not record a passing verify");
+  if (evidence.chatTurn?.replied !== true) failures.push("provider evidence records no model reply");
+  if ((evidence.failures ?? []).length > 0) failures.push("provider evidence records failures");
+  if (/sk-[a-z]+-/i.test(read(providerEvidencePath))) failures.push("provider evidence contains a credential");
+}
+
+// The Connect screen must drive both activation shapes and wait for the step
+// the wizard is still preparing; treating "no step" as "done" ends the flow
+// before a provider is connected.
+if (!connect.includes("wizard.status") || !connect.includes('kind: "api-key"')) {
+  failures.push("the Connect screen cannot complete a key-based provider");
+}
+if (!main.includes("finishesSetup")) {
+  failures.push("a finished setup wizard does not restart the Gateway");
 }
 
 // The renderer stays a pure view: no sockets, no storage, no direct transport.
