@@ -29,6 +29,13 @@ test("a secret never reaches the evidence record", () => {
   }
 });
 
+test("a flag that merely reads like a secret stays readable", () => {
+  const kept = redact({ apiKeySupported: true, keyCount: 3, apiKey: "value" });
+  assert.equal(kept.apiKeySupported, true, "a boolean carries no secret");
+  assert.equal(kept.keyCount, 3);
+  assert.equal(kept.apiKey, "[redacted]", "a string under a secret-shaped name is still hidden");
+});
+
 test("redaction survives a cyclic or absurdly deep structure", () => {
   let deep = { label: "leaf" };
   for (let level = 0; level < 30; level += 1) deep = { child: deep };

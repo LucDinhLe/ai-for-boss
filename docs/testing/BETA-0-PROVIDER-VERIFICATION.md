@@ -51,6 +51,16 @@ Tệp bằng chứng nằm ở `artifacts/beta-0/provider-verify-<nền-tảng>-
 
 Bước Kết nối chỉ được coi là đóng khi `verify.ok` đúng, `chatTurn.replied` đúng, và `failures` rỗng. Thiếu một trong ba thì R-032 vẫn mở.
 
+## Đã học được khi chạy thật trên máy Product Owner
+
+Lần chạy đầu trên máy anh Lực, ngày 2026-09-05, để lại ba điều.
+
+Thứ nhất, kích hoạt xong thì Gateway phải khởi động lại rồi mới kiểm được. `openclaw.setup.verify` trả về `unavailable` kèm câu "settings are saved but not active yet". Harness nay tự khởi động lại và nối lại cả hai kênh sau khi trình hướng dẫn xong, đúng như ứng dụng desktop làm khi nhận `gatewayRestartRequired`.
+
+Thứ hai, phiên chat định danh bằng `key`, không phải `sessionId`. Harness gọi `sessions.create`, `sessions.messages.subscribe` và `sessions.send` đúng hình dạng mà cửa sổ chat đang dùng, vì một hình dạng tự nghĩ ra thì không chứng minh được gì.
+
+Thứ ba, đường Claude Code cần một bản Claude Code đã đăng nhập ngay trên máy chạy Gateway. Trên máy ảo Linux của ứng dụng desktop, lõi phát hiện được nhị phân nhưng báo thẳng "installed, not logged in — run `claude auth login`, then check again", nên `models.list` về 0 và không có lượt chạy nào. Muốn đi đường này thì hoặc chạy trên chính nơi đã đăng nhập, hoặc dùng `claude setup-token` để lấy một token dài hạn rồi kết nối qua nhà cung cấp `setup-token`.
+
 ## Điều harness không bao giờ ghi
 
 Mọi thứ ra khỏi tiến trình đều đi qua bộ lọc, khoá tên chứa `key`, `token`, `secret`, `password`, `credential`, `authorization`, `cookie` hay `bearer` bị thay bằng `[redacted]`. Câu trả lời cho các bước bí mật không được ghi lại dưới bất kỳ dạng nào. Kiểm chứng nằm ở `tests/unit/provider-verify.test.mjs`.

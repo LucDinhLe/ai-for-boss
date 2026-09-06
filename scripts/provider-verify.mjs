@@ -51,7 +51,8 @@ export function redact(value, depth = 0) {
   if (typeof value !== "object") return String(value);
   const out = {};
   for (const [key, entry] of Object.entries(value)) {
-    out[key] = SECRET_KEY_PATTERN.test(key) ? "[redacted]" : redact(entry, depth + 1);
+    const secretShaped = SECRET_KEY_PATTERN.test(key) && (typeof entry === "string" || typeof entry === "object");
+    out[key] = secretShaped ? "[redacted]" : redact(entry, depth + 1);
   }
   return out;
 }
@@ -238,7 +239,9 @@ async function main() {
   const candidates = detected?.candidates ?? [];
   record.catalogue = {
     setupComplete: detected?.setupComplete ?? null,
-    candidates: candidates.map((entry) => ({ kind: entry.kind, label: entry.label, recommended: Boolean(entry.recommended) })),
+    // Whole entries, redacted: the `detail` line is where OpenClaw says why a
+    // candidate is or is not usable ("installed, not logged in", and so on).
+    candidates: candidates.map((entry) => redact(entry)),
     providerCount: manualProviders.length,
     groups: [...new Set(manualProviders.map((entry) => entry.groupLabel))]
   };
@@ -271,6 +274,7 @@ async function main() {
         setup.request("openclaw.setup.auth.start", { sessionId, authChoice: options.provider })
       );
 
+  record.activation = redact(started);
   if (started) {
     const outcome = await driveWizard({ setup, sessionId, started, options, secret, record });
     record.wizard.completed = outcome.completed;
@@ -278,6 +282,12 @@ async function main() {
   }
 
   if (record.wizard.completed) {
+    // OpenClaw saves provider settings into a Gateway that is already running,
+    // so `verify` answers "saved but not active yet" until the child restarts.
+    // The desktop app restarts on `gatewayRestartRequired`; the harness always
+    // restarts after a completed activation, then reconnects both channels.
+    record.gatewayRestarted = await restart({ supervisor, adapter, setup, record });
+
     await safely("openclaw.setup.verify", () => setup.request("openclaw.setup.verify", {}), (result) => {
       record.verify = redact(result);
       if (result?.ok !== true) record.failures.push(`verify did not pass: ${result?.status ?? ""} ${result?.error ?? ""}`.trim());
@@ -287,6 +297,14 @@ async function main() {
     });
     await safely("agents.list (after)", () => adapter.request("agents.list"), (result) => {
       record.agentRuntime.after = summariseAgents(result);
+    });
+    await safely("models.list (after)", () => adapter.request("models.list"), (result) => {
+      const models = result?.models ?? [];
+      record.models = {
+        total: models.length,
+        available: models.filter((model) => model.available !== false).length,
+        firstAvailable: models.find((model) => model.available !== false)?.id ?? null
+      };
     });
 
     // R-032: activation only counts if a turn actually reaches a model.
@@ -314,6 +332,36 @@ async function main() {
 
   await teardown(adapter, setup, supervisor);
   return finish(record, outPath, record.failures.length === 0 ? 0 : 1);
+}
+
+/**
+ * The same restart the desktop app performs after a provider is activated. The
+ * supervisor mints a fresh token and port, so both channels reconnect to the
+ * new endpoint rather than the dead one.
+ */
+async function restart({ supervisor, adapter, setup, record }) {
+  try {
+    await setup.disconnect();
+    await adapter.disconnect();
+    await supervisor.stop();
+    const { port } = await supervisor.start();
+    const url = `ws://127.0.0.1:${port}`;
+    adapter.connect({ url, token: supervisor.token });
+    setup.connect({ url, token: supervisor.token });
+    const deadline = Date.now() + 90_000;
+    while (Date.now() < deadline && !(adapter.connected && setup.connected)) {
+      if (supervisor.state === SUPERVISOR_STATES.SAFE_MODE) break;
+      await wait(500);
+    }
+    if (!adapter.connected || !setup.connected) {
+      record.failures.push(`reconnect after activation failed (supervisor state ${supervisor.state})`);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    record.failures.push(`restart after activation failed: ${error?.message ?? error}`);
+    return false;
+  }
 }
 
 function summariseAgents(result) {
@@ -384,25 +432,36 @@ async function runChatTurn({ adapter, prompt, subscribe }) {
   const outcome = { prompt, replied: false, elapsedMs: 0, detail: null };
   const startedAt = Date.now();
   try {
-    const created = await adapter.request("sessions.create", {});
-    const sessionId = created?.sessionId ?? created?.id ?? null;
-    if (!sessionId) return { ...outcome, detail: "sessions.create returned no session id" };
-    outcome.sessionId = sessionId;
+    // Sessions are addressed by `key`, exactly as the shipped window addresses
+    // them; a shape of the harness's own invention would prove nothing.
+    const key = `aifb-verify-${Date.now().toString(36)}`;
+    const created = await adapter.request("sessions.create", {
+      key,
+      displayName: "Kiểm chứng nhà cung cấp",
+      label: key
+    });
+    const sessionKey = created?.key ?? key;
+    outcome.sessionKey = sessionKey;
 
     let replied = false;
     let text = null;
-    const stop = subscribe((event) => {
+    const stop = subscribe((frame) => {
       if (replied) return;
-      const payload = event?.payload ?? event;
-      const role = payload?.message?.role ?? payload?.role;
-      if (role && role !== "user") {
-        replied = true;
-        text = String(payload?.message?.text ?? payload?.text ?? "").slice(0, 200);
-      }
+      const message = frame?.payload?.message ?? frame?.payload ?? null;
+      if (message?.role !== "assistant") return;
+      const content = message.content;
+      const readable = typeof content === "string"
+        ? content
+        : Array.isArray(content)
+          ? content.map((part) => (typeof part === "string" ? part : String(part?.text ?? ""))).join("")
+          : String(content?.text ?? "");
+      if (!readable.trim()) return;
+      replied = true;
+      text = readable.slice(0, 200);
     });
 
-    await adapter.request("sessions.subscribe", { sessionId });
-    await adapter.request("sessions.send", { sessionId, text: prompt });
+    await adapter.request("sessions.messages.subscribe", { key: sessionKey });
+    await adapter.request("sessions.send", { key: sessionKey, message: prompt });
 
     const deadline = Date.now() + 120_000;
     while (Date.now() < deadline && !replied) await wait(500);
@@ -411,7 +470,12 @@ async function runChatTurn({ adapter, prompt, subscribe }) {
     outcome.replied = replied;
     outcome.reply = replied ? text : null;
     outcome.elapsedMs = Date.now() - startedAt;
-    if (!replied) outcome.detail = "no assistant message within 120s";
+    if (!replied) {
+      // A run that never reached a model leaves its reason in the transcript.
+      const history = await adapter.request("chat.history", { sessionKey, limit: 20 }).catch(() => null);
+      const last = (history?.messages ?? []).at(-1) ?? null;
+      outcome.detail = last ? `no assistant reply within 120s; last entry ${JSON.stringify(redact(last)).slice(0, 300)}` : "no assistant message within 120s";
+    }
     return outcome;
   } catch (error) {
     return { ...outcome, elapsedMs: Date.now() - startedAt, detail: error?.message ?? String(error) };

@@ -144,4 +144,6 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 #### Known
 
 - Danh mục lõi hiện trả về một ứng viên tự phát hiện và mười sáu nhà cung cấp khai báo tay trên Linux; con số này đổi theo phiên bản lõi và plugin đã cài nên không dùng cho tài liệu quảng bá.
+- Chạy thật trên máy Product Owner lộ hai lỗi của harness và đã sửa: thiếu bước khởi động lại Gateway sau khi kích hoạt, và gọi phiên chat bằng `sessionId` thay vì `key`.
+- Đường Claude Code chỉ đi được ở nơi đã đăng nhập sẵn; trên máy ảo Linux lõi báo "installed, not logged in" nên chưa đóng được R-032.
 - Hai điều treo của bước Kết nối vẫn treo cho tới khi có một nhà cung cấp thật; harness là công cụ để đóng chúng, không phải bằng chứng thay thế.
