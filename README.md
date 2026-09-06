@@ -5,9 +5,11 @@
 AI for Boss đang được xây dựng trên nền tảng mã nguồn mở OpenClaw, hướng tới việc giúp người dùng dễ dàng cài đặt, tạo, quản lý và giao việc cho AI Agent qua một giao diện đơn giản, an toàn và dễ sử dụng.
 
 > [!IMPORTANT]
-> **Trạng thái hiện tại:** dự án đang ở Cổng 0. Phần tài liệu và hợp đồng của cổng này đã đóng, senior platform/security review độc lập vẫn chờ, và dự án đang thi công **beta 0** trên nhánh `experiment/beta-0`: ứng dụng tự nuôi một Gateway OpenClaw bên trong và nói chuyện với nó qua giao thức chính thức, kèm một cửa sổ trò chuyện tối thiểu. Beta 0 tồn tại để trả lời một câu hỏi bằng bằng chứng, rằng Gateway chạy được nguyên bản trên từng hệ điều hành hay Windows bắt buộc phải mượn Linux subsystem.
+> **Trạng thái hiện tại:** dự án đang ở Cổng 0. Phần tài liệu và hợp đồng của cổng này đã đóng, senior platform/security review độc lập vẫn chờ. **Beta 0 đã gộp vào `main`**: ứng dụng tự nuôi một Gateway OpenClaw bên trong và nói chuyện với nó qua giao thức chính thức, kèm một cửa sổ trò chuyện tối thiểu. Câu hỏi mà beta 0 sinh ra để trả lời đã có đáp án: **Windows chạy Gateway nguyên bản, không cần WSL**, đã xanh trên cả Windows, macOS và Linux.
 >
-> Chưa có: bộ cài, updater, ký số, kết nối nhà cung cấp model, Advisor thật, tool, duyệt hành động, quản lý dự án, và bất kỳ bản phát hành nào cho người dùng thật. Bản đóng gói vẫn là `experimental-internal` và chưa mang theo Node runtime nên chưa chạy được trên máy sạch. Các khả năng bên dưới là **mục tiêu sản phẩm** trừ khi hồ sơ release ghi rõ đã kiểm chứng; không capability nào đang được quảng cáo là production-ready.
+> Đang thi công **màn hình Kết nối model** trên nhánh `feature/connect-screen`, phơi ra đúng danh mục nhà cung cấp mà lõi OpenClaw báo lên lúc chạy.
+>
+> Chưa có: bộ cài, updater, ký số, Advisor thật, tool, duyệt hành động, quản lý dự án, và bất kỳ bản phát hành nào cho người dùng thật. Bản đóng gói vẫn là `experimental-internal` và chưa mang theo Node runtime nên chưa chạy được trên máy sạch. Các khả năng bên dưới là **mục tiêu sản phẩm** trừ khi hồ sơ release ghi rõ đã kiểm chứng; không capability nào đang được quảng cáo là production-ready.
 >
 > Beta 0 chạy trên candidate train `oc-2026.9.1-candidate.1` (OpenClaw `2026.9.1`, Node `24.19.0`, Electron `43.3.0`, pnpm `11.2.2`, Gateway protocol v4). Đây là **candidate**, không phải release train đã khóa; train đã khóa vẫn là `oc-2026.7.1-2-locked.1`. Điều kiện để promote nằm trong `manifests/runtime/beta-0-candidate.lock.json`.
 

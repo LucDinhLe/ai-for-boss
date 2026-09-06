@@ -126,3 +126,93 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 - Runtime agent mặc định của OpenClaw trong thư mục state trắng là `codex` và harness đó vắng mặt, nên lượt chạy báo lỗi trước khi gọi model. Beta 0 hiển thị nguyên văn lỗi; chọn runtime và nhà cung cấp là việc của bước sau (R-032).
 - Câu hỏi Windows có cần WSL2 hay không chưa có câu trả lời cho tới khi CI chạy smoke trên runner Windows (R-031).
+
+### Kiểm chứng nhà cung cấp (2026-09-05, nhánh `feature/provider-verification`)
+
+#### Added
+
+- `scripts/provider-verify.mjs` chạy trọn luồng kết nối trên chính Supervisor, SetupChannel và GatewayAdapter mà ứng dụng ship: đọc danh mục, lái trình hướng dẫn, gọi `openclaw.setup.verify`, rồi gửi một lượt chat thật và ghi runtime của trợ lý trước cùng sau khi kích hoạt.
+- `pnpm verify:provider --list` in ra đúng những đường kết nối lõi đang có, không cần khoá và không đụng cấu hình.
+- Bộ lọc bí mật cho mọi thứ ra khỏi tiến trình; câu trả lời cho bước bí mật không được ghi dưới bất kỳ dạng nào, có test riêng.
+- `docs/testing/BETA-0-PROVIDER-VERIFICATION.md` mô tả cách chạy, cách đọc bằng chứng và điều kiện để coi R-032 là đóng.
+
+#### Changed
+
+- R-032 giữ nguyên trạng thái Open nhưng nay có đường kiểm rõ ràng; risk chỉ đóng khi tệp bằng chứng có `r032.chatReachedModel` đúng.
+- `validate-beta-0.mjs` chặn harness nhận khoá qua dòng lệnh, ghi cứng tên nhà cung cấp, hay tự mở kết nối ngoài các mô-đun của ứng dụng.
+
+#### Known
+
+- Danh mục lõi hiện trả về một ứng viên tự phát hiện và mười sáu nhà cung cấp khai báo tay trên Linux; con số này đổi theo phiên bản lõi và plugin đã cài nên không dùng cho tài liệu quảng bá.
+- Chạy thật trên máy Product Owner lộ hai lỗi của harness và đã sửa: thiếu bước khởi động lại Gateway sau khi kích hoạt, và gọi phiên chat bằng `sessionId` thay vì `key`.
+- Đường Claude Code chỉ đi được ở nơi đã đăng nhập sẵn; trên máy ảo Linux lõi báo "installed, not logged in" nên chưa đóng được R-032.
+- Hai điều treo của bước Kết nối vẫn treo cho tới khi có một nhà cung cấp thật; harness là công cụ để đóng chúng, không phải bằng chứng thay thế.
+
+### Kết nối nhà cung cấp thật (2026-09-05, nhánh `feature/connect-screen`)
+
+#### Added
+
+- `artifacts/beta-0/provider-verify-linux-x64.json`: bằng chứng máy đọc được cho một lần kết nối thật đầu cuối, gồm verify đạt, model của trợ lý đổi khỏi mặc định, và một lượt chat có trả lời.
+- Màn hình Kết nối hỏi khoá trước khi kích hoạt và vẫn giữ nút đăng nhập bằng trình duyệt, phủ cả hai hình dạng kích hoạt của lõi (D-0025).
+
+#### Fixed
+
+- Trình hướng dẫn trả về không kèm bước bị hiểu nhầm là đã xong, làm luồng kết thúc trước khi kết nối được gì. Vỏ nay đọc lại bằng `wizard.status` và chỉ dừng ở trạng thái kết thúc tường minh.
+- Nhà cung cấp nhận khoá dán tay bị lõi từ chối vì gọi nhầm đường `provider-auth`; nay đi đúng đường `api-key`.
+- Sau khi kết nối xong, Gateway không khởi động lại nên `verify` luôn báo "saved but not active yet". Tiến trình chính nay coi phiên cài đặt kết thúc là tín hiệu khởi động lại (D-0026).
+
+#### Changed
+
+- R-032 đóng trên Linux, còn mở trên Windows và macOS.
+- Điều kiện chưa đạt của candidate train về runtime `codex` được thay bằng điều kiện chạy lại lần kiểm này trên Windows và macOS.
+
+### Gói tự chạy trên máy trắng (2026-09-06, nhánh `feature/connect-screen`)
+
+#### Added
+
+- `manifests/runtime/bundled-runtime.lock.json` ghim phiên bản Node cùng sha256 cho Windows, macOS và Linux, chép từ SHASUMS chính thức.
+- `pnpm stage:runtime` tải Node đã ghim, so digest trước khi giải nén, lấy đúng một nhị phân, rồi cài cây OpenClaw đúng phiên bản mà `apps/desktop` ghim.
+- `pnpm smoke:packaged` chạy Supervisor và Adapter với `PATH` rỗng, chứng minh gói khởi động Gateway bằng chính runtime nó mang theo. Bằng chứng ở `artifacts/beta-0/packaged-runtime-linux-x64.json`.
+- Bản kiểm kê ghi thêm `bundledRuntime` và `selfContained`; validator Feature 0.4 đối chiếu với manifest.
+
+#### Fixed
+
+- Gói của Feature 0.4 không hề chứa OpenClaw, vì `node_modules` bị loại khỏi `app.asar` còn môi trường phát triển thì luôn phân giải được trong workspace. Gói nay mang một bản cài thật và `resolveOpenClawEntry` ưu tiên nó.
+
+#### Changed
+
+- CI chuẩn bị runtime trước khi đóng gói và chạy thêm bài kiểm gói, rồi chỉ tải lên bằng chứng, không tải lên gói gần một gigabyte.
+
+#### Known
+
+- Gói nặng khoảng 900 MB trên đĩa, 195 MB khi nén, nên tải về được và phần chiếm đĩa vẫn nên giảm (R-035).
+- Kho artifact của tài khoản GitHub đã đầy nên mọi lượt tải bằng chứng lên đều hỏng. CI nay kiểm rằng bằng chứng đã được tạo ra và đạt, còn bước tải lên không làm đỏ một bản dựng lành. Dọn kho là việc của chủ tài khoản.
+
+### Bản tải về đầu tiên (2026-09-06, nhánh `feature/connect-screen`)
+
+#### Added
+
+- Workflow `Release candidate` dựng bản Windows khi gắn thẻ `beta-*` hoặc khi chạy tay, rồi đính kèm gói nén vào GitHub Release. Tệp trong Release không tính vào hạn mức artifact nên đường phát hành này không tốn gì.
+- Bản dựng phát hành chạy đúng bộ kiểm của pull request cộng thêm bài kiểm gói với `PATH` rỗng. Validator đỏ thì không có link tải, có chủ ý.
+
+#### Changed
+
+- Lần đầu mở ứng dụng trên máy chưa có nhà cung cấp nào, màn hình Kết nối tự bật thay vì để người dùng phát hiện ra khi gửi tin nhắn đầu tiên rồi gặp lỗi.
+- Màn hình Kết nối luôn có đường thoát. Trước đây nút thoát chỉ hiện khi đã cấu hình xong, tức lần đầu mở là một cái bẫy.
+
+### Bộ cài một tệp, và bản vá lỗi mở lên là chết (2026-09-06, nhánh `feature/connect-screen`)
+
+#### Fixed
+
+- Bản beta-0.2 mở lên là chết với `Cannot find package '@openclaw/gateway-client'`. Tiến trình chính nằm trong `app.asar`, còn cây phụ thuộc lại được đặt ở `resources/openclaw/node_modules`, chỗ mà Node không bao giờ tìm tới. Cây gói nay nằm ở `resources/node_modules`, đúng nơi Node đi ngược thư mục từ `app.asar` sẽ gặp.
+
+#### Added
+
+- `pnpm smoke:app` mở đúng tệp thực thi đã đóng gói với thư mục dữ liệu riêng, rồi chờ device token xuất hiện. Token chỉ tồn tại sau khi bắt tay thật với Gateway, nên bài kiểm này phủ trọn chuỗi nạp mô-đun, khởi động tiến trình con và xác thực. Đây chính là bài kiểm mà nếu có từ đầu thì bản 0.2 đã không tới tay người dùng.
+- Bộ cài Windows một tệp dựng bằng NSIS, không cần quyền quản trị, cài vào thư mục người dùng, tạo lối tắt và mục gỡ cài đặt. Gỡ cài đặt giữ nguyên lịch sử trò chuyện và cấu hình.
+
+#### Changed
+
+- Bản phát hành nay đính kèm một tệp `AI-for-Boss-Setup-<phiên bản>.exe` thay vì một tệp zip phải giải nén tay.
+- CI của pull request cũng chạy bài mở ứng dụng đã đóng gói, và tệp bằng chứng của bài đó là bắt buộc.
+

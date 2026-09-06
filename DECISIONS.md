@@ -207,3 +207,89 @@ Các lệnh cấm trộn beta và coi placeholder là production vẫn giữ ngu
 - Hệ quả: Capability manifest, SBOM, license inventory và bằng chứng lab Feature 0.2 giữ nguyên bản đã kiểm, không bị viết lại theo phiên bản mới. Candidate mang sẵn danh sách điều kiện chưa đạt, và validator từ chối mọi mục bằng chứng tự nhận `spike-tested` mà không có tệp bằng chứng đúng nền tảng.
 - Điều kiện promote: capability diff giữa hai train, SBOM và license inventory mới, smoke đạt trên Windows x64 và macOS arm64, chọn được agent runtime cùng đường xác thực nhà cung cấp, và senior platform/security review.
 - Phương án bị loại: Sửa thẳng locked manifest lên `2026.9.1` và cập nhật các hợp đồng theo phiên bản mới mà chưa chạy lại capability diff; cách đó biến tài liệu thành lời khai thay vì bằng chứng.
+
+## D-0021. Quyền admin đi qua một kênh riêng, không nới scope của adapter chat
+
+- Ngày: 2026-09-05
+- Owner: Fable đề xuất kỹ thuật; Lê Đình Lực chấp nhận cho màn hình Kết nối
+- Nhãn: `TECHNICAL_DECISION`
+- Trạng thái: Chấp nhận
+- Bối cảnh: `openclaw.setup.*` và `wizard.*` là đường duy nhất để nối nhà cung cấp model qua RPC, và cả hai đòi scope `operator.admin`. Adapter chat của beta 0 chỉ xin ba scope của chat, và contract test cấm nó mang admin.
+- Quyết định: Mở một kết nối thứ hai trong tiến trình chính mang `operator.admin`, dùng riêng cho việc nối model, với danh sách mười phương thức và một bộ chặn theo tiền tố loại bỏ `config.`, `secrets.`, `plugins.`, `tools.`, `exec.`, `terminal.`, `node.`, `channels.`, `cron.`, `skills.`. Adapter chat giữ nguyên scope cũ.
+- Hệ quả: Giao diện không bao giờ có một kênh admin tổng quát; nó chỉ xin được đúng mười lệnh của việc nối model. Token thiết bị của kênh này lưu dưới khoá vai trò riêng nên không đè lên token của adapter chat. Bù lại có hai kết nối phải quản lý vòng đời, và cả hai phải nối lại sau khi Gateway khởi động lại.
+- Phương án bị loại: Thêm `operator.admin` vào adapter chat và nới contract test; cách đó cho giao diện chạm tới mọi lệnh admin của lõi chỉ để phục vụ một màn hình.
+
+## D-0022. Danh mục nhà cung cấp lấy từ lõi lúc chạy
+
+- Ngày: 2026-09-05
+- Owner: Lê Đình Lực quyết định sản phẩm
+- Nhãn: `PRODUCT_DECISION`
+- Trạng thái: Chấp nhận
+- Chỉ thị: "OpenClaw cứ có kết nối gì thì bê ra kết nối đó."
+- Quyết định: Màn hình Kết nối vẽ đúng danh mục `openclaw.setup.detect` trả về, gồm cả các mục tự phát hiện trên máy. Vỏ không giữ danh sách nhà cung cấp riêng và không ghi cứng tên nhà nào; validator cùng contract test từ chối nếu có.
+- Hệ quả: Nhà cung cấp OpenClaw thêm sau này tự xuất hiện, không phải phát hành lại vỏ. Đổi lại vỏ không kiểm soát được thứ tự hay cách gom nhóm ngoài những gì lõi cung cấp, và số mục thay đổi theo plugin đã cài nên không được đưa vào tài liệu quảng bá.
+- Phương án bị loại: Chọn sẵn vài nhà cung cấp cho gọn màn hình; cách đó đóng băng danh mục và bắt người dùng chờ bản mới mỗi lần thượng nguồn thêm nhà.
+
+## D-0023. Tiếng Việt hai tầng cho các bước của lõi
+
+- Ngày: 2026-09-05
+- Owner: Lê Đình Lực quyết định sản phẩm
+- Nhãn: `PRODUCT_DECISION`
+- Trạng thái: Chấp nhận, vá dần ở các bản sau
+- Quyết định: Khung và nút luôn tiếng Việt. Nội dung bước do lõi trả về được dịch khi nhận ra chữ ký quen thuộc; bước lạ hiện nguyên văn kèm ghi chú nói rõ đây là chữ của OpenClaw.
+- Hệ quả: Không bao giờ dịch sai một câu hỏi về bảo mật, và bản dịch mở rộng dần theo từng bản mà không chặn phát hành. Đổi lại người dùng vẫn gặp tiếng Anh ở những bước chưa phủ.
+- Phương án bị loại: Dịch toàn bộ bằng bảng ánh xạ theo câu chữ, vỡ âm thầm khi thượng nguồn sửa một từ; hoặc để nguyên tiếng Anh toàn bộ trong một sản phẩm Việt.
+
+## D-0024. Kiểm chứng nhà cung cấp bằng harness chạy được, không bằng ảnh chụp
+
+- Ngày: 2026-09-05
+- Owner: Lê Đình Lực quyết định sản phẩm, Platform thực thi
+- Nhãn: `PLATFORM_DECISION`
+- Trạng thái: Chấp nhận
+- Bối cảnh: Hai điều còn treo của bước Kết nối chỉ kiểm được khi có một nhà cung cấp thật. Chờ tới lúc có khoá rồi mới nghĩ cách kiểm là cách chắc chắn kiểm bằng mắt và không để lại gì.
+- Quyết định: Viết `scripts/provider-verify.mjs` chạy đúng Supervisor, SetupChannel và GatewayAdapter mà ứng dụng ship, ở chế độ không giao diện. Khoá chỉ nhận qua biến môi trường `AIFB_PROVIDER_SECRET`. Bằng chứng ghi ra `artifacts/beta-0/` sau khi lọc mọi trường có tên gợi bí mật. Bước nhập tự do và bước hành động dừng chờ người thay vì đoán.
+- Hệ quả: Lúc Product Owner có khoá hoặc có công cụ dòng lệnh đã đăng nhập, việc đóng hai điều treo là một lệnh và một tệp bằng chứng kiểm lại được, chạy lại được trên máy khác. Đổi lại kho có thêm một đường chạy thật cần giữ đồng bộ với vỏ, nên contract test buộc harness dùng lại mô-đun của ứng dụng thay vì tự mở kết nối.
+- Phương án bị loại: Kiểm bằng tay trên giao diện rồi chụp màn hình; không lặp lại được, không kiểm ngược được, và không nói được gì về runtime của trợ lý sau khi kích hoạt.
+
+## D-0025. Hai hình dạng kích hoạt nhà cung cấp, vỏ mở cả hai
+
+- Ngày: 2026-09-05
+- Owner: Lê Đình Lực quyết định sản phẩm, Platform thực thi
+- Nhãn: `PLATFORM_DECISION`
+- Trạng thái: Chấp nhận, đã kiểm bằng lần chạy thật
+- Bối cảnh: Chạy thật lần đầu cho thấy `openclaw.setup.auth.start` từ chối nhà cung cấp chỉ nhận khoá dán tay, nguyên văn "That provider setup is not available on this Gateway". Lõi có hai đường riêng, `provider-auth` cho đăng nhập có hướng dẫn và `api-key` cho khoá hoặc token dán vào.
+- Quyết định: Khi người dùng chọn một nhà cung cấp, màn hình Kết nối hỏi khoá trước rồi gọi `openclaw.setup.activate.start` với `kind: "api-key"`, đồng thời luôn có nút đăng nhập bằng trình duyệt đi đường `auth.start`. Vỏ không đoán nhà nào thuộc đường nào và vẫn không ghi cứng tên nhà cung cấp.
+- Hệ quả: Mọi nhà cung cấp trong danh mục đều kết nối được, kể cả nhà chỉ có một trong hai đường. Đổi lại người dùng thấy một ô nhập khoá ngay cả với nhà cung cấp chỉ đăng nhập bằng trình duyệt, nên nút thứ hai phải luôn hiện.
+- Phương án bị loại: Đọc siêu dữ liệu để tự chọn đường; siêu dữ liệu đó không có trong `openclaw.setup.detect` nên vỏ sẽ phải đoán, và đoán sai thì người dùng gặp một lỗi không hiểu được.
+
+## D-0026. Bước xong của trình hướng dẫn là tín hiệu khởi động lại Gateway
+
+- Ngày: 2026-09-05
+- Owner: Platform
+- Nhãn: `PLATFORM_DECISION`
+- Trạng thái: Chấp nhận, đã kiểm bằng lần chạy thật
+- Bối cảnh: Cấu hình nhà cung cấp được ghi vào một Gateway đang chạy, và tiến trình con vẫn phục vụ cấu hình cũ cho tới khi khởi động lại. `openclaw.setup.verify` trả về "settings are saved but not active yet" cho tới lúc đó, còn trình hướng dẫn báo xong mà không hề yêu cầu khởi động lại.
+- Quyết định: Tiến trình chính coi một phiên cài đặt kết thúc là tín hiệu khởi động lại, ngoài cờ `gatewayRestartRequired` đã có. Phiên bị huỷ không kích hoạt khởi động lại.
+- Hệ quả: Người dùng bấm kiểm tra kết nối là thấy kết quả thật, không gặp một câu tiếng Anh khó hiểu. Đổi lại mỗi lần kết nối xong có một quãng vài giây Gateway khởi động lại, và trạng thái nền phải nói rõ điều đó.
+
+## D-0027. Gói mang theo Node runtime, ghim và kiểm digest
+
+- Ngày: 2026-09-06
+- Owner: Platform
+- Nhãn: `PLATFORM_DECISION`
+- Trạng thái: Chấp nhận
+- Quyết định: Ứng dụng đóng gói mang theo nhị phân `node` lấy từ bản phân phối chính thức, phiên bản và sha256 ghim trong `manifests/runtime/bundled-runtime.lock.json`. Script chuẩn bị so digest trước khi giải nén và dừng hẳn khi lệch. Chỉ nhị phân `node` được lấy, npm và corepack ở ngoài.
+- Hệ quả: Máy người dùng không cần cài gì. Đổi lại kho phải nâng ghim mỗi lần đổi phiên bản Node, và gói nặng thêm khoảng 121 MB.
+- Phương án bị loại: Dựa vào Node có sẵn trên máy; phần lớn người dùng không có, và bản có sẵn thường nằm ngoài khoảng OpenClaw chấp nhận.
+
+## D-0028. OpenClaw đi cùng gói dưới dạng bản cài thật
+
+- Ngày: 2026-09-06
+- Owner: Platform
+- Nhãn: `PLATFORM_DECISION`
+- Trạng thái: Chấp nhận
+- Bối cảnh: `node_modules` bị loại khỏi `app.asar` một cách cố ý, nên gói không hề có OpenClaw. Ở môi trường phát triển, phân giải trong workspace che mất điều đó.
+- Quyết định: Gói mang một cây `node_modules` thật của OpenClaw, đặt cạnh ứng dụng chứ không nhét vào `app.asar`. Danh sách gói được phép chạy script cài đặt đọc từ `pnpm-workspace.yaml`.
+- Hệ quả: Tiến trình con giải phụ thuộc y như lúc phát triển, gồm cả plugin đi kèm và nhị phân biên dịch sẵn. Đổi lại gói nặng thêm khoảng 528 MB và `app.asar` vẫn giữ được danh sách tệp đóng.
+- Phương án bị loại: Gộp OpenClaw vào một tệp bundle; nó nạp plugin và nhị phân theo đường dẫn lúc chạy, gộp lại là tự chuốc một lớp lỗi không cần thiết.
+

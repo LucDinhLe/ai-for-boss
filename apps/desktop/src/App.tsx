@@ -14,6 +14,7 @@ import {
   type SessionSummary,
   type TranscriptMessage
 } from "./gateway-client";
+import ConnectScreen from "./connect/ConnectScreen";
 
 const SUPERVISOR_LABELS: Record<RuntimeStatus["supervisor"], string> = {
   idle: "Chưa khởi động",
@@ -104,6 +105,8 @@ function App() {
   const [runState, setRunState] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [showConnect, setShowConnect] = useState(false);
+  const [connectOffered, setConnectOffered] = useState(false);
   const transcriptRef = useRef<HTMLDivElement | null>(null);
   // Event handlers registered once still need the session the user is looking
   // at now, so the key is mirrored into a ref from an effect rather than during
@@ -162,7 +165,16 @@ function App() {
       await refreshSessions();
       try {
         const catalogue = await call<{ models?: ModelSummary[] }>("models.list");
-        if (!cancelled) setModels(catalogue.models ?? []);
+        if (cancelled) return;
+        const available = catalogue.models ?? [];
+        setModels(available);
+        // A first run on a clean machine has no provider, so every turn would
+        // fail before reaching a model. Open the Connect screen once instead of
+        // letting the person discover that by sending a message.
+        if (available.length === 0 && !connectOffered) {
+          setConnectOffered(true);
+          setShowConnect(true);
+        }
       } catch {
         if (!cancelled) setModels([]);
       }
@@ -170,7 +182,7 @@ function App() {
     return () => {
       cancelled = true;
     };
-  }, [runtime.connected, refreshSessions]);
+  }, [runtime.connected, refreshSessions, connectOffered]);
 
   useEffect(() => {
     const unsubscribe = onGatewayEvent(({ event, payload }) => {
@@ -262,6 +274,10 @@ function App() {
   const supervisorLabel = SUPERVISOR_LABELS[runtime.supervisor] ?? runtime.supervisor;
   const supervisorDetail = runtime.detail ? (SUPERVISOR_DETAILS[runtime.detail] ?? runtime.detail) : null;
 
+  if (showConnect) {
+    return <ConnectScreen onDone={() => setShowConnect(false)} />;
+  }
+
   return (
     <div className="workspace">
       <aside className="workspace__rail">
@@ -279,6 +295,9 @@ function App() {
         <div className="rail-actions">
           <button type="button" onClick={createSession} disabled={!runtime.connected}>
             Phiên mới
+          </button>
+          <button type="button" onClick={() => setShowConnect(true)} disabled={!runtime.setupReady}>
+            {models.length === 0 ? "Kết nối model" : "Đổi kết nối"}
           </button>
         </div>
 
@@ -398,6 +417,8 @@ function App() {
           <dd className="mono">{runtime.stateDirectory ?? "—"}</dd>
           <dt>Model khả dụng</dt>
           <dd>{availableModels.length}</dd>
+          <dt>Kênh cài đặt</dt>
+          <dd>{runtime.setupReady ? "sẵn sàng" : "—"}</dd>
         </dl>
 
         <h2>Ranh giới của bản này</h2>

@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-09-05T06:03:32.964Z",
+  "recordedAt": "2026-09-05T10:57:29.180Z",
   "scope": "AI for Boss beta 0 — supervised OpenClaw Gateway, isolated state, no provider credential",
   "host": {
     "platform": "linux",
@@ -25,7 +25,7 @@
   },
   "handshake": {
     "connected": true,
-    "elapsedMs": 15614,
+    "elapsedMs": 4036,
     "protocol": 4,
     "serverVersion": "2026.9.1",
     "methodCount": 388,
@@ -53,22 +53,42 @@
     "gatewayProtocol": "2026.9.1"
   },
   "allowlistSize": 18,
+  "setup": {
+    "connected": true,
+    "allowlistSize": 10,
+    "scopes": [
+      "operator.read",
+      "operator.write",
+      "operator.approvals",
+      "operator.admin"
+    ],
+    "manualProviders": 16,
+    "candidates": [
+      "claude-cli"
+    ],
+    "providerGroups": 14,
+    "configPatch": "blocked: Method not allowed on the setup channel: config.patch"
+  },
   "childLog": [
-    "[gateway] 2026-09-05T06:03:37.999+00:00 [gateway] loading configuration…",
-    "[gateway] 2026-09-05T06:03:38.014+00:00 [gateway] resolving authentication…",
-    "[gateway] 2026-09-05T06:03:38.021+00:00 [gateway] starting...",
-    "[gateway] 2026-09-05T06:03:39.662+00:00 [gateway] starting HTTP server...",
-    "[gateway] 2026-09-05T06:03:40.266+00:00 [gateway] ready",
-    "[gateway] 2026-09-05T06:03:40.690+00:00 [gateway] starting channels and sidecars...",
-    "[gateway] 2026-09-05T06:03:40.698+00:00 [gateway] agent model: openai/gpt-5.6-sol (thinking=medium, fast=off)",
-    "[gateway] 2026-09-05T06:03:40.699+00:00 [gateway] http server listening (13 plugins: anthropic, browser, canvas, cua-computer, device-pair, file-transfer, geolocation, linux-node, memory-core, ollama, openai, talk-voice, xai; 2.5s)",
-    "[gateway] 2026-09-05T06:03:40.700+00:00 [gateway] log file: /tmp/openclaw/openclaw-2026-09-05.log",
-    "[gateway] 2026-09-05T06:03:40.907+00:00 [gateway/channels] skipping channel start (OPENCLAW_SKIP_CHANNELS=1 or OPENCLAW_SKIP_PROVIDERS=1)",
-    "[gateway] 2026-09-05T06:03:40.915+00:00 [gateway] startup outcomes: internal-hooks=skipped (not-configured); internal-startup-hook=skipped (no-handlers-loaded); gateway-start-hooks=scheduled; gmail-watcher=skipped (hooks-disabled); gmail-model=skipped (not-configured)",
-    "[gateway] 2026-09-05T06:03:40.918+00:00 [heartbeat] started",
-    "[gateway] 2026-09-05T06:03:40.925+00:00 [gateway] ready",
-    "[gateway] 2026-09-05T06:03:41.061+00:00 [plugins] memory-core: created managed dreaming cron job.",
-    "[gateway] 2026-09-05T06:03:41.542+00:00 [gateway] remote model catalog updated; restart the Gateway to apply it",
-    "[gateway] 2026-09-05T06:03:48.103+00:00 [gateway] device pairing auto-approved device=4ae6c1c87e515c896f36b3bf39167fb12695f508cf2a52e22e654421053bd0e2 role=operator"
+    "[gateway] 2026-09-05T10:57:31.112+00:00 [gateway] loading configuration…",
+    "[gateway] 2026-09-05T10:57:31.127+00:00 [gateway] resolving authentication…",
+    "[gateway] 2026-09-05T10:57:31.132+00:00 [gateway] starting...",
+    "[gateway] 2026-09-05T10:57:31.968+00:00 [gateway] starting HTTP server...",
+    "[gateway] 2026-09-05T10:57:32.237+00:00 [gateway] ready",
+    "[gateway] 2026-09-05T10:57:32.490+00:00 [gateway] starting channels and sidecars...",
+    "[gateway] 2026-09-05T10:57:32.498+00:00 [gateway] agent model: openai/gpt-5.6-sol (thinking=medium, fast=off)",
+    "[gateway] 2026-09-05T10:57:32.499+00:00 [gateway] http server listening (13 plugins: anthropic, browser, canvas, cua-computer, device-pair, file-transfer, geolocation, linux-node, memory-core, ollama, openai, talk-voice, xai; 1.3s)",
+    "[gateway] 2026-09-05T10:57:32.499+00:00 [gateway] log file: /tmp/openclaw/openclaw-2026-09-05.log",
+    "[gateway] 2026-09-05T10:57:32.625+00:00 [gateway/channels] skipping channel start (OPENCLAW_SKIP_CHANNELS=1 or OPENCLAW_SKIP_PROVIDERS=1)",
+    "[gateway] 2026-09-05T10:57:32.632+00:00 [gateway] startup outcomes: internal-hooks=skipped (not-configured); internal-startup-hook=skipped (no-handlers-loaded); gateway-start-hooks=scheduled; gmail-watcher=skipped (hooks-disabled); gmail-model=skipped (not-configured)",
+    "[gateway] 2026-09-05T10:57:32.634+00:00 [heartbeat] started",
+    "[gateway] 2026-09-05T10:57:32.650+00:00 [gateway] ready",
+    "[gateway] 2026-09-05T10:57:32.825+00:00 [plugins] memory-core: created managed dreaming cron job.",
+    "[gateway] 2026-09-05T10:57:32.867+00:00 [gateway] device pairing auto-approved device=a0cf30907f69538f1c12aa74002a6075c2742cdfc09cc382fe71cbe47248b296 role=operator",
+    "[gateway] 2026-09-05T10:57:33.342+00:00 [gateway] remote model catalog updated; restart the Gateway to apply it",
+    "[gateway] 2026-09-05T10:57:33.687+00:00 [ws] ⇄ res ✓ usage.status 257ms conn=b9bdd104…3218 id=8:9321e37d-1…81dc",
+    "[gateway] 2026-09-05T10:57:33.695+00:00 [gateway] security audit: device access upgrade requested reason=scope-upgrade device=a0cf30907f69538f1c12aa74002a6075c2742cdfc09cc382fe71cbe47248b296 ip=unknown-ip auth=token roleFrom=operator roleTo=operator scopesFrom=operator.approvals,operator.read,operat",
+    "[gateway] 2026-09-05T10:57:33.698+00:00 [gateway] device pairing auto-approved device=a0cf30907f69538f1c12aa74002a6075c2742cdfc09cc382fe71cbe47248b296 role=operator",
+    "[gateway] 2026-09-05T10:57:38.416+00:00 [ws] ⇄ res ✓ openclaw.setup.detect 4227ms conn=8506b3e1…a5b5 id=2:585a40e1-a…0888"
   ]
 }

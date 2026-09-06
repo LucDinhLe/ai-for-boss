@@ -6,6 +6,9 @@ export const GATEWAY_REQUEST_CHANNEL = "aifb:gateway-request";
 /** Renderer → main. Returns supervisor and connection state, never credentials. */
 export const GATEWAY_STATUS_CHANNEL = "aifb:gateway-status";
 
+/** Renderer → main. Provider connection, checked against the setup allowlist. */
+export const SETUP_REQUEST_CHANNEL = "aifb:setup-request";
+
 /** Main → renderer. Runtime status transitions. */
 export const GATEWAY_STATUS_EVENT_CHANNEL = "aifb:gateway-status-changed";
 
@@ -15,7 +18,8 @@ export const GATEWAY_EVENT_CHANNEL = "aifb:gateway-event";
 export const RENDERER_INVOKE_CHANNELS = Object.freeze([
   SHELL_STATUS_CHANNEL,
   GATEWAY_REQUEST_CHANNEL,
-  GATEWAY_STATUS_CHANNEL
+  GATEWAY_STATUS_CHANNEL,
+  SETUP_REQUEST_CHANNEL
 ]);
 
 export const MAIN_TO_RENDERER_CHANNELS = Object.freeze([

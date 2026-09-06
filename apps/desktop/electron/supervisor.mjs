@@ -66,8 +66,19 @@ export function resolveNodeExecutable({ env = process.env, resourcesPath, platfo
   return null;
 }
 
-/** Resolves the installed package entry; never a flattened or vendored copy. */
-export function resolveOpenClawEntry(resolver = (specifier) => import.meta.resolve(specifier)) {
+/**
+ * Resolves the installed package entry; never a flattened or vendored copy.
+ *
+ * A packaged app carries its own OpenClaw install beside the app bundle, since
+ * node_modules is deliberately absent from app.asar. That install is a real
+ * package tree, so the child resolves its dependencies exactly as it does in
+ * development. Outside a package, resolution falls back to the workspace.
+ */
+export function resolveOpenClawEntry(resolver = (specifier) => import.meta.resolve(specifier), { resourcesPath } = {}) {
+  if (resourcesPath) {
+    const bundled = path.join(resourcesPath, "node_modules", "openclaw", "openclaw.mjs");
+    if (existsSync(bundled)) return bundled;
+  }
   const packageEntry = fileURLToPath(resolver("openclaw"));
   return path.resolve(path.dirname(packageEntry), "..", "openclaw.mjs");
 }

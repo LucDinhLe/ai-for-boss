@@ -63,14 +63,11 @@ jobs:
       - name: Smoke the supervised OpenClaw Gateway
         run: pnpm smoke:gateway
 
-      - name: Upload gateway smoke evidence
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1, Node 24
-        with:
-          name: ai-for-boss-${{ matrix.label }}-gateway-smoke
-          path: artifacts/beta-0/
-          if-no-files-found: error
-          retention-days: 14
+      # Stage the runtime the package carries, then prove the package starts
+      # its Gateway with nothing on PATH. Together these are the claim the
+      # installer will rest on: a clean machine needs nothing installed.
+      - name: Stage the bundled Node runtime and OpenClaw
+        run: pnpm stage:runtime
 
       - name: Package current platform
         run: pnpm package:desktop
@@ -78,10 +75,47 @@ jobs:
       - name: Validate experimental artifact inventory
         run: node scripts/validate-feature-0.4.mjs --require-artifact
 
+      - name: Smoke the packaged runtime with nothing on PATH
+        run: pnpm smoke:packaged
+
+      # The runtime smoke imports the shell's modules from the repository, so it
+      # cannot see whether the packaged main process can load them. Launching
+      # the real executable is what catches that, and a build shipped without
+      # this check died on launch in the Product Owner's hands.
+      - name: Launch the packaged app
+        run: pnpm smoke:app
+
+      # Producing the evidence is the invariant, and it is checked here so a
+      # missing or failing record fails the job on its own terms. Whether the
+      # account has room to store the upload is a billing condition, not a
+      # statement about the code, so the uploads below are allowed to fail
+      # without turning a healthy build red.
+      - name: Check the runtime evidence was produced
+        run: node scripts/check-evidence.mjs
+
+      # Evidence from both smokes travels together, and stays small.
+      - name: Upload runtime evidence
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1, Node 24
+        with:
+          name: ai-for-boss-${{ matrix.label }}-gateway-smoke
+          path: artifacts/beta-0/
+          if-no-files-found: error
+          retention-days: 14
+
+      # The packaged app now carries a Node runtime and a full OpenClaw install,
+      # so it is close to a gigabyte per platform. Uploading three of those on
+      # every run exhausted the account's artifact storage and taught nothing:
+      # the inventory carries the app.asar digest, the bundled runtime digest
+      # and the file counts the validator checks, and the package rebuilds from
+      # a pinned manifest. The installer gate will publish a real signed
+      # artifact; until then only the evidence travels.
       - name: Upload internal artifact
+        continue-on-error: true
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1, Node 24
         with:
           name: ai-for-boss-${{ matrix.label }}-experimental-internal
-          path: out/desktop/
+          path: out/desktop/artifact-inventory.json
           if-no-files-found: error
           retention-days: 7

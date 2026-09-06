@@ -22,25 +22,28 @@ Stop if any required file is missing, its governance hash fails, or the requeste
 
 ## Current scope
 
-**Beta 0 — supervised OpenClaw runtime and one chat window** is in progress on
-`experiment/beta-0`, from the merge of Feature 0.5 and Feature 0.6 at `8f43070`.
-The Feature Spec is `docs/feature-specs/0007-beta-0-supervised-openclaw.md`.
+**Beta 0 is merged into `main` at `3675ded`.** The app supervises a real
+OpenClaw Gateway, holds a host-owned device identity, speaks to the Gateway
+through the published `@openclaw/gateway-client`, and renders one chat window
+over a closed IPC bridge. Windows runs the Gateway natively — no Linux
+subsystem — proven on windows-latest, macos-14 and ubuntu-latest.
 
-Gate 0 work is merged: Feature 0.4 contains the Electron shell, sandboxed
-renderer and experimental CI package matrix; Feature 0.5 contains the fixture
-first-run journey, now living at `apps/desktop/src/first-run/`; Feature 0.6
-contains the sandbox ADR and probe. Independent senior platform/security review
-is still an open Gate 0 requirement.
+**In progress: the Connect screen** on `feature/connect-screen`. The Feature
+Spec is `docs/feature-specs/0008-connect-screen.md`. It drives OpenClaw's own
+`openclaw.setup.*` flow from a second, admin-scoped connection held in the main
+process (D-0021), and renders whatever provider catalogue the Gateway reports
+rather than a list of its own (D-0022).
 
-Beta 0 adds the Gateway Supervisor, host-owned device identity, the adapter over
-the published `@openclaw/gateway-client`, a closed IPC bridge and a single chat
-window. It runs the `oc-2026.9.1-candidate.1` candidate train, which is not the
-locked release train and must not be described as one.
+Gate 0 documents and contracts are closed; independent senior platform/security
+review is still an open Gate 0 requirement. The candidate train
+`oc-2026.9.1-candidate.1` is not the locked release train and must not be
+described as one.
 
-Do not add installer or updater logic, provider OAuth or API keys, agent runtime
-selection, real Advisor orchestration, tools, approvals, browser, terminal,
-plugins, skills or project management during beta 0. The sandbox defaults from
-D-0018 stay closed.
+Do not add installer or updater logic, real Advisor orchestration, tools,
+approvals, browser, terminal, plugins, skills or project management in this
+feature. The sandbox defaults from D-0018 stay closed, and `config.*`,
+`secrets.*` and every other admin family stay blocked even on the setup
+channel.
 
 ## Build discipline
 

@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
+import fsSync from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { listPackage } from "@electron/asar";
@@ -38,6 +39,37 @@ async function hashFile(filePath) {
   return crypto.createHash("sha256").update(content).digest("hex");
 }
 
+/**
+ * The packaged app carries the Node runtime the Gateway child is spawned with
+ * and the OpenClaw install it executes, staged by scripts/stage-runtime.mjs.
+ * Packaging without them still works for a shell-only build, and the inventory
+ * says plainly which of the two happened.
+ */
+const stagedRoot = path.join(appDirectory, "resources");
+const stagedSummaryPath = path.join(stagedRoot, "staged-runtime.json");
+const extraResources = [];
+let stagedRuntime = null;
+
+if (fsSync.existsSync(stagedSummaryPath)) {
+  stagedRuntime = JSON.parse(fsSync.readFileSync(stagedSummaryPath, "utf8"));
+  // `runtime` carries the Node binary; `bundle/node_modules` is copied in as
+  // `resources/node_modules` so the main process inside app.asar can resolve
+  // the Gateway client by walking up one directory, exactly as Node does in
+  // development.
+  for (const relative of ["runtime", path.join("bundle", "node_modules")]) {
+    const candidate = path.join(stagedRoot, relative);
+    if (!fsSync.existsSync(candidate)) {
+      throw new Error(`staged-runtime.json exists but resources/${relative} does not`);
+    }
+    extraResources.push(candidate);
+  }
+  if (stagedRuntime.platform !== process.platform || stagedRuntime.architecture !== process.arch) {
+    throw new Error(
+      `staged runtime is for ${stagedRuntime.platform}/${stagedRuntime.architecture}, packaging ${process.platform}/${process.arch}`
+    );
+  }
+}
+
 assertSafeOutput(outputRoot);
 await fs.rm(outputRoot, { recursive: true, force: true });
 await fs.mkdir(outputRoot, { recursive: true });
@@ -54,9 +86,11 @@ const packagePaths = await packager({
   asar: true,
   overwrite: false,
   prune: true,
+  extraResource: extraResources,
   ignore: [
     /^\/src($|\/)/,
     /^\/node_modules($|\/)/,
+    /^\/resources($|\/)/,
     /^\/index\.html$/,
     /^\/tsconfig\.json$/,
     /^\/vite\.config\.ts$/,
@@ -114,6 +148,16 @@ const inventory = {
     entryCount: asarEntries.length,
     entries: asarEntries
   },
+  bundledRuntime: stagedRuntime
+    ? {
+        nodeVersion: stagedRuntime.node.version,
+        nodeBinarySha256: stagedRuntime.node.binarySha256,
+        openclawVersion: stagedRuntime.openclaw.openclaw,
+        gatewayClientVersion: stagedRuntime.openclaw["@openclaw/gateway-client"],
+        gatewayProtocolVersion: stagedRuntime.openclaw["@openclaw/gateway-protocol"]
+      }
+    : null,
+  selfContained: Boolean(stagedRuntime),
   signed: false,
   distributable: false
 };
@@ -126,5 +170,6 @@ await fs.writeFile(
 
 console.log(
   `Desktop package created: ${inventory.packageDirectory}; ` +
-    `files=${inventory.fileCount}; bytes=${inventory.totalBytes}`
+    `files=${inventory.fileCount}; bytes=${inventory.totalBytes}; ` +
+    `runtime=${inventory.selfContained ? `node ${inventory.bundledRuntime.nodeVersion} + openclaw ${inventory.bundledRuntime.openclawVersion}` : "not staged"}`
 );
