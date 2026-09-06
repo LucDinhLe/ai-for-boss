@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { resolveNodeExecutable, resolveOpenClawEntry } from "../../apps/desktop/electron/supervisor.mjs";
 
@@ -67,9 +67,10 @@ test("an explicit runtime override still wins, and a missing package still falls
   const empty = fs.mkdtempSync(path.join(process.env.RUNNER_TEMP ?? "/tmp", "aifb-empty-"));
   try {
     assert.equal(resolveNodeExecutable({ env: { AIFB_NODE_PATH: process.execPath }, resourcesPath: empty }), process.execPath);
-    const entry = resolveOpenClawEntry(() => new URL("file:///elsewhere/node_modules/openclaw/dist/index.mjs"), {
-      resourcesPath: empty
-    });
+    // Built from a real path so the URL is valid on Windows too, where a file
+    // URL without a drive letter is not a path at all.
+    const elsewhere = path.join(empty, "elsewhere", "node_modules", "openclaw", "dist", "index.mjs");
+    const entry = resolveOpenClawEntry(() => pathToFileURL(elsewhere), { resourcesPath: empty });
     assert.ok(entry.endsWith(path.join("openclaw", "openclaw.mjs")));
   } finally {
     fs.rmSync(empty, { recursive: true, force: true });
