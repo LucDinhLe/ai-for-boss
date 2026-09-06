@@ -78,10 +78,15 @@ jobs:
       - name: Validate experimental artifact inventory
         run: node scripts/validate-feature-0.4.mjs --require-artifact
 
+      # A packaged Electron app is hundreds of megabytes, and three of them on
+      # every pull-request run exhausted the account's artifact storage. The
+      # inventory carries the sha256 of app.asar and the file counts the
+      # validator checks, so pull requests keep the evidence and drop the
+      # payload; a run on main or a manual run still uploads the whole package.
       - name: Upload internal artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1, Node 24
         with:
           name: ai-for-boss-${{ matrix.label }}-experimental-internal
-          path: out/desktop/
+          path: ${{ github.event_name == 'pull_request' && 'out/desktop/artifact-inventory.json' || 'out/desktop/' }}
           if-no-files-found: error
           retention-days: 7
