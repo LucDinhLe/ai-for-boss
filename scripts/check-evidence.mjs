@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const suffix = `${process.platform}-${process.arch}`;
-const expected = [`gateway-smoke-${suffix}.json`, `packaged-runtime-${suffix}.json`];
+const expected = [`gateway-smoke-${suffix}.json`, `packaged-runtime-${suffix}.json`, `packaged-app-${suffix}.json`];
 const problems = [];
 
 for (const name of expected) {

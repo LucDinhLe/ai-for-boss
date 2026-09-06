@@ -78,6 +78,13 @@ jobs:
       - name: Smoke the packaged runtime with nothing on PATH
         run: pnpm smoke:packaged
 
+      # The runtime smoke imports the shell's modules from the repository, so it
+      # cannot see whether the packaged main process can load them. Launching
+      # the real executable is what catches that, and a build shipped without
+      # this check died on launch in the Product Owner's hands.
+      - name: Launch the packaged app
+        run: pnpm smoke:app
+
       # Producing the evidence is the invariant, and it is checked here so a
       # missing or failing record fails the job on its own terms. Whether the
       # account has room to store the upload is a billing condition, not a

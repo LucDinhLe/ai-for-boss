@@ -23,6 +23,7 @@
     "smoke:gateway": "node scripts/gateway-smoke.mjs",
     "stage:runtime": "node scripts/stage-runtime.mjs",
     "smoke:packaged": "node scripts/packaged-runtime-smoke.mjs",
+    "smoke:app": "node scripts/packaged-app-smoke.mjs",
     "verify:provider": "node scripts/provider-verify.mjs"
   },
   "devDependencies": {

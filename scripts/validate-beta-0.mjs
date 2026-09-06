@@ -30,6 +30,7 @@ for (const requiredPath of [
   "scripts/provider-verify.mjs",
   "scripts/stage-runtime.mjs",
   "scripts/packaged-runtime-smoke.mjs",
+  "scripts/packaged-app-smoke.mjs",
   "manifests/runtime/bundled-runtime.lock.json",
   "tests/unit/bundled-runtime.test.mjs",
   "docs/testing/BETA-0-PROVIDER-VERIFICATION.md",
@@ -173,13 +174,21 @@ if (!main.includes("finishesSetup")) {
   failures.push("a finished setup wizard does not restart the Gateway");
 }
 
+// The launch check must wait for the device token, which only exists after a
+// real handshake. Waiting for the identity file instead would pass on an app
+// that loaded and then failed to reach its Gateway.
+const appSmoke = read("scripts/packaged-app-smoke.mjs");
+if (!appSmoke.includes("device-token.json") || !appSmoke.includes("ERR_MODULE_NOT_FOUND")) {
+  failures.push("the packaged app check does not prove a real handshake, or ignores module-resolution failures");
+}
+
 // A packaged app that finds Node on the host proves nothing about a clean
 // machine, so the check that says otherwise must strip PATH before resolving.
 const packagedSmoke = read("scripts/packaged-runtime-smoke.mjs");
 if (!packagedSmoke.includes('PATH: ""') || !packagedSmoke.includes("nodeFromPackage")) {
   failures.push("the packaged runtime check can be rescued by a Node on the host");
 }
-if (!read("apps/desktop/electron/supervisor.mjs").includes('path.join(resourcesPath, "openclaw"')) {
+if (!read("apps/desktop/electron/supervisor.mjs").includes('path.join(resourcesPath, "node_modules"')) {
   failures.push("a packaged app cannot resolve the OpenClaw install it carries");
 }
 

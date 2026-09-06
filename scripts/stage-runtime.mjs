@@ -24,7 +24,16 @@ import { fileURLToPath } from "node:url";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const resourcesRoot = path.join(repoRoot, "apps", "desktop", "resources");
 const runtimeRoot = path.join(resourcesRoot, "runtime", "node");
-const openclawRoot = path.join(resourcesRoot, "openclaw");
+/**
+ * The bundled package tree is staged here and lands in the packaged app as
+ * `resources/node_modules`. That location matters: Node resolves a bare
+ * specifier by walking up from the importing file, and the Electron main
+ * process is imported from inside `resources/app.asar`, whose parent is
+ * `resources`. Putting the tree anywhere else leaves the main process unable to
+ * import the Gateway client at all.
+ */
+const bundleRoot = path.join(resourcesRoot, "bundle");
+const openclawRoot = bundleRoot;
 
 const readJson = (relativePath) => JSON.parse(fs.readFileSync(path.join(repoRoot, relativePath), "utf8"));
 

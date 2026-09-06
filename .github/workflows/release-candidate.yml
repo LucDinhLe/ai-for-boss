@@ -67,23 +67,31 @@ jobs:
       - name: Smoke the packaged runtime with nothing on PATH
         run: pnpm smoke:packaged
 
+      - name: Launch the packaged app
+        run: pnpm smoke:app
+
       - name: Check the runtime evidence was produced
         run: node scripts/check-evidence.mjs
 
-      - name: Compress the package
+      # One file to download and one to double-click. NSIS ships on the Windows
+      # runner image, so this adds no dependency to the repository.
+      - name: Build the installer
         id: compress
         shell: pwsh
         run: |
           $source = Get-ChildItem -Path out/desktop -Directory | Select-Object -First 1
           if (-not $source) { throw "no packaged app under out/desktop" }
           $label = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME } else { "${{ inputs.label }}-$($env:GITHUB_SHA.Substring(0,7))" }
-          $zip = "out/AI-for-Boss-$label-windows-x64.zip"
-          Compress-Archive -Path "$($source.FullName)/*" -DestinationPath $zip -CompressionLevel Optimal
-          $size = [math]::Round((Get-Item $zip).Length / 1MB, 1)
-          "asset=$zip" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          $setup = "out/AI-for-Boss-Setup-$label.exe"
+          $makensis = "C:\Program Files (x86)\NSIS\makensis.exe"
+          if (-not (Test-Path $makensis)) { throw "NSIS is not installed on this runner" }
+          & $makensis /DVERSION=$label "/DSOURCE_DIR=$($source.FullName)" "/DOUT_FILE=$((Resolve-Path 'out').Path)\AI-for-Boss-Setup-$label.exe" installer/ai-for-boss.nsi
+          if ($LASTEXITCODE -ne 0) { throw "makensis failed with $LASTEXITCODE" }
+          $size = [math]::Round((Get-Item $setup).Length / 1MB, 1)
+          "asset=$setup" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           "label=$label" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           "sizeMb=$size" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          Write-Host "packaged $zip ($size MB)"
+          Write-Host "installer $setup ($size MB)"
 
       - name: Publish the release
         env:
@@ -94,13 +102,15 @@ jobs:
           $notes = @"
           Bản thử nghiệm nội bộ, chưa ký số, chưa phát hành.
 
-          **Cài và chạy.** Giải nén, chạy ``AI-for-Boss.exe``. Windows sẽ hiện màn hình SmartScreen vì bản này chưa có chứng chỉ ký số; bấm **More info** rồi **Run anyway**. Máy không cần cài Node hay bất cứ thứ gì khác, gói đã mang theo.
+          **Cài.** Tải một tệp duy nhất ``AI-for-Boss-Setup-$label.exe`` rồi chạy. Windows sẽ hiện màn hình SmartScreen vì bản này chưa có chứng chỉ ký số; bấm **More info** rồi **Run anyway**. Bộ cài không cần quyền quản trị, đặt ứng dụng trong thư mục người dùng, tạo lối tắt ngoài desktop và trong Start menu, kèm mục gỡ cài đặt trong Settings. Máy không cần cài Node hay bất cứ thứ gì khác.
 
           **Lần đầu mở.** Cửa sổ Kết nối tự bật vì chưa có model nào. Chọn một nhà cung cấp, dán khoá hoặc token, rồi bấm Kiểm tra kết nối. Sau khi kết nối xong Gateway khởi động lại vài giây là dùng được.
 
-          **Kích thước** khoảng ${{ steps.compress.outputs.sizeMb }} MB nén, khoảng 900 MB sau khi giải nén, vì gói mang theo Node runtime và toàn bộ OpenClaw.
+          **Kích thước** bộ cài khoảng ${{ steps.compress.outputs.sizeMb }} MB, chiếm khoảng 900 MB sau khi cài, vì gói mang theo Node runtime và toàn bộ OpenClaw.
 
-          **Chưa có trong bản này.** Advisor, skill quản trị kinh doanh, bộ cài thật, chữ ký số, tự cập nhật.
+          **Gỡ cài đặt** không xoá lịch sử trò chuyện và cấu hình, hai thứ đó nằm trong thư mục dữ liệu người dùng.
+
+          **Chưa có trong bản này.** Advisor, skill quản trị kinh doanh, chữ ký số, tự cập nhật.
 
           Bằng chứng của lượt dựng này nằm trong ``artifacts/beta-0`` của chính commit đã dựng.
           "@

@@ -52,10 +52,14 @@ let stagedRuntime = null;
 
 if (fsSync.existsSync(stagedSummaryPath)) {
   stagedRuntime = JSON.parse(fsSync.readFileSync(stagedSummaryPath, "utf8"));
-  for (const directory of ["runtime", "openclaw"]) {
-    const candidate = path.join(stagedRoot, directory);
+  // `runtime` carries the Node binary; `bundle/node_modules` is copied in as
+  // `resources/node_modules` so the main process inside app.asar can resolve
+  // the Gateway client by walking up one directory, exactly as Node does in
+  // development.
+  for (const relative of ["runtime", path.join("bundle", "node_modules")]) {
+    const candidate = path.join(stagedRoot, relative);
     if (!fsSync.existsSync(candidate)) {
-      throw new Error(`staged-runtime.json exists but resources/${directory} does not`);
+      throw new Error(`staged-runtime.json exists but resources/${relative} does not`);
     }
     extraResources.push(candidate);
   }

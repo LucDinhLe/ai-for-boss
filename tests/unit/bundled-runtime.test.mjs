@@ -58,8 +58,8 @@ test("a packaged app resolves its own runtime before anything on the host", () =
     const binary = process.platform === "win32" ? "node.exe" : "node";
     fs.mkdirSync(path.join(packaged, "runtime", "node"), { recursive: true });
     fs.writeFileSync(path.join(packaged, "runtime", "node", binary), "");
-    fs.mkdirSync(path.join(packaged, "openclaw", "node_modules", "openclaw"), { recursive: true });
-    fs.writeFileSync(path.join(packaged, "openclaw", "node_modules", "openclaw", "openclaw.mjs"), "");
+    fs.mkdirSync(path.join(packaged, "node_modules", "openclaw"), { recursive: true });
+    fs.writeFileSync(path.join(packaged, "node_modules", "openclaw", "openclaw.mjs"), "");
 
     const resolved = resolveNodeExecutable({ env: { PATH: "" }, resourcesPath: packaged });
     assert.equal(resolved, path.join(packaged, "runtime", "node", binary));
@@ -70,7 +70,7 @@ test("a packaged app resolves its own runtime before anything on the host", () =
       },
       { resourcesPath: packaged }
     );
-    assert.equal(entry, path.join(packaged, "openclaw", "node_modules", "openclaw", "openclaw.mjs"));
+    assert.equal(entry, path.join(packaged, "node_modules", "openclaw", "openclaw.mjs"));
   } finally {
     fs.rmSync(packaged, { recursive: true, force: true });
   }

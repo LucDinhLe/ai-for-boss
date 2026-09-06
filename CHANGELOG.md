@@ -200,3 +200,19 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Lần đầu mở ứng dụng trên máy chưa có nhà cung cấp nào, màn hình Kết nối tự bật thay vì để người dùng phát hiện ra khi gửi tin nhắn đầu tiên rồi gặp lỗi.
 - Màn hình Kết nối luôn có đường thoát. Trước đây nút thoát chỉ hiện khi đã cấu hình xong, tức lần đầu mở là một cái bẫy.
 
+### Bộ cài một tệp, và bản vá lỗi mở lên là chết (2026-09-06, nhánh `feature/connect-screen`)
+
+#### Fixed
+
+- Bản beta-0.2 mở lên là chết với `Cannot find package '@openclaw/gateway-client'`. Tiến trình chính nằm trong `app.asar`, còn cây phụ thuộc lại được đặt ở `resources/openclaw/node_modules`, chỗ mà Node không bao giờ tìm tới. Cây gói nay nằm ở `resources/node_modules`, đúng nơi Node đi ngược thư mục từ `app.asar` sẽ gặp.
+
+#### Added
+
+- `pnpm smoke:app` mở đúng tệp thực thi đã đóng gói với thư mục dữ liệu riêng, rồi chờ device token xuất hiện. Token chỉ tồn tại sau khi bắt tay thật với Gateway, nên bài kiểm này phủ trọn chuỗi nạp mô-đun, khởi động tiến trình con và xác thực. Đây chính là bài kiểm mà nếu có từ đầu thì bản 0.2 đã không tới tay người dùng.
+- Bộ cài Windows một tệp dựng bằng NSIS, không cần quyền quản trị, cài vào thư mục người dùng, tạo lối tắt và mục gỡ cài đặt. Gỡ cài đặt giữ nguyên lịch sử trò chuyện và cấu hình.
+
+#### Changed
+
+- Bản phát hành nay đính kèm một tệp `AI-for-Boss-Setup-<phiên bản>.exe` thay vì một tệp zip phải giải nén tay.
+- CI của pull request cũng chạy bài mở ứng dụng đã đóng gói, và tệp bằng chứng của bài đó là bắt buộc.
+

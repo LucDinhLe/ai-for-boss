@@ -39,6 +39,12 @@ Bộ cài thật, chữ ký số, cập nhật tự động, và việc giảm d
 
 Kết quả trên Linux, ngày 2026-09-06, ghi tại `artifacts/beta-0/packaged-runtime-linux-x64.json`: node lấy từ `runtime/node/node`, OpenClaw lấy từ `openclaw/node_modules/openclaw/openclaw.mjs`, handshake xong sau 15,6 giây, `health` đạt, không có failure.
 
+## Bài học của bản beta-0.2
+
+Bản đầu tiên đưa cho Product Owner mở lên là chết, `Cannot find package '@openclaw/gateway-client'`. Nguyên nhân nằm ở chỗ đặt cây phụ thuộc. Tiến trình chính chạy từ trong `app.asar`, và Node phân giải một tên gói bằng cách đi ngược thư mục cha, nên cây phải nằm ở `resources/node_modules`. Đặt ở `resources/openclaw/node_modules` thì không đường nào tới được.
+
+Điều đáng nói hơn là vì sao bằng chứng không bắt được. Bài kiểm gói nạp các mô-đun của vỏ từ kho mã, nơi `node_modules` luôn có sẵn, nên nó chứng minh gói mang đủ thứ chứ không chứng minh ứng dụng mở được. `pnpm smoke:app` lấp đúng khoảng trống đó bằng cách mở chính tệp thực thi đã đóng gói và chờ device token, thứ chỉ xuất hiện sau một lần bắt tay thật. Ghi ở R-036.
+
 ## Điều còn nợ
 
 Gói hiện nặng khoảng 900 MB khi nằm trên đĩa, trong đó cây OpenClaw chiếm 528 MB và nhị phân Node chiếm 121 MB. Nén lại thì còn 195 MB, đo bằng xz mức 6, tức mức người dùng tải về là chấp nhận được và bộ cài không bị chặn vì dung lượng. Phần chiếm đĩa sau khi cài vẫn nên giảm. Ghi ở R-035, và mỗi lần cắt bớt phải chạy lại `pnpm smoke:packaged` để chắc chắn chưa cắt nhầm thứ đang dùng.

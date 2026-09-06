@@ -76,7 +76,7 @@ export function resolveNodeExecutable({ env = process.env, resourcesPath, platfo
  */
 export function resolveOpenClawEntry(resolver = (specifier) => import.meta.resolve(specifier), { resourcesPath } = {}) {
   if (resourcesPath) {
-    const bundled = path.join(resourcesPath, "openclaw", "node_modules", "openclaw", "openclaw.mjs");
+    const bundled = path.join(resourcesPath, "node_modules", "openclaw", "openclaw.mjs");
     if (existsSync(bundled)) return bundled;
   }
   const packageEntry = fileURLToPath(resolver("openclaw"));
