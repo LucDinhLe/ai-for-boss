@@ -185,5 +185,6 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 #### Known
 
-- Gói nặng khoảng 900 MB một nền tảng. Phải giảm trước khi làm bộ cài phát hành (R-035).
+- Gói nặng khoảng 900 MB trên đĩa, 195 MB khi nén, nên tải về được và phần chiếm đĩa vẫn nên giảm (R-035).
+- Kho artifact của tài khoản GitHub đã đầy nên mọi lượt tải bằng chứng lên đều hỏng. CI nay kiểm rằng bằng chứng đã được tạo ra và đạt, còn bước tải lên không làm đỏ một bản dựng lành. Dọn kho là việc của chủ tài khoản.
 

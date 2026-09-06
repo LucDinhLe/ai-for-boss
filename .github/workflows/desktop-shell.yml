@@ -78,14 +78,18 @@ jobs:
       - name: Smoke the packaged runtime with nothing on PATH
         run: pnpm smoke:packaged
 
-      # A packaged Electron app is hundreds of megabytes, and three of them on
-      # every pull-request run exhausted the account's artifact storage. The
-      # inventory carries the sha256 of app.asar and the file counts the
-      # validator checks, so pull requests keep the evidence and drop the
-      # payload; a run on main or a manual run still uploads the whole package.
+      # Producing the evidence is the invariant, and it is checked here so a
+      # missing or failing record fails the job on its own terms. Whether the
+      # account has room to store the upload is a billing condition, not a
+      # statement about the code, so the uploads below are allowed to fail
+      # without turning a healthy build red.
+      - name: Check the runtime evidence was produced
+        run: node scripts/check-evidence.mjs
+
       # Evidence from both smokes travels together, and stays small.
       - name: Upload runtime evidence
         if: always()
+        continue-on-error: true
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1, Node 24
         with:
           name: ai-for-boss-${{ matrix.label }}-gateway-smoke
@@ -101,6 +105,7 @@ jobs:
       # a pinned manifest. The installer gate will publish a real signed
       # artifact; until then only the evidence travels.
       - name: Upload internal artifact
+        continue-on-error: true
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1, Node 24
         with:
           name: ai-for-boss-${{ matrix.label }}-experimental-internal
