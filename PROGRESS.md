@@ -44,7 +44,7 @@ Lượt CI đầu tiên trên Windows lộ một lỗi thật: khi thư mục d�
 ## Chưa xong và biết rõ
 
 - Lần kiểm nhà cung cấp thật mới chạy trên Linux. Windows và macOS chưa chạy, đó là điều kiện chưa đạt còn lại của candidate train (R-032).
-- Gói đã mang theo Node runtime và OpenClaw, nhưng nặng khoảng 900 MB một nền tảng nên chưa đưa cho người dùng tải được (R-035).
+- Gói đã mang theo Node runtime và OpenClaw, nặng khoảng 900 MB trên đĩa và 195 MB khi nén, nên tải về được nhưng chiếm đĩa nhiều (R-035).
 - Bộ cài thật, chữ ký số và cập nhật tự động vẫn chưa có.
 - Senior platform/security review độc lập vẫn là điều kiện chưa đạt của Cổng 0.
 

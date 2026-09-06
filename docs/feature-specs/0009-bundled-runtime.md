@@ -41,4 +41,4 @@ Kết quả trên Linux, ngày 2026-09-06, ghi tại `artifacts/beta-0/packaged-
 
 ## Điều còn nợ
 
-Gói hiện nặng khoảng 900 MB cho một nền tảng, trong đó cây OpenClaw chiếm 528 MB và nhị phân Node chiếm 121 MB. Con số này không chấp nhận được cho người dùng Việt Nam tải về. Ghi ở R-035, phải giảm trước khi làm bộ cài phát hành.
+Gói hiện nặng khoảng 900 MB khi nằm trên đĩa, trong đó cây OpenClaw chiếm 528 MB và nhị phân Node chiếm 121 MB. Nén lại thì còn 195 MB, đo bằng xz mức 6, tức mức người dùng tải về là chấp nhận được và bộ cài không bị chặn vì dung lượng. Phần chiếm đĩa sau khi cài vẫn nên giảm. Ghi ở R-035, và mỗi lần cắt bớt phải chạy lại `pnpm smoke:packaged` để chắc chắn chưa cắt nhầm thứ đang dùng.
