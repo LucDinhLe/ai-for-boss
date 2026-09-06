@@ -170,7 +170,9 @@ function stageOpenClaw({ force }) {
   );
 
   console.log("[stage-runtime] installing the pinned OpenClaw tree");
-  execFileSync("npm", ["install", "--omit=dev", "--no-audit", "--no-fund"], {
+  // On Windows npm is a .cmd shim, which execFileSync cannot start directly.
+  const npm = process.platform === "win32" ? "npm.cmd" : "npm";
+  execFileSync(npm, ["install", "--omit=dev", "--no-audit", "--no-fund"], {
     cwd: openclawRoot,
     stdio: "inherit"
   });

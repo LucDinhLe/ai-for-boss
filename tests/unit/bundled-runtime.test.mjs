@@ -39,6 +39,13 @@ test("the staging script refuses an archive whose digest does not match", () => 
   assert.ok(staging.includes("pnpm-workspace.yaml"), "the install-script allowlist has a second source of truth");
 });
 
+test("the staging script starts the tools each platform actually ships", () => {
+  const staging = read("scripts/stage-runtime.mjs");
+  assert.ok(staging.includes('"npm.cmd"'), "npm is a .cmd shim on Windows and cannot be started directly");
+  assert.ok(staging.includes("Expand-Archive"), "Windows has no tar for the zip distribution");
+  assert.ok(staging.includes('execFileSync("tar"'), "macOS and Linux extract with tar");
+});
+
 test("a packaged app resolves its own runtime before anything on the host", () => {
   const packaged = fs.mkdtempSync(path.join(process.env.RUNNER_TEMP ?? "/tmp", "aifb-resources-"));
   try {
