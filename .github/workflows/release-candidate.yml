@@ -49,6 +49,12 @@ jobs:
       - name: Lint, type-check, test and build
         run: pnpm verify
 
+      # The evidence check expects both records, and the release build should
+      # prove the supervised Gateway works on this machine before it proves the
+      # package does.
+      - name: Smoke the supervised OpenClaw Gateway
+        run: pnpm smoke:gateway
+
       - name: Stage the bundled Node runtime and OpenClaw
         run: pnpm stage:runtime
 
