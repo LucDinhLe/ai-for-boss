@@ -50,4 +50,4 @@ Lượt CI đầu tiên trên Windows lộ một lỗi thật: khi thư mục d�
 
 ## Bước nhỏ kế tiếp
 
-Giảm dung lượng gói xuống mức tải được, rồi bọc nó thành bộ cài Windows.
+Product Owner chạy thử bản Windows tải từ Release, rồi quyết định bọc thành bộ cài thật hay sửa trải nghiệm lần đầu trước.

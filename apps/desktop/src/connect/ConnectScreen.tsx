@@ -350,11 +350,11 @@ export default function ConnectScreen({ onDone }: { onDone: () => void }) {
     <section className="connect">
       <header className="connect__header">
         <h1>Kết nối model</h1>
-        {detect?.setupComplete ? (
-          <button type="button" onClick={onDone}>
-            Xong
-          </button>
-        ) : null}
+        {/* Always leavable. On a first run nothing is connected yet, and a
+            screen with no way out is a trap rather than a wizard. */}
+        <button type="button" onClick={onDone}>
+          {detect?.setupComplete ? CHROME.done : CHROME.later}
+        </button>
       </header>
 
       <p className="connect__lead">

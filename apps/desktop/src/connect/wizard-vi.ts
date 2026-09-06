@@ -100,5 +100,7 @@ export const CHROME = {
   pasteKeyHint:
     "Dán khoá API hoặc token bạn lấy từ nhà cung cấp. Khoá được lưu trên máy này. Nếu nhà cung cấp cho đăng nhập bằng trình duyệt thì bấm nút bên dưới.",
   connectWithKey: "Kết nối bằng khoá",
-  signInBrowser: "Đăng nhập bằng trình duyệt"
+  signInBrowser: "Đăng nhập bằng trình duyệt",
+  done: "Xong",
+  later: "Để sau"
 } as const;

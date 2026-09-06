@@ -188,3 +188,15 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Gói nặng khoảng 900 MB trên đĩa, 195 MB khi nén, nên tải về được và phần chiếm đĩa vẫn nên giảm (R-035).
 - Kho artifact của tài khoản GitHub đã đầy nên mọi lượt tải bằng chứng lên đều hỏng. CI nay kiểm rằng bằng chứng đã được tạo ra và đạt, còn bước tải lên không làm đỏ một bản dựng lành. Dọn kho là việc của chủ tài khoản.
 
+### Bản tải về đầu tiên (2026-09-06, nhánh `feature/connect-screen`)
+
+#### Added
+
+- Workflow `Release candidate` dựng bản Windows khi gắn thẻ `beta-*` hoặc khi chạy tay, rồi đính kèm gói nén vào GitHub Release. Tệp trong Release không tính vào hạn mức artifact nên đường phát hành này không tốn gì.
+- Bản dựng phát hành chạy đúng bộ kiểm của pull request cộng thêm bài kiểm gói với `PATH` rỗng. Validator đỏ thì không có link tải, có chủ ý.
+
+#### Changed
+
+- Lần đầu mở ứng dụng trên máy chưa có nhà cung cấp nào, màn hình Kết nối tự bật thay vì để người dùng phát hiện ra khi gửi tin nhắn đầu tiên rồi gặp lỗi.
+- Màn hình Kết nối luôn có đường thoát. Trước đây nút thoát chỉ hiện khi đã cấu hình xong, tức lần đầu mở là một cái bẫy.
+

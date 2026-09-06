@@ -106,6 +106,7 @@ function App() {
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [showConnect, setShowConnect] = useState(false);
+  const [connectOffered, setConnectOffered] = useState(false);
   const transcriptRef = useRef<HTMLDivElement | null>(null);
   // Event handlers registered once still need the session the user is looking
   // at now, so the key is mirrored into a ref from an effect rather than during
@@ -164,7 +165,16 @@ function App() {
       await refreshSessions();
       try {
         const catalogue = await call<{ models?: ModelSummary[] }>("models.list");
-        if (!cancelled) setModels(catalogue.models ?? []);
+        if (cancelled) return;
+        const available = catalogue.models ?? [];
+        setModels(available);
+        // A first run on a clean machine has no provider, so every turn would
+        // fail before reaching a model. Open the Connect screen once instead of
+        // letting the person discover that by sending a message.
+        if (available.length === 0 && !connectOffered) {
+          setConnectOffered(true);
+          setShowConnect(true);
+        }
       } catch {
         if (!cancelled) setModels([]);
       }
@@ -172,7 +182,7 @@ function App() {
     return () => {
       cancelled = true;
     };
-  }, [runtime.connected, refreshSessions]);
+  }, [runtime.connected, refreshSessions, connectOffered]);
 
   useEffect(() => {
     const unsubscribe = onGatewayEvent(({ event, payload }) => {
@@ -287,7 +297,7 @@ function App() {
             Phiên mới
           </button>
           <button type="button" onClick={() => setShowConnect(true)} disabled={!runtime.setupReady}>
-            Kết nối model
+            {models.length === 0 ? "Kết nối model" : "Đổi kết nối"}
           </button>
         </div>
 
