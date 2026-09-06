@@ -42,6 +42,12 @@ test("the staging script refuses an archive whose digest does not match", () => 
 test("the staging script starts the tools each platform actually ships", () => {
   const staging = read("scripts/stage-runtime.mjs");
   assert.ok(staging.includes('"npm.cmd"'), "npm is a .cmd shim on Windows and cannot be started directly");
+  assert.ok(staging.includes("shell: onWindows"), "Node refuses to spawn a .cmd shim without a shell");
+  assert.equal(
+    /shell:\s*true/.test(staging),
+    false,
+    "the shell is opted into per platform, never unconditionally"
+  );
   assert.ok(staging.includes("Expand-Archive"), "Windows has no tar for the zip distribution");
   assert.ok(staging.includes('execFileSync("tar"'), "macOS and Linux extract with tar");
 });

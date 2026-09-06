@@ -170,11 +170,14 @@ function stageOpenClaw({ force }) {
   );
 
   console.log("[stage-runtime] installing the pinned OpenClaw tree");
-  // On Windows npm is a .cmd shim, which execFileSync cannot start directly.
-  const npm = process.platform === "win32" ? "npm.cmd" : "npm";
-  execFileSync(npm, ["install", "--omit=dev", "--no-audit", "--no-fund"], {
+  // On Windows npm is a .cmd shim. Node refuses to spawn one without a shell,
+  // so this one call opts into a shell there. The argument list is a fixed
+  // constant with nothing interpolated into it, which is what makes that safe.
+  const onWindows = process.platform === "win32";
+  execFileSync(onWindows ? "npm.cmd" : "npm", ["install", "--omit=dev", "--no-audit", "--no-fund"], {
     cwd: openclawRoot,
-    stdio: "inherit"
+    stdio: "inherit",
+    shell: onWindows
   });
 
   const entry = path.join(openclawRoot, "node_modules", "openclaw", "openclaw.mjs");
