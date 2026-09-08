@@ -1,0 +1,87 @@
+{
+  "$schema": "./agent-genesis.schema.json",
+  "schemaVersion": "1.0.0",
+  "releaseTrainId": "oc-2026.7.1-2-locked.1",
+  "sourceDocuments": [
+    "docs/start/bootstrapping.md",
+    "docs/concepts/agent-workspace.md",
+    "docs/cli/agents.md"
+  ],
+  "templateReferences": [
+    { "name": "AGENTS.md", "path": "docs/reference/templates/AGENTS.md", "sha256": "7d340e13e845b8bf7c69c60f5dbcc7b5b0e03b1401496d2a091af7223499bbfc", "bytes": 7327, "evidence": "locked-reference-document" },
+    { "name": "SOUL.md", "path": "docs/reference/templates/SOUL.md", "sha256": "79c61aaee618c787c164c5d767053a83c6e218191b3b6ebb66fd07320b071ce8", "bytes": 1645, "evidence": "locked-reference-document" },
+    { "name": "TOOLS.md", "path": "docs/reference/templates/TOOLS.md", "sha256": "20eab78b3b117566a1d33a70873e70ff2d5099543aa44e2719dc8d0797099afe", "bytes": 1005, "evidence": "locked-reference-document" },
+    { "name": "IDENTITY.md", "path": "docs/reference/templates/IDENTITY.md", "sha256": "1c447d4ce2d33b4836d3c95c2bc70cc783ea3ccd450e61e2db7e04d5465e9820", "bytes": 1397, "evidence": "locked-reference-document" },
+    { "name": "USER.md", "path": "docs/reference/templates/USER.md", "sha256": "599bd4d663c852bca679a341d53605c1a48b7cd7601bd7d102ee5407828dbacb", "bytes": 650, "evidence": "locked-reference-document" },
+    { "name": "HEARTBEAT.md", "path": "docs/reference/templates/HEARTBEAT.md", "sha256": "1605f546995e0bdcb11f9bf905173b14aca25cfad664fe2c7644d18c2b4142e2", "bytes": 1273, "evidence": "locked-reference-document" },
+    { "name": "BOOTSTRAP.md", "path": "docs/reference/templates/BOOTSTRAP.md", "sha256": "1c85f2aad8c4ace090e714a0ec2dec3c928e54c8d2d20d58175f0ae3963d99b3", "bytes": 1802, "evidence": "locked-reference-document" }
+  ],
+  "states": ["UNSEEDED", "SEEDED", "CONVERSING", "STAGING", "VERIFYING", "ACTIVE", "PENDING_RESUME"],
+  "transitions": [
+    { "from": "UNSEEDED", "to": "SEEDED", "condition": "Unique Agent Home and agentDir are reserved and release-locked starter files are staged" },
+    { "from": "SEEDED", "to": "CONVERSING", "condition": "BOOTSTRAP.md exists and a verified model is available" },
+    { "from": "CONVERSING", "to": "STAGING", "condition": "User approves the identity summary" },
+    { "from": "STAGING", "to": "VERIFYING", "condition": "Identity files are written atomically and read back" },
+    { "from": "VERIFYING", "to": "ACTIVE", "condition": "Content validation, identity sync, query-back, snapshot and health pass; BOOTSTRAP.md is removed last" },
+    { "from": "SEEDED", "to": "PENDING_RESUME", "condition": "Any interruption or validation failure" },
+    { "from": "CONVERSING", "to": "PENDING_RESUME", "condition": "Any interruption or model failure" },
+    { "from": "STAGING", "to": "PENDING_RESUME", "condition": "Write, readback or schema failure" },
+    { "from": "VERIFYING", "to": "PENDING_RESUME", "condition": "Identity sync, query-back, snapshot or health failure" },
+    { "from": "PENDING_RESUME", "to": "CONVERSING", "condition": "Approved identity data is incomplete" },
+    { "from": "PENDING_RESUME", "to": "STAGING", "condition": "Approved identity data is complete and checkpoint is valid" }
+  ],
+  "activationPreconditions": [
+    "All seven required starter files were seeded from the locked release contract",
+    "AGENTS.md, SOUL.md, TOOLS.md, IDENTITY.md, USER.md, HEARTBEAT.md and BOOTSTRAP.md remain inside the unique Agent Home",
+    "IDENTITY.md, USER.md and SOUL.md differ from starter content according to the approved user summary",
+    "UTF-8 content validation and readback pass",
+    "Avatar value is a permitted relative path, HTTPS URL or bounded data URI",
+    "Official agents set-identity CLI or future supported RPC succeeds and query-back matches",
+    "A pre-promotion snapshot exists",
+    "Gateway health and Agent discovery pass",
+    "BOOTSTRAP.md is removed only as the final promotion operation",
+    "memory directory does not exist before promotion"
+  ],
+  "workspaceBoundaries": [
+    {
+      "id": "agent-home",
+      "name": "Agent Home",
+      "sourceOfTruthRefs": ["SOT-05"],
+      "contains": ["identity", "persona", "user profile", "memory", "heartbeat", "bootstrap files"],
+      "rendererAccess": "user-mediated-files",
+      "grantModes": ["supervisor-contract-only"]
+    },
+    {
+      "id": "agent-dir",
+      "name": "OpenClaw agentDir",
+      "sourceOfTruthRefs": ["SOT-01", "SOT-04"],
+      "contains": ["auth profile", "session store", "OpenClaw-managed agent state"],
+      "rendererAccess": "none",
+      "grantModes": ["supervisor-contract-only"]
+    },
+    {
+      "id": "project-space",
+      "name": "Không gian dự án",
+      "sourceOfTruthRefs": ["SOT-02", "SOT-06"],
+      "contains": ["business files", "working files", "user-owned artifacts"],
+      "rendererAccess": "user-mediated-files",
+      "grantModes": ["none", "read-only", "read-write"]
+    }
+  ],
+  "invariants": [
+    "Each Agent has a unique Agent Home, agentDir, session and auth profile",
+    "Two Agents may share a project only through independent explicit grants",
+    "Agent Home is never silently reused as a project folder",
+    "No API key, OAuth token, cookie, password or Gateway credential is written to Markdown",
+    "Display-name collisions are allowed but stable agent identifiers and paths are unique",
+    "Heartbeat is empty or comment-only until the user intentionally enables background work",
+    "Rebirth is a separate confirmed action with snapshot, paused schedules/channels and rollback"
+  ],
+  "failureBehavior": {
+    "state": "PENDING_RESUME",
+    "keepBootstrap": true,
+    "createMemory": false,
+    "reportReady": false,
+    "resumeMode": "idempotent-from-last-verified-checkpoint"
+  }
+}

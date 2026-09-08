@@ -1,0 +1,21 @@
+{
+  "name": "@aifb/desktop",
+  "productName": "AI for Boss",
+  "version": "0.0.5-beta.31",
+  "author": "AI for Boss",
+  "private": true,
+  "type": "module",
+  "main": "electron/main.mjs",
+  "scripts": {
+    "build": "vite build",
+    "start": "electron .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@openclaw/gateway-client": "2026.9.1",
+    "@openclaw/gateway-protocol": "2026.9.1",
+    "openclaw": "2026.9.1",
+    "jszip": "3.10.1",
+    "htmlparser2": "10.1.0"
+  }
+}

@@ -1,0 +1,481 @@
+{
+  "openclaw": "2026.9.1",
+  "simpleIcons": "16.21.0",
+  "records": [
+    {
+      "file": "provider-abacus.svg",
+      "sha256": "0654aa5ae141be14de2247adb51c3e60192d2e4987efa645adb34d9301830d3d",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-abacus.svg"
+    },
+    {
+      "file": "provider-alibaba.svg",
+      "sha256": "e52a73b0ba75225967c559f8be1315ede1bd6ef6a80287525f7f6a365735cd79",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-alibaba.svg"
+    },
+    {
+      "file": "provider-amp.svg",
+      "sha256": "50b187ec706d84c6cfadba067d696f3a831bba3728d873a1de102578fab705d3",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-amp.svg"
+    },
+    {
+      "file": "provider-antigravity.svg",
+      "sha256": "eafc2d1d432b369c34c98e1bb0cd36f0bc58872a64ef4ef814860f3dccef5f71",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-antigravity.svg"
+    },
+    {
+      "file": "provider-arcee.svg",
+      "sha256": "23b55c75871afabafeb976c3a4377cfe3b0374ace06b1917ed1945de5f642bd2",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-arcee.svg"
+    },
+    {
+      "file": "provider-augment.svg",
+      "sha256": "9197cf223bae1a37cc3047e2aeb0516600fae396baaafb780a4dea784c298718",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-augment.svg"
+    },
+    {
+      "file": "provider-baseten.svg",
+      "sha256": "306faeadca6d479ac194e77c41ada9f6b521c78f3a2ae67ca120abf91da87945",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-baseten.svg"
+    },
+    {
+      "file": "provider-bedrock.svg",
+      "sha256": "a65f1c40129ec119c62f630290ad54bf3a8cc682a2df64e264792dc6b16821b9",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-bedrock.svg"
+    },
+    {
+      "file": "provider-byteplus.svg",
+      "sha256": "a783ff367d7d6aa4fd522a69325750ce73d17745300fd3be0b26ec5c8163212d",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-byteplus.svg"
+    },
+    {
+      "file": "provider-cerebras.svg",
+      "sha256": "869f9f62f2cfbf4145d5ba9a7f4d8e55c82851d99e11f9253db519dd3eec30ce",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-cerebras.svg"
+    },
+    {
+      "file": "provider-chutes.svg",
+      "sha256": "5f1dd1c39ab3164996f9492eaab5198f10e9c37c3268ea32f6905f0a625e1950",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-chutes.svg"
+    },
+    {
+      "file": "provider-claude.svg",
+      "sha256": "497a88a780831512317b6dd061285e2ec2608abf09a94a5f24ee9019a4d3ef8b",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-claude.svg"
+    },
+    {
+      "file": "provider-clawrouter.svg",
+      "sha256": "1a54a636075166f84b0f4c5c9cfd332976b6e3c2330ba69f34ad5efac5709c32",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-clawrouter.svg"
+    },
+    {
+      "file": "provider-cloudflare.svg",
+      "sha256": "16823cb38a00a4de5f069a2f1ea514364142409b556d1e5fd98e4a2d0ad9e152",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-cloudflare.svg"
+    },
+    {
+      "file": "provider-codebuff.svg",
+      "sha256": "49971b7f731a6144e35d6481fb7986432dcd21905dae403e5c29be9d43e31d80",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-codebuff.svg"
+    },
+    {
+      "file": "provider-codex.svg",
+      "sha256": "5c999792f6d26c9d14a197aa6e6c20f5af3def433473f7b66bd0d8c8a41cd8cf",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-codex.svg"
+    },
+    {
+      "file": "provider-cohere.svg",
+      "sha256": "2b1cd3e9141024384e1e012584f97c278644492b0cb3675b50ceff363b94dd79",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-cohere.svg"
+    },
+    {
+      "file": "provider-comfy.svg",
+      "sha256": "775df3a28643b0b51cd104344f08659d6bd7ad66df3974972c9db451d285102d",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-comfy.svg"
+    },
+    {
+      "file": "provider-commandcode.svg",
+      "sha256": "905d0a09d27cd46f94ed4a8de30bc19a3aacb3d1b2fa2367921541035eea9875",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-commandcode.svg"
+    },
+    {
+      "file": "provider-copilot.svg",
+      "sha256": "945934ed46f6fb1f8b3fdef5465264051068664c477004195a56a89d03c1d994",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-copilot.svg"
+    },
+    {
+      "file": "provider-crof.svg",
+      "sha256": "7c331d84ed57ebb1bff031e6b612b26cf6a6df8b115cfa8132a0fda5d58a6b38",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-crof.svg"
+    },
+    {
+      "file": "provider-crossmodel.svg",
+      "sha256": "4d3b966933b0e87733afea975cbebb9636c9b8d5df98c22cb515227493444134",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-crossmodel.svg"
+    },
+    {
+      "file": "provider-cursor.svg",
+      "sha256": "01bac27782652bb9f607f35fac6359e639d6ade0f1a1a0b34d530a367e23ecd3",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-cursor.svg"
+    },
+    {
+      "file": "provider-deepgram.svg",
+      "sha256": "863500028bccf80a88aa0f56cc6237fc754702f5e31e499a84896ee9da8451fa",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-deepgram.svg"
+    },
+    {
+      "file": "provider-deepinfra.svg",
+      "sha256": "f669d72920d56c31684ef4b4184651bb6ba43841957142a5b72f1af17ae05d39",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-deepinfra.svg"
+    },
+    {
+      "file": "provider-deepseek.svg",
+      "sha256": "0c9beab8db2c807c65f5ad59c0870e600320f697f1596629ebe1398af144c87e",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-deepseek.svg"
+    },
+    {
+      "file": "provider-devin.svg",
+      "sha256": "cec72ca6ea0d1502abf9e9fd77e2be816b35a90893fc26f3b764dcb930383a29",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-devin.svg"
+    },
+    {
+      "file": "provider-doubao.svg",
+      "sha256": "1823429fe5e341b632a84eb87a04c242d1be79c9a9383f6f0239f9fc5aed921c",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-doubao.svg"
+    },
+    {
+      "file": "provider-elevenlabs.svg",
+      "sha256": "2c56c8c39ec39388b1d43f37ca72c2193ade94c75f8907d4876a99f01d4be7cf",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-elevenlabs.svg"
+    },
+    {
+      "file": "provider-factory.svg",
+      "sha256": "f2a16395f166104832b7fbf43b021c93cf5d0f14740ae9453c41df807d12e8cb",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-factory.svg"
+    },
+    {
+      "file": "provider-fal.svg",
+      "sha256": "6db482fbc165c57586fa88aa3c80786d08e92b5bbef70855d77dc9bd8b895b89",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-fal.svg"
+    },
+    {
+      "file": "provider-featherless.svg",
+      "sha256": "f438cbffcf306f1d532df19b3065a84e70d45df99b6e0ca063fe0fa1e74149f7",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-featherless.svg"
+    },
+    {
+      "file": "provider-fireworks.svg",
+      "sha256": "a26dde3bb56a00e4281e1aace4b767591694eb4844b6280d7453308d11635dd7",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-fireworks.svg"
+    },
+    {
+      "file": "provider-gemini.svg",
+      "sha256": "c67e54c663041fdebf0ce2f3ff9a8e76e1928cabaee74f7936450a01c1a40aa5",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-gemini.svg"
+    },
+    {
+      "file": "provider-grok.svg",
+      "sha256": "a1ffcd3ba1c0bd9e8b01b766dbc93eda80131221cf1ae1bffb4962db672c1677",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-grok.svg"
+    },
+    {
+      "file": "provider-groq.svg",
+      "sha256": "4885e3da335a066a1905f1afbde78b86589f7e65f46ceb282544e917130b56dc",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-groq.svg"
+    },
+    {
+      "file": "provider-huggingface.svg",
+      "sha256": "31eefd507d109280a9037c75585a8428ce3246f6583141047887714aec177ffa",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-huggingface.svg"
+    },
+    {
+      "file": "provider-jetbrains.svg",
+      "sha256": "aeb81031ee07760279ba0d655479a3c4af5dc41b3003b0bc59119ab5badf71fa",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-jetbrains.svg"
+    },
+    {
+      "file": "provider-kilo.svg",
+      "sha256": "a04dff0e2a78415a841dbd27b157892906f1a0175cee71831c1930b968a10916",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-kilo.svg"
+    },
+    {
+      "file": "provider-kimi.svg",
+      "sha256": "d2d89b6880d8613bde77e2d6362dde1209462a4c2d18c25c0b564ff1b48aa990",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-kimi.svg"
+    },
+    {
+      "file": "provider-kiro.svg",
+      "sha256": "be7abde7b5f9e9c0e232c9a5f7210b5eee4bca2de9acd90ed9de86beceeb8339",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-kiro.svg"
+    },
+    {
+      "file": "provider-litellm.svg",
+      "sha256": "c96713a6b76bf004c38d1a8a08d407d48af72290adccd73f8a0269ab157cf94e",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-litellm.svg"
+    },
+    {
+      "file": "provider-llamacpp.svg",
+      "sha256": "1a565ef1ca59a103a39bfdbb8b0f155b3f478d3faff6f415cdbbc28e3d098e03",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-llamacpp.svg"
+    },
+    {
+      "file": "provider-llmproxy.svg",
+      "sha256": "a6325d79506a71b115bf9f47028e3e71704d3da51c905011d455a2bbeb2797c0",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-llmproxy.svg"
+    },
+    {
+      "file": "provider-lmstudio.svg",
+      "sha256": "9295968b4e15e70cc2a44d64e34c3d3ac300a3b2482189d11ed61e66eb5e0dca",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-lmstudio.svg"
+    },
+    {
+      "file": "provider-longcat.svg",
+      "sha256": "84e0b77cbee00744b40849791a1bff6095e91a1b9afff8beb398a7a2ae68ef13",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-longcat.svg"
+    },
+    {
+      "file": "provider-manus.svg",
+      "sha256": "db3a1852c7be2b3e5773e8828f846c8938fbcfafcc9f9ec0df1734120f77a9b4",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-manus.svg"
+    },
+    {
+      "file": "provider-meta.svg",
+      "sha256": "db455fd28fafce54f3fb222a41e08b09a97d72de3a3d108e7ddc45c4eb12b8b0",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-meta.svg"
+    },
+    {
+      "file": "provider-microsoft.svg",
+      "sha256": "ae681e8d5c3ee038db3f8ceea3c9ce46e0be8016c18aa16d9b6d96865d2b77ce",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-microsoft.svg"
+    },
+    {
+      "file": "provider-mimo.svg",
+      "sha256": "c1fc2d692803a2c4b2b7b2a5f11f6983870e3d03338dab92f0b8bb7f5d6c1160",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-mimo.svg"
+    },
+    {
+      "file": "provider-minimax.svg",
+      "sha256": "07b86f4995e398083daf28d80fd1ddf68b291461e64fb818459e8fa8ee6456a5",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-minimax.svg"
+    },
+    {
+      "file": "provider-mistral.svg",
+      "sha256": "690fa49df402cca5aa90949abff9d07899781ae29e33b3fed2ae5dca450aceb5",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-mistral.svg"
+    },
+    {
+      "file": "provider-novita.svg",
+      "sha256": "1ba2404cb4dd940cd163e725f11e9c42e286f93953272f14a45a60727be4e0f1",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-novita.svg"
+    },
+    {
+      "file": "provider-nvidia.svg",
+      "sha256": "40b00f246231f1063dce3f2a3bb4a4808807ec577df8f818a724d634ca4f3156",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-nvidia.svg"
+    },
+    {
+      "file": "provider-ollama.svg",
+      "sha256": "aed9685d6dec79f85b83dbaaf0a62034bb3bc0e85b875bd35b167a010738dc5b",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-ollama.svg"
+    },
+    {
+      "file": "provider-opencode.svg",
+      "sha256": "6c1688e66e63a0415f43f150b6f329074095f76e875cd708878447220606532a",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-opencode.svg"
+    },
+    {
+      "file": "provider-opencodego.svg",
+      "sha256": "6c1688e66e63a0415f43f150b6f329074095f76e875cd708878447220606532a",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-opencodego.svg"
+    },
+    {
+      "file": "provider-openrouter.svg",
+      "sha256": "8b65de7e42abd33acbaa4b5016ea7f2383cb5f7cdbbbc059f993a838c18a25e1",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-openrouter.svg"
+    },
+    {
+      "file": "provider-perplexity.svg",
+      "sha256": "89941d419f94d27021d2168f9dbf6436abad3f2186cd6e9901cb68370407fa63",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-perplexity.svg"
+    },
+    {
+      "file": "provider-pi.svg",
+      "sha256": "2b84aa73b8e358959d2c44fdf1a09d5352dc55948095759216832664db7c28cc",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-pi.svg"
+    },
+    {
+      "file": "provider-pixverse.svg",
+      "sha256": "e37d297eae0aa8f68c580434d5e6e39b19a1940b4d3d7d3d6acc8abe741d832b",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-pixverse.svg"
+    },
+    {
+      "file": "provider-poe.svg",
+      "sha256": "add87aa7ec2ade3d1c77edde5c2d5fc74e74f86997d987119ae22d9091e988e2",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-poe.svg"
+    },
+    {
+      "file": "provider-qianfan.svg",
+      "sha256": "386196900f05f2e0ade762ea967f152bd5d7c93ed7e092a70fd2a9af49bed78c",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-qianfan.svg"
+    },
+    {
+      "file": "provider-qoder.svg",
+      "sha256": "2abb1cc4f7a02acf785df9acf0e8f6a8eaf575603cabebce5883866dbe936da5",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-qoder.svg"
+    },
+    {
+      "file": "provider-runway.svg",
+      "sha256": "79eb45f5a3315512c82c6bfddb04b2141423e311117444062069c03132ae285e",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-runway.svg"
+    },
+    {
+      "file": "provider-sakana.svg",
+      "sha256": "1b896efa0cee8b108b2bb94db78e798ca7b18e3dcf9c07306eb630ddba6734df",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-sakana.svg"
+    },
+    {
+      "file": "provider-stepfun.svg",
+      "sha256": "48805af5457fb99befcdb69f9a6b4a87bbfd7fdd73e3eba1b1895942cafe5361",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-stepfun.svg"
+    },
+    {
+      "file": "provider-synthetic.svg",
+      "sha256": "011e43b0cb6880f002ba05f964cfa498cac7176cecef8b9d88b609ca17358c2f",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-synthetic.svg"
+    },
+    {
+      "file": "provider-t3chat.svg",
+      "sha256": "5c1de0325365c61d747124a74b101f5ad06689bb6cbee5479a5433532f1fee79",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-t3chat.svg"
+    },
+    {
+      "file": "provider-tencent.svg",
+      "sha256": "a7b2f9d17b10ed13184b6edabc7e329e4e085061ace573e0a20b21cb2a940aa8",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-tencent.svg"
+    },
+    {
+      "file": "provider-together.svg",
+      "sha256": "b854cbbb85cb1d08888f06430cbe44204a4fb3d67116687aaa7faa1cdd4697d0",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-together.svg"
+    },
+    {
+      "file": "provider-venice.svg",
+      "sha256": "7600271ad804c9f32acf13b247d726bc5196d41287fccc708d8dd43ff334e942",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-venice.svg"
+    },
+    {
+      "file": "provider-vercel.svg",
+      "sha256": "ab7759c56985e478335d38d154b4898889e4787c10a212aeee5499077f71b435",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-vercel.svg"
+    },
+    {
+      "file": "provider-vertexai.svg",
+      "sha256": "009ffbfa8403bc7a38191b10d331ac14b95d1f44fe64f2229ee4a1f1a6d73c28",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-vertexai.svg"
+    },
+    {
+      "file": "provider-vllm.svg",
+      "sha256": "2d82d8c7940087900ddfb18d8114b5cd804e87f9e3b947dfff6368f251848922",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-vllm.svg"
+    },
+    {
+      "file": "provider-volcengine.svg",
+      "sha256": "863ca80ac321b8f74f419794a187dd21d8f264580838a517f2c60b65587feea0",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-volcengine.svg"
+    },
+    {
+      "file": "provider-warp.svg",
+      "sha256": "fd62dfca5b87dc61cf5c3168096f7becea935730b31c26ed7c37864e077bd0a1",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-warp.svg"
+    },
+    {
+      "file": "provider-windsurf.svg",
+      "sha256": "e2e68e7ead2c5a926c56a1be92301c367899962c01c406559ee250d1ee32b0f3",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-windsurf.svg"
+    },
+    {
+      "file": "provider-zai.svg",
+      "sha256": "586f658fe329a52e5f25e5f9b63e506721b96c2ed64cc5deb0b5087f27780598",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-zai.svg"
+    },
+    {
+      "file": "provider-zed.svg",
+      "sha256": "b8f831d07c8c1999669358e349ed6d6098b5911ccff89898831e86f37a44a583",
+      "source": "openclaw@2026.9.1/dist/control-ui/provider-icons/ProviderIcon-zed.svg"
+    },
+    {
+      "file": "channel-telegram.svg",
+      "sha256": "147fd8f8923e7e5f463fe98c0eb9913bead6b2ae59935728cda141002ec8a7c9",
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/16.21.0/icons/telegram.svg"
+    },
+    {
+      "file": "channel-discord.svg",
+      "sha256": "1d364b72c9eaf1fe37d17ca88cd8fb541308dc0f3b09e2ab3b824f380b3493d5",
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/16.21.0/icons/discord.svg"
+    },
+    {
+      "file": "channel-googlechat.svg",
+      "sha256": "6efc8b1cdb5860037d7d102bf6e77357cf04e45fd1a296be200141e3192111fa",
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/16.21.0/icons/googlechat.svg"
+    },
+    {
+      "file": "channel-line.svg",
+      "sha256": "b62430462354f95914536d7205128647d5563cdb805bc9aca000300aaed816c8",
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/16.21.0/icons/line.svg"
+    },
+    {
+      "file": "channel-matrix.svg",
+      "sha256": "07e6a16f5437fb0e7704c15b97bd50f46f3fa8968e022af2b9f2395fe0419d72",
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/16.21.0/icons/matrix.svg"
+    },
+    {
+      "file": "channel-mattermost.svg",
+      "sha256": "eb0c39d9be0cd4463c484199f672b5e99de37c0ae91ef26678efb95111283df8",
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/16.21.0/icons/mattermost.svg"
+    },
+    {
+      "file": "channel-nextcloud.svg",
+      "sha256": "523a9295f2e3a8be7904e9e914ad030a4ae13597421f9ee81122be705b2e60be",
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/16.21.0/icons/nextcloud.svg"
+    },
+    {
+      "file": "channel-signal.svg",
+      "sha256": "391f46b8feaef281a44dfdf40035d9a4546ded17d2c3eb88d6614762779f1930",
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/16.21.0/icons/signal.svg"
+    },
+    {
+      "file": "channel-twitch.svg",
+      "sha256": "dbe27bc02a01b8d89b6259cacef328c9fa70bb13c29f38c36eb1421863f6f0b6",
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/16.21.0/icons/twitch.svg"
+    },
+    {
+      "file": "channel-wechat.svg",
+      "sha256": "74b48b3d315337ce79cb644933b5f975e19996f564fcc4138ed67d45674c43ca",
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/16.21.0/icons/wechat.svg"
+    },
+    {
+      "file": "channel-whatsapp.svg",
+      "sha256": "8fb209a53a61618c3483594b3e070481a35575d6aaecbe00a6fe386670c8fb1c",
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/16.21.0/icons/whatsapp.svg"
+    },
+    {
+      "file": "channel-zalo.svg",
+      "sha256": "633300dd5d7bb28e6548cb1226fb32afc3c1e6d6badbbb1f9e4c98930c37fcfe",
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/16.21.0/icons/zalo.svg"
+    },
+    {
+      "file": "channel-qq.svg",
+      "sha256": "3c94e923013fe13a5194c84d9a44e2d62225a7ea3537f3ad95a3cb72fdae1383",
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/16.21.0/icons/qq.svg"
+    },
+    {
+      "file": "channel-synology.svg",
+      "sha256": "2b11f3cb29f858a3a28b2094a668f5700ff279051ffc475c4509333b7365db02",
+      "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/16.21.0/icons/synology.svg"
+    },
+    {
+      "file": "channel-slack.svg",
+      "sha256": "10f01b8581b962de4fb20745d43d305f0f4eb169bd3d0de88ff353804a77ea99",
+      "source": "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.7.2/svgs/brands/slack.svg"
+    }
+  ]
+}

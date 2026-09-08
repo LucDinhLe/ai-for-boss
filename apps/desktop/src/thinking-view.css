@@ -1,0 +1,41 @@
+.thinking-view { min-width: 0; padding: 18px 16px 28px; color: var(--ink); }
+.thinking-view__header, .thinking-view__title, .thinking-view__actions { display: flex; align-items: center; gap: 12px; }
+.thinking-view__header { justify-content: space-between; flex-wrap: wrap; }
+.thinking-view__title { min-width: 0; flex: 1 1 140px; }
+.thinking-view__title > .workbench-icon { width: 24px; height: 24px; flex-shrink: 0; color: var(--copper); }
+.thinking-view__title > div { min-width: 0; }
+.thinking-view h2 { margin: 0; font-size: 18px; line-height: 1.3; }
+.thinking-view__title p { margin: 5px 0 0; font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.thinking-view__actions { gap: 8px; flex-wrap: wrap; }
+.thinking-view__actions button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 34px; padding: 6px 10px; border: 1px solid var(--hairline); border-radius: 7px; background: var(--surface); color: var(--ink); font-size: 12px; }
+.thinking-view__actions button:hover:not(:disabled) { background: var(--paper); border-color: var(--copper); }
+.thinking-view__actions .thinking-view__stop { border-color: var(--copper); }
+.thinking-view__intro { margin: 18px 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+.thinking-view__empty { margin: 32px auto; max-width: 400px; text-align: center; padding: 24px 12px; color: var(--muted); }
+.thinking-view__empty > .workbench-icon { width: 32px; height: 32px; }
+.thinking-view__empty h3 { color: var(--ink); font-size: 16px; margin: 16px 0 8px; }
+.thinking-view__empty p { font-size: 13px; line-height: 1.7; margin: 0; }
+.thinking-view__activity { display: grid; gap: 16px; min-width: 0; }
+.thinking-view__previous { margin: 0; color: var(--muted); font-size: 12px; font-weight: 600; }
+.thinking-view__card { min-width: 0; padding: 14px 16px; border: 1px solid var(--hairline); border-radius: 10px; background: var(--surface); overflow-wrap: anywhere; }
+.thinking-view__history > h3 { display: flex; gap: 8px; align-items: center; margin: 4px 0 10px; font-size: 13px; font-weight: 600; }
+.thinking-view__history > ol { display: grid; gap: 10px; list-style: none; margin: 0; padding: 0; }
+.thinking-view__card > details > summary { cursor: pointer; font-size: 13px; line-height: 1.65; color: var(--ink); }
+.thinking-view__card time, .thinking-view__card > details > summary > small { font-size: 11px; margin-left: 10px; color: var(--muted); }
+.thinking-view__reasoning { font-size: 13px; line-height: 1.65; padding-top: 10px; }
+.thinking-view .run-progress { margin: 0; padding: 0; font-size: 13px; }
+.thinking-view .run-progress__headline { font-size: 13px; font-weight: 600; }
+.thinking-view .run-progress__reasoning > div { max-height: none; overflow: visible; font-size: 13px; line-height: 1.65; }
+.thinking-view .run-progress > details { margin-top: 12px; }
+.thinking-view .run-progress li { flex-wrap: wrap; line-height: 1.6; }
+.thinking-view .run-progress li > span { flex: 1; min-width: 80px; }
+.thinking-view .run-progress .run-progress__hint { margin-top: 10px; line-height: 1.65; }
+.thinking-view .supervision-progress { margin: 0; padding: 0; border: 0; background: transparent; font-size: 13px; line-height: 1.65; }
+.thinking-view .supervision-progress p { margin: 10px 0; }
+.thinking-view .supervision-progress small { color: var(--muted); }
+.thinking-view .message-content { overflow-wrap: anywhere; }
+.thinking-view__status { margin: 14px 0 0; color: var(--copper); font-size: 12px; font-weight: 600; }
+.thinking-tab__live { width: 5px; height: 5px; border-radius: 50%; background: var(--copper); flex-shrink: 0; }
+.thinking-view .run-progress__tool { display: grid; gap: 2px; }
+.thinking-view .run-progress__tool code { font-size: 10px; color: var(--muted); }
+.thinking-view .run-progress__tool p { margin: 2px 0; font-size: 12px; }

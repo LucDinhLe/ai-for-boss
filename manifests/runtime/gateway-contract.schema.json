@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aiforboss.local/schemas/gateway-contract.schema.json",
+  "title": "AI for Boss OpenClaw Gateway contract lock",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "capturedAt",
+    "upstream",
+    "integrationSurface",
+    "workspacePackages",
+    "policy"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "capturedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "upstream": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package",
+        "packageVersion",
+        "npmIntegrity",
+        "sourceRepository",
+        "gitTag",
+        "gitTagObject",
+        "gitCommit"
+      ],
+      "properties": {
+        "package": {
+          "const": "openclaw"
+        },
+        "packageVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "npmIntegrity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceRepository": {
+          "const": "https://github.com/openclaw/openclaw"
+        },
+        "gitTag": {
+          "type": "string",
+          "minLength": 1
+        },
+        "gitTagObject": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "gitCommit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        }
+      }
+    },
+    "integrationSurface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "status",
+        "transport",
+        "protocolVersion",
+        "minimumClientProtocolVersion",
+        "referenceDocuments",
+        "smoke"
+      ],
+      "properties": {
+        "kind": {
+          "const": "documented-websocket-rpc"
+        },
+        "status": {
+          "const": "supported"
+        },
+        "transport": {
+          "const": "websocket-text-json"
+        },
+        "protocolVersion": {
+          "type": "integer"
+        },
+        "minimumClientProtocolVersion": {
+          "type": "integer"
+        },
+        "referenceDocuments": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "gitBlob"],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "gitBlob": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{40}$"
+              }
+            }
+          }
+        },
+        "smoke": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["gatewayStarted", "healthRpc", "network", "auth"],
+          "properties": {
+            "gatewayStarted": {
+              "const": "pass"
+            },
+            "healthRpc": {
+              "const": "pass"
+            },
+            "network": {
+              "const": "isolated-loopback-only"
+            },
+            "auth": {
+              "const": "ephemeral-memory-token"
+            }
+          }
+        }
+      }
+    },
+    "workspacePackages": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "version", "visibility", "gitTree", "bundledSeparately"],
+        "properties": {
+          "name": {
+            "enum": ["@openclaw/gateway-client", "@openclaw/gateway-protocol"]
+          },
+          "version": {
+            "const": "0.0.0-private"
+          },
+          "visibility": {
+            "const": "private-workspace-reference"
+          },
+          "gitTree": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{40}$"
+          },
+          "bundledSeparately": {
+            "const": false
+          }
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "publicGatewayPackagesRequired",
+        "vendorPrivateWorkspacePackages",
+        "importHashedDistChunks",
+        "adapterOwner",
+        "implementationFeature"
+      ],
+      "properties": {
+        "publicGatewayPackagesRequired": {
+          "const": false
+        },
+        "vendorPrivateWorkspacePackages": {
+          "const": false
+        },
+        "importHashedDistChunks": {
+          "const": false
+        },
+        "adapterOwner": {
+          "const": "ai-for-boss"
+        },
+        "implementationFeature": {
+          "const": "feature-0.3-plus"
+        }
+      }
+    }
+  }
+}

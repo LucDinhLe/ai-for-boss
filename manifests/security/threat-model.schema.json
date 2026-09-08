@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aiforboss.local/schemas/threat-model.schema.json",
+  "title": "AI for Boss threat model",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "releaseTrainId", "method", "assets", "actors", "trustBoundaries", "threats", "outOfScope", "reviewGate"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": "1.0.0" },
+    "releaseTrainId": { "const": "oc-2026.7.1-2-locked.1" },
+    "method": { "const": "STRIDE-plus-agentic-abuse-cases" },
+    "assets": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/asset" } },
+    "actors": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/actor" } },
+    "trustBoundaries": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/boundary" } },
+    "threats": { "type": "array", "minItems": 14, "items": { "$ref": "#/$defs/threat" } },
+    "outOfScope": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "reviewGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requiredReviewers", "releaseBlockingSeverities", "evidenceRule"],
+      "properties": {
+        "requiredReviewers": { "type": "array", "minItems": 2, "items": { "type": "string", "minLength": 1 } },
+        "releaseBlockingSeverities": { "type": "array", "minItems": 2, "items": { "enum": ["Critical", "High", "Medium", "Low"] } },
+        "evidenceRule": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "$defs": {
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "impact"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^A-[0-9]{2}$" },
+        "name": { "type": "string", "minLength": 1 },
+        "impact": { "type": "string", "minLength": 1 }
+      }
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "access"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^ACT-[0-9]{2}$" },
+        "name": { "type": "string", "minLength": 1 },
+        "access": { "type": "string", "minLength": 1 }
+      }
+    },
+    "boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "from", "to", "defaultControl"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^TB-[0-9]{2}$" },
+        "name": { "type": "string", "minLength": 1 },
+        "from": { "type": "string", "minLength": 1 },
+        "to": { "type": "string", "minLength": 1 },
+        "defaultControl": { "type": "string", "minLength": 1 }
+      }
+    },
+    "residualRisk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["severity", "status", "reason"],
+      "properties": {
+        "severity": { "enum": ["Critical", "High", "Medium", "Low"] },
+        "status": { "enum": ["open", "mitigated-by-design-untested", "accepted-out-of-scope"] },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    },
+    "threat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "category", "actorRefs", "assetRefs", "boundaryRefs", "abuseCases", "requiredControls", "failClosedBehavior", "evidenceGate", "riskRefs", "residualRisk"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^T-[0-9]{2}$" },
+        "title": { "type": "string", "minLength": 1 },
+        "category": { "enum": ["spoofing", "tampering", "repudiation", "information-disclosure", "denial-of-service", "elevation-of-privilege", "prompt-injection", "excessive-agency", "supply-chain", "cross-tenant", "cost-abuse", "recovery-integrity"] },
+        "actorRefs": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^ACT-[0-9]{2}$" } },
+        "assetRefs": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^A-[0-9]{2}$" } },
+        "boundaryRefs": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^TB-[0-9]{2}$" } },
+        "abuseCases": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "requiredControls": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "failClosedBehavior": { "type": "string", "minLength": 1 },
+        "evidenceGate": { "type": "string", "minLength": 1 },
+        "riskRefs": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^R-[0-9]{3}$" } },
+        "residualRisk": { "$ref": "#/$defs/residualRisk" }
+      }
+    }
+  }
+}

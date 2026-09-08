@@ -1,0 +1,60 @@
+{
+  "$schema": "./gateway-contract.schema.json",
+  "schemaVersion": "1.0.0",
+  "capturedAt": "2026-08-11T19:10:00+07:00",
+  "upstream": {
+    "package": "openclaw",
+    "packageVersion": "2026.7.1-2",
+    "npmIntegrity": "sha512-ycF3yPcbjN6bUPeaUx6Mh6vze1hQWoD3CT/wWcmD7a8xaHHHRUaAlaq+lFxMHf1ssEgODVAwjlzYqp2twkYZ7g==",
+    "sourceRepository": "https://github.com/openclaw/openclaw",
+    "gitTag": "v2026.7.1-2",
+    "gitTagObject": "be8b8a9e8838f832e4fa47cde8bea0a33aec71ba",
+    "gitCommit": "0790d9f593ad30c940ed93b5872a8cf6d6f3cf8c"
+  },
+  "integrationSurface": {
+    "kind": "documented-websocket-rpc",
+    "status": "supported",
+    "transport": "websocket-text-json",
+    "protocolVersion": 4,
+    "minimumClientProtocolVersion": 4,
+    "referenceDocuments": [
+      {
+        "path": "docs/gateway/external-apps.md",
+        "gitBlob": "59832d73a054455519450a394a8957b17c31e142"
+      },
+      {
+        "path": "docs/gateway/protocol.md",
+        "gitBlob": "28d650cc5a46c02b03871f0d18020f4aa72cff46"
+      }
+    ],
+    "smoke": {
+      "gatewayStarted": "pass",
+      "healthRpc": "pass",
+      "network": "isolated-loopback-only",
+      "auth": "ephemeral-memory-token"
+    }
+  },
+  "workspacePackages": [
+    {
+      "name": "@openclaw/gateway-client",
+      "version": "0.0.0-private",
+      "visibility": "private-workspace-reference",
+      "gitTree": "aa1cfc32a01dc8171037585cad6b2d93aace41be",
+      "bundledSeparately": false
+    },
+    {
+      "name": "@openclaw/gateway-protocol",
+      "version": "0.0.0-private",
+      "visibility": "private-workspace-reference",
+      "gitTree": "0f8c8156d5352ee1c83fbed331c2082030bf0ac3",
+      "bundledSeparately": false
+    }
+  ],
+  "policy": {
+    "publicGatewayPackagesRequired": false,
+    "vendorPrivateWorkspacePackages": false,
+    "importHashedDistChunks": false,
+    "adapterOwner": "ai-for-boss",
+    "implementationFeature": "feature-0.3-plus"
+  }
+}

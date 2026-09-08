@@ -1,0 +1,10 @@
+* text=auto eol=lf
+*.ps1 text eol=lf
+docs/governance/*.md -whitespace
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.icns binary
+*.zip binary
+*.aifb binary

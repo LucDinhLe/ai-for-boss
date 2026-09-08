@@ -1,0 +1,50 @@
+# Dependencies and build output
+node_modules/
+dist/
+build/
+out/
+generated/
+coverage/
+.cache/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# Runtime staged into the packaged app by scripts/stage-runtime.mjs. Hundreds of
+# megabytes of downloaded binaries; the pins and digests live in
+# manifests/runtime/bundled-runtime.lock.json, which is what belongs in git.
+apps/desktop/resources/
+
+# Runtime and user data
+data/
+!manifests/data/
+!manifests/data/*.json
+state/
+profiles/
+backups/
+diagnostics/
+*.aifb
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+tmp/
+
+# Local QA recordings and release signing material never belong in public source
+artifacts/

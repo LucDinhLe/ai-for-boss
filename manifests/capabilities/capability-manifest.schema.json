@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aiforboss.local/schemas/capability-manifest.schema.json",
+  "title": "AI for Boss capability manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "capturedAt",
+    "releaseTrain",
+    "sourcePolicy",
+    "requiredFamilies",
+    "capabilities"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": "1.0.0" },
+    "capturedAt": { "type": "string", "format": "date-time" },
+    "releaseTrain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "openclawVersion", "gitTag", "gitCommit", "protocolVersion"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "openclawVersion": { "type": "string", "minLength": 1 },
+        "gitTag": { "type": "string", "minLength": 1 },
+        "gitCommit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "protocolVersion": { "type": "integer" }
+      }
+    },
+    "sourcePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "documentedSourcesOnly",
+        "helloOkIsCompleteInventory",
+        "privateWorkspacePackagesImportable",
+        "advertisingRequiresProductTest"
+      ],
+      "properties": {
+        "documentedSourcesOnly": { "const": true },
+        "helloOkIsCompleteInventory": { "const": false },
+        "privateWorkspacePackagesImportable": { "const": false },
+        "advertisingRequiresProductTest": { "const": true }
+      }
+    },
+    "requiredFamilies": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/family" }
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/capability" }
+    }
+  },
+  "$defs": {
+    "family": {
+      "enum": [
+        "gateway",
+        "providers-models",
+        "sessions",
+        "agents",
+        "genesis",
+        "advisor",
+        "memory",
+        "workspace-files",
+        "tools-exec",
+        "browser-web",
+        "skills",
+        "plugins",
+        "mcp",
+        "channels",
+        "automation",
+        "nodes",
+        "media-voice",
+        "usage-cost",
+        "approvals-audit",
+        "backup-restore",
+        "updates",
+        "diagnostics",
+        "always-on"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "surface", "evidence"],
+      "properties": {
+        "kind": { "enum": ["documentation", "gateway-rpc", "cli", "config", "plugin-sdk", "runtime-smoke"] },
+        "path": { "type": "string", "minLength": 1 },
+        "surface": { "type": "string", "minLength": 1 },
+        "evidence": { "enum": ["locked-document", "verified-smoke", "planned-test"] }
+      }
+    },
+    "capability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "family",
+        "name",
+        "upstreamOwner",
+        "integration",
+        "productMode",
+        "productTreatment",
+        "evidenceLevel",
+        "advertisable",
+        "upstreamSources",
+        "sourceOfTruthRefs",
+        "trustBoundaryRefs",
+        "scopes",
+        "dataClasses",
+        "conditions",
+        "blockers",
+        "failureBehavior",
+        "requiredGates",
+        "testIds"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)+$" },
+        "family": { "$ref": "#/$defs/family" },
+        "name": { "type": "string", "minLength": 1 },
+        "upstreamOwner": { "enum": ["openclaw", "ai-for-boss", "shared"] },
+        "integration": { "enum": ["gateway-rpc", "cli-contract", "config-contract", "plugin-sdk", "product-orchestration", "none-yet"] },
+        "productMode": { "enum": ["basic", "advanced", "both", "hidden-infrastructure"] },
+        "productTreatment": { "enum": ["REUSED", "WRAPPED", "RESTRICTED", "BLOCKED", "UNAVAILABLE_UPSTREAM"] },
+        "evidenceLevel": { "enum": ["documented-upstream", "verified-upstream-smoke", "planned-product-test"] },
+        "advertisable": { "const": false },
+        "upstreamSources": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/source" }
+        },
+        "sourceOfTruthRefs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^SOT-[0-9]{2}$" }
+        },
+        "trustBoundaryRefs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^TB-[0-9]{2}$" }
+        },
+        "scopes": { "type": "array", "items": { "type": "string" } },
+        "dataClasses": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "conditions": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "blockers": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "failureBehavior": { "type": "string", "minLength": 1 },
+        "requiredGates": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "testIds": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^TEST-[A-Z0-9-]+$" } },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

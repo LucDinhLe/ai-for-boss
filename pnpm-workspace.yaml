@@ -1,0 +1,30 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Beta 0 runs a real OpenClaw install, so the release train's own build scripts
+# have to be allowed explicitly. The list stays enumerated rather than blanket
+# so a newly added script shows up as a review item instead of running silently.
+allowBuilds:
+  '@google/genai': true
+  koffi: true
+  openclaw: true
+  protobufjs: true
+  tree-sitter-bash: true
+
+minimumReleaseAgeExclude:
+  - '@electron/packager@20.2.1'
+  - '@typescript-eslint/eslint-plugin@8.67.0'
+  - '@typescript-eslint/parser@8.67.0'
+  - '@typescript-eslint/project-service@8.67.0'
+  - '@typescript-eslint/scope-manager@8.67.0'
+  - '@typescript-eslint/tsconfig-utils@8.67.0'
+  - '@typescript-eslint/type-utils@8.67.0'
+  - '@typescript-eslint/types@8.67.0'
+  - '@typescript-eslint/typescript-estree@8.67.0'
+  - '@typescript-eslint/utils@8.67.0'
+  - '@typescript-eslint/visitor-keys@8.67.0'
+  - typescript-eslint@8.67.0
+
+onlyBuiltDependencies:
+  - electron
