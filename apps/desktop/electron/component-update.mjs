@@ -98,7 +98,9 @@ export async function stageComponentUpdate({ envelope, publicKey, minimumSequenc
       if (entry.dir) continue;
       const file = expected.get(entry.name); if (!file) throw fail();
       // Bound inflation using the ZIP directory's uncompressed size before allocating.
-      if (entry._data?.uncompressedSize !== file.bytes) throw fail();
+      // JSZip represents a zero-byte entry as an empty Promise instead of CompressedObject.
+      const expandedSize = entry._data?.uncompressedSize ?? (file.bytes === 0 ? 0 : -1);
+      if (expandedSize !== file.bytes) throw fail();
       const content = await entry.async('nodebuffer');
       if (content.length !== file.bytes || hash(content) !== file.sha256) throw fail();
       const target = path.join(stage, ...file.path.split('/')); await plainDirectory(path.dirname(target));

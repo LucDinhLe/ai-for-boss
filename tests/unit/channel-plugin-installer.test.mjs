@@ -15,7 +15,7 @@ async function until(predicate) {
   while (!predicate()) { if (Date.now() > deadline) throw new Error('Synthetic process was not started'); await turn(); }
 }
 async function fixture(t) {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'aifb-plugin-installer-unit-'));
+  const root = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'aifb-plugin-installer-unit-'));
   t.after(async () => {
     const resolved = await fs.realpath(root);
     assert.equal(resolved.toLowerCase(), path.resolve(root).toLowerCase());

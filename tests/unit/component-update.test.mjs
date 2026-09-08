@@ -11,7 +11,7 @@ const require = createRequire(new URL('../../apps/desktop/package.json', import.
 const JSZip = require('jszip'), hash = data => createHash('sha256').update(data).digest('hex');
 async function fixture() {
   const keys = generateKeyPairSync('ed25519'), archives = new Map(), components = {};
-  const files = { ui: { 'AI-for-Boss.exe': 'fixture executable', 'resources/app.asar': 'fixture shell' },
+  const files = { ui: { 'AI-for-Boss.exe': 'fixture executable', 'resources/app.asar': 'fixture shell', 'ci/empty.txt': '' },
     core: { 'resources/runtime/node/node.exe': 'fixture node', 'resources/node_modules/openclaw/package.json': '{"version":"fixture"}' } };
   for (const [kind, items] of Object.entries(files)) {
     const zip = new JSZip(); for (const [name, data] of Object.entries(items)) zip.file(name, data);
@@ -42,6 +42,7 @@ test('UI update reuses unchanged core, verifies the new package, and leaves curr
       download: async url => { downloads.push(url); return f.archives.get(url); } });
     assert.deepEqual(downloads, [f.manifest.components.ui.url]);
     assert.equal(await readFile(path.join(result.directory, 'resources/app.asar'), 'utf8'), 'fixture shell');
+    assert.equal(await readFile(path.join(result.directory, 'ci/empty.txt'), 'utf8'), '');
     assert.equal(await readFile(path.join(currentRoot, 'resources/runtime/node/node.exe'), 'utf8'), 'fixture node');
     assert.equal((await stageComponentUpdate({ envelope: f.envelope(f.manifest), publicKey: f.publicKey, currentRoot, updateRoot, download: async () => { throw new Error('Must not overwrite'); } })).directory, result.directory);
   } finally { await rm(root, { recursive: true, force: true }); }

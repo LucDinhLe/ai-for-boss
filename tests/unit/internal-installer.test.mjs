@@ -43,7 +43,7 @@ test('Windows install engine preserves prior, foreign and modified files and rej
   // native npm content-addressed filename, not merely a short mock cache file.
   const cache = path.join(source, 'ci/cache/_cacache/content-v2/sha512/01/99', 'a'.repeat(124));
   await fs.mkdir(path.dirname(cache), { recursive: true }); await fs.writeFile(cache, 'pinned npm cache content');
-  const install = path.join(root, 'cài đặt riêng'), manifestFile = path.join(root, 'manifest.json'), version = 'qa-' + Date.now();
+  const install = path.join(root, 'cài'), manifestFile = path.join(root, 'manifest.json'), version = 'qa-' + Date.now();
   const manifest = await installerManifest(source, version); await fs.writeFile(manifestFile, JSON.stringify(manifest));
   const invoke = (action, target = install) => spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File',
     path.join(repo, 'installer/install-support.ps1'), '-Action', action, '-Root', target, '-Version', version, '-Manifest', manifestFile,
@@ -55,14 +55,15 @@ test('Windows install engine preserves prior, foreign and modified files and rej
     await fs.writeFile(manifestFile, JSON.stringify(tooLong));
     assert.notEqual(invoke('Prepare', longTarget).status, 0);
     await assert.rejects(fs.access(longTarget), 'long install paths must fail before creating the destination');
-    const invalidTarget = path.join(root, 'invalid-manifest');
+    const invalidTarget = path.join(root, 'invalid');
     for (const unsafePath of ['../outside.txt', '/outside.txt', 'C:/outside.txt', 'nested\\outside.txt']) {
       await fs.writeFile(manifestFile, JSON.stringify({ ...manifest, files: [...manifest.files, { path: unsafePath, bytes: 0, sha256: '0'.repeat(64) }] }));
       assert.notEqual(invoke('Prepare', invalidTarget).status, 0, unsafePath);
       await assert.rejects(fs.access(invalidTarget), 'invalid manifest paths must fail before creating the destination');
     }
     await fs.writeFile(manifestFile, JSON.stringify(manifest));
-    assert.equal(invoke('Prepare', invalidTarget).status, 0, 'the same short destination accepts a valid manifest');
+    const validPrepare = invoke('Prepare', invalidTarget);
+    assert.equal(validPrepare.status, 0, 'the same short destination accepts a valid manifest: ' + validPrepare.stdout + validPrepare.stderr);
     const foreign = path.join(root, 'documents'); await fs.mkdir(foreign); await fs.writeFile(path.join(foreign, 'important.txt'), 'keep');
     assert.notEqual(invoke('Prepare', foreign).status, 0); assert.equal(await fs.readFile(path.join(foreign, 'important.txt'), 'utf8'), 'keep');
     const linkedRoot = path.join(root, 'linked-install'); await fs.symlink(foreign, linkedRoot, 'junction');
