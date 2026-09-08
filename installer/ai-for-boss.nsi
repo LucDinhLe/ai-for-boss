@@ -12,7 +12,7 @@ CRCCheck force
 !ifndef PAYLOAD_INCLUDE
   !error "Build through scripts/build-internal-installer.mjs"
 !endif
-Name "AI for Boss ${VERSION} (Internal)"
+Name "AI for Boss ${VERSION} (Preview)"
 OutFile "${OUT_FILE}"
 InstallDir "$LOCALAPPDATA\Programs\AI for Boss Internal"
 ShowInstDetails show
@@ -25,7 +25,7 @@ ShowUninstDetails show
 !define MUI_ICON "${BRAND_ICON}"
 !define MUI_UNICON "${BRAND_ICON}"
 !define MUI_ABORTWARNING
-!define MUI_FINISHPAGE_TEXT "Đã cài bản nội bộ ${VERSION}. Lõi OpenClaw nằm riêng ngoài giao diện. Bản trước và dữ liệu của anh được giữ nguyên. Đóng cửa sổ AI for Boss cũ trước khi mở lối tắt mới."
+!define MUI_FINISHPAGE_TEXT "Đã cài bản thử nghiệm ${VERSION}. Lõi OpenClaw nằm riêng ngoài giao diện. Bản trước và dữ liệu của bạn được giữ nguyên. Đóng cửa sổ AI for Boss cũ trước khi mở lối tắt mới."
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
