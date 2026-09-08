@@ -10,6 +10,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24.19.0'
-      - run: npm install --global corepack
+      - run: npm install --global corepack --force
       - run: corepack pnpm install --frozen-lockfile
       - run: corepack pnpm run verify
