@@ -1,4 +1,4 @@
-﻿param(
+param(
   [Parameter(Mandatory=$true)][ValidateSet('Prepare','Commit','Verify','Activate','Remove')][string]$Action,
   [Parameter(Mandatory=$true)][string]$Root,
   [Parameter(Mandatory=$true)][ValidatePattern('^[0-9A-Za-z][0-9A-Za-z.-]{0,70}$')][string]$Version,
@@ -85,14 +85,14 @@ using System.Runtime.InteropServices;
 public static class InstallLinks {
   [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
   public static extern bool CreateHardLink(string target, string source, IntPtr reserved);
-  static void Plain(string file, HashSet<string> directories) {
-    for (string cursor = file; !String.IsNullOrEmpty(cursor) && !directories.Contains(cursor); cursor = Path.GetDirectoryName(cursor)) {
+  static void Plain(string file, System.Collections.Concurrent.ConcurrentDictionary<string, bool> directories) {
+    for (string cursor = file; !String.IsNullOrEmpty(cursor) && !directories.ContainsKey(cursor); cursor = Path.GetDirectoryName(cursor)) {
       FileAttributes attributes;
       try { attributes = File.GetAttributes(cursor); }
       catch (FileNotFoundException) { continue; }
       catch (DirectoryNotFoundException) { continue; }
       if ((attributes & FileAttributes.ReparsePoint) != 0) throw new IOException("Core path contains a reparse point");
-      if ((attributes & FileAttributes.Directory) != 0) directories.Add(cursor);
+      if ((attributes & FileAttributes.Directory) != 0) directories.TryAdd(cursor, true);
     }
   }
   static string Under(string root, string name) {
@@ -103,25 +103,24 @@ public static class InstallLinks {
   public static void Reuse(string sourceRoot, string targetRoot, string[] names, string[] hashes, Action<int,long> progress) {
     sourceRoot = Path.GetFullPath(sourceRoot).TrimEnd('\\');
     targetRoot = Path.GetFullPath(targetRoot).TrimEnd('\\');
-    var directories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-    var clock = Stopwatch.StartNew(); long last = -1000; int linked = 0;
-    using (var hash = SHA256.Create()) {
-      for (int i = 0; i < names.Length; i++) {
+    var directories = new System.Collections.Concurrent.ConcurrentDictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+    var clock = Stopwatch.StartNew(); int linked = 0;
+    var work = System.Threading.Tasks.Task.Run(() => System.Threading.Tasks.Parallel.For(0, names.Length,
+      new System.Threading.Tasks.ParallelOptions { MaxDegreeOfParallelism = 4 }, i => {
         string source = Under(sourceRoot, names[i]), target = Under(targetRoot, names[i]);
-        if (!File.Exists(source)) continue;
+        if (!File.Exists(source)) return;
         Plain(source, directories);
-        using (var stream = File.OpenRead(source)) {
-          if (!String.Equals(BitConverter.ToString(hash.ComputeHash(stream)).Replace("-", ""), hashes[i], StringComparison.OrdinalIgnoreCase)) continue;
+        using (var hash = SHA256.Create()) using (var stream = File.OpenRead(source)) {
+          if (!String.Equals(BitConverter.ToString(hash.ComputeHash(stream)).Replace("-", ""), hashes[i], StringComparison.OrdinalIgnoreCase)) return;
         }
         Plain(target, directories);
         Directory.CreateDirectory(Path.GetDirectoryName(target));
-        // Never overwrite: failure falls back to extraction, then full verification.
-        if (CreateHardLink(target, source, IntPtr.Zero)) linked++;
-        if (progress != null && clock.ElapsedMilliseconds - last >= 500) {
-          progress(linked, clock.ElapsedMilliseconds / 1000); last = clock.ElapsedMilliseconds;
-        }
-      }
-    }
+        // Never overwrite. Extraction and final verification cover failed links.
+        if (CreateHardLink(target, source, IntPtr.Zero)) System.Threading.Interlocked.Increment(ref linked);
+      }));
+    // Progress callback must stay on the PowerShell runspace thread.
+    while (!work.Wait(500)) if (progress != null) progress(System.Threading.Volatile.Read(ref linked), clock.ElapsedMilliseconds / 1000);
+    work.GetAwaiter().GetResult();
     if (progress != null) progress(linked, clock.ElapsedMilliseconds / 1000);
   }
 }

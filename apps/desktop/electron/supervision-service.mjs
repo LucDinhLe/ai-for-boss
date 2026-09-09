@@ -119,6 +119,7 @@ export class SupervisionService {
       job.workerActive = ['accepted', 'running', 'started'].includes(ack.status);
       const deadline = Date.now() + this.waitMs;
       let workerFailed = false;
+      let lastReconcile = 0;
       while (Date.now() < deadline) {
         ensure();
         const state = await job.setup.workspaceRequest('agent.wait', { runId: job.workerId, timeoutMs: 1000 });
@@ -126,6 +127,19 @@ export class SupervisionService {
           job.workerId = null; job.workerActive = false;
           workerFailed = state.status !== 'ok';
           break;
+        }
+        // The native wait receipt can expire/disappear across reconnects. An
+        // explicit idle snapshot releases ownership without inventing success.
+        if (Date.now() - lastReconcile >= 5000) {
+          lastReconcile = Date.now();
+          const snapshot = await job.adapter.request('chat.history', { sessionKey: job.key, limit: 1 });
+          ensure();
+          if (!snapshot.inFlightRun && snapshot.sessionInfo?.hasActiveRun === false) {
+            job.workerId = null; job.workerActive = false;
+            job.view.phase = 'unreviewed';
+            job.view.warning = 'Lõi xác nhận phiên đã ngừng chạy nhưng thiếu biên nhận hoàn tất. Kết quả được giữ nguyên, chưa được Advisor thẩm định.';
+            return job.view;
+          }
         }
         await sleep(250);
       }

@@ -1242,3 +1242,33 @@ test('Stop recovers an exact native run ID when only aggregate activity was know
   h.handlers['chat.abort']=p=>{assert.equal(p.sessionKey,'session-a');assert.equal(p.runId,'owned-native');h.handlers['chat.history']=()=>({messages:[],sessionInfo:{hasActiveRun:false}});return {ok:true};};
   await h.view.abort();await h.flush();assert.equal(h.view.busy,false);
 });
+
+
+test('negative native abort response retains active run and permits another stop attempt', async () => {
+  const h = harness(); await h.flush(); await h.open('session-a');
+  await h.event({ sessionKey: 'session-a', runId: 'running', seq: 1, state: 'delta', deltaText: 'Partial' });
+  h.handlers['chat.abort'] = () => ({ aborted: false });
+  h.handlers['chat.history'] = () => ({ messages: [], inFlightRun: { runId: 'running' } });
+  await h.view.abort(); await h.flush(); assert.equal(h.view.busy, true);
+  assert.match(h.view.notice, /chưa xác nhận dừng/);
+  h.handlers['chat.abort'] = () => ({ aborted: true });
+  h.handlers['chat.history'] = () => ({ messages: [], sessionInfo: { hasActiveRun: false } });
+  await h.view.abort(); await h.flush(); assert.equal(h.view.busy, false);
+});
+
+
+test('stalled background activity poll does not block active session recovery or reload full history', async () => {
+  const h = harness(), blocked = deferred(); await h.flush();
+  await h.open('session-a');
+  await h.event({ sessionKey: 'session-a', runId: 'a', seq: 1, state: 'delta', deltaText: 'A' });
+  await h.open('session-b');
+  await h.event({ sessionKey: 'session-b', runId: 'b', seq: 1, state: 'delta', deltaText: 'B' });
+  let idle = false;
+  h.handlers['chat.history'] = p => p.sessionKey === 'session-a' ? blocked.promise :
+    ({ messages: [], sessionInfo: { hasActiveRun: !idle }, ...(idle ? {} : { inFlightRun: { runId: 'b' } }) });
+  const before = h.requests.length; await h.tick();
+  assert.ok(h.requests.slice(before).filter(r => r.method === 'chat.history').every(r => r.params.limit === 1));
+  idle = true; await h.tick(); assert.equal(h.view.busy, false);
+  blocked.resolve({ messages: [], sessionInfo: { hasActiveRun: false } }); await h.flush();
+  assert.equal(h.view.activeKey, 'session-b');
+});

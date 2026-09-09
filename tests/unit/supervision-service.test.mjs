@@ -149,3 +149,19 @@ test('policy refusal settling during abort never asks native wait about a cleare
   assert.equal((await cancelled).stopped, true); assert.equal(waits, 0); assert.equal(f.service.status().busy, false);
 });
 
+
+
+test('missing native wait receipt releases explicitly idle worker without review or replay', async () => {
+  const f = fixture(), adapter = f.service.getAdapter(), prior = adapter.request;
+  let sent = false;
+  adapter.request = async (method, params) => {
+    if (method === 'sessions.send') sent = true;
+    const result = await prior(method, params);
+    if (method === 'chat.history' && sent) result.sessionInfo.hasActiveRun = false;
+    return result;
+  };
+  f.service.getSetup().workspaceRequest = async () => ({ status: 'timeout' });
+  const result = await f.service.run(f.input);
+  assert.equal(result.phase, 'unreviewed'); assert.equal(result.busy, false);
+  assert.equal(f.inputs.length, 0); assert.equal(f.calls.filter(x => x === 'sessions.send').length, 1);
+});

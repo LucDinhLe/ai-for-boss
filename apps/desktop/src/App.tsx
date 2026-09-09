@@ -981,7 +981,15 @@ function App() {
           if (!runId) { if (activeKeyRef.current === key) setNotice('Chưa xác định được lượt đang chạy để dừng. Hãy tải lại trạng thái rồi thử lại.'); return; }
           applyRun({ ...recovered, runId }, key);
         }
-        await call('chat.abort', { sessionKey: key, runId });
+        const result = await call('chat.abort', { sessionKey: key, runId });
+        if (result.aborted === false) {
+          const history = await call<Record<string, unknown>>('chat.history', { sessionKey: key, limit: 1 });
+          if (work.run.runId !== runId) return;
+          const recovered = recoverChatRun(work.run, history);
+          applyRun(recovered, key);
+          if (recovered.busy && activeKeyRef.current === key) setNotice('Lõi chưa xác nhận dừng. Anh có thể thử Dừng lại hoặc chuyển sang phiên khác.');
+          return;
+        }
         if (failedSubmissions.current.get(key)?.id === runId) failedSubmissions.current.delete(key);
         if (work.run.runId === runId) applyRun({ ...work.run, busy: false, terminal: true, state: 'aborted' }, key);
         void loadHistory(key);
@@ -992,28 +1000,33 @@ function App() {
 
   useEffect(() => {
     if (!runtime.connected) return;
-    let active = true, pending = false;
-    const poll = async () => {
-      if (pending) return; pending = true;
+    let active = true;
+    const pending = new Set<string>();
+    const pollSession = async (key: string, work: ReturnType<typeof workFor>) => {
+      if (pending.has(key)) return;
+      pending.add(key);
       try {
-        await Promise.allSettled([...sessionWork.current.entries()].map(async ([key, work]) => {
-          if (work.supervision?.busy) {
-            const next = await supervisionRequest<SupervisionState | null>({ action: 'supervision-status', key });
-            if (active && next?.key === key && next.id === work.supervision?.id) applySupervision(key, next);
-          }
-          // Reconcile closed/background tabs too. Never overwrite events or a newer send.
-          if (!active || !work.run.busy || work.pending) return;
-          if (activeKeyRef.current === key) { await loadHistory(key); return; }
-          const previous = work.run;
-          const history = await call<Record<string, unknown>>('chat.history', { sessionKey: key, limit: 1 });
-          if (active && work.run === previous && !work.pending && activeKeyRef.current !== key)
-            applyRun(recoverChatRun(previous, history), key);
-        }));
-      } catch { /* A failed read never grants completion. */ } finally { pending = false; }
+        if (work.supervision?.busy) {
+          const next = await supervisionRequest<SupervisionState | null>({ action: 'supervision-status', key });
+          if (active && next?.key === key && next.id === work.supervision?.id) applySupervision(key, next);
+        }
+        // Read activity only while busy, not 200 transcript rows every three seconds.
+        // A stalled session's request must not delay another session's poll.
+        if (!active || !work.run.busy || work.pending && work.run.seq < 0) return;
+        const previous = work.run;
+        const history = await call<Record<string, unknown>>('chat.history', { sessionKey: key, limit: 1 });
+        if (!active || work.run !== previous) return;
+        const next = recoverChatRun(previous, history);
+        applyRun(next, key);
+        if (!next.busy && activeKeyRef.current === key) void loadHistory(key);
+      } catch { /* Missing evidence never grants completion. */ }
+      finally { pending.delete(key); }
     };
-    const timer = setInterval(() => void poll(), 3000);
+    const timer = setInterval(() => {
+      for (const [key, work] of sessionWork.current) void pollSession(key, work);
+    }, 3000);
     return () => { active = false; clearInterval(timer); };
-  }, [runtime.connected, activeKey, applyRun, applySupervision, loadHistory]);
+  }, [runtime.connected, applyRun, applySupervision, loadHistory, workFor]);
 
   const availableModels = useMemo(() => availableChatModels(models), [models]);
   const historyReady = Boolean(activeKey) && historyReadyKey === activeKey;
