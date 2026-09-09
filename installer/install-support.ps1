@@ -1,4 +1,4 @@
-param(
+﻿param(
   [Parameter(Mandatory=$true)][ValidateSet('Prepare','Commit','Verify','Activate','Remove')][string]$Action,
   [Parameter(Mandatory=$true)][string]$Root,
   [Parameter(Mandatory=$true)][ValidatePattern('^[0-9A-Za-z][0-9A-Za-z.-]{0,70}$')][string]$Version,

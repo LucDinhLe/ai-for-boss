@@ -143,3 +143,9 @@ test('NSIS installer never recursively removes or overwrites a previous version'
   assert.ok(script.indexOf('Support Verify') < script.indexOf('Support Activate'));
   assert.match(script, /ClearErrors\s+WriteUninstaller[^\r\n]+\s+\$\{If\} \$\{Errors\}/);
 });
+
+
+test('PowerShell installer source declares UTF-8 for Windows legacy code pages', async () => {
+  const bytes = await fs.readFile(path.join(repo, 'installer/install-support.ps1'));
+  assert.deepEqual([...bytes.subarray(0, 3)], [0xef, 0xbb, 0xbf]);
+});
