@@ -16,6 +16,7 @@ async function fixture() {
     'resources/runtime/node/node.exe': 'test runtime', 'resources/node_modules/openclaw/package.json': '{"name":"openclaw"}', 'resources/node_modules/openclaw/readme.md': 'immutable core' })) {
     await fs.mkdir(path.dirname(path.join(source, name)), { recursive: true }); await fs.writeFile(path.join(source, name), value);
   }
+  if (process.platform === 'win32') await fs.copyFile(path.join(process.env.SystemRoot, 'System32', 'version.dll'), path.join(root, 'System.dll'));
   return { root, source };
 }
 test('installer manifest fingerprints a complete separated payload and quotes NSIS paths', async () => {
@@ -45,7 +46,7 @@ test('Windows upgrade reuses only matching immutable core files and never the sh
     await fs.copyFile(path.join(repo, 'installer/install-support.ps1'), script);
     const invoke = (action, version, manifest, shouldPass = true) => {
       const result = spawnSync('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', script, '-Action', action, '-Root', install,
-        '-Version', version, '-Manifest', manifest, '-Desktop', root, '-StartMenu', root], { encoding: 'utf8', windowsHide: true });
+        '-Version', version, '-Manifest', manifest, '-Desktop', root, '-StartMenu', root, '-StatusWindow', '1'], { cwd: root, encoding: 'utf8', windowsHide: true });
       if (shouldPass) assert.equal(result.status, 0, result.stdout + result.stderr);
       else assert.notEqual(result.status, 0, 'linked source must be rejected');
     };
@@ -76,7 +77,7 @@ test('Windows install engine preserves prior, foreign and modified files and rej
   const manifest = await installerManifest(source, version); await fs.writeFile(manifestFile, JSON.stringify(manifest));
   const invoke = (action, target = install) => spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File',
     path.join(repo, 'installer/install-support.ps1'), '-Action', action, '-Root', target, '-Version', version, '-Manifest', manifestFile,
-    '-Desktop', path.join(root, 'desktop'), '-StartMenu', path.join(root, 'start'), ...(action === 'Verify' ? ['-StatusWindow', '1'] : [])], { encoding: 'utf8', windowsHide: true });
+    '-Desktop', path.join(root, 'desktop'), '-StartMenu', path.join(root, 'start'), '-StatusWindow', '1'], { cwd: root, encoding: 'utf8', windowsHide: true });
   const pass = (action, target) => { const result = invoke(action, target); assert.equal(result.status, 0, result.stdout + result.stderr); };
   try {
     const tooLong = { ...manifest, files: [...manifest.files, { path: 'resources/' + 'x'.repeat(180) + '.txt', bytes: 1, sha256: '0'.repeat(64) }] };

@@ -14,8 +14,11 @@ $versionPath = Join-Path $rootPath ('versions\' + $Version)
 $stagePath = Join-Path $rootPath ('staging\' + $Version)
 $rootMarker = Join-Path $rootPath '.aifb-install-root'
 $checkedDirectories = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+# NSIS extracts a native System.dll into its working directory. Resolve all
+# compiler references from loaded framework assemblies, never relative names.
+$frameworkReferences = @([object].Assembly.Location, [Uri].Assembly.Location, [System.Linq.Enumerable].Assembly.Location)
 if ($StatusWindow) {
-  Add-Type @'
+  Add-Type -ReferencedAssemblies $frameworkReferences -TypeDefinition @'
 using System;
 using System.Runtime.InteropServices;
 public static class InstallProgress {
@@ -75,7 +78,7 @@ function Reuse-Core($payload) {
     Assert-PlainPath $proof
     $prior = Get-Content -LiteralPath $proof -Raw -Encoding UTF8 | ConvertFrom-Json
     if ($prior.product -ne 'AI for Boss' -or $prior.version -ne $candidate.Name) { continue }
-    Add-Type @'
+    Add-Type -ReferencedAssemblies $frameworkReferences -TypeDefinition @'
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -165,7 +168,7 @@ function Read-Payload {
 function Verify-Payload([string]$base, $payload) {
   # Keep the 36,000-file loop inside .NET, without repeated PowerShell provider
   # dispatch. Every file is still checked for reparse points, size and SHA256.
-  Add-Type @'
+  Add-Type -ReferencedAssemblies $frameworkReferences -TypeDefinition @'
 using System;
 using System.IO;
 using System.Collections.Concurrent;
