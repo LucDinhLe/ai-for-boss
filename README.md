@@ -2,11 +2,11 @@
 
 Ứng dụng desktop xây trên OpenClaw. Đây là bản thử nghiệm cho nhóm nhỏ, chưa phải bản ổn định.
 
-[Tải bộ cài trong Releases](https://github.com/LucDinhLe/ai-for-boss-preview/releases).
+[Tải bộ cài Windows beta35](https://github.com/LucDinhLe/ai-for-boss-preview/releases/download/0.0.5-beta.35/AI-for-Boss-0.0.5-beta.35-Setup.exe) · [Ghi chú và mã SHA256](https://github.com/LucDinhLe/ai-for-boss-preview/releases/tag/0.0.5-beta.35).
 
 ## Cài và dùng thử
 
-1. Tải `AI-for-Boss-0.0.5-beta.33-Setup.exe`, đối chiếu SHA256 trong cùng release rồi chạy bộ cài.
+1. Tải `AI-for-Boss-0.0.5-beta.35-Setup.exe`, đối chiếu SHA256 trong cùng release rồi chạy bộ cài.
 2. Mở lối tắt AI for Boss. Kết nối tài khoản của chính bạn trong Cài đặt → Nhà cung cấp. Quyền truy cập mô hình phụ thuộc nhà cung cấp và gói tài khoản; có trong danh mục không đồng nghĩa đã dùng được.
 3. Tạo cuộc trò chuyện hoặc dự án. Tác vụ xuất tài liệu thông thường dùng công cụ có sẵn. Lệnh tùy ý trên máy vẫn có thể yêu cầu “Cho phép lần này” hoặc “Từ chối” khi lõi chưa xác nhận được phạm vi.
 
@@ -20,7 +20,8 @@ Bộ cài dùng cho cài mới và khôi phục. Giao diện/ứng dụng và l�
 
 ## Phạm vi bản thử
 
-- Beta33: trạng thái chạy, nháp và Advisor tách theo từng cuộc trò chuyện. Chuyển hoặc tạo tác vụ khác trong lúc chờ; hộp duyệt có thể thu gọn. Nút Dừng đối chiếu lại lượt chạy khi thiếu sự kiện.
+- Beta35: mỗi phiên kiểm tra trạng thái độc lập; giảm tải lại lịch sử khi đang chạy, phục hồi khi thiếu biên nhận và giữ nút Dừng có thể thử lại. Advisor tùy chọn review sau thực thi, tối đa hai lượt review và một lượt sửa; lời chào không gọi Advisor.
+- Từ beta33: trạng thái chạy, nháp và Advisor tách theo từng cuộc trò chuyện. Chuyển hoặc tạo tác vụ khác trong lúc chờ; hộp duyệt có thể thu gọn. Nút Dừng đối chiếu lại lượt chạy khi thiếu sự kiện.
 - Dán ảnh clipboard vào nháp và menu chuột phải Dán; bỏ nút chụp màn hình riêng. Thanh công cụ giữ tên/icon agent của phiên.
 - Bộ xuất Word/Excel/PowerPoint/PDF tiếng Việt đi kèm ứng dụng, ghi tệp mới trong workspace, không cần cài Python. Excel hỗ trợ công thức tổng cho cột cuối. Đây là bộ xuất cơ bản, chưa phải trình biên tập Office đầy đủ.
 - Hiển thị và lưu tệp đính kèm do OpenClaw bàn giao, kiểm tra session và nội dung tải xuống. Agents có thể khám phá, giao việc và nhắn tin qua công cụ OpenClaw.
