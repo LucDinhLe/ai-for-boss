@@ -47,14 +47,15 @@ export async function installerManifest(source, version) {
   return { schemaVersion: 1, product: 'AI for Boss', version, files, totalBytes: files.reduce((sum, item) => sum + item.bytes, 0), signed: false, classification: 'experimental-internal' };
 }
 export function payloadInclude(source, manifest) {
-  let current = '', content = '; Generated: exact payload, no recursive delete.\n';
+  let current = '', reuse = false, content = '; Generated: exact payload, no recursive delete.\n';
   for (const file of manifest.files) {
     const directory = path.posix.dirname(file.path);
     if (directory !== current) { content += `SetOutPath "$Stage${directory === '.' ? '' : '\\' + nsisString(directory.replaceAll('/', '\\'))}"\n`; current = directory; }
-    if (/^resources\/(node_modules\/|runtime\/node\/)/u.test(file.path)) content += `IfFileExists "$Stage\\${nsisString(file.path.replaceAll('/', '\\'))}" +2\n`;
+    const core = /^resources\/(node_modules\/|runtime\/node\/)/u.test(file.path);
+    if (core !== reuse) { content += `SetOverwrite ${core ? 'off' : 'on'}\n`; reuse = core; }
     content += `File "${nsisString(path.join(source, ...file.path.split('/')))}"\n`;
   }
-  return content;
+  return content + (reuse ? 'SetOverwrite on\n' : '');
 }
 async function main() {
   const args = process.argv.slice(2), option = name => { const index = args.indexOf(name); return index < 0 ? undefined : args[index + 1]; };
