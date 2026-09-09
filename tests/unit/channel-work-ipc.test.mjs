@@ -48,7 +48,9 @@ test('real channel lease blocks worker dispatch and Advisor start until restart 
   const change = h.manage({ action: 'channel-setup', channel: 'discord' });
   await assert.rejects(h.gateway('sessions.send', { key: 'agent:test:worker' }), { code: 'AIFB_WORKER_NOT_SUBMITTED' });
   for (const action of ['supervise', 'plan', 'review']) assert.throws(() => h.advisor({ action }), /Đang chuẩn bị kênh/u);
-  assert.equal(h.advisor({ action: 'supervision-status' }), null);
+  assert.throws(() => h.advisor({ action: 'supervision-status' }), /phiên/);
+  assert.throws(() => h.advisor({ action: 'supervision-cancel' }), /phiên/);
+  assert.equal(h.advisor({ action: 'supervision-status', key: 'agent:test:worker' }), null);
   assert.deepEqual(h.manage({ action: 'channel-cancel', sessionId: 'owned' }), { status: 'cancelled' });
   assert.equal(h.calls.some(call => call.kind === 'gateway' || call.kind === 'supervision' || call.kind === 'advisor'), false);
   restart.resolve({ sessionId: 'new-owned' }); assert.deepEqual(await change, { sessionId: 'new-owned' });

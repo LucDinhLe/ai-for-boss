@@ -31,7 +31,8 @@ export default [
       "**/generated/**",
       "**/out/**",
       "tmp/**",
-      "artifacts/**"
+      "artifacts/**",
+      "apps/desktop/resources/**"
     ]
   },
   js.configs.recommended,

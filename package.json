@@ -10,7 +10,7 @@
   },
   "scripts": {
     "contracts:generate": "node scripts/generate-desktop-contract.mjs",
-    "build": "corepack pnpm run contracts:generate && corepack pnpm --filter @aifb/desktop build",
+    "build": "node scripts/stage-document-tools.mjs && corepack pnpm run contracts:generate && corepack pnpm --filter @aifb/desktop build",
     "dev": "corepack pnpm run build && corepack pnpm --filter @aifb/desktop start",
     "lint": "eslint .",
     "typecheck": "corepack pnpm --filter @aifb/desktop typecheck",
@@ -23,7 +23,9 @@
     "smoke:packaged": "node scripts/packaged-runtime-smoke.mjs",
     "smoke:app": "node scripts/packaged-app-smoke.mjs",
     "smoke:ui": "node scripts/run-first-session-ui-smoke.mjs",
-    "verify:provider": "node scripts/provider-verify.mjs"
+    "verify:provider": "node scripts/provider-verify.mjs",
+    "documents:install": "npm ci --prefix packages/document-tools --ignore-scripts --no-audit --no-fund",
+    "documents:stage": "node scripts/stage-document-tools.mjs"
   },
   "devDependencies": {
     "@electron/packager": "20.2.1",

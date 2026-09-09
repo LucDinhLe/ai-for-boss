@@ -228,3 +228,11 @@ test("keyboard sending uses the existing gate and does not submit while changing
   element(f.render(), "textarea").props.onKeyDown(event);
   assert.deepEqual(f.calls, ["shortcut", ["model", "next"]]);
 });
+
+test('clipboard image paste attaches to the draft without sending or exposing a capture button', () => {
+  const f = fixture(), tree = f.render(), image = { name: 'clipboard.png', type: 'image/png' };
+  let prevented = false;
+  element(tree, 'textarea').props.onPaste({ clipboardData: { files: [image] }, preventDefault() { prevented = true; } });
+  assert.equal(prevented, true); assert.equal(f.calls.length, 1); assert.equal(f.calls[0][0], 'files'); assert.equal(f.calls[0][1], image);
+  assert.equal(button(tree, 'Chụp màn hình'), undefined); assert.equal(f.calls.includes('send'), false);
+});

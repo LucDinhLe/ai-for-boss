@@ -1,3 +1,4 @@
+import {prepareDocumentTools} from './document-tools-setup.mjs';
 import { NativeManagement } from "./native-management.mjs";
 import { HostExecutionPolicy } from './host-execution-policy.mjs';
 import { ApprovalService } from './approval-service.mjs';
@@ -69,6 +70,7 @@ export class SetupChannel {
     Client = GatewayClient, identityLoader = loadOrCreateDeviceIdentity, catalogue = { version: "unknown", channels: [] },
     configPath = path.join(stateDirectory, 'openclaw.json'), channelBundleRoot, restartRuntime, installPlugin, hostApproval = false }) {
     this.stateDirectory = stateDirectory;
+    this.configPath = configPath;
     this.appVersion = appVersion;
     this.logger = logger;
     this.onStatus = onStatus;
@@ -161,6 +163,13 @@ export class SetupChannel {
   }
 
   // Fixed host call; cannot be selected through setup.request or management.
+  prepareDocuments(directory,restart) {
+    return prepareDocumentTools({directory,configPath:this.configPath,restart,
+      request:(method,params)=>{
+        if(!this.#connected||!this.grantedScopes.includes('operator.admin'))throw new Error('Chưa kết nối bộ chạy.');
+        return this.#client.request(method,params,{timeoutMs:180000});
+      }});
+  }
   authorizeWorker(sessionKey) { return this.workerPolicy.ensure(sessionKey); }
 
   // Only the host's ChromeBridge may construct this fixed read-only route.

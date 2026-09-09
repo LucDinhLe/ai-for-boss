@@ -2,16 +2,17 @@ import path from "node:path";
 import { setInterval } from 'node:timers';
 import { mkdirSync, realpathSync, readFileSync, writeFileSync, existsSync, unlinkSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { app, BrowserWindow, WebContentsView, clipboard, desktopCapturer, dialog, ipcMain, nativeTheme, safeStorage, session, shell } from "electron";
+import { app, BrowserWindow, WebContentsView, clipboard, Menu, dialog, ipcMain, nativeTheme, safeStorage, session, shell } from "electron";
 import { BackupService, nativeBackupRunner } from './backup-service.mjs';
-import { captureScreens } from './screen-capture.mjs';
+import { installEditMenu } from './edit-menu.mjs';
+import { saveDeliveredFile } from './delivered-files.mjs';
 import { applyUiTheme } from './ui-theme.mjs';
 import { keepWindowControlsVisible } from './window-controls.mjs';
 import { WebTabs } from './web-tabs.mjs';
 import { ChromeBridge } from './chrome-bridge.mjs';
 import { ProjectService } from "./project-service.mjs";
 import { ConversationService } from "./conversation-service.mjs";
-import { SupervisionService } from "./supervision-service.mjs";
+import { SessionSupervision } from "./session-supervision.mjs";
 import { RuntimeControl } from "./runtime-control.mjs";
 import { UpdateService } from './update-service.mjs';
 import { resolveProviderDoc } from './provider-docs.mjs';
@@ -93,7 +94,7 @@ const setupPageAccess = createSetupPageAccess({
 
 const advisorService = new AdvisorService({ getAdapter: () => adapter, getSetup: () => setupChannel,
   isReady: () => !smoke && !shuttingDown && adapter?.connected === true && setupChannel?.connected === true });
-const supervisionService = new SupervisionService({ advisor: advisorService, getAdapter: () => adapter, getSetup: () => setupChannel,
+const supervisionService = new SessionSupervision({ getAdapter: () => adapter, getSetup: () => setupChannel,
   isReady: () => !smoke && !shuttingDown && adapter?.connected === true && setupChannel?.connected === true });
 const channelWorkGuard = new ChannelWorkGuard({
   requestHistory: key => adapter.request('sessions.history', { key, limit: 1 }),
@@ -228,7 +229,7 @@ async function startRuntime() {
           detail: null,
           lastError: setupChannel?.connected ? null : runtimeStatus.lastError
         });
-        void advisorService.connectionRestored();
+        void advisorService.connectionRestored(); void supervisionService.connectionRestored();
         return;
       }
       if (status.phase === "closed") {
@@ -269,7 +270,7 @@ async function startRuntime() {
       if (shuttingDown) return;
       if (status.phase !== "connected") setupPageAccess.clear();
       publishStatus({ setupReady: status.phase === "connected" });
-      if (status.phase === "connected") void advisorService.connectionRestored();
+      if (status.phase === "connected") { void advisorService.connectionRestored(); void supervisionService.connectionRestored(); }
       if (status.phase === 'connected') {
         try { if (JSON.parse(readFileSync(path.join(app.getPath('userData'), 'aifb-chrome-enabled.json'), 'utf8')).enabled === true) void chromeBridge.native('/').catch(() => {}); }
         catch { /* No Chrome pairing requested for this product profile. */ }
@@ -298,7 +299,7 @@ const restartGateway = createGatewayRestart({
   shouldStop: () => shuttingDown || runtimePaused,
   onRestart: () => {
     connectionGeneration++;
-    advisorService.cancelForShutdown();
+    advisorService.cancelForShutdown(); supervisionService.cancelForShutdown();
     publishStatus({ connected: false, setupReady: false, attachmentPolicy: null, detail: "startup-preparing", lastError: null });
   },
   disconnect: () => Promise.all([adapter?.disconnect(), setupChannel?.disconnect()]),
@@ -315,7 +316,7 @@ const runtimeControl = new RuntimeControl({
   isPaused: () => runtimePaused,
   stop: async () => {
     runtimePaused = true; connectionGeneration++;
-    advisorService.cancelForShutdown(); setupPageAccess.clear();
+    advisorService.cancelForShutdown(); supervisionService.cancelForShutdown(); setupPageAccess.clear();
     publishStatus({ paused: true, connected: false, setupReady: false, detail: 'user-pausing' });
     await Promise.all([adapter?.disconnect(), setupChannel?.disconnect()]);
     await supervisor.stop();
@@ -418,6 +419,7 @@ async function createMainWindow() {
 
   mainWindow = new BrowserWindow(createWindowOptions({ preloadPath, isPackaged: app.isPackaged }));
   keepWindowControlsVisible(mainWindow);
+  installEditMenu(mainWindow, Menu);
   if (smoke) mainWindow.webContents.setBackgroundThrottling(false);
 
   mainWindow.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
@@ -482,11 +484,15 @@ function getProjectService() {
 
 ipcMain.handle(MANAGEMENT_REQUEST_CHANNEL, (event, ...args) => {
   if (!isTrustedRendererEvent(event, mainWindow)) throw new Error("Untrusted management request");
+  if (!smoke && !shuttingDown && args.length === 1 && args[0]?.action === 'artifact-save') {
+    return saveDeliveredFile(args[0], { request: (method, params) => adapter.request(method, params), endpoint: () => gatewayEndpoint,
+      choose: async name => { const result = await dialog.showSaveDialog(mainWindow, { title: 'Lưu tệp kết quả', defaultPath: path.join(app.getPath('downloads'), name) });
+        return result.canceled ? null : result.filePath; } });
+  }
   if (!smoke && !shuttingDown && args.length === 1 && /^data-/u.test(args[0]?.action ?? '')) {
     if (!backups) throw new Error('Chưa sẵn sàng quản lý sao lưu.');
     return backups.run(args[0]);
   }
-  if (!smoke && !shuttingDown && args.length === 1 && args[0]?.action === 'screen-capture') return captureScreens(args[0], desktopCapturer);
   if (!shuttingDown && args.length === 1 && args[0]?.action === 'ui-theme') return applyUiTheme(args[0], nativeTheme);
   if (!smoke && !shuttingDown && args.length === 1 && args[0]?.action === 'document-read') {
     if (Object.keys(args[0]).some(key => !['action', 'attachment'].includes(key))) throw new Error('Yêu cầu đọc tài liệu không hợp lệ.');
@@ -537,8 +543,11 @@ ipcMain.handle(ADVISOR_REQUEST_CHANNEL, (event, ...args) => {
     catch { return { ...result, error: 'Đã kiểm nhưng chưa lưu được bản Advisor vào thư mục dự án.' }; }
     return result;
   });
-  if (input?.action === 'supervision-status' && Object.keys(input).length === 1) return supervisionService.status();
-  if (input?.action === 'supervision-cancel' && Object.keys(input).length === 1) return supervisionService.cancel();
+  if (['supervision-status', 'supervision-cancel'].includes(input?.action)) {
+    if (Object.keys(input).some(k => !['action', 'key'].includes(k)) || typeof input.key !== 'string' || !/^agent:[a-z0-9_-]+:.{1,200}$/u.test(input.key))
+      throw new Error('Cần chỉ rõ phiên giám sát hợp lệ.');
+    return input.action === 'supervision-status' ? supervisionService.status(input.key) : supervisionService.cancel(input.key);
+  }
   if (supervisionService.status()?.busy) throw new Error('Đang giám sát tự động. Hãy dừng lượt đó trước.');
   return advisorService.request(input);
 });
@@ -688,7 +697,7 @@ app.on("before-quit", (event) => {
   void (async () => {
     try {
       for (const operation of [
-        () => backups?.stop(), () => ownedTabs?.dispose(), () => advisorService.cancelForShutdown(), () => channelPluginInstaller?.stop(),
+        () => backups?.stop(), () => ownedTabs?.dispose(), () => { advisorService.cancelForShutdown(); supervisionService.cancelForShutdown(); }, () => channelPluginInstaller?.stop(),
         () => setupPageAccess.clear(), () => adapter?.disconnect(),
         () => setupChannel?.disconnect(), () => supervisor?.stop(),
       ]) await cleanup(operation);

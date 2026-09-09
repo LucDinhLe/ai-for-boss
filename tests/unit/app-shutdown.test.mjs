@@ -17,6 +17,7 @@ test('quit waits for the owned runtime before destroying windows; recursive quit
     shuttingDown: false, appExitCode: 0, backups: null,
     webTabs: { dispose: () => calls.push('web') },
     advisorService: { cancelForShutdown: () => calls.push('advisor') },
+    supervisionService: { cancelForShutdown: () => {} },
     channelPluginInstaller: { stop: () => { calls.push('installer'); return new Promise(resolve => { releaseInstaller = resolve; }); } },
     setupPageAccess: { clear: () => calls.push('pages') },
     adapter: { disconnect: async () => calls.push('chat') },

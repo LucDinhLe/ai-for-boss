@@ -38,6 +38,7 @@ import { thinkingStatus } from './thinking-status';
 import SessionTabs from "./SessionTabs";
 import NativePage from "./NativePage";
 import SessionFiles from "./SessionFiles";
+import DeliveredFiles from './DeliveredFiles';
 import WebPanel from './WebPanel';
 import MessageContent from "./MessageContent";
 import ThinkingView from './ThinkingView';
@@ -104,7 +105,6 @@ function App() {
   const [supervision, setSupervision] = useState<SupervisionState | null>(null);
   const [supervisionBusy, setSupervisionBusy] = useState(false);
   const supervisionLock = useRef(false);
-  const supervisionTicket = useRef(0);
   const [olderOffset, setOlderOffset] = useState<number | null>(null);
   const [loadingOlder, setLoadingOlder] = useState(false);
   const projectBindings = useRef<Record<string, string>>({});
@@ -190,7 +190,6 @@ function App() {
   const runRef = useRef<ChatRun>(newChatRun());
   const [runMessageAnchor, setRunMessageAnchor] = useState<{ runId: string; anchorId: string } | null>(null);
   const openingRef = useRef(false);
-  const abortingRef = useRef(false);
   const historyEpoch = useRef(0);
   const transcriptRevision = useRef(0);
   const rosterEpoch = useRef(0);
@@ -198,13 +197,35 @@ function App() {
   const modelEpoch = useRef(0);
   const connectOffered = useRef(false);
   const failedSubmissions = useRef(new Map<string, { fingerprint: string; id: string; dispatched: boolean }>());
-  const pendingSubmission = useRef<{ key: string; id: string; kind: 'chat' | 'advisor'; cancelled: boolean; dispatched: boolean; previousDispatch: boolean } | null>(null);
+  type Submission = { key: string; id: string; kind: 'chat' | 'advisor'; cancelled: boolean; dispatched: boolean; previousDispatch: boolean };
+  const sessionWork = useRef(new Map<string, { run: ChatRun; supervision: SupervisionState | null; ticket: number; pending: Submission | null; stopping: boolean }>());
+  const [, setWorkRevision] = useState(0);
+  const workFor = useCallback((key: string) => {
+    let work = sessionWork.current.get(key);
+    if (!work) { work = { run: newChatRun(), supervision: null, ticket: 0, pending: null, stopping: false }; sessionWork.current.set(key, work); }
+    return work;
+  }, []);
+  const applySupervision = useCallback((key: string, value: SupervisionState | null) => {
+    const work = workFor(key), wasBusy = Boolean(work.supervision?.busy);
+    work.supervision = value;
+    if (activeKeyRef.current !== key) {
+      if (wasBusy !== Boolean(value?.busy)) setWorkRevision(revision => revision + 1);
+      return;
+    }
+    setSupervision(value); supervisionLock.current = Boolean(value?.busy); setSupervisionBusy(Boolean(value?.busy));
+  }, [workFor]);
   const busy = run.busy;
   const runState = run.state;
-  const applyRun = useCallback((next: ChatRun) => {
+  const applyRun = useCallback((next: ChatRun, key = activeKeyRef.current) => {
+    const wasBusy = key ? workFor(key).run.busy : false;
+    if (key) workFor(key).run = next;
+    if (key !== activeKeyRef.current) {
+      if (wasBusy !== next.busy) setWorkRevision(revision => revision + 1);
+      return;
+    }
     if (next.runId !== runRef.current.runId || !next.runId) setRunMessageAnchor(null);
     runRef.current = next; setRun(next);
-  }, []);
+  }, [workFor]);
   const applyMessages = useCallback((next: TranscriptMessage[]) => { messagesRef.current = next; setMessages(next); }, []);
   const applyUsage = useCallback((next: ContextUsage) => { usageRef.current = next; setUsage(next); }, []);
   const invalidateHistory = useCallback(() => { ++historyEpoch.current; }, []);
@@ -328,7 +349,7 @@ function App() {
   }, [runtime.connected, sessions, refreshSessions]);
 
   const loadHistory = useCallback(async (key: string, preserveAdmission = false, refreshTranscript = false) => {
-    if (deletingKey.current === key) return;
+    if (deletingKey.current === key || activeKeyRef.current !== key) return;
     const epoch = ++historyEpoch.current;
     while (key === activeKeyRef.current && epoch === historyEpoch.current) {
       const request = { key, epoch, revision: transcriptRevision.current };
@@ -358,7 +379,7 @@ function App() {
         const inFlight = history.inFlightRun as { runId?: unknown } | null | undefined;
         // A just-admitted request can precede its durable row and in-flight
         // snapshot. Only its exact run snapshot may replace that pending state.
-        const admissionPending = preserveAdmission && runRef.current.busy && runRef.current.seq < 0;
+        const admissionPending = (preserveAdmission || Boolean(workFor(key).pending)) && runRef.current.busy && runRef.current.seq < 0;
         if (!admissionPending || inFlight?.runId === runRef.current.runId) {
           const next = recoverChatRun(runRef.current, history);
           applyRun(next.terminal ? { ...next, text: "" } : next);
@@ -374,7 +395,7 @@ function App() {
       }
       return;
     }
-  }, [applyRun, applyMessages, applyUsage]);
+  }, [applyRun, applyMessages, applyUsage, workFor]);
 
   const changeModel = useCallback(async (model: ModelSummary) => {
     const key = activeKeyRef.current;
@@ -467,7 +488,7 @@ function App() {
 
   const openSession = useCallback(
     (key: string) => {
-      if (deleteDialogOpen.current || runRef.current.busy || openingRef.current || changingModelRef.current || supervisionLock.current) return;
+      if (deleteDialogOpen.current || openingRef.current || changingModelRef.current) return;
       setSelectedProject(projectBindings.current[key] ?? null);
       setOpenKeys(keys => keys.includes(key) ? keys : [...keys, key]);
       setWorkspaceView("chat");
@@ -487,9 +508,11 @@ function App() {
       thinkingRef.current = { level: null, levels: [] };
       setThinking(thinkingRef.current);
       setNotice(null);
-      applyRun(newChatRun());
+      applyRun(workFor(key).run);
+      applySupervision(key, workFor(key).supervision);
+      setStopping(workFor(key).stopping);
     },
-    [applyRun, applyMessages, applyUsage, syncDraft]
+    [applyRun, applyMessages, applyUsage, syncDraft, workFor, applySupervision]
   );
 
   // Install the listener before requesting subscription snapshots: events can
@@ -499,8 +522,8 @@ function App() {
       if (!payload) return;
       const key = typeof payload.sessionKey === "string" ? payload.sessionKey : null;
 
-      if (event === 'agent' && key && key === activeKeyRef.current) {
-        applyRun(reduceAgentProgress(runRef.current, payload, key));
+      if (event === 'agent' && key && sessionWork.current.has(key)) {
+        applyRun(reduceAgentProgress(workFor(key).run, payload, key), key);
         return;
       }
 
@@ -512,13 +535,14 @@ function App() {
         return;
       }
 
-      if (event === "chat" && key && key === activeKeyRef.current) {
+      if (event === "chat" && key && (key === activeKeyRef.current || sessionWork.current.has(key))) {
         const snapshot = toTranscriptMessage((payload.message ?? {}) as Record<string, unknown>, "stream");
-        const previous = runRef.current;
+        const previous = workFor(key).run;
         const next = reduceChatRun(previous, payload, key, snapshot?.content);
         if (next === previous) return;
+        applyRun(next, key);
+        if (key !== activeKeyRef.current) { if (next.terminal) void refreshSessions(); return; }
         ++transcriptRevision.current;
-        applyRun(next);
         if (snapshot?.role === 'assistant' && snapshot.anchorId && next.runId) {
           setRunMessageAnchor({ runId: next.runId, anchorId: snapshot.anchorId });
         }
@@ -537,7 +561,7 @@ function App() {
       }
     });
     return unsubscribe;
-  }, [applyRun, applyMessages, refreshTranscript, refreshSessions]);
+  }, [applyRun, applyMessages, refreshTranscript, refreshSessions, workFor]);
 
   useEffect(() => {
     if (!runtime.connected) return;
@@ -691,14 +715,13 @@ function App() {
     if (deleteDialogOpen.current) return;
     const project = projectId === undefined ? undefined : projects.find(item => item.id === projectId);
     if (!runtime.connected || !runtime.setupReady || modelCatalogueState !== "ready" || availableChatModels(models).length === 0
-      || runRef.current.busy || openingRef.current || changingModelRef.current
+      || openingRef.current || changingModelRef.current
       || (projectId !== undefined && !project)) return;
     openingRef.current = true;
     setOpening(true);
     setNotice(null);
     const key = `aifb-${crypto.randomUUID()}`;
     try {
-      if (supervisionLock.current) return;
       const created = project?.source === 'aifb' || (!project && selectedAgent) ? await manage<{ key: string }>({ action: project ? 'project-session' : 'agent-session', ...(projectId ? { projectId } : {}), agentId: selectedAgent, requestId: key.slice(5) }) : await call<{ key: string }>("sessions.create", {
         key,
         ...(projectId ? { projectId } : {}),
@@ -728,13 +751,14 @@ function App() {
   }, [runtime.connected, runtime.setupReady, modelCatalogueState, models, workspaceView, showConnect, createSession]);
 
   const closeTab = useCallback((key: string) => {
-    if (runRef.current.busy || openingRef.current || changingModelRef.current || supervisionLock.current) return;
+    if (openingRef.current || changingModelRef.current) return;
     const remaining = openKeys.filter(item => item !== key);
     setOpenKeys(remaining);
     if (activeKeyRef.current !== key) return;
     if (remaining.length) { openSession(remaining.at(-1)!); return; }
     ++historyEpoch.current; ++subscriptionEpoch.current;
     activeKeyRef.current = null; setActiveKey(null);
+    supervisionLock.current = false; setSupervisionBusy(false); setSupervision(null); setStopping(false);
     historyReadyKeyRef.current = null; setHistoryReadyKey(null); setHistoryErrorKey(null);
     subscribedKeyRef.current = null; historyRetryRef.current = null;
     applyMessages([]); applyRun(newChatRun()); applyUsage(readContextUsage(null));
@@ -793,7 +817,7 @@ function App() {
       if (workspaceView !== 'settings') settingsReturnView.current = workspaceView;
       setWorkspaceView('settings'); return;
     }
-    if (openingRef.current || changingModelRef.current || supervisionLock.current) return;
+    if (openingRef.current || changingModelRef.current) return;
     if (view === 'chat') setSelectedProject(null);
     setWorkspaceView(view);
   }, [workspaceView]);
@@ -815,6 +839,8 @@ function App() {
       if (modelCatalogueState !== "ready" || supervisionLock.current || skillsLock.current) return;
       const key = activeKeyRef.current;
       if (!key || historyReadyKeyRef.current !== key) return;
+      const work = workFor(key);
+      const submittedModel = { id: usageRef.current.model, provider: usageRef.current.modelProvider };
       const submittedDraft = drafts.current.read(key);
       const text = submittedDraft.text.trim();
       if (openingRef.current || changingModelRef.current || submittedDraft.attachments.some(file => file.status !== "ready")
@@ -848,55 +874,55 @@ function App() {
         const choice = supervisionChoices[key];
         if (!choice.model) { setNotice('Chọn mô hình Advisor trước.'); return; }
         supervisionLock.current = true; setSupervisionBusy(true); setNotice(null);
-        const ticket = ++supervisionTicket.current;
+        const ticket = ++work.ticket;
+        applySupervision(key, { id, key, phase: 'planning', busy: true, accepted: false, plan: '', planReview: null, finalReview: null, error: null });
         const submission = { key, id, kind: 'advisor' as const, cancelled: false, dispatched: false, previousDispatch };
-        pendingSubmission.current = submission;
+        work.pending = submission;
         try {
           if (projectBindings.current[key]) await manage({ action: 'project-attachments', sessionKey: key, files: originalAttachments });
-          if (submission.cancelled || pendingSubmission.current !== submission || ticket !== supervisionTicket.current || activeKeyRef.current !== key) return;
+          if (submission.cancelled || work.pending !== submission || ticket !== work.ticket) return;
           submission.dispatched = true;
           const result = await supervisionRequest<SupervisionState>({ action: 'supervise', key, id, message: text,
-            model: { id: usageRef.current.model, provider: usageRef.current.modelProvider }, advisorModel: choice.model,
+            model: submittedModel, advisorModel: choice.model,
             attachments: nativeAttachments, ...(override ? { thinking: override } : {}) });
-          if (ticket !== supervisionTicket.current) return;
-          setSupervision(result);
+          if (ticket !== work.ticket) return;
+          applySupervision(key, result);
           if (result.accepted) { drafts.current.acknowledge(key, submittedDraft.revision, submittedDraft.attachments.map(file => file.id)); syncDraft(key); }
-          if (result.error) setNotice(result.error);
+          if (result.error && activeKeyRef.current === key) setNotice(result.error);
           await loadHistory(key); await refreshSessions();
-          if (ticket !== supervisionTicket.current) return;
-          supervisionLock.current = result.busy; setSupervisionBusy(result.busy);
+          if (ticket !== work.ticket) return;
+          applySupervision(key, result);
         } catch (error) {
-          if (ticket !== supervisionTicket.current) return;
-          setNotice(String((error as Error).message));
+          if (ticket !== work.ticket) return;
+          if (activeKeyRef.current === key) setNotice(String((error as Error).message));
           try {
-            const status = await supervisionRequest<SupervisionState | null>({ action: 'supervision-status' });
-            if (ticket !== supervisionTicket.current) return;
-            if (status) setSupervision(status);
-            supervisionLock.current = Boolean(status?.busy); setSupervisionBusy(Boolean(status?.busy));
-          } catch { setNotice('Chưa xác nhận trạng thái giám sát. Hãy kết nối lại rồi bấm Dừng.'); }
-        } finally { if (pendingSubmission.current === submission) pendingSubmission.current = null; }
+            const status = await supervisionRequest<SupervisionState | null>({ action: 'supervision-status', key });
+            if (ticket !== work.ticket) return;
+            applySupervision(key, status);
+          } catch { if (activeKeyRef.current === key) setNotice('Chưa xác nhận trạng thái giám sát. Hãy kết nối lại rồi bấm Dừng.'); }
+        } finally { if (work.pending === submission) work.pending = null; }
         return;
       }
       failedSubmissions.current.set(key, { fingerprint, id, dispatched: previousDispatch });
       const submission = { key, id, kind: 'chat' as const, cancelled: false, dispatched: false, previousDispatch };
-      pendingSubmission.current = submission;
+      work.pending = submission;
       ++historyEpoch.current;
       applyRun(newChatRun(id));
       setNotice(null);
       try {
         if (projectBindings.current[key]) await manage({ action: 'project-attachments', sessionKey: key, files: originalAttachments });
-        if (submission.cancelled || pendingSubmission.current !== submission || activeKeyRef.current !== key || runRef.current.runId !== id || !runRef.current.busy) return;
+        if (submission.cancelled || work.pending !== submission || work.run.runId !== id || !work.run.busy) return;
         submission.dispatched = true;
         failedSubmissions.current.set(key, { fingerprint, id, dispatched: true });
         const ack = await call("sessions.send", params);
         const cachedFailure = typeof ack.status === "string" && ["error", "timeout"].includes(ack.status.trim().toLowerCase());
         // Admission is not completion or a persisted row. Native transcript
         // events/history own displayed user messages, avoiding optimistic twins.
-        if (activeKeyRef.current === key && runRef.current.runId === id) {
-          const next = acknowledgeChatRun(runRef.current, id, ack);
-          applyRun(next);
+        if (work.run.runId === id) {
+          const next = acknowledgeChatRun(work.run, id, ack);
+          applyRun(next, key);
           if (next.terminal) {
-            if (next.state === "error") setNotice(typeof ack.errorMessage === "string" ? ack.errorMessage : "Lượt trước đã kết thúc với lỗi. Bạn có thể gửi lại yêu cầu.");
+            if (next.state === "error" && activeKeyRef.current === key) setNotice(typeof ack.errorMessage === "string" ? ack.errorMessage : "Lượt trước đã kết thúc với lỗi. Bạn có thể gửi lại yêu cầu.");
             void loadHistory(key);
           } else if (next.runId !== id) void loadHistory(key, true);
         }
@@ -907,71 +933,87 @@ function App() {
         }
         if (failedSubmissions.current.get(key)?.id === id) failedSubmissions.current.delete(key);
       } catch (error) {
-        if (submission.cancelled || activeKeyRef.current !== key || runRef.current.runId !== id) return;
-        if (runRef.current.seq < 0) applyRun({ ...runRef.current, busy: false, terminal: true, state: "error" });
-        setNotice(String((error as Error)?.message ?? error));
-      } finally { if (pendingSubmission.current === submission) pendingSubmission.current = null; }
+        if (submission.cancelled || work.run.runId !== id) return;
+        if (work.run.seq < 0) applyRun({ ...work.run, busy: false, terminal: true, state: "error" }, key);
+        if (activeKeyRef.current === key) setNotice(String((error as Error)?.message ?? error));
+      } finally { if (work.pending === submission) work.pending = null; }
     },
-    [runtime, models, modelCatalogueState, applyRun, loadHistory, syncDraft, refreshSessions, supervisionChoices]
+    [runtime, models, modelCatalogueState, applyRun, loadHistory, syncDraft, refreshSessions, supervisionChoices, workFor, applySupervision]
   );
 
   const abort = useCallback(async () => {
-    const submission = pendingSubmission.current;
-    if (submission && !submission.dispatched && submission.key === activeKeyRef.current) {
-      // Latch before yielding so the pending save cannot dispatch after Stop.
-      // A reused id may still own native work when its earlier ACK was lost.
-      submission.cancelled = true;
-      pendingSubmission.current = null;
-      if (submission.kind === 'advisor') {
-        ++supervisionTicket.current;
-        supervisionLock.current = false; setSupervisionBusy(false);
-      }
-      if (submission.previousDispatch) {
-        applyRun(runRef.current.runId === submission.id ? { ...runRef.current, busy: true, terminal: false } : newChatRun(submission.id));
-      } else if (submission.kind === 'chat' && runRef.current.runId === submission.id) {
-        failedSubmissions.current.delete(submission.key);
-        applyRun({ ...runRef.current, busy: false, terminal: true, state: 'aborted' });
-      }
-      if (!submission.previousDispatch) return;
-    }
-    if (supervisionLock.current) {
-      const ticket = supervisionTicket.current;
-      try {
-        const result = await supervisionRequest<{ stopped: boolean }>({ action: 'supervision-cancel' });
-        if (ticket !== supervisionTicket.current) return;
-        if (result.stopped) { ++supervisionTicket.current; supervisionLock.current = false; setSupervisionBusy(false); setSupervision(old => old ? { ...old, busy: false, phase: 'cancelled' } : old); }
-        else setNotice('Chưa xác nhận giám sát đã dừng. Hãy thử Dừng lại khi có kết nối.');
-      } catch { setNotice('Chưa xác nhận đã dừng. Kết nối lại rồi thử Dừng.'); }
-      return;
-    }
     const key = activeKeyRef.current;
-    const runId = runRef.current.runId;
-    if (!key || !runId || !runRef.current.busy || abortingRef.current || !runtime.connected) return;
-    abortingRef.current = true;
-    setStopping(true);
+    if (!key || !runtime.connected) return;
+    const work = workFor(key), submission = work.pending;
+    if (work.stopping) return;
+    if (submission && !submission.dispatched) {
+      submission.cancelled = true; work.pending = null;
+      if (!submission.previousDispatch) {
+        if (submission.kind === 'advisor') { ++work.ticket; applySupervision(key, work.supervision ? { ...work.supervision, busy: false, phase: 'cancelled' } : null); }
+        else { failedSubmissions.current.delete(key); applyRun({ ...work.run, busy: false, terminal: true, state: 'aborted' }, key); }
+        return;
+      }
+      if (submission.kind === 'advisor') {
+        ++work.ticket;
+        applySupervision(key, work.supervision ? { ...work.supervision, busy: false, phase: 'cancelled' } : null);
+      }
+      applyRun({ ...work.run, runId: submission.id, busy: true, terminal: false }, key);
+    }
+    work.stopping = true; setStopping(true);
     try {
-      await call("chat.abort", { sessionKey: key, runId });
-      if (failedSubmissions.current.get(key)?.id === runId) failedSubmissions.current.delete(key);
-      if (activeKeyRef.current === key && runRef.current.runId === runId) {
-        applyRun({ ...runRef.current, busy: false, terminal: true, state: "aborted" });
+      if (work.supervision?.busy) {
+        const ticket = work.ticket;
+        const result = await supervisionRequest<{ stopped: boolean }>({ action: 'supervision-cancel', key });
+        if (ticket !== work.ticket) return;
+        if (result.stopped) { ++work.ticket; applySupervision(key, { ...work.supervision, busy: false, phase: 'cancelled' }); }
+        else if (activeKeyRef.current === key) setNotice('Chưa xác nhận giám sát đã dừng. Hãy thử Dừng lại khi có kết nối.');
+      } else {
+        let runId = work.run.runId;
+        if (!work.run.busy) return;
+        if (!runId) {
+          const previous = work.run;
+          const history = await call<Record<string, unknown>>('chat.history', { sessionKey: key, limit: 1 });
+          if (work.run !== previous) return;
+          const recovered = recoverChatRun(previous, history);
+          applyRun(recovered, key);
+          if (!recovered.busy) return;
+          runId = recovered.runId ?? (recovered.activeRunIds?.length === 1 ? recovered.activeRunIds[0] : null);
+          if (!runId) { if (activeKeyRef.current === key) setNotice('Chưa xác định được lượt đang chạy để dừng. Hãy tải lại trạng thái rồi thử lại.'); return; }
+          applyRun({ ...recovered, runId }, key);
+        }
+        await call('chat.abort', { sessionKey: key, runId });
+        if (failedSubmissions.current.get(key)?.id === runId) failedSubmissions.current.delete(key);
+        if (work.run.runId === runId) applyRun({ ...work.run, busy: false, terminal: true, state: 'aborted' }, key);
         void loadHistory(key);
       }
-    } catch (error) { setNotice(String((error as Error)?.message ?? error)); }
-    finally { abortingRef.current = false; setStopping(false); }
-  }, [runtime.connected, applyRun, loadHistory]);
+    } catch (error) { if (activeKeyRef.current === key) setNotice(String((error as Error)?.message ?? error)); }
+    finally { work.stopping = false; if (activeKeyRef.current === key) setStopping(false); }
+  }, [runtime.connected, applyRun, loadHistory, workFor, applySupervision]);
 
   useEffect(() => {
-    if (!supervisionBusy) return;
-    const ticket = supervisionTicket.current;
+    if (!runtime.connected) return;
     let active = true, pending = false;
     const poll = async () => {
       if (pending) return; pending = true;
-      try { const next = await supervisionRequest<SupervisionState | null>({ action: 'supervision-status' }); if (active && ticket === supervisionTicket.current && next) setSupervision(next); }
-      catch { /* The owned request reports failure; polling never grants completion. */ } finally { pending = false; }
+      try {
+        await Promise.allSettled([...sessionWork.current.entries()].map(async ([key, work]) => {
+          if (work.supervision?.busy) {
+            const next = await supervisionRequest<SupervisionState | null>({ action: 'supervision-status', key });
+            if (active && next?.key === key && next.id === work.supervision?.id) applySupervision(key, next);
+          }
+          // Reconcile closed/background tabs too. Never overwrite events or a newer send.
+          if (!active || !work.run.busy || work.pending) return;
+          if (activeKeyRef.current === key) { await loadHistory(key); return; }
+          const previous = work.run;
+          const history = await call<Record<string, unknown>>('chat.history', { sessionKey: key, limit: 1 });
+          if (active && work.run === previous && !work.pending && activeKeyRef.current !== key)
+            applyRun(recoverChatRun(previous, history), key);
+        }));
+      } catch { /* A failed read never grants completion. */ } finally { pending = false; }
     };
-    void poll(); const timer = setInterval(() => void poll(), 1000);
+    const timer = setInterval(() => void poll(), 3000);
     return () => { active = false; clearInterval(timer); };
-  }, [supervisionBusy]);
+  }, [runtime.connected, activeKey, applyRun, applySupervision, loadHistory]);
 
   const availableModels = useMemo(() => availableChatModels(models), [models]);
   const historyReady = Boolean(activeKey) && historyReadyKey === activeKey;
@@ -1027,11 +1069,11 @@ function App() {
   openWebHandler.current = openWebUrl;
   const closeInformation = () => { setShowInformation(false); setDockTab('files'); filesTabRef.current?.focus(); };
   const canCreate = runtime.connected && runtime.setupReady && modelCatalogueState === "ready"
-    && availableModels.length > 0 && !busy && !opening && !changingModel;
+    && availableModels.length > 0 && !opening && !changingModel;
 
   const sidebarSessions = sessions.map(session => sessionProjects[session.key]
     ? { ...session, projectId: sessionProjects[session.key] } : session);
-  const navigationLocked = !runtime.connected || busy || opening || changingModel || supervisionBusy || skillsBusy || Boolean(deleteConfirmation);
+  const navigationLocked = !runtime.connected || opening || changingModel || Boolean(deleteConfirmation);
   const modelActive = !stopping && isModelActive({ connected: runtime.connected, activeKey, historyReady, run, supervision });
   const supervisionChoice = (activeKey && supervisionChoices[activeKey]) || { enabled: false,
     model: usage.model && usage.modelProvider ? { id: usage.model, provider: usage.modelProvider } : null };
@@ -1107,9 +1149,10 @@ function App() {
             {messages.length === 0 && !run.text ? <WorkspaceGuide stage={stage} onConnect={openConnect}
               onNewChat={() => void createSession()} onReload={reloadConnection} onReloadHistory={() => void reloadHistory()}
               actionDisabled={opening || changingModel || (stage.action === "retry-history" ? !runtime.connected : busy)} />
-              : messages.filter(message => message.content.trim()).map(message => <article key={message.id} className={"bubble bubble--" + message.role}>
+              : messages.filter(message => message.content.trim() || message.artifacts?.length).map(message => <article key={message.id} className={"bubble bubble--" + message.role}>
                 <span className="bubble__role">{message.role === "user" ? "Bạn" : message.role === "system" ? "Hệ thống" : "Trợ lý"}</span>
                 <MessageContent content={message.content} onOpenUrl={openMessageUrl} />
+                {activeKey && message.artifacts?.length ? <DeliveredFiles sessionKey={activeKey} files={message.artifacts} /> : null}
               </article>)}
             {run.text ? <article className="bubble bubble--assistant" aria-live="polite">
               <span className="bubble__role">Trợ lý</span><MessageContent content={run.text} onOpenUrl={openMessageUrl} />
@@ -1149,7 +1192,7 @@ function App() {
         <Composer key={activeKey ?? "no-session"} draft={draft} textSize={layout.textSize} onDraftChange={setDraft}
           onBrowseModels={refresh => { void browseModels(refresh); }} catalogueLoading={catalogueLoading} catalogueError={catalogueError}
           onSend={send} onStop={() => void abort()} canSubmit={canSubmit && !supervisionBusy} busy={busy || supervisionBusy}
-          stopping={stopping} stopDisabled={!runtime.connected || (!run.runId && !supervisionBusy)} disabled={!activeKey || opening}
+          stopping={stopping} stopDisabled={!runtime.connected} disabled={!activeKey || opening}
             models={models} usage={usage} modelsLoading={modelsLoading || !historyReady || !runtime.setupReady} paused={runtime.paused}
           changingModel={changingModel || supervisionBusy || skillsBusy} onChangeModel={changeModel} thinking={composerThinking} onChangeThinking={changeThinking}
           attachments={attachments} onAddFiles={addFiles} onRemoveFile={removeFile}
@@ -1206,13 +1249,13 @@ function App() {
                 pendingBusy={busy || supervisionBusy} reasoningInTranscript={reasoningInTranscript}
                 status={thinkingStatus({ activeKey, connected: runtime.connected, historyReady, run, supervision, pending: busy || supervisionBusy, stopping })}
                 onClose={() => { setRightHidden(true); document.getElementById('composer-input')?.focus(); }}
-                onStop={() => void abort()} stopping={stopping} stopDisabled={!runtime.connected || (!run.runId && !supervisionBusy)} />
+                onStop={() => void abort()} stopping={stopping} stopDisabled={!runtime.connected} />
             </div> : null}
         <WebPanel focusRequest={webFocus} visible={!approvalVisible && !rightHidden && !showInformation && dockTab === 'web' && !resizingPanels && !showConnect && !deleteConfirmation && workspaceView !== 'settings'} sessionKey={activeKey}
           expanded={browserExpanded} onExpand={() => setBrowserExpanded(old => !old)}
           disabled={busy || supervisionBusy || changingModel || opening || skillsBusy} onShare={text => { appendDraft(text); setWorkspaceView('chat'); }} />
       </div>
-      <details className="terminal-drawer"><summary>Lệnh trên máy · Duyệt từng lệnh</summary>
+      <details className="terminal-drawer"><summary>Lệnh trên máy · Duyệt theo phạm vi</summary>
         <p>Yêu cầu trợ lý thực hiện công việc trong cuộc chat. Mỗi lệnh cần anh duyệt trước khi chạy trực tiếp trên máy, không có sandbox.</p>
         <RunProgress run={{ ...run, progress: run.progress ? { ...run.progress, reasoning: '', plan: [], explanation: undefined, tools: run.progress.tools.filter(tool => ['exec', 'process'].includes(tool.name)) } : undefined }} connected={runtime.connected} presentation="full" />
       </details>
@@ -1223,7 +1266,7 @@ function App() {
     onBrowseModels={refresh => { void browseModels(refresh); }} catalogueLoading={catalogueLoading} catalogueError={catalogueError}
     layout={layout} projects={projects} sessionKey={activeKey} pending={changingModel || Boolean(activeKey && !historyReady)}
     modelDisabled={!runtime.connected || !runtime.setupReady || busy || opening || changingModel || supervisionBusy || skillsBusy}
-    dataDisabled={busy || opening || changingModel || supervisionBusy || skillsBusy}
+    dataDisabled={[...sessionWork.current.values()].some(work => work.run.busy || work.supervision?.busy || work.pending) || opening || changingModel || skillsBusy}
     onLayout={setLayout} onModel={model => void changeModel(model)} onClose={() => setWorkspaceView(settingsReturnView.current)}
     onConnect={openConnect} onNavigate={navigateWorkspace} onRetry={() => { void retryRuntimeStartup().catch(error => setNotice(String(error.message))); }}
     onRefreshInfo={async () => { if (!window.aiForBoss) throw new Error('Chưa có kết nối ứng dụng'); const current = await window.aiForBoss.getShellStatus(); setShell(current); }}

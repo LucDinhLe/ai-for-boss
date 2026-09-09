@@ -5,7 +5,11 @@ const digest = value => createHash('sha256').update(JSON.stringify(value)).diges
 
 export class ApprovalService {
   constructor(request) { this.request = request; }
-  async pending(id) {
+  async pending(id, sessionKey) {
+    if (sessionKey === undefined) {
+      const rows = await this.request('exec.approval.list', {});
+      sessionKey = Array.isArray(rows) ? rows.find(item => item.id === id)?.request?.sessionKey ?? null : null;
+    }
     const result = await this.request('approval.get', { id });
     if (!validateApprovalGetResult(result)) throw invalid();
     const row = result.approval;
@@ -14,7 +18,7 @@ export class ApprovalService {
     // Only the upstream reviewer-safe presentation crosses IPC. No env, cwd,
     // execution plan, raw argv or approval policy/socket credentials.
     if (p.commandText.length > 64000) throw invalid();
-    const view = { id: row.id, sessionKey: row.sourceSessionKey ?? null, command: p.commandText,
+    const view = { id: row.id, sessionKey: typeof sessionKey === 'string' ? sessionKey : row.sourceSessionKey ?? null, command: p.commandText,
       warning: p.warningText ?? null, host: p.host ?? null, agentId: p.agentId ?? null,
       expiresAtMs: row.expiresAtMs, canAllow: p.allowedDecisions.includes('allow-once') };
     return { ...view, revision: digest(view) };
@@ -26,7 +30,7 @@ export class ApprovalService {
       const approvals = [];
       for (const row of rows) {
         if (typeof row?.id !== 'string' || row.id.length > 512) throw invalid();
-        const view = await this.pending(row.id); if (view) approvals.push(view);
+        const view = await this.pending(row.id, row.request?.sessionKey ?? null); if (view) approvals.push(view);
       }
       return { approvals };
     }

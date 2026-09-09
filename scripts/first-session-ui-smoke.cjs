@@ -1,7 +1,7 @@
 /* Real production renderer/preload; every backend response below is a fixture.
  * No Gateway, provider, browser login or real user profile is opened. */
 /* global __dirname */
-const { app, BrowserWindow, WebContentsView, ipcMain, nativeTheme, session } = require("electron");
+const { app, BrowserWindow, WebContentsView, ipcMain, nativeTheme, session, clipboard, nativeImage, Menu } = require("electron");
 const { createServer } = require('node:http');
 const { writeFileSync, readFileSync, mkdirSync } = require("node:fs");
 const path = require("node:path");
@@ -13,7 +13,7 @@ const interactive = process.argv.includes('--interactive');
 // This fixture also runs on Windows hosts without a usable GPU process.
 app.disableHardwareAcceleration();
 const browserIntegration = process.argv.includes('--browser-workbench') || interactive;
-const output = path.join(root, process.argv.includes('--data-agents') ? 'artifacts/installation-data-agents' : process.argv.includes('--trial-release') ? 'artifacts/trial-release' : 'artifacts/connection-browser-cache-settings', interactive ? 'interactive-renderer.json' : browserIntegration ? 'native-renderer-browser.json' : 'renderer-fixture.json');
+const output = path.join(root, process.argv.includes('--multitasking') ? 'artifacts/session-multitasking' : process.argv.includes('--data-agents') ? 'artifacts/installation-data-agents' : process.argv.includes('--trial-release') ? 'artifacts/trial-release' : 'artifacts/connection-browser-cache-settings', interactive ? 'interactive-renderer.json' : browserIntegration ? 'native-renderer-browser.json' : 'renderer-fixture.json');
 let pendingApproval = null;
 let updateFixture = { currentVersion: '0.0.5-beta.31', availableVersion: null, readyVersion: null, autoCheck: true, autoDownload: false, busy: false, message: '' };
 let dataFixture = { settings: { enabled: true, everyDays: 1, retain: 3, includeWorkspace: false }, records: [], busy: false, message: '', startedAt: null, directory: 'Fixture backups' };
@@ -267,6 +267,10 @@ app.whenReady().then(async () => {
       return { status: packet.decision === 'deny' ? 'denied' : 'allowed' };
     }
     count('management.' + packet.action);
+    if (packet.action === 'artifact-save' && process.argv.includes('--multitasking')) {
+      assert.ok(histories.get(packet.key)?.some(m => m.openclawDisplayContent?.some(p => p.attachment?.artifactId === packet.artifactId)));
+      return { saved: true };
+    }
     if (packet.action === 'model-settings') return { revision: 'fixture', cacheRetention: 'short', catalogRefresh: true };
     if (packet.action === 'model-settings-save') return { ...packet, revision: 'fixture-saved', applied: true };
     if (packet.action === 'ui-theme') return import('../apps/desktop/electron/ui-theme.mjs').then(({ applyUiTheme }) => applyUiTheme(packet, nativeTheme));
@@ -680,6 +684,75 @@ app.whenReady().then(async () => {
   await until(() => evaluate("document.querySelector('[data-workspace-stage]')?.dataset.workspaceStage === 'ready'"), "connect complete automatically opens usable chat in same window");
   checks.push("native OAuth option, device URL/code, user-click browser bridge, masked sensitive step/multiselect, automatic finishing poll with no answer, done modelActivation and account status readback");
 
+  if (process.argv.includes('--multitasking')) {
+    subscriptionFailed = true; historyFailed = true;
+    await fill('#composer-input', 'Task A'); await click('Gửi');
+    await until(() => Promise.resolve(activeRuns.size === 1), 'A running');
+    const a = { ...latestSend };
+    await click('Phiên mới');
+    await until(() => evaluate("Boolean(document.querySelector('#composer-input:not(:disabled)'))"), 'B ready');
+    await fill('#composer-input', 'Task B'); await click('Gửi');
+    await until(() => Promise.resolve(activeRuns.size === 2), 'two concurrent tasks');
+    const b = { ...latestSend }; assert.notEqual(a.key, b.key);
+    pendingApproval = { id:'parallel-approval', revision:'fixture', command:'node fixture.cjs', sessionKey:a.key,
+      agentId:'main', host:'gateway', expiresAtMs:Date.now()+60000, canAllow:true };
+    window.webContents.send('aifb:gateway-event', {event:'exec.approval.requested',payload:{}});
+    await until(() => evaluate("Boolean(document.querySelector('.approval-pending'))"), 'nonblocking approval badge');
+    assert.equal(await evaluate("document.querySelectorAll(':modal').length"), 0);
+    await clickSelector('.approval-pending'); await click('Thu gọn · tiếp tục công việc khác');
+    await fill('#composer-input', 'Next B');
+    assert.equal(await evaluate("document.querySelector('#composer-input').value"), 'Next B');
+    await click('Dừng'); await until(() => Promise.resolve(!activeRuns.has(b.key)), 'only B stopped');
+    assert.equal(activeRuns.get(a.key), a.runId);
+    await clickSelector('.approval-pending'); await click('Từ chối');
+    await until(() => Promise.resolve(pendingApproval === null), 'exact approval resolved');
+    await clickSelector('.sidebar-session[data-session-key="' + a.key + '"] button');
+    await until(() => evaluate("Array.from(document.querySelectorAll('button')).some(b=>b.textContent.trim()==='Dừng')"), 'A remains running');
+    histories.get(a.key).push({ role:'assistant', content:'File ready', openclawDisplayContent:[{type:'attachment',attachment:{
+      artifactId:'artifact_managed_media_11111111-1111-4111-8111-111111111111',label:'fixture.docx',sizeBytes:3614
+    }}] });
+    activeRuns.delete(a.key);
+    await until(() => evaluate("!Array.from(document.querySelectorAll('button')).some(b=>b.textContent.trim()==='Dừng')"), 'idle poll reconciles missed final');
+    await until(() => evaluate("Boolean(document.querySelector('.delivered-files button'))"), 'native attachment card');
+    await clickSelector('.delivered-files button'); await hasText('Đã lưu tệp vào vị trí anh chọn.');
+    assert.equal(counts['management.artifact-save'],1);
+    checks.push('Native attachment metadata retained; Save sends exact session/artifact identity and renders acknowledged result');
+    checks.push('Two concurrent tasks; new session enabled; approval nonmodal; Stop B preserves A; native idle clears missed final event');
+    if(process.argv.includes('--clipboard-event-only')) {
+      const png=readFileSync(path.join(root,'apps/desktop/electron/assets/icon-256.png')).toString('base64');
+      await evaluate(`(() => { const d=new DataTransfer();d.items.add(new File([Uint8Array.from(atob('${png}'),c=>c.charCodeAt(0))],'pasted.png',{type:'image/png'}));document.querySelector('#composer-input').dispatchEvent(new ClipboardEvent('paste',{bubbles:true,clipboardData:d})); })()`);
+      await until(()=>evaluate("document.querySelectorAll('.composer__attachment').length>0"),'clipboard image event draft');
+      checks.push('Synthetic clipboard event creates attachment draft; native OS clipboard NOT verified (host access denied)');
+      await capture('multitasking.png');finish(0);return;
+    }
+    const oldClipboard = { text:clipboard.readText(), html:clipboard.readHTML(), rtf:clipboard.readRTF(), image:clipboard.readImage() };
+    const oldBookmark = clipboard.readBookmark(); if (oldBookmark.url) oldClipboard.bookmark = oldBookmark.title;
+    try {
+      const { installEditMenu } = await import(pathToFileURL(path.join(root, 'apps/desktop/electron/edit-menu.mjs')));
+      let pasteMenu;
+      installEditMenu(window, { buildFromTemplate(template) { const menu = Menu.buildFromTemplate(template); pasteMenu = menu; return { popup() {} }; } });
+      const sample=nativeImage.createFromBitmap(Buffer.alloc(32*32*4,255),{width:32,height:32});
+      assert.equal(sample.isEmpty(),false);
+      clipboard.writeImage(sample);
+      await until(()=>Promise.resolve(!clipboard.readImage().isEmpty()),'OS clipboard image available');
+      window.show(); window.focus(); window.webContents.focus();
+      await until(()=>Promise.resolve(window.webContents.isFocused()),'clipboard fixture window focus');
+      await wait(150);
+      await evaluate("document.querySelector('#composer-input').focus()");
+      const sendsBefore = counts['chat.send'] ?? 0;
+      window.webContents.sendInputEvent({type:'keyDown',keyCode:'V',modifiers:['control']});
+      window.webContents.sendInputEvent({type:'keyUp',keyCode:'V',modifiers:['control']});
+      await until(() => evaluate("document.querySelectorAll('.composer__attachment').length > 0"), 'OS clipboard keyboard image draft');
+      const beforeMouse = await evaluate("document.querySelectorAll('.composer__attachment').length");
+      window.webContents.emit('context-menu', {}, { isEditable:true,frame:window.webContents.mainFrame });
+      assert.ok(pasteMenu.items.some(item => item.role === 'paste'));
+      pasteMenu.items.find(item => item.role === 'paste').click(undefined, window, window.webContents);
+      await until(() => evaluate("document.querySelectorAll('.composer__attachment').length") .then(n => n > beforeMouse), 'native mouse Paste image draft');
+      assert.equal(counts['chat.send'] ?? 0, sendsBefore);
+      checks.push('Actual OS clipboard image pasted by Ctrl+V and native Paste role, draft only');
+    } finally { clipboard.write(oldClipboard); }
+    await capture('multitasking.png'); finish(0); return;
+  }
   assert.equal(await evaluate("Boolean(document.querySelector('#files-panel'))"), true, 'files are visible at initial startup');
   for (const width of [1440, 980]) {
     window.setContentSize(width, 900); await wait(80);
@@ -1541,10 +1614,7 @@ app.whenReady().then(async () => {
   await until(() => evaluate("document.querySelector('.agents-control').open"), 'agent menu opened');
   await evaluate("document.querySelector('#composer-input').dispatchEvent(new PointerEvent('pointerdown', {bubbles:true}))");
   assert.equal(await evaluate("document.querySelector('.agents-control').open"), false);
-  await click('Chụp màn hình'); await until(() => evaluate("Boolean(document.querySelector('.screen-capture-picker img'))"), 'screenshot preview');
-  await click('Màn hình thử'); await until(() => evaluate("Boolean(document.querySelector('.composer__attachment--ready'))"), 'screenshot enters draft');
-  await evaluate("document.querySelector('.composer__remove').click()");
-  await until(() => evaluate("!document.querySelector('.composer__attachment')"), 'screenshot removed');
+  assert.equal(await evaluate("document.body.innerText.includes('Chụp màn hình')"), false);
   await evaluate("(() => { const d = new DataTransfer(); d.items.add(new File([Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aN1cAAAAASUVORK5CYII='), c => c.charCodeAt(0))], 'pasted.png', {type:'image/png'})); document.querySelector('#composer-input').dispatchEvent(new ClipboardEvent('paste', {bubbles:true, clipboardData:d})); })()");
   await until(() => evaluate("Boolean(document.querySelector('.composer__attachment--ready'))"), 'pasted image enters draft');
   await evaluate("document.querySelector('.composer__remove').click()");
@@ -1776,14 +1846,18 @@ app.whenReady().then(async () => {
     pendingApproval = { id: 'synthetic-command', revision: 'fixture-revision', command: 'node fixture.cjs', sessionKey: originalKeys[0],
       warning: null, agentId: 'fixture', host: 'gateway', expiresAtMs: Date.now() + 60000, canAllow: true };
     window.webContents.send('aifb:gateway-event', { event: 'exec.approval.requested', payload: { changed: true } });
-    await until(() => evaluate("Boolean(document.querySelector('.approval-dialog:modal'))"), 'approval is modal');
+    if (!await evaluate("Boolean(document.querySelector('.approval-dialog'))")) {
+      await until(() => evaluate("Boolean(document.querySelector('.approval-pending'))"), 'approval pending');
+      await clickSelector('.approval-pending');
+    }
+    assert.equal(await evaluate("document.querySelectorAll(':modal').length"), 0);
     assert.equal(await evaluate("document.querySelector('.approval-dialog').innerText.includes('Không có sandbox')"), true);
     assert.equal(await evaluate("document.querySelector('.approval-dialog pre').textContent"), 'node fixture.cjs');
-    assert.equal(await evaluate("document.querySelectorAll('.approval-dialog button').length"), 2);
+    assert.equal(await evaluate("document.querySelectorAll('.approval-dialog button').length"), 3);
     await click(decision); await until(() => evaluate("!document.querySelector('.approval-dialog')"), 'approval closes after response');
     assert.equal(pendingApproval, null);
   }
-  checks.push('production approval dialog shows full command and no-sandbox notice, offers only deny/allow-once, and closes after backend response');
+  checks.push('production nonmodal approval panel shows full command/no-sandbox notice, offers collapse/deny/allow-once and closes after response');
   finish(0);
 }).catch(async error => {
   if (window && !window.isDestroyed()) {
@@ -1803,7 +1877,7 @@ function finish(code, error) {
   nativeTabs?.dispose(); browserServer?.close();
   mkdirSync(path.dirname(output), { recursive: true });
   const rendererAssets = [...readFileSync(path.join(root, "apps/desktop/dist/index.html"), "utf8").matchAll(/(?:src|href)="\.\/assets\/([^"]+)"/g)].map(match => match[1]);
-  const record = { recordedAt: new Date().toISOString(), scope: "Real renderer and preload with simulated local IPC responses; NOT a real AI response or account login",
+  const record = { nativeClipboardVerified: process.argv.includes('--multitasking') && !process.argv.includes('--clipboard-event-only') && code===0, recordedAt: new Date().toISOString(), scope: "Real renderer and preload with simulated local IPC responses; NOT a real AI response or account login",
     rendererAssets, checks, counts, networkAttempts, ...(pointerDiagnostic ? { pointerDiagnostic } : {}), ...(motionDiagnostic ? { motionDiagnostic } : {}), modelPopupDiagnostics, realWebContentsView: browserIntegration, simulatedWebsite: browserIntegration, gatewayStarted: false, realProviderCalls: 0, failures: error ? [String(error.stack ?? error)] : [] };
   writeFileSync(output, JSON.stringify(record, null, 2) + "\n");
   console.log(`[first-session UI fixture] ${code ? "FAIL" : "PASS"}: ${checks.length} scenarios; ${output}`);

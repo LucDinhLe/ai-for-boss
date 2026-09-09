@@ -28,6 +28,8 @@ const baseAsar = path.join(base, 'resources/app.asar');
 if (await hash(baseAsar) !== arg('--expected-asar')) throw new Error('Base archive identity mismatch');
 const coreVersion = JSON.parse(await readFile(path.join(base, 'resources/node_modules/openclaw/package.json'), 'utf8')).version;
 if (coreVersion !== '2026.9.1') throw new Error('Core version differs');
+const documentSource = path.join(app,'resources/document-tools');
+await access(path.join(documentSource,'index.mjs'));
 const channelSource = path.join(app, 'resources/bundle/channel-installer');
 const channelReceipt = await verifyChannelInstaller(channelSource);
 const runtimePin = JSON.parse(await readFile(path.join(root, 'manifests/runtime/bundled-runtime.lock.json'), 'utf8'));
@@ -88,6 +90,7 @@ if (refresh && channelTarget !== legacyChannelTarget) {
     await rename(legacyChannelTarget, channelTarget);
   }
 }
+await cp(documentSource,path.join(target,'resources/document-tools'),{recursive:true});
 await cp(channelSource, channelTarget, { recursive: true });
 const channelTargetInventory = await verifyChannelInstaller(channelTarget);
 const channelSourceAfter = await verifyChannelInstaller(channelSource);

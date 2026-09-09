@@ -39,6 +39,7 @@ jobs:
           node-version: '24.19.0'
       - run: npm install --global corepack --force
       - run: corepack pnpm install --frozen-lockfile
+      - run: corepack pnpm run documents:install
       - run: corepack pnpm run verify
 `);
 console.log(JSON.stringify({ target, copied, historyIncluded: false, recordingsIncluded: false }));

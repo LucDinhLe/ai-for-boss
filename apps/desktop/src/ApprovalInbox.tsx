@@ -6,7 +6,8 @@ type Approval = { id: string; sessionKey: string | null; command: string; warnin
 
 export default function ApprovalInbox({ ready, onVisibility }: { ready: boolean; onVisibility(value: boolean): void }) {
   const [rows, setRows] = useState<Approval[]>([]), [message, setMessage] = useState(''), [busy, setBusy] = useState(false);
-  const epoch = useRef(0), lock = useRef(false), dialog = useRef<HTMLDialogElement>(null);
+  const epoch = useRef(0), lock = useRef(false);
+  const [expanded, setExpanded] = useState(false);
   const refresh = useRef<() => Promise<void>>(async () => {});
   useEffect(() => {
     let active = true, reading = false;
@@ -25,8 +26,8 @@ export default function ApprovalInbox({ ready, onVisibility }: { ready: boolean;
     return () => { active = false; clearInterval(timer); unsubscribe(); };
   }, [ready]);
   const visible = ready && rows.length > 0;
-  useEffect(() => { onVisibility(visible); if (visible && !dialog.current?.open) dialog.current?.showModal();
-    return () => { onVisibility(false); }; }, [visible, onVisibility]);
+  useEffect(() => { onVisibility(visible && expanded);
+    return () => { onVisibility(false); }; }, [visible, expanded, onVisibility]);
   const resolve = async (row: Approval, decision: 'allow-once' | 'deny') => {
     if (lock.current || !ready) return;
     lock.current = true; ++epoch.current; setBusy(true); setMessage('');
@@ -39,7 +40,9 @@ export default function ApprovalInbox({ ready, onVisibility }: { ready: boolean;
   };
   if (!visible) return null;
   const row = rows[0];
-  return <dialog className="approval-dialog" ref={dialog} aria-labelledby="approval-title" onCancel={event => event.preventDefault()}>
+  if (!expanded) return <button className="approval-pending" onClick={() => setExpanded(true)}>{rows.length} lệnh chờ duyệt</button>;
+  return <section className="approval-dialog" role="region" aria-labelledby="approval-title">
+    <button onClick={() => setExpanded(false)}>Thu gọn · tiếp tục công việc khác</button>
     <h2 id="approval-title">Duyệt lệnh trên máy</h2>
     <p>Lệnh chạy trực tiếp với quyền tài khoản Windows của anh. Không có sandbox.</p>
     <p>Agent: {row.agentId || 'Chưa rõ'} · Máy thực thi: {row.host || 'Chưa rõ'} · {rows.length} yêu cầu chờ</p>
@@ -49,5 +52,5 @@ export default function ApprovalInbox({ ready, onVisibility }: { ready: boolean;
     <div className="approval-actions"><button disabled={busy || !ready} onClick={() => void resolve(row, 'deny')}>Từ chối</button>
       <button disabled={busy || !ready || !row.canAllow} onClick={() => void resolve(row, 'allow-once')}>Cho phép lần này</button></div>
     {message && <p role="status">{message}</p>}
-  </dialog>;
+  </section>;
 }

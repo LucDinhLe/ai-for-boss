@@ -58,7 +58,7 @@ async function hashFile(filePath) {
  */
 const stagedRoot = path.join(appDirectory, "resources");
 const stagedSummaryPath = path.join(stagedRoot, "staged-runtime.json");
-const extraResources = [];
+const extraResources = [path.join(appDirectory,'resources/document-tools')];
 let stagedRuntime = null;
 let channelSource = null;
 

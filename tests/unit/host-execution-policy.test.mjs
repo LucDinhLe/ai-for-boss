@@ -23,11 +23,11 @@ function fixture(override = {}) {
 }
 test('host floor is applied and read back before exposing tools; existing agent overrides are tightened', async () => {
   const f = fixture();
-  assert.deepEqual(await f.policy.ensure(key), { verified: true, permissionMode: 'guarded', approval: 'every-command', sandbox: false });
+  assert.deepEqual(await f.policy.ensure(key), { verified: true, permissionMode: 'workspace', approval: 'native-auto-with-human-fallback', sandbox: false });
   assert.deepEqual(f.calls.slice(0, 3).map(x => x.method), ['exec.approvals.get', 'exec.approvals.set', 'exec.approvals.get']);
   const file = f.calls[1].params.file;
   assert.deepEqual(file.defaults, file.agents.prior);
-  assert.equal(file.defaults.ask, 'always'); assert.equal(file.defaults.askFallback, 'deny');
+  assert.equal(file.defaults.ask, 'on-miss'); assert.equal(file.defaults.askFallback, 'deny');
   const patch = f.calls.find(x => x.method === 'config.patch').params;
   assert.deepEqual(JSON.parse(patch.raw).tools.deny, ['browser']);
   assert.equal(JSON.parse(patch.raw).tools.elevated.enabled, false);

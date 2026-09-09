@@ -1,7 +1,7 @@
 {
   "name": "@aifb/desktop",
   "productName": "AI for Boss",
-  "version": "0.0.5-beta.32",
+  "version": "0.0.5-beta.33",
   "author": "AI for Boss",
   "private": true,
   "type": "module",

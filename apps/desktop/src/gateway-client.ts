@@ -64,6 +64,7 @@ export type TranscriptMessage = {
   timestamp: number;
   pending?: boolean;
   error?: boolean;
+  artifacts?: { artifactId: string; label: string; sizeBytes?: number }[];
 };
 
 export const IDLE_STATUS: RuntimeStatus = {
@@ -125,6 +126,7 @@ type RawMessage = {
   content?: unknown;
   timestamp?: number;
   isReasoning?: boolean;
+  openclawDisplayContent?: unknown;
   __openclaw?: { id?: string; seq?: number };
 };
 
@@ -156,13 +158,20 @@ export function toTranscriptMessage(raw: RawMessage, fallbackId: string): Transc
       return typeof part.thinking === "string" ? [part.thinking] : typeof part.text === "string" ? [part.text] : [];
     }).join("\n").slice(0, 24_000) : "" : "";
   const content = raw.isReasoning === true ? "" : readText(raw.content);
-  if (!content && !reasoning) return null;
+  const attachmentParts = [...(Array.isArray(raw.openclawDisplayContent) ? raw.openclawDisplayContent : []), ...(Array.isArray(raw.content) ? raw.content : [])];
+  const artifacts = attachmentParts.flatMap(part => {
+    const a = part?.type === 'attachment' ? part.attachment : null;
+    return a && typeof a.artifactId === 'string' && /^artifact_managed_media_[0-9a-f-]{36}$/u.test(a.artifactId) && typeof a.label === 'string'
+      ? [{ artifactId: a.artifactId, label: a.label.slice(0, 240), ...(Number.isSafeInteger(a.sizeBytes) && a.sizeBytes >= 0 ? { sizeBytes: a.sizeBytes } : {}) }] : [];
+  }).filter((a,index,all)=>all.findIndex(other=>other.artifactId===a.artifactId)===index).slice(0,20);
+  if (!content && !reasoning && !artifacts.length) return null;
   return {
     id: fallbackId,
     anchorId: typeof raw.__openclaw?.id === "string" && raw.__openclaw.id ? raw.__openclaw.id : undefined,
     anchorSeq: Number.isSafeInteger(raw.__openclaw?.seq) && (raw.__openclaw?.seq ?? 0) > 0 ? raw.__openclaw!.seq : undefined,
     role,
     content,
+    ...(artifacts.length ? { artifacts } : {}),
     ...(reasoning ? { reasoning } : {}),
     timestamp: typeof raw.timestamp === "number" ? raw.timestamp : Date.now()
   };

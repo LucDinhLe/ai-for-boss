@@ -41,7 +41,7 @@ const selectedWord = () => {
     arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) };
 };
 function harness({ models = [fixtureModel], setupReady = true, projects = [], listProjects = async () => projects, startInChat = false } = {}) {
-  const requests = [], handlers = {}, hooks = [], effects = [], listeners = new Set(), focusEvents = [];
+  const requests = [], handlers = {}, hooks = [], effects = [], listeners = new Set(), focusEvents = [], timers = new Set();
   let cursor = 0, effectCursor = 0, dirty = false, view, nextId = 0;
   let runtime = { connected: true, setupReady, supervisor: "ready", detail: null,
     attachmentPolicy: { maxBytes: 20 * 1024 * 1024, maxImageBytes: 6 * 1024 * 1024, maxPayload: 25 * 1024 * 1024 } };
@@ -60,7 +60,7 @@ function harness({ models = [fixtureModel], setupReady = true, projects = [], li
       return { projects: [], sessions: {} };
     },
     listProjects: async () => { requests.push({ method: "projects.list", params: {} }); return listProjects(); },
-    setInterval: () => 0, clearInterval: () => {},
+    setInterval: callback => { timers.add(callback); return callback; }, clearInterval: callback => timers.delete(callback),
     supervisionRequest: async packet => { requests.push({method:packet.action,params:packet}); return handlers[packet.action] ? handlers[packet.action](packet) : null; },
     document: { documentElement: { dataset: {} }, getElementById: (id) => {
 
@@ -109,7 +109,7 @@ function harness({ models = [fixtureModel], setupReady = true, projects = [], li
   // Lifecycle regressions start in Settings, then explicitly choose a session.
   // Startup tests below exercise the real default chat landing and auto-open.
   if (!startInChat) view.navigateWorkspace('settings');
-  return { requests, handlers, focusEvents, flush, get view() { return view; },
+  return { requests, handlers, focusEvents, flush, tick: async () => { for (const callback of timers) callback(); await flush(); }, get view() { return view; },
     runtime: async (patch) => { runtime = { ...runtime, ...patch }; render(); await flush(); },
     event: async (payload, event = "chat") => { for (const listener of listeners) listener({ event, payload }); await flush(); },
     edit: async (text) => { view.setDraft(text); await flush(); },
@@ -501,23 +501,23 @@ test("current negotiated limits and encoded frame size are rechecked before disp
   assert.equal(h.requests.some(({ method }) => method === "sessions.send"), false);
 });
 
-test("real send handler fences double clicks, keeps ACK busy, and cannot switch sessions mid-run", async () => {
+test("delayed ACK stays with its session while another session remains editable", async () => {
   const h = harness(), ack = deferred();
   h.handlers["sessions.send"] = () => ack.promise;
   await h.flush(); await h.open("session-a"); await h.edit("Hello");
   const first = h.view.send({ preventDefault() {} });
   await h.view.send({ preventDefault() {} });
-  h.view.openSession("session-b"); await h.view.createSession(); await h.flush();
+  await h.open("session-b"); await h.edit("Draft B");
   const sends = h.requests.filter((entry) => entry.method === "sessions.send");
   assert.equal(sends.length, 1);
   assert.ok(sends[0].params.idempotencyKey);
-  assert.equal(h.view.activeKey, "session-a");
-  assert.equal(h.requests.some((entry) => entry.method === "sessions.create"), false);
+  assert.equal(h.view.activeKey, "session-b");
   assert.equal(h.view.messages.length, 0, "admission does not invent a persisted user row");
   ack.resolve({ status: "started", runId: sends[0].params.idempotencyKey }); await first; await h.flush();
-  assert.equal(h.view.busy, true); assert.equal(h.view.draft, "");
+  assert.equal(h.view.busy, false); assert.equal(h.view.draft, "Draft B");
   await h.event({ sessionKey: "session-a", runId: sends[0].params.idempotencyKey, seq: 1, state: "error", errorMessage: "fixture" });
   assert.equal(h.view.busy, false);
+  await h.open('session-a'); assert.equal(h.view.draft, '');
 });
 
 test("template and review text append through the real draft handler without dispatching AI", async () => {
@@ -546,20 +546,22 @@ test("inserting Advisor feedback from a native page returns to the selected chat
   assert.equal(h.requests.length, before, "inserting advice does not dispatch AI or change the native session");
 });
 
-test('automatic Advisor sends the current request and selected models once, keeps controls locked until settled, and clears only accepted drafts', async () => {
+test('automatic Advisor owns only its session and clears only its accepted draft', async () => {
   const h=harness(), response=deferred(); await h.flush(); await h.open('session-a'); await h.edit('Hãy lập kế hoạch');
   h.view.setSupervisionChoices({'session-a':{enabled:true,model:{id:'reviewer',provider:'connected'}}}); await h.flush();
   h.handlers.supervise=()=>response.promise;
   const sending=h.view.send({preventDefault(){}}); await h.flush();
   assert.equal(h.view.supervisionBusy,true);
   await h.view.send({preventDefault(){}}); await h.open('session-b');
-  assert.equal(h.view.activeKey,'session-a');
+  assert.equal(h.view.activeKey,'session-b');
+  assert.equal(h.view.supervisionBusy,false); await h.edit('Draft B');
   const calls=h.requests.filter(r=>r.method==='supervise'); assert.equal(calls.length,1);
   assert.equal(calls[0].params.message,'Hãy lập kế hoạch');
   assert.equal(calls[0].params.advisorModel.id,'reviewer'); assert.equal(calls[0].params.model.id,'fixture');
   assert.equal(h.requests.some(r=>r.method==='sessions.send'),false);
   response.resolve({id:calls[0].params.id,key:'session-a',busy:false,accepted:true,phase:'completed'});
-  await sending; await h.flush(); assert.equal(h.view.draft,''); assert.equal(h.view.supervisionBusy,false);
+  await sending; await h.flush(); assert.equal(h.view.draft,'Draft B'); assert.equal(h.view.supervisionBusy,false);
+  await h.open('session-a'); assert.equal(h.view.draft,''); assert.equal(h.view.supervisionBusy,false);
 });
 
 test('Advisor off uses ordinary send, while a rejected plan preserves the request without a manual form', async () => {
@@ -1193,14 +1195,50 @@ test('Thinking dock opens alongside chat during an active run or lost connection
   assert.equal(h.view.workspaceView, 'chat'); assert.equal(h.view.dockTab, 'thinking'); assert.equal(h.view.rightHidden, false); assert.equal(h.view.activeKey, 'session-a');
 });
 
-test("closing an inactive tab keeps the current draft and all tabs remain protected during a run", async () => {
+test("closing tabs during a run preserves drafts without aborting native work", async () => {
   const h = harness(); await h.flush(); await h.open("session-a"); await h.edit("A");
   await h.open("session-b"); await h.edit("B");
   h.view.closeTab("session-a"); await h.flush();
   assert.equal(h.view.activeKey, "session-b"); assert.equal(h.view.draft, "B");
   await h.open("session-a"); assert.equal(h.view.draft, "A");
   await h.event({ sessionKey: "session-a", runId: "native-run", seq: 1, state: "delta", deltaText: "Working" });
-  h.view.closeTab("session-b"); h.view.closeTab("session-a"); await h.view.changeThinking("high"); await h.flush();
-  assert.equal(h.view.busy, true); assert.equal(h.view.activeKey, "session-a"); assert.equal(h.view.openKeys.length, 2);
+  h.view.closeTab("session-b"); await h.flush(); h.view.closeTab("session-a"); await h.flush(); await h.view.changeThinking("high"); await h.flush();
+  assert.equal(h.view.activeKey, null); assert.equal(h.view.openKeys.length, 0);
   assert.equal(h.requests.some(({ method }) => ["chat.abort", "sessions.patch"].includes(method)), false);
+});
+
+test('two native tasks run concurrently; Stop B never aborts A and delayed A ACK preserves B draft', async () => {
+  const h = harness(), a = deferred(), b = deferred();
+  h.handlers['sessions.send'] = p => p.key === 'session-a' || p.sessionKey === 'session-a' ? a.promise : b.promise;
+  await h.flush(); await h.open('session-a'); await h.edit('Task A');
+  const sendingA = h.view.send({ preventDefault() {} }); await h.flush();
+  await h.open('session-b'); await h.edit('Task B');
+  const sendingB = h.view.send({ preventDefault() {} }); await h.flush();
+  const sends = h.requests.filter(r => r.method === 'sessions.send'); assert.equal(sends.length, 2);
+  b.resolve({ status: 'started', runId: sends[1].params.idempotencyKey }); await sendingB; await h.flush();
+  await h.edit('Next B'); a.resolve({ status: 'started', runId: sends[0].params.idempotencyKey }); await sendingA; await h.flush();
+  assert.equal(h.view.activeKey, 'session-b'); assert.equal(h.view.draft, 'Next B'); assert.equal(h.view.busy, true);
+  await h.view.abort(); await h.flush();
+  const aborts = h.requests.filter(r => r.method === 'chat.abort'); assert.equal(aborts.length, 1);
+  assert.equal(aborts[0].params.sessionKey, 'session-b'); assert.equal(aborts[0].params.runId, sends[1].params.idempotencyKey);
+  h.handlers['chat.history'] = p => ({ messages: [], inFlightRun: p.sessionKey === 'session-a' ? { runId: sends[0].params.idempotencyKey } : null });
+  await h.open('session-a'); assert.equal(h.view.busy, true); assert.equal(h.view.draft, '');
+});
+
+test('native idle readback clears a missing final event; failed read never claims completion', async () => {
+  const h = harness(); await h.flush(); await h.open('session-a');
+  await h.event({ sessionKey: 'session-a', runId: 'native', seq: 1, state: 'delta', deltaText: 'Working' });
+  assert.equal(h.view.busy, true);
+  h.handlers['chat.history'] = async () => { throw new Error('offline'); };
+  await h.tick(); assert.equal(h.view.busy, true);
+  h.handlers['chat.history'] = () => ({ messages: [row('Finished')], sessionInfo: { hasActiveRun: false } });
+  await h.tick(); assert.equal(h.view.busy, false);
+});
+
+test('Stop recovers an exact native run ID when only aggregate activity was known', async () => {
+  const h=harness(); await h.flush();
+  h.handlers['chat.history']=()=>({messages:[],sessionInfo:{hasActiveRun:true,activeRunIds:['owned-native']}});
+  await h.open('session-a'); assert.equal(h.view.busy,true); assert.equal(h.view.run.runId,null);
+  h.handlers['chat.abort']=p=>{assert.equal(p.sessionKey,'session-a');assert.equal(p.runId,'owned-native');h.handlers['chat.history']=()=>({messages:[],sessionInfo:{hasActiveRun:false}});return {ok:true};};
+  await h.view.abort();await h.flush();assert.equal(h.view.busy,false);
 });
