@@ -2,11 +2,11 @@
 
 Ứng dụng desktop xây trên OpenClaw. Đây là bản thử nghiệm cho nhóm nhỏ, chưa phải bản ổn định.
 
-[Tải bộ cài Windows beta35](https://github.com/LucDinhLe/ai-for-boss-preview/releases/download/0.0.5-beta.35/AI-for-Boss-0.0.5-beta.35-Setup.exe) · [Ghi chú và mã SHA256](https://github.com/LucDinhLe/ai-for-boss-preview/releases/tag/0.0.5-beta.35).
+[Tải bộ cài Windows beta35 (sửa 2)](https://github.com/LucDinhLe/ai-for-boss-preview/releases/download/0.0.5-beta.35/AI-for-Boss-0.0.5-beta.35-Setup-r2.exe) · [Ghi chú và mã SHA256](https://github.com/LucDinhLe/ai-for-boss-preview/releases/tag/0.0.5-beta.35).
 
 ## Cài và dùng thử
 
-1. Tải `AI-for-Boss-0.0.5-beta.35-Setup.exe`, đối chiếu SHA256 trong cùng release rồi chạy bộ cài.
+1. Tải `AI-for-Boss-0.0.5-beta.35-Setup-r2.exe`, đối chiếu SHA256 trong cùng release rồi chạy bộ cài.
 2. Mở lối tắt AI for Boss. Kết nối tài khoản của chính bạn trong Cài đặt → Nhà cung cấp. Quyền truy cập mô hình phụ thuộc nhà cung cấp và gói tài khoản; có trong danh mục không đồng nghĩa đã dùng được.
 3. Tạo cuộc trò chuyện hoặc dự án. Tác vụ xuất tài liệu thông thường dùng công cụ có sẵn. Lệnh tùy ý trên máy vẫn có thể yêu cầu “Cho phép lần này” hoặc “Từ chối” khi lõi chưa xác nhận được phạm vi.
 
