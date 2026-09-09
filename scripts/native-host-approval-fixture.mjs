@@ -15,7 +15,7 @@ async function worker(root, resources) {
   const { GatewaySupervisor } = await import('../apps/desktop/electron/supervisor.mjs');
   const { SetupChannel } = await import('../apps/desktop/electron/setup-channel.mjs');
   const { waitForGatewayListener } = await import('../apps/desktop/electron/startup-listener.mjs');
-  let client, requests = 0, child, token = ''; const toolResults = [];
+  let client, requests = 0, child, token = '', collaboration = null; const toolResults = [], advertised = new Set();
   const logs = [], remember = value => { logs.push(String(value)); if (logs.length > 12) logs.shift(); };
   const key = 'agent:fixture:aifb-host-approval';
   const script = path.join(root, 'workspace', 'approval-marker.cjs');
@@ -25,13 +25,15 @@ async function worker(root, resources) {
   const server = createServer(async (request, response) => {
     let raw = ''; for await (const chunk of request) raw += chunk;
     const body = JSON.parse(raw); requests++;
-    if (requests > 12) { response.writeHead(429); response.end(); return; }
+    if (requests > 30) { response.writeHead(429); response.end(); return; }
+    for (const tool of body.tools ?? []) advertised.add(tool.function?.name);
     const lastUser = body.messages.findLastIndex(item => item.role === 'user');
-    const done = body.messages.slice(lastUser + 1).some(item => item.role === 'tool');
-    if (done) toolResults.push(body.messages.slice(lastUser + 1).filter(item => item.role === 'tool'));
+    const peerTask = JSON.stringify(body.messages[lastUser]?.content).includes('PEER_FIXTURE_TASK');
+    const done = peerTask || body.messages.slice(lastUser + 1).some(item => item.role === 'tool');
+    if (done && body.messages.slice(lastUser + 1).some(item => item.role === 'tool')) toolResults.push(body.messages.slice(lastUser + 1).filter(item => item.role === 'tool'));
     response.writeHead(200, { 'Content-Type': 'text/event-stream' });
     const delta = done ? { content: 'Fixture completed.' } : { tool_calls: [{ index: 0, id: 'call-' + randomUUID(), type: 'function',
-      function: { name: 'exec', arguments: JSON.stringify({ command, workdir: path.join(root, 'workspace'), yieldMs: 1000 }) } }] };
+      function: collaboration ?? { name: 'exec', arguments: JSON.stringify({ command, workdir: path.join(root, 'workspace'), yieldMs: 1000 }) } }] };
     const identity = { id: 'chatcmpl-' + requests, object: 'chat.completion.chunk', created: Math.floor(Date.now() / 1000), model: MODEL_ID };
     response.end('data: ' + JSON.stringify({ ...identity, choices: [{ index: 0, delta, finish_reason: null }] }) + '\n\n'
       + 'data: ' + JSON.stringify({ ...identity, choices: [{ index: 0, delta: {}, finish_reason: done ? 'stop' : 'tool_calls' }] }) + '\n\ndata: [DONE]\n\n');
@@ -72,9 +74,37 @@ async function worker(root, resources) {
       const resolved = await setup.manage({ action: 'approval-resolve', id: row.id, revision: row.revision, decision });
       const sent = await sending;
       await client.request('agent.wait', { runId: sent.runId, timeoutMs: 60000 }, { timeoutMs: 65000 });
+      if (decision === 'allow-once') { const until = Date.now() + 15000; while (!existsSync(marker) && Date.now() < until) await sleep(100); }
       assert.equal(existsSync(marker), decision === 'allow-once');
       await assert.rejects(setup.manage({ action: 'approval-resolve', id: row.id, revision: row.revision, decision: 'allow-once' }));
       receipt.checks.push({ decision, status: resolved.status, markerWritten: existsSync(marker), noExecutionBeforeApproval: true, replayDenied: true });
+    }
+    const peer = await client.request('agents.create', { name: 'Collaboration fixture', model: `aifb-fixture/${MODEL_ID}`, emoji: '🎯' });
+    assert.ok(peer.agentId);
+    let childKey;
+    for (const name of ['agents_list', 'sessions_spawn', 'sessions_send']) {
+      const args = name === 'agents_list' ? {} : name === 'sessions_spawn' ? { agentId: peer.agentId, task: 'PEER_FIXTURE_TASK', mode: 'run' }
+        : { sessionKey: childKey, message: 'PEER_FIXTURE_TASK followup', timeoutSeconds: 30 };
+      const collaborationKey = `${key}-${name}`;
+      await client.request('sessions.create', { key: collaborationKey, permissionMode: 'read-only' });
+      await setup.authorizeWorker(collaborationKey);
+      collaboration = { name, arguments: JSON.stringify(args) };
+      const sent = await client.request('sessions.send', { key: collaborationKey, message: 'Collaboration check ' + name, idempotencyKey: randomUUID() });
+      await client.request('agent.wait', { runId: sent.runId, timeoutMs: 60000 }, { timeoutMs: 65000 });
+      assert.ok(advertised.has(name), `${name} is advertised to model`);
+      const result = JSON.stringify(toolResults.at(-1));
+      assert.ok(name === 'agents_list' ? result.includes(peer.agentId) : name === 'sessions_spawn' ? result.includes('accepted') : result.includes('ok'), result);
+      if (name === 'sessions_spawn') {
+        const content = toolResults.at(-1)[0].content;
+        const spawned = JSON.parse(typeof content === 'string' ? content : content.map(x => x.text ?? '').join(''));
+        childKey = spawned.childSessionKey;
+        assert.ok(childKey); assert.ok(spawned.runId);
+        const completed = await client.request('agent.wait', { runId: spawned.runId, timeoutMs: 60000 }, { timeoutMs: 65000 });
+        assert.notEqual(completed.status, 'timeout');
+        const history = await setup.workspaceRequest('chat.history', { sessionKey: childKey, limit: 10 });
+        assert.ok(JSON.stringify(history).includes('Fixture completed.'), 'Delegated child actually completed');
+      }
+      receipt.checks.push({ nativeTool: name, peerVisibleOrAccepted: true });
     }
   } catch (error) { receipt.failures.push(error.message); receipt.toolResults = toolResults; receipt.logs = logs.map(line => token ? line.replaceAll(token, '[REDACTED]') : line); }
   finally { await setup.disconnect(); await supervisor.stop(); server.closeAllConnections(); await new Promise(resolve => server.close(resolve));

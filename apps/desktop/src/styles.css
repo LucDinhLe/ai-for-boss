@@ -917,3 +917,10 @@ label em { min-height: 13px; color: var(--danger); font-size: 9px; font-style: n
 .approval-actions { display: flex; justify-content: flex-end; gap: 12px; }
 .settings-card .settings-checkbox { display: flex; align-items: center; gap: 10px; margin: 12px 0; font-weight: 400; }
 .settings-card .settings-checkbox input[type="checkbox"] { width: 18px; height: 18px; flex: 0 0 18px; margin: 0; padding: 0; accent-color: var(--copper); }
+
+.screen-capture-picker { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; }
+.screen-capture-picker p { flex-basis: 100%; }
+.screen-capture-picker img { display: block; width: 160px; max-height: 100px; object-fit: contain; }
+.agents-control > summary { max-width: 280px; }
+.agents-control > summary > span:not(.agent-emoji) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+

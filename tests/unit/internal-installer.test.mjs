@@ -37,6 +37,30 @@ test('installer refuses links and Windows junctions in its source tree', async (
   try { await fs.symlink(path.join(source, 'resources'), path.join(source, 'link'), process.platform === 'win32' ? 'junction' : 'dir'); await assert.rejects(installerManifest(source, 'beta.21'), /real files/); }
   finally { await fs.rm(root, { recursive: true, force: true }); }
 });
+
+test('Windows upgrade reuses only matching immutable core files and never the shell', { skip: process.platform !== 'win32' }, async () => {
+  const { root, source } = await fixture();
+  try {
+    const install = path.join(root, 'installed'), script = path.join(root, 'support.ps1');
+    await fs.copyFile(path.join(repo, 'installer/install-support.ps1'), script);
+    const invoke = (action, version, manifest) => {
+      const result = spawnSync('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', script, '-Action', action, '-Root', install,
+        '-Version', version, '-Manifest', manifest, '-Desktop', root, '-StartMenu', root], { encoding: 'utf8', windowsHide: true });
+      assert.equal(result.status, 0, result.stdout + result.stderr);
+    };
+    const old = '0.0.5-beta.31', next = '0.0.5-beta.32';
+    const oldManifest = path.join(root, 'old.json'), nextManifest = path.join(root, 'next.json');
+    await fs.writeFile(oldManifest, JSON.stringify(await installerManifest(source, old)));
+    await fs.writeFile(nextManifest, JSON.stringify(await installerManifest(source, next)));
+    invoke('Prepare', old, oldManifest); await fs.cp(source, path.join(install, 'staging', old), { recursive: true }); invoke('Commit', old, oldManifest);
+    const previous = path.join(install, 'versions', old), stage = path.join(install, 'staging', next);
+    await fs.writeFile(path.join(previous, 'resources/node_modules/openclaw/readme.md'), 'modified old core');
+    invoke('Prepare', next, nextManifest);
+    assert.equal((await fs.stat(path.join(previous, 'resources/runtime/node/node.exe'))).ino, (await fs.stat(path.join(stage, 'resources/runtime/node/node.exe'))).ino);
+    await assert.rejects(fs.stat(path.join(stage, 'resources/app.asar')), { code: 'ENOENT' });
+    await assert.rejects(fs.stat(path.join(stage, 'resources/node_modules/openclaw/readme.md')), { code: 'ENOENT' });
+  } finally { await fs.rm(root, { recursive: true, force: true }); }
+});
 test('Windows install engine preserves prior, foreign and modified files and rejects tamper', { skip: process.platform !== 'win32', timeout: 90000 }, async () => {
   const { root, source } = await fixture();
   // Exercise the real PowerShell 5 install/verify/remove flow with an unchanged
@@ -47,7 +71,7 @@ test('Windows install engine preserves prior, foreign and modified files and rej
   const manifest = await installerManifest(source, version); await fs.writeFile(manifestFile, JSON.stringify(manifest));
   const invoke = (action, target = install) => spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File',
     path.join(repo, 'installer/install-support.ps1'), '-Action', action, '-Root', target, '-Version', version, '-Manifest', manifestFile,
-    '-Desktop', path.join(root, 'desktop'), '-StartMenu', path.join(root, 'start')], { encoding: 'utf8', windowsHide: true });
+    '-Desktop', path.join(root, 'desktop'), '-StartMenu', path.join(root, 'start'), ...(action === 'Verify' ? ['-StatusWindow', '1'] : [])], { encoding: 'utf8', windowsHide: true });
   const pass = (action, target) => { const result = invoke(action, target); assert.equal(result.status, 0, result.stdout + result.stderr); };
   try {
     const tooLong = { ...manifest, files: [...manifest.files, { path: 'resources/' + 'x'.repeat(180) + '.txt', bytes: 1, sha256: '0'.repeat(64) }] };

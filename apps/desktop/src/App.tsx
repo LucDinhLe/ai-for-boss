@@ -1,5 +1,6 @@
 import { FormEvent, type CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import LayoutControls from './LayoutControls';
+import { useDismissMenus } from './use-dismiss-menus';
 import SettingsCenter from './SettingsCenter';
 import ApprovalInbox from './ApprovalInbox';
 import PanelResizeHandle from './PanelResizeHandle';
@@ -87,6 +88,7 @@ function useRuntime() {
 }
 
 function App() {
+  useDismissMenus();
   const [skillsBusy, setSkillsBusy] = useState(false);
   const [approvalVisible, setApprovalVisible] = useState(false);
   const skillsLock = useRef(false);
@@ -110,6 +112,16 @@ function App() {
   const settingsReturnView = useRef<WorkspaceView>('chat');
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [layout, setLayout] = useState(loadLayout);
+  const initialLayout = useRef(layout);
+  const [layoutReady, setLayoutReady] = useState(false);
+  useEffect(() => {
+    let active = true;
+    void manage<{ layout: typeof layout | null }>({ action: 'data-layout' }).then(result => {
+      if (active && result.layout) setLayout(current => current === initialLayout.current ? result.layout! : current);
+    }).catch(() => {}).finally(() => { if (active) setLayoutReady(true); });
+    return () => { active = false; };
+  }, []);
+  useEffect(() => { if (layoutReady) void manage({ action: 'data-layout', layout }).catch(() => {}); }, [layout, layoutReady]);
   const [resizingPanels, setResizingPanels] = useState(false);
   const { leftHidden, rightHidden } = layout;
   const setLeftHidden = (value: boolean) => setLayout(old => ({ ...old, leftHidden: value }));
@@ -1211,6 +1223,7 @@ function App() {
     onBrowseModels={refresh => { void browseModels(refresh); }} catalogueLoading={catalogueLoading} catalogueError={catalogueError}
     layout={layout} projects={projects} sessionKey={activeKey} pending={changingModel || Boolean(activeKey && !historyReady)}
     modelDisabled={!runtime.connected || !runtime.setupReady || busy || opening || changingModel || supervisionBusy || skillsBusy}
+    dataDisabled={busy || opening || changingModel || supervisionBusy || skillsBusy}
     onLayout={setLayout} onModel={model => void changeModel(model)} onClose={() => setWorkspaceView(settingsReturnView.current)}
     onConnect={openConnect} onNavigate={navigateWorkspace} onRetry={() => { void retryRuntimeStartup().catch(error => setNotice(String(error.message))); }}
     onRefreshInfo={async () => { if (!window.aiForBoss) throw new Error('Chưa có kết nối ứng dụng'); const current = await window.aiForBoss.getShellStatus(); setShell(current); }}

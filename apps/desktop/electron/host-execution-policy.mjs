@@ -8,7 +8,8 @@ const samePath = (a, b) => typeof a === 'string' && typeof b === 'string' && nor
 const strict = value => value?.security === 'allowlist' && value.ask === 'always'
   && value.askFallback === 'deny' && value.autoAllowSkills === false;
 const floor = { security: 'allowlist', ask: 'always', askFallback: 'deny', autoAllowSkills: false };
-const allow = ['read', 'write', 'edit', 'apply_patch', 'exec', 'process', 'web_search', 'web_fetch', 'image', 'pdf'];
+const allow = ['read', 'write', 'edit', 'apply_patch', 'exec', 'process', 'web_search', 'web_fetch', 'image', 'pdf',
+  'agents_list', 'sessions_list', 'sessions_send', 'sessions_spawn', 'subagents'];
 
 /** Host-owned policy. Native OpenClaw executes and binds commands; the shell never evals model output. */
 export class HostExecutionPolicy {
@@ -40,13 +41,17 @@ export class HostExecutionPolicy {
     if (!valid(snapshot)) throw error();
     const matches = value => value?.tools?.exec?.host === 'gateway' && value.tools.exec.mode === 'ask'
       && value.tools.elevated?.enabled === false && JSON.stringify(value.tools.allow) === JSON.stringify(allow)
+      && value.tools.agentToAgent?.enabled === true && JSON.stringify(value.tools.agentToAgent.allow) === '["*"]'
+      && value.tools.sessions?.visibility === 'all'
+      && JSON.stringify(value.agents?.defaults?.subagents?.allowAgents) === '["*"]'
       && Array.isArray(value.tools.deny) && !value.tools.deny.includes('*');
     if (!matches(snapshot.config)) {
       const deny = snapshot.config.tools?.deny ?? [];
       if (!Array.isArray(deny) || deny.some(item => typeof item !== 'string')) throw error();
       await this.request('config.patch', { baseHash: snapshot.hash, replacePaths: ['tools.deny', 'tools.allow'], raw: JSON.stringify({ tools: {
         profile: 'full', allow, deny: deny.filter(item => item !== '*'), elevated: { enabled: false },
-        exec: { host: 'gateway', mode: 'ask' } } }), note: 'AI for Boss: host commands require human approval every time; no sandbox.' });
+        exec: { host: 'gateway', mode: 'ask' }, agentToAgent: { enabled: true, allow: ['*'] }, sessions: { visibility: 'all' } },
+        agents: { defaults: { subagents: { allowAgents: ['*'] } } } }), note: 'AI for Boss: allow collaboration among configured agents; host commands still require human approval every time, without sandbox.' });
       snapshot = await this.request('config.get', {});
     }
     if (!valid(snapshot) || !matches(snapshot.config) || !snapshot.configRevisionHash

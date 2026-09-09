@@ -53,7 +53,7 @@ function harness({ models = [fixtureModel], setupReady = true, projects = [], li
     return hooks[index].value;
   };
   const context = vm.createContext({ ...chat, ...draftHelpers, ...gateway, ...workTemplates, ...attachmentHelpers, ...thinkingHelpers, TextEncoder,
-    loadLayout: () => ({ ...DEFAULT_LAYOUT }), saveLayout: () => {},
+    useDismissMenus: () => {}, loadLayout: () => ({ ...DEFAULT_LAYOUT }), saveLayout: () => {},
     manage: async packet => {
       if (handlers[packet.action]) { requests.push({ method: packet.action, params: packet }); return handlers[packet.action](packet); }
       if (packet.action === 'model-catalogue') throw new Error('Full catalogue is not configured in this lifecycle fixture');

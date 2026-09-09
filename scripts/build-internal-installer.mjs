@@ -51,6 +51,7 @@ export function payloadInclude(source, manifest) {
   for (const file of manifest.files) {
     const directory = path.posix.dirname(file.path);
     if (directory !== current) { content += `SetOutPath "$Stage${directory === '.' ? '' : '\\' + nsisString(directory.replaceAll('/', '\\'))}"\n`; current = directory; }
+    if (/^resources\/(node_modules\/|runtime\/node\/)/u.test(file.path)) content += `IfFileExists "$Stage\\${nsisString(file.path.replaceAll('/', '\\'))}" +2\n`;
     content += `File "${nsisString(path.join(source, ...file.path.split('/')))}"\n`;
   }
   return content;

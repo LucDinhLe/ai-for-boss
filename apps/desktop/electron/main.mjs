@@ -1,7 +1,10 @@
 import path from "node:path";
-import { mkdirSync, realpathSync, readFileSync, writeFileSync } from "node:fs";
+import { setInterval } from 'node:timers';
+import { mkdirSync, realpathSync, readFileSync, writeFileSync, existsSync, unlinkSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { app, BrowserWindow, WebContentsView, clipboard, dialog, ipcMain, nativeTheme, session, shell } from "electron";
+import { app, BrowserWindow, WebContentsView, clipboard, desktopCapturer, dialog, ipcMain, nativeTheme, safeStorage, session, shell } from "electron";
+import { BackupService, nativeBackupRunner } from './backup-service.mjs';
+import { captureScreens } from './screen-capture.mjs';
 import { applyUiTheme } from './ui-theme.mjs';
 import { keepWindowControlsVisible } from './window-controls.mjs';
 import { WebTabs } from './web-tabs.mjs';
@@ -51,6 +54,8 @@ const hasInstanceLock = app.requestSingleInstanceLock();
 if (!hasInstanceLock) app.quit();
 
 let mainWindow = null;
+let backups = null;
+const restoreReviewFile = () => path.join(app.getPath('userData'), 'aifb-restore-review.json');
 let channelPluginInstaller = null;
 let shellStatus = createUnavailableShellContract();
 let supervisor = null;
@@ -275,6 +280,9 @@ async function startRuntime() {
     }
   });
 
+  if (!smoke && existsSync(restoreReviewFile())) {
+    runtimePaused = true; publishStatus({ paused: true, supervisor: SUPERVISOR_STATES.IDLE, detail: 'restore-review', lastError: 'Dữ liệu vừa được khôi phục. Kiểm tra trước khi tiếp tục Gateway.' }); return;
+  }
   const { port, token } = await supervisor.start();
   if (shuttingDown || runtimePaused) { await supervisor.stop(); return; }
   gatewayEndpoint = { url: `ws://127.0.0.1:${port}`, token };
@@ -314,8 +322,13 @@ const runtimeControl = new RuntimeControl({
     publishStatus({ paused: true, supervisor: SUPERVISOR_STATES.IDLE, detail: 'user-paused', lastError: null });
   },
   resume: async () => {
+    const reviewingRestore = existsSync(restoreReviewFile());
+    if (reviewingRestore) {
+      const result = await dialog.showMessageBox(mainWindow, { type: 'warning', message: 'Tiếp tục dữ liệu đã khôi phục?', detail: 'Gateway có thể chạy lại kênh, plugin và lịch tự động trong bản sao lưu. Chỉ tiếp tục khi anh đã kiểm tra và đồng ý.', buttons: ['Giữ tạm dừng', 'Tiếp tục Gateway'], defaultId: 0, cancelId: 0 });
+      if (result.response !== 1) return false;
+    }
     runtimePaused = false; publishStatus({ paused: false });
-    try { const ready = await restartGateway(); if (ready) return true; }
+    try { const ready = await restartGateway(); if (ready) { if (reviewingRestore) unlinkSync(restoreReviewFile()); return true; } }
     catch { /* Restore a resumable stopped state below. */ }
     runtimePaused = true; connectionGeneration++;
     await Promise.all([adapter?.disconnect(), setupChannel?.disconnect()]); await supervisor.stop();
@@ -469,6 +482,11 @@ function getProjectService() {
 
 ipcMain.handle(MANAGEMENT_REQUEST_CHANNEL, (event, ...args) => {
   if (!isTrustedRendererEvent(event, mainWindow)) throw new Error("Untrusted management request");
+  if (!smoke && !shuttingDown && args.length === 1 && /^data-/u.test(args[0]?.action ?? '')) {
+    if (!backups) throw new Error('Chưa sẵn sàng quản lý sao lưu.');
+    return backups.run(args[0]);
+  }
+  if (!smoke && !shuttingDown && args.length === 1 && args[0]?.action === 'screen-capture') return captureScreens(args[0], desktopCapturer);
   if (!shuttingDown && args.length === 1 && args[0]?.action === 'ui-theme') return applyUiTheme(args[0], nativeTheme);
   if (!smoke && !shuttingDown && args.length === 1 && args[0]?.action === 'document-read') {
     if (Object.keys(args[0]).some(key => !['action', 'attachment'].includes(key))) throw new Error('Yêu cầu đọc tài liệu không hợp lệ.');
@@ -599,10 +617,30 @@ app.on("web-contents-created", (_event, contents) => {
 });
 
 if (hasInstanceLock) app.whenReady().then(async () => {
+  if (!smoke) {
+    try {
+    backups = new BackupService({ root: app.getPath('userData'), version: app.getVersion(),
+      native: nativeBackupRunner({ node: resolveNodeExecutable({ resourcesPath: process.resourcesPath }), entry: resolveOpenClawEntry(undefined, { resourcesPath: process.resourcesPath }), state: stateDirectory() }),
+      protect: value => { if (!safeStorage.isEncryptionAvailable() || process.platform === 'linux' && safeStorage.getSelectedStorageBackend?.() === 'basic_text') throw new Error('Máy chưa có kho khóa bảo mật cho sao lưu tự động.'); return safeStorage.encryptString(value).toString('base64'); },
+      unprotect: value => safeStorage.decryptString(Buffer.from(value, 'base64')),
+      chooseSave: async () => { const value = await dialog.showSaveDialog(mainWindow, { title: 'Xuất bản phục hồi có mã hóa', defaultPath: `AI-for-Boss-${Date.now()}.aifb`, filters: [{ name: 'AI for Boss backup', extensions: ['aifb'] }] }); return value.canceled ? null : value.filePath; },
+      chooseOpen: async () => { const value = await dialog.showOpenDialog(mainWindow, { title: 'Nhập bản phục hồi', properties: ['openFile'], filters: [{ name: 'AI for Boss backup', extensions: ['aifb'] }] }); return value.canceled ? null : value.filePaths[0]; },
+      confirm: async message => (await dialog.showMessageBox(mainWindow, { type: 'warning', message, buttons: ['Hủy', 'Xác nhận'], defaultId: 0, cancelId: 0 })).response === 1,
+      exclusive: operation => channelWorkGuard.run(operation), pause: async () => { if (!runtimePaused) await runtimeControl.run({ action: 'gateway-stop' }); writeFileSync(restoreReviewFile(), '{"reviewRequired":true}'); },
+      onRestored: async () => { writeFileSync(restoreReviewFile(), '{"reviewRequired":true}'); projectService = null; conversationService = null; } });
+    try { await backups.initialize(); }
+    catch { backups = null; }
+    const backupTimer = setInterval(() => { if (!shuttingDown && !runtimePaused && setupChannel?.connected) void backups?.automatic(); }, 60_000); backupTimer.unref();
+    } catch { backups = null; }
+  }
   if (app.isPackaged && !smoke) {
     try {
       updater = new UpdateService({ publicKey: JSON.parse(readFileSync(path.join(currentDirectory, 'update-public-key.json'), 'utf8')).publicKey,
         version: app.getVersion(), currentRoot: path.dirname(app.getPath('exe')), dataRoot: path.join(app.getPath('userData'), 'component-updates') });
+      updater.beforePrepare = async () => {
+        if (!backups) throw new Error('Chưa tạo được sao lưu trước cập nhật.');
+        await backups.work(() => backups.create());
+      };
       await updater.initialize();
       const target = await updater.startupTarget();
       if (target) { app.relaunch({ execPath: target, args: [] }); app.quit(); return; }
@@ -650,7 +688,7 @@ app.on("before-quit", (event) => {
   void (async () => {
     try {
       for (const operation of [
-        () => ownedTabs?.dispose(), () => advisorService.cancelForShutdown(), () => channelPluginInstaller?.stop(),
+        () => backups?.stop(), () => ownedTabs?.dispose(), () => advisorService.cancelForShutdown(), () => channelPluginInstaller?.stop(),
         () => setupPageAccess.clear(), () => adapter?.disconnect(),
         () => setupChannel?.disconnect(), () => supervisor?.stop(),
       ]) await cleanup(operation);

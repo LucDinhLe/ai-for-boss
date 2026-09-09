@@ -1,4 +1,5 @@
 import UpdateSettings from './UpdateSettings';
+import DataSettings from './DataSettings';
 import CapabilityCatalog from './CapabilityCatalog';
 import BrowserSettings from './BrowserSettings';
 import ModelSettings from './ModelSettings';
@@ -19,6 +20,7 @@ import type { ProjectSummary, WorkspaceView } from './workbench-api';
 const sections = [
   ['model', 'Mô hình', 'model'], ['chat', 'Trò chuyện', 'messages'], ['appearance', 'Giao diện', 'layout'],
   ['cache', 'Cache & cập nhật mô hình', 'reload'],
+  ['data', 'Dữ liệu & sao lưu', 'files'],
   ['workspace', 'Không gian làm việc', 'projects'], ['browser', 'Trình duyệt & tiện ích', 'web'], ['safety', 'An toàn', 'shield'], ['memory', 'Bộ nhớ & bối cảnh', 'context'],
   ['voice', 'Giọng nói', 'voice'], ['advanced', 'Nâng cao', 'settings'], ['notifications', 'Thông báo', 'bell'],
   ['billing', 'Thanh toán & sử dụng', 'usage'], ['providers', 'Nhà cung cấp', 'model'], ['channels', 'Cổng kết nối', 'web'],
@@ -28,7 +30,7 @@ const sections = [
 type Section = typeof sections[number][0];
 type Props = {
   runtime: RuntimeStatus; shell: ShellStatus | null; usage: ContextUsage; models: ModelSummary[];
-  layout: LayoutPreferences; projects: ProjectSummary[]; sessionKey: string | null; modelDisabled: boolean; pending: boolean;
+  layout: LayoutPreferences; projects: ProjectSummary[]; sessionKey: string | null; modelDisabled: boolean; dataDisabled: boolean; pending: boolean;
   onLayout(value: LayoutPreferences): void; onModel(model: ModelSummary): void; onClose(): void;
   onConnect(query?: string): void; onNavigate(view: WorkspaceView): void; onRetry(): void; onRefreshInfo(): Promise<void>; onUseSkill(name: string): void;
   onBrowseModels?(refresh?: boolean): void; catalogueLoading?: boolean; catalogueError?: string | null;
@@ -95,6 +97,7 @@ export default function SettingsCenter(props: Props) {
         {section === 'history' && <><p className="settings-lead">Cuộc trò chuyện nằm trong dự án tương ứng ở thanh bên trái.</p><div className="settings-card"><h2><WorkbenchIcon name={sections.find(item => item[0] === section)![2]} />Tìm và sắp xếp</h2><p>Dùng Tìm phiên để tìm theo tên. Mở dấu ba chấm của cuộc trò chuyện để đổi tên, ghim hoặc xóa.</p><button onClick={() => open('chat')}>Trở lại cuộc trò chuyện</button><button onClick={() => open('projects')}>Xem theo dự án</button><p className="settings-muted">Đóng tab giữ lịch sử. Kho lưu trữ và khôi phục cuộc trò chuyện chưa có trong bản này.</p></div></>}
         {section === 'about' && <><p className="settings-lead">AI for Boss</p><div className="settings-card"><h2><WorkbenchIcon name={sections.find(item => item[0] === section)![2]} />Phiên bản đang chạy</h2><dl className="settings-facts"><dt>Ứng dụng</dt><dd>{props.shell?.product.version || 'Chưa đọc được'}</dd><dt>OpenClaw</dt><dd>{props.runtime.serverVersion || 'Chưa kết nối'}</dd><dt>Kênh phát hành</dt><dd>Bản thử nghiệm</dd></dl></div><div className="settings-card"><h2><WorkbenchIcon name={sections.find(item => item[0] === section)![2]} />Cập nhật</h2><p>Thông tin của ứng dụng đang mở. Kiểm tra và tải bản mới trong mục bên dưới.</p><button disabled={refreshing} onClick={() => void refresh()}>{refreshing ? 'Đang đọc…' : 'Làm mới thông tin phiên bản'}</button>{report && <p role="status">{report}</p>}<p className="settings-muted">Nút này đọc lại bản đang chạy, không kiểm tra phiên bản mới trên mạng.</p></div></>}
         {section === 'about' && <><UpdateSettings /><BrandNotices /></>}
+        {section === 'data' && <DataSettings disabled={props.pending || props.dataDisabled} onLayout={props.onLayout} />}
       </div><footer className="settings-footer"><button onClick={props.onClose}>Trở lại cuộc trò chuyện</button></footer>
     </main>
   </dialog>;

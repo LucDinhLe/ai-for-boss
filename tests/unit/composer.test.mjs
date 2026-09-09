@@ -28,6 +28,7 @@ function fixture(patch = {}, globals = {}) {
     target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText, {
     ...globals, exports, require: (id) => id === "react" ? react : id === "./chat-drafts" ? { handleComposerKeyDown }
       : id === "./chat-attachments" ? { CHAT_FILE_ACCEPT, attachmentReadHint } : id === "./chat-state" ? { isSelectableModel }
+        : id === "./workbench-api" ? { manage: async () => ({ screens: [] }) }
         : id === "./ModelPicker" ? { __esModule: true, default: "model-picker" } : require(id)
   });
   const props = { draft: "Draft", onDraftChange: (value) => calls.push(["draft", value]), onSend: () => calls.push("send"),

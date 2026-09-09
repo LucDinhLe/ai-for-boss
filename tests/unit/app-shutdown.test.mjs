@@ -14,7 +14,7 @@ test('quit waits for the owned runtime before destroying windows; recursive quit
   let handler, releaseInstaller, releaseRuntime, finish;
   const finished = new Promise(resolve => { finish = resolve; });
   const context = {
-    shuttingDown: false, appExitCode: 0,
+    shuttingDown: false, appExitCode: 0, backups: null,
     webTabs: { dispose: () => calls.push('web') },
     advisorService: { cancelForShutdown: () => calls.push('advisor') },
     channelPluginInstaller: { stop: () => { calls.push('installer'); return new Promise(resolve => { releaseInstaller = resolve; }); } },
@@ -45,7 +45,7 @@ test('cleanup failures never skip the runtime or remaining windows', async () =>
   const finished = new Promise(resolve => { finish = resolve; });
   const fail = name => { calls.push(name); throw new Error(name); };
   const context = {
-    shuttingDown: false, appExitCode: 0, console: { error: (...args) => errors.push(args) },
+    shuttingDown: false, appExitCode: 0, backups: null, console: { error: (...args) => errors.push(args) },
     webTabs: { dispose: () => fail('web') }, advisorService: { cancelForShutdown: () => fail('advisor') },
     channelPluginInstaller: { stop: async () => fail('installer') },
     setupPageAccess: { clear: () => fail('pages') }, adapter: { disconnect: async () => fail('chat') },

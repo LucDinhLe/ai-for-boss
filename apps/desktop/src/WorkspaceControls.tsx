@@ -31,10 +31,11 @@ export default function WorkspaceControls({ runtime, usage, agents, agentId, mod
   onBrowseModels?(refresh?: boolean): void; catalogueLoading?: boolean; catalogueError?: string | null;
 }) {
   const selected = advisorModels.find(m => m.provider === choice.model?.provider && m.id === choice.model.id);
+  const activeAgent = agents.find(agent => agent.id === agentId);
   const canToggle = !disabled && (choice.enabled || Boolean(selected && isSelectableModel(selected)));
   return <div className="workspace-controls" aria-label="Điều khiển phiên">
     <GatewayControl runtime={runtime} onRetry={onRetry} />
-    <details className="agents-control"><summary><WorkbenchIcon name="agents" />Agents<WorkbenchIcon name="chevronDown" /></summary><div className="control-popover"><strong>Agent của phiên mới</strong>
+    <details className="agents-control"><summary aria-label={`Agent đang làm việc: ${activeAgent?.name || agentId || 'Chưa chọn'}`}><span className="agent-emoji">{activeAgent?.identity?.emoji || '🤖'}</span><span>{activeAgent?.name || agentId || 'Agents'}</span><WorkbenchIcon name="chevronDown" /></summary><div className="control-popover"><strong>Chọn agent để mở phiên mới</strong>
       {agents.map(a => <button key={a.id} disabled={disabled} onClick={event => { event.currentTarget.closest('details')?.removeAttribute('open'); onAgent(a.id); }}>{a.id === agentId ? '✓ ' : ''}<span className="agent-emoji">{a.identity?.emoji || '🤖'}</span>{a.name || a.id}</button>)}
       <button disabled={disabled} onClick={event => { event.currentTarget.closest('details')?.removeAttribute('open'); onManageAgents(); }}><WorkbenchIcon name="new" /> Tạo và quản lý agents</button><small>Chọn agent sẽ mở chat mới, giữ cuộc trò chuyện hiện tại.</small></div></details>
     <ContextMeter usage={usage} models={models} pending={contextPending} />

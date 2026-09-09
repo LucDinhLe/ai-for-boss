@@ -4,7 +4,8 @@
   [Parameter(Mandatory=$true)][ValidatePattern('^[0-9A-Za-z][0-9A-Za-z.-]{0,70}$')][string]$Version,
   [Parameter(Mandatory=$true)][string]$Manifest,
   [Parameter(Mandatory=$true)][string]$Desktop,
-  [Parameter(Mandatory=$true)][string]$StartMenu
+  [Parameter(Mandatory=$true)][string]$StartMenu,
+  [long]$StatusWindow = 0
 )
 $ErrorActionPreference = 'Stop'
 $signature = 'AI for Boss internal installer root v1'
@@ -13,6 +14,25 @@ $versionPath = Join-Path $rootPath ('versions\' + $Version)
 $stagePath = Join-Path $rootPath ('staging\' + $Version)
 $rootMarker = Join-Path $rootPath '.aifb-install-root'
 $checkedDirectories = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+if ($StatusWindow) {
+  Add-Type @'
+using System;
+using System.Runtime.InteropServices;
+public static class InstallProgress {
+  [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern IntPtr FindWindowEx(IntPtr p, IntPtr after, string cls, string text);
+  [DllImport("user32.dll")] static extern IntPtr GetDlgItem(IntPtr p, int id);
+  [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern IntPtr SendMessageTimeout(IntPtr p, uint m, IntPtr w, string text, uint flags, uint timeout, out IntPtr result);
+  [DllImport("user32.dll")] static extern IntPtr SendMessageTimeout(IntPtr p, uint m, IntPtr w, IntPtr l, uint flags, uint timeout, out IntPtr result);
+  public static void Update(long parent, string text, int percent) {
+    IntPtr page = FindWindowEx(new IntPtr(parent), IntPtr.Zero, "#32770", null);
+    IntPtr label = GetDlgItem(page, 1006), bar = GetDlgItem(page, 1004);
+    IntPtr result;
+    if (label != IntPtr.Zero) SendMessageTimeout(label, 12, IntPtr.Zero, text, 2, 100, out result);
+    if (bar != IntPtr.Zero) { SendMessageTimeout(bar, 1030, IntPtr.Zero, new IntPtr(100), 2, 100, out result); SendMessageTimeout(bar, 1026, new IntPtr(percent), IntPtr.Zero, 2, 100, out result); }
+  }
+}
+'@
+}
 function Hash-File([string]$file) {
   $stream = [IO.File]::OpenRead($file); $algorithm = [Security.Cryptography.SHA256]::Create()
   try { return [BitConverter]::ToString($algorithm.ComputeHash($stream)).Replace('-','').ToLowerInvariant() }
@@ -44,6 +64,45 @@ function Owned-Path([string]$base, [string]$relative, [bool]$inspect = $true) {
   if ($inspect) { Assert-PlainPath $full }
   return $full
 }
+function Reuse-Core($payload) {
+  $versions = Join-Path $rootPath 'versions'
+  if (-not [IO.Directory]::Exists($versions)) { return }
+  $previous = @(Get-ChildItem -LiteralPath $versions -Directory | Where-Object { $_.Name -ne $Version -and $_.Name -match '^[0-9A-Za-z][0-9A-Za-z.-]{0,70}$' } | Sort-Object LastWriteTime -Descending)
+  foreach ($candidate in $previous) {
+    Assert-PlainPath $candidate.FullName
+    $proof = Join-Path $candidate.FullName '.aifb-payload.json'
+    if (-not [IO.File]::Exists($proof)) { continue }
+    Assert-PlainPath $proof
+    $prior = Get-Content -LiteralPath $proof -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ($prior.product -ne 'AI for Boss' -or $prior.version -ne $candidate.Name) { continue }
+    Add-Type @'
+using System;
+using System.Runtime.InteropServices;
+public static class InstallLinks {
+  [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
+  public static extern bool CreateHardLink(string target, string source, IntPtr reserved);
+}
+'@
+    $known = @{}; foreach ($item in $prior.files) { $known[$item.path] = $item.sha256 }
+    $count = 0; $clock = [Diagnostics.Stopwatch]::StartNew(); $last = -1000
+    foreach ($file in $payload.files) {
+      if ($file.path -notmatch '^resources/(node_modules/|runtime/node/)') { continue }
+      if ($known[$file.path] -ne $file.sha256) { continue }
+      $source = Owned-Path $candidate.FullName $file.path
+      if (-not [IO.File]::Exists($source)) { continue }
+      if ((Hash-File $source) -ne $file.sha256) { continue }
+      $target = Owned-Path $stagePath $file.path
+      [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($target)) | Out-Null
+      # The payload writer skips these verified hardlinks, never overwrites them.
+      # Failed links fall back to normal extraction. Commit rehashes everything.
+      if ([InstallLinks]::CreateHardLink($target, $source, [IntPtr]::Zero)) { $count++ }
+      if ($StatusWindow -and $clock.ElapsedMilliseconds - $last -ge 500) {
+        [InstallProgress]::Update($StatusWindow, ('Đang dùng lại lõi đã kiểm tra: ' + $count + ' tệp'), 0); $last = $clock.ElapsedMilliseconds
+      }
+    }
+    break
+  }
+}
 function Read-Payload {
   $data = Get-Content -LiteralPath $Manifest -Raw -Encoding UTF8 | ConvertFrom-Json
   if ($data.schemaVersion -ne 1 -or $data.product -ne 'AI for Boss' -or $data.version -ne $Version -or $data.files.Count -lt 3) { throw 'Thông tin bộ cài không khớp' }
@@ -67,22 +126,46 @@ function Read-Payload {
   return $data
 }
 function Verify-Payload([string]$base, $payload) {
-  $algorithm = [Security.Cryptography.SHA256]::Create()
-  try {
-    foreach ($file in $payload.files) {
-      $target = Owned-Path $base $file.path
-      try { $stream = [IO.File]::OpenRead($target) }
-      catch [IO.FileNotFoundException] { throw ('Thiếu tệp: ' + $file.path) }
-      catch [IO.DirectoryNotFoundException] { throw ('Thiếu tệp: ' + $file.path) }
-      try {
-        # Check size and digest on the same open file. ComputeHash resets the
-        # reusable algorithm for the next file; each stream is always closed.
-        if ($stream.Length -ne $file.bytes) { throw ('Tệp không khớp: ' + $file.path) }
-        $digest = [BitConverter]::ToString($algorithm.ComputeHash($stream)).Replace('-','').ToLowerInvariant()
-        if ($digest -ne $file.sha256) { throw ('Tệp không khớp: ' + $file.path) }
-      } finally { $stream.Dispose() }
+  # Keep the 36,000-file loop inside .NET, without repeated PowerShell provider
+  # dispatch. Every file is still checked for reparse points, size and SHA256.
+  Add-Type @'
+using System;
+using System.IO;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Security.Cryptography;
+public static class InstallVerifier {
+  public static void Verify(string root, string[] names, long[] sizes, string[] hashes, Action<int,long> progress) {
+    root = Path.GetFullPath(root).TrimEnd('\\');
+    var checkedDirs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    var clock = Stopwatch.StartNew(); long last = -1000;
+    using (var algorithm = SHA256.Create()) {
+      for (int i = 0; i < names.Length; i++) {
+        string file = Path.GetFullPath(Path.Combine(root, names[i].Replace('/', '\\')));
+        if (!file.StartsWith(root + "\\", StringComparison.OrdinalIgnoreCase)) throw new IOException("Payload path outside version");
+        string cursor = file;
+        while (!String.IsNullOrEmpty(cursor) && !checkedDirs.Contains(cursor)) {
+          var attributes = File.GetAttributes(cursor);
+          if ((attributes & FileAttributes.ReparsePoint) != 0) throw new IOException("Payload contains a reparse point");
+          if ((attributes & FileAttributes.Directory) != 0) checkedDirs.Add(cursor);
+          cursor = Path.GetDirectoryName(cursor);
+        }
+        using (var stream = File.OpenRead(file)) {
+          if (stream.Length != sizes[i] || !String.Equals(BitConverter.ToString(algorithm.ComputeHash(stream)).Replace("-", ""), hashes[i], StringComparison.OrdinalIgnoreCase))
+            throw new IOException("Payload size or SHA256 mismatch");
+        }
+        if (progress != null && (clock.ElapsedMilliseconds - last >= 500 || i + 1 == names.Length)) {
+          progress(i + 1, clock.ElapsedMilliseconds / 1000); last = clock.ElapsedMilliseconds;
+        }
+      }
     }
-  } finally { $algorithm.Dispose() }
+  }
+}
+'@
+  $report = if ($StatusWindow) { [Action[int,long]] { param($count, $seconds)
+    [InstallProgress]::Update($StatusWindow, ('Đang kiểm tra: ' + $count + '/' + $payload.files.Count + ' tệp — ' + $seconds + ' giây'), [int](100 * $count / $payload.files.Count))
+  } } else { $null }
+  [InstallVerifier]::Verify($base, [string[]]$payload.files.path, [long[]]$payload.files.bytes, [string[]]$payload.files.sha256, $report)
 }
 function Clear-OwnedFiles([string]$base, $payload, [bool]$onlyMatching) {
   if (-not (Test-Path -LiteralPath $base)) { return }
@@ -162,6 +245,7 @@ try {
       $drive = New-Object IO.DriveInfo([IO.Path]::GetPathRoot($rootPath))
       if ($drive.AvailableFreeSpace -lt ([long]$payload.totalBytes + 33554432)) { throw 'Chưa đủ dung lượng trống cho phiên bản mới' }
       Copy-Item -LiteralPath $Manifest -Destination (Join-Path $stagePath '.aifb-stage-intent.json')
+      Reuse-Core $payload
     }
     'Commit' {
       if (Test-Path -LiteralPath $versionPath) { throw 'Phiên bản đã tồn tại; không ghi đè lõi' }
@@ -171,7 +255,9 @@ try {
       New-Item -ItemType Directory -Path (Split-Path -Parent $versionPath) -Force | Out-Null
       Copy-Item -LiteralPath $Manifest -Destination (Join-Path $stagePath '.aifb-payload.json')
       Remove-Item -LiteralPath $stageIntent
-      Move-Item -LiteralPath $stagePath -Destination $versionPath
+      # Same-volume directory rename: do not enumerate/copy the verified tree
+      # again through the PowerShell filesystem provider (36,000+ files).
+      [IO.Directory]::Move($stagePath, $versionPath)
     }
     'Verify' { Verify-Payload $versionPath $payload }
     'Activate' {

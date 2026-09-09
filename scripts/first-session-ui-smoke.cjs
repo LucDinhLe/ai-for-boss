@@ -13,9 +13,10 @@ const interactive = process.argv.includes('--interactive');
 // This fixture also runs on Windows hosts without a usable GPU process.
 app.disableHardwareAcceleration();
 const browserIntegration = process.argv.includes('--browser-workbench') || interactive;
-const output = path.join(root, process.argv.includes('--trial-release') ? 'artifacts/trial-release' : 'artifacts/connection-browser-cache-settings', interactive ? 'interactive-renderer.json' : browserIntegration ? 'native-renderer-browser.json' : 'renderer-fixture.json');
+const output = path.join(root, process.argv.includes('--data-agents') ? 'artifacts/installation-data-agents' : process.argv.includes('--trial-release') ? 'artifacts/trial-release' : 'artifacts/connection-browser-cache-settings', interactive ? 'interactive-renderer.json' : browserIntegration ? 'native-renderer-browser.json' : 'renderer-fixture.json');
 let pendingApproval = null;
 let updateFixture = { currentVersion: '0.0.5-beta.31', availableVersion: null, readyVersion: null, autoCheck: true, autoDownload: false, busy: false, message: '' };
+let dataFixture = { settings: { enabled: true, everyDays: 1, retain: 3, includeWorkspace: false }, records: [], busy: false, message: '', startedAt: null, directory: 'Fixture backups' };
 let nativeTabs, browserServer, browserUrl, pointerDiagnostic, motionDiagnostic;
 let dragVisibility = null;
 const modelPopupDiagnostics = [];
@@ -251,6 +252,10 @@ app.whenReady().then(async () => {
     assert.equal(sessionId, activeWizard); count("open-page"); return true;
   });
   handle("aifb:native-management", async packet => {
+    if (packet.action === 'data-layout') return { layout: null };
+    if (packet.action === 'data-status') return dataFixture;
+    if (packet.action === 'data-settings') { dataFixture = { ...dataFixture, settings: packet.settings }; return dataFixture; }
+    if (packet.action === 'screen-capture') return { screens: [{ name: 'Màn hình thử', dataUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aN1cAAAAASUVORK5CYII=' }] };
     if (packet.action === 'update-status') return updateFixture;
     if (packet.action === 'update-settings') { updateFixture = { ...updateFixture, autoCheck: packet.autoCheck, autoDownload: packet.autoDownload }; return updateFixture; }
     if (packet.action === 'update-check') { updateFixture.availableVersion = '0.0.5-beta.32'; updateFixture.message = 'Có bản thử mới mô phỏng'; return updateFixture; }
@@ -1530,6 +1535,20 @@ app.whenReady().then(async () => {
   await fill('#agent-goal', 'Tạo ba ưu tiên có thể thực hiện.'); await select('#agent-model', 'fixture/model');
   await click('Biểu tượng Mục tiêu'); assert.equal(await evaluate("document.querySelector('.agent-icons').scrollWidth <= document.querySelector('.agent-icons').clientWidth"), true); await capture('agent-create-980px.png'); await click('Tạo agent'); await until(() => Promise.resolve(fixtureAgents.length === 1), 'agent created');
   assert.equal(fixtureAgents[0].identity.emoji, '🎯'); await click('Dùng agent'); await until(() => evaluate("Boolean(document.querySelector('#composer-input:not(:disabled)'))"), 'agent project session');
+  await until(() => evaluate("document.querySelector('.agents-control summary').textContent.includes('🎯')"), 'current agent icon');
+  assert.ok((await evaluate("document.querySelector('.agents-control summary').textContent")).includes(fixtureAgents[0].name));
+  await evaluate("document.querySelector('.agents-control summary').click()");
+  await until(() => evaluate("document.querySelector('.agents-control').open"), 'agent menu opened');
+  await evaluate("document.querySelector('#composer-input').dispatchEvent(new PointerEvent('pointerdown', {bubbles:true}))");
+  assert.equal(await evaluate("document.querySelector('.agents-control').open"), false);
+  await click('Chụp màn hình'); await until(() => evaluate("Boolean(document.querySelector('.screen-capture-picker img'))"), 'screenshot preview');
+  await click('Màn hình thử'); await until(() => evaluate("Boolean(document.querySelector('.composer__attachment--ready'))"), 'screenshot enters draft');
+  await evaluate("document.querySelector('.composer__remove').click()");
+  await until(() => evaluate("!document.querySelector('.composer__attachment')"), 'screenshot removed');
+  await evaluate("(() => { const d = new DataTransfer(); d.items.add(new File([Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aN1cAAAAASUVORK5CYII='), c => c.charCodeAt(0))], 'pasted.png', {type:'image/png'})); document.querySelector('#composer-input').dispatchEvent(new ClipboardEvent('paste', {bubbles:true, clipboardData:d})); })()");
+  await until(() => evaluate("Boolean(document.querySelector('.composer__attachment--ready'))"), 'pasted image enters draft');
+  await evaluate("document.querySelector('.composer__remove').click()");
+  await until(() => evaluate("!document.querySelector('.composer__attachment')"), 'pasted image removed');
   assert.ok(sessions.at(-1).key.startsWith('agent:fixture-planner:'));
   assert.equal(projectBindings[sessions.at(-1).key], 'aifb:fixture-project');
   await evaluate(`(() => { const file=${JSON.stringify(documents[1])}; const transfer=new DataTransfer(); transfer.items.add(new File([Uint8Array.from(atob(file.data), c=>c.charCodeAt(0))], file.name, {type:file.type})); const input=document.querySelector('#composer-files'); input.files=transfer.files; input.dispatchEvent(new Event('change',{bubbles:true})); })()`);
@@ -1634,13 +1653,14 @@ app.whenReady().then(async () => {
   await click('Cài đặt');
   assert.equal(await evaluate("document.querySelector('.settings-dialog').matches(':modal')"), true);
   const categories = await evaluate("Array.from(document.querySelectorAll('.settings-nav nav button')).map(b => b.textContent.trim())");
-  assert.equal(categories.length, 21);
+  assert.equal(categories.length, 22);
   for (const name of categories) { await click(name); await until(() => evaluate(`document.querySelector('#settings-title').textContent === ${JSON.stringify(name)}`), `settings category ${name}`); }
   await click('Làm mới thông tin phiên bản'); await hasText('Đã làm mới thông tin bản đang chạy.');
   await click('Kiểm tra cập nhật'); await hasText('Có bản thử mới mô phỏng');
   await click('Tải bản mới'); await hasText('Lưu công việc rồi đóng và mở lại ứng dụng');
   assert.equal(updateFixture.readyVersion, '0.0.5-beta.32');
   await capture('settings-about-1440px.png');
+  await click('Dữ liệu & sao lưu'); await hasText('Sao lưu tự động'); await hasText('Chưa có bản sao lưu hoàn tất.'); await capture('settings-data-1440px.png');
   await click('Trình duyệt & tiện ích'); await hasText('Browser Extension');
   await click('Kiểm tra tab đã chia sẻ'); await hasText('Đã nhận 1 tab từ tiện ích.'); await capture('settings-browser-1440px.png');
   await click('Cache & cập nhật mô hình'); await hasText('Prompt caching & cập nhật mô hình');

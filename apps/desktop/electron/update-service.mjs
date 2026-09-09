@@ -43,6 +43,7 @@ export class UpdateService {
   async prepare() {
     await this.check(); if (!this.available) return;
     if (this.state.ready?.version === this.available.manifest.version) return;
+    await this.beforePrepare?.();
     const result = await stageComponentUpdate({ envelope: this.available.envelope, publicKey: this.publicKey, minimumSequence: this.state.floor,
       currentRoot: this.currentRoot, updateRoot: this.root, download: (url, size) => download(url, size, this.fetcher) });
     this.state.ready = { version: result.version, envelope: this.available.envelope };

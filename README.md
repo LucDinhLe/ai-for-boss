@@ -6,7 +6,7 @@
 
 ## Cài và dùng thử
 
-1. Tải `AI-for-Boss-0.0.5-beta.31-Setup.exe`, đối chiếu SHA256 trong cùng release rồi chạy bộ cài.
+1. Tải `AI-for-Boss-0.0.5-beta.32-Setup.exe`, đối chiếu SHA256 trong cùng release rồi chạy bộ cài.
 2. Mở lối tắt AI for Boss. Kết nối tài khoản của chính bạn trong Cài đặt → Nhà cung cấp. Quyền truy cập mô hình phụ thuộc nhà cung cấp và gói tài khoản; có trong danh mục không đồng nghĩa đã dùng được.
 3. Tạo cuộc trò chuyện hoặc dự án. Lệnh do AI đề xuất phải được duyệt từng lần bằng “Cho phép lần này” hoặc “Từ chối”.
 
@@ -20,6 +20,8 @@ Bộ cài dùng cho cài mới và khôi phục. Giao diện/ứng dụng và l�
 
 ## Phạm vi bản thử
 
+- Beta32: thanh công cụ hiện tên/icon agent của phiên; menu nhỏ đóng khi bấm ra ngoài hoặc Esc; chụp màn hình và dán ảnh vào nháp trước khi gửi. Agents có thể khám phá, giao việc và nhắn tin qua công cụ OpenClaw, còn lệnh máy vẫn cần duyệt.
+- Cài đặt → Dữ liệu & sao lưu: sao lưu mã hóa trên máy, xuất/nhập bằng mật khẩu, lịch hàng ngày/hàng tuần và giữ 3/5/10 bản. Phục hồi được kiểm tra trước, giữ bản trước để hoàn tác và dừng Gateway chờ xem lại. Bản thử khôi phục đúng thư mục dữ liệu gốc; chưa tự chuyển cấu hình sang máy khác hoặc ghi đè workspace bên ngoài. Bản lưu không gồm cookie trình duyệt. Giới hạn bản lõi 700 MB; tùy chọn loại khóa API/media riêng chưa có.
 - Chọn mô hình theo nhóm nhà cung cấp, kết nối qua phương thức lõi hỗ trợ, điều chỉnh cache và cập nhật danh mục mô hình.
 - Đọc/sửa tệp và chạy lệnh qua cơ chế quyền của lõi; giao diện duyệt từng lệnh đã được kiểm thử với OpenClaw native runtime. Các harness/CLI có thể có giới hạn riêng.
 - Browser tích hợp, đồng bộ màu giao diện, ghép tiện ích Chrome chính thức và chia sẻ tab. Thao tác website tự động trong browser tích hợp chưa được bật.

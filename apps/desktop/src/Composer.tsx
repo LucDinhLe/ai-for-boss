@@ -5,6 +5,7 @@ import type { ContextUsage, ModelSummary } from "./gateway-client";
 import type { SessionThinking } from "./session-thinking";
 import ModelPicker from "./ModelPicker";
 import { isSelectableModel } from "./chat-state";
+import { manage } from './workbench-api';
 
 export type ComposerAttachment = {
   id: string;
@@ -54,6 +55,10 @@ const fileSize = (bytes: number) => bytes < 1024 ? `${bytes} B` : bytes < 1024 *
 export default function Composer(props: ComposerProps) {
   const [changing, setChanging] = useState(false);
   const [changeError, setChangeError] = useState<string | null>(null);
+  const [screens, setScreens] = useState<{ name: string; dataUrl: string }[]>([]);
+  const [capturing, setCapturing] = useState(false);
+  const mounted = useRef(false), captureLock = useRef(false);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const picker = useRef<HTMLInputElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   const changeInFlight = useRef(false);
@@ -123,13 +128,33 @@ export default function Composer(props: ComposerProps) {
         </li>)}
       </ul> : null}
       <label className="sr-only" htmlFor="composer-input">Nội dung gửi cho trợ lý</label>
+      {screens.length > 0 && <section className="screen-capture-picker" aria-label="Chọn ảnh màn hình">
+        <p>Chọn ảnh để đưa vào bản nháp. Ảnh chỉ được gửi khi anh bấm Gửi.</p>
+        {screens.map(screen => <button type="button" key={screen.name} disabled={!attachAllowed} onClick={() => {
+          if (!attachAllowed) return;
+          const bytes = Uint8Array.from(atob(screen.dataUrl.split(',')[1]), character => character.charCodeAt(0));
+          props.onAddFiles([new File([bytes], `man-hinh-${Date.now()}.png`, { type: 'image/png' })]); setScreens([]);
+        }}><img src={screen.dataUrl} alt={screen.name} /><span>{screen.name}</span></button>)}
+        <button type="button" onClick={() => setScreens([])}>Hủy chụp</button>
+      </section>}
       <textarea ref={input} id="composer-input" value={props.draft} rows={1}
+        onPaste={event => {
+          const images = Array.from(event.clipboardData.files).filter(file => file.type.startsWith('image/'));
+          if (images.length && attachAllowed && !changeInFlight.current) { event.preventDefault(); props.onAddFiles(images); }
+        }}
         onChange={(event) => props.onDraftChange(event.target.value)}
         onKeyDown={(event) => handleComposerKeyDown(event, sendAllowed && !changeInFlight.current)}
         placeholder={props.disabled ? "Mở một cuộc trò chuyện để bắt đầu" : props.busy
           ? "Soạn tin tiếp theo trong lúc chờ…" : "Bạn cần trợ lý giúp việc gì?"}
         disabled={props.disabled} aria-describedby="composer-hint" />
       <div className="composer__toolbar">
+        <button type="button" disabled={!attachAllowed || capturing} aria-label="Chụp màn hình" title="Chụp màn hình; hoặc Win + Shift + S rồi Ctrl + V để dán vùng đã chụp" onClick={async () => {
+          if (!attachAllowed || captureLock.current) return;
+          captureLock.current = true; setCapturing(true); setChangeError(null);
+          try { const result = await manage<{ screens: { name: string; dataUrl: string }[] }>({ action: 'screen-capture' }); if (mounted.current) setScreens(result.screens); }
+          catch { if (mounted.current) setChangeError('Chưa chụp được màn hình. Dùng Win + Shift + S rồi Ctrl + V để dán ảnh vào ô chat.'); }
+          finally { captureLock.current = false; if (mounted.current) setCapturing(false); }
+        }}>{capturing ? 'Đang chụp…' : 'Chụp màn hình'}</button>
         <input ref={picker} id="composer-files" type="file" hidden multiple accept={CHAT_FILE_ACCEPT} disabled={!attachAllowed}
           aria-label="Chọn tệp đính kèm" onChange={(event) => {
             const files = Array.from(event.currentTarget.files ?? []);
