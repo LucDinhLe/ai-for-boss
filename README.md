@@ -2,17 +2,21 @@
 
 Ứng dụng desktop xây trên OpenClaw. Đây là bản thử nghiệm cho nhóm nhỏ, chưa phải bản ổn định.
 
-[Tải bộ cài Windows beta35 (sửa 2)](https://github.com/LucDinhLe/ai-for-boss-preview/releases/download/0.0.5-beta.35/AI-for-Boss-0.0.5-beta.35-Setup-r2.exe) · [Ghi chú và mã SHA256](https://github.com/LucDinhLe/ai-for-boss-preview/releases/tag/0.0.5-beta.35).
+[Tải bộ cài Windows beta36](https://github.com/LucDinhLe/ai-for-boss-preview/releases/download/0.0.5-beta.36/AI-for-Boss-0.0.5-beta.36-Setup.exe) · [Ghi chú và mã SHA256](https://github.com/LucDinhLe/ai-for-boss-preview/releases/tag/0.0.5-beta.36) · [Bản trước beta35/r2](https://github.com/LucDinhLe/ai-for-boss-preview/releases/tag/0.0.5-beta.35).
 
 ## Cài và dùng thử
 
-1. Tải `AI-for-Boss-0.0.5-beta.35-Setup-r2.exe`, đối chiếu SHA256 trong cùng release rồi chạy bộ cài.
+1. Tải `AI-for-Boss-0.0.5-beta.36-Setup.exe`, đối chiếu SHA256 trong cùng release rồi chạy bộ cài.
 2. Mở lối tắt AI for Boss. Kết nối tài khoản của chính bạn trong Cài đặt → Nhà cung cấp. Quyền truy cập mô hình phụ thuộc nhà cung cấp và gói tài khoản; có trong danh mục không đồng nghĩa đã dùng được.
 3. Tạo cuộc trò chuyện hoặc dự án. Tác vụ xuất tài liệu thông thường dùng công cụ có sẵn. Lệnh tùy ý trên máy vẫn có thể yêu cầu “Cho phép lần này” hoặc “Từ chối” khi lõi chưa xác nhận được phạm vi.
 
 Lệnh chạy trực tiếp với quyền tài khoản Windows hiện tại, **không có sandbox cho lệnh**. Advisor giữ vai trò chỉ đọc. Bộ cài chưa có chứng thư Authenticode; Windows có thể hiển thị cảnh báo nhà phát hành chưa xác định. Không tắt bảo vệ Windows để cài.
 
 ## Cập nhật
+
+Beta36 bổ sung tùy chọn đưa tệp do hội thoại tạo vào Thùng rác khi xóa hội thoại. Chỉ tệp có biên nhận nguồn gốc và còn nguyên nội dung mới được đưa vào danh sách; tệp nhập, bản lưu riêng và tệp cũ không đủ thông tin vẫn được giữ.
+
+Trong **Cache & cập nhật mô hình**, tối ưu kế hoạch đang ở mức thử nghiệm và mặc định tắt. Chọn model thực thi và model đánh giá khác nhau, nhập công việc/yêu cầu mẫu rồi chạy thử. Mỗi bài được đo hai lần; chỉ thay hồ sơ cho phiên mới khi tất cả bài đạt đánh giá và dùng ít token lập kế hoạch hơn. Có giới hạn lượt gọi, dừng và quay lại hồ sơ trước. Tùy chọn thử hàng ngày dùng lượt gọi model khi ứng dụng đang mở. Đây chưa phải kiểm chứng chi phí hoặc chất lượng của toàn bộ tác vụ thực thi; không tự nhập thư viện prompt bên ngoài hay tự bật model vừa xuất hiện.
 
 Từ beta.31, Cài đặt → Giới thiệu & cập nhật có kiểm tra và tải bản mới. Tự động kiểm tra mặc định bật; tự động tải mặc định tắt. Sau khi tải và kiểm tra xong, đóng và mở lại ứng dụng để chọn bản mới. Nếu bản mới không xác nhận khởi động thành công, mở lại lối tắt cũ để quay về bản trước.
 
