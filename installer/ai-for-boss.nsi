@@ -19,6 +19,9 @@ ShowInstDetails nevershow
 ShowUninstDetails nevershow
 !ifdef FAST_BUILD
   SetCompressor zlib
+  ; Avoid scanning the growing data block for duplicates across 36,000 files.
+  ; This trades a small payload-size saving for predictable build throughput.
+  SetDatablockOptimize off
 !else
   SetCompressor /SOLID lzma
 !endif

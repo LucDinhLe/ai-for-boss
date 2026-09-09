@@ -131,33 +131,39 @@ function Verify-Payload([string]$base, $payload) {
   Add-Type @'
 using System;
 using System.IO;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Security.Cryptography;
+using System.Threading;
+using System.Threading.Tasks;
 public static class InstallVerifier {
   public static void Verify(string root, string[] names, long[] sizes, string[] hashes, Action<int,long> progress) {
     root = Path.GetFullPath(root).TrimEnd('\\');
-    var checkedDirs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-    var clock = Stopwatch.StartNew(); long last = -1000;
-    using (var algorithm = SHA256.Create()) {
-      for (int i = 0; i < names.Length; i++) {
+    var checkedDirs = new ConcurrentDictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+    var clock = Stopwatch.StartNew(); int completed = 0;
+    using (var algorithms = new ThreadLocal<SHA256>(() => SHA256.Create(), true)) {
+      try {
+      var work = Task.Run(() => Parallel.For(0, names.Length, new ParallelOptions { MaxDegreeOfParallelism = 4 }, i => {
         string file = Path.GetFullPath(Path.Combine(root, names[i].Replace('/', '\\')));
         if (!file.StartsWith(root + "\\", StringComparison.OrdinalIgnoreCase)) throw new IOException("Payload path outside version");
         string cursor = file;
-        while (!String.IsNullOrEmpty(cursor) && !checkedDirs.Contains(cursor)) {
+        while (!String.IsNullOrEmpty(cursor) && !checkedDirs.ContainsKey(cursor)) {
           var attributes = File.GetAttributes(cursor);
           if ((attributes & FileAttributes.ReparsePoint) != 0) throw new IOException("Payload contains a reparse point");
-          if ((attributes & FileAttributes.Directory) != 0) checkedDirs.Add(cursor);
+          if ((attributes & FileAttributes.Directory) != 0) checkedDirs.TryAdd(cursor, true);
           cursor = Path.GetDirectoryName(cursor);
         }
         using (var stream = File.OpenRead(file)) {
-          if (stream.Length != sizes[i] || !String.Equals(BitConverter.ToString(algorithm.ComputeHash(stream)).Replace("-", ""), hashes[i], StringComparison.OrdinalIgnoreCase))
+          if (stream.Length != sizes[i] || !String.Equals(BitConverter.ToString(algorithms.Value.ComputeHash(stream)).Replace("-", ""), hashes[i], StringComparison.OrdinalIgnoreCase))
             throw new IOException("Payload size or SHA256 mismatch");
         }
-        if (progress != null && (clock.ElapsedMilliseconds - last >= 500 || i + 1 == names.Length)) {
-          progress(i + 1, clock.ElapsedMilliseconds / 1000); last = clock.ElapsedMilliseconds;
-        }
-      }
+        Interlocked.Increment(ref completed);
+      }));
+      // UI callback stays on the PowerShell thread, never on a worker without a runspace.
+      while (!work.Wait(500)) if (progress != null) progress(Volatile.Read(ref completed), clock.ElapsedMilliseconds / 1000);
+      work.GetAwaiter().GetResult();
+      if (progress != null) progress(completed, clock.ElapsedMilliseconds / 1000);
+      } finally { foreach (var algorithm in algorithms.Values) algorithm.Dispose(); }
     }
   }
 }
