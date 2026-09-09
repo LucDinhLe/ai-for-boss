@@ -53,7 +53,10 @@ export class SupervisionService {
         if (job.workerId !== workerId) return { stopped: false };
         const state = await job.setup.workspaceRequest('agent.wait', { runId: workerId, timeoutMs: 0 });
         if (job.workerId && (job.workerId !== workerId || !['ok', 'error'].includes(state.status)
-          || !Number.isFinite(state.endedAt) || state.pendingError || state.yielded)) return { stopped: false };
+          || !Number.isFinite(state.endedAt) || state.pendingError || state.yielded)) {
+          const snapshot = await job.adapter.request('chat.history', { sessionKey: job.key, limit: 1 });
+          if (job.workerId !== workerId || snapshot.inFlightRun || snapshot.sessionInfo?.hasActiveRun !== false) return { stopped: false };
+        }
       }
     }
     job.confirmedStopped = true;

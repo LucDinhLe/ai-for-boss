@@ -165,3 +165,21 @@ test('missing native wait receipt releases explicitly idle worker without review
   assert.equal(result.phase, 'unreviewed'); assert.equal(result.busy, false);
   assert.equal(f.inputs.length, 0); assert.equal(f.calls.filter(x => x === 'sessions.send').length, 1);
 });
+
+
+test('Stop can confirm native idle after the completion receipt is lost', async () => {
+  const f = fixture(), adapter = f.service.getAdapter(), prior = adapter.request;
+  let release; const waiting = new Promise(resolve => { release = resolve; }); let stopped = false;
+  f.service.getSetup().workspaceRequest = async (_method, params) => params.timeoutMs === 0 ? { status: 'timeout' } : waiting;
+  adapter.request = async (method, params) => {
+    if (method === 'chat.abort') stopped = true;
+    const result = await prior(method, params);
+    if (method === 'chat.history' && stopped) result.sessionInfo.hasActiveRun = false;
+    return result;
+  };
+  const running = f.service.run(f.input);
+  for (let i=0;i<30 && !f.calls.includes('sessions.send');i++) await new Promise(resolve=>setTimeout(resolve,1));
+  assert.equal((await f.service.cancel()).stopped, true);
+  release({ status: 'timeout' }); await running;
+  assert.equal(f.service.status().busy, false); assert.equal(f.inputs.length, 0);
+});
