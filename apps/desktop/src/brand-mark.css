@@ -1,0 +1,19 @@
+/* Owner's App Icon reference: only the ring rotates; the centered core pulses. */
+.brand-mark > svg { display: block; width: 100%; height: 100%; }
+.brand-mark__ring { transform-origin: 50px 50px; }
+.brand-mark__core { fill: #3D7A73; transform-origin: 50px 50px; }
+:root[data-theme="dark"] .brand-mark__core { fill: #4FA69D; }
+.brand-mark--active .brand-mark__ring { animation: brand-mark-spin-ring 2.2s linear infinite; }
+.brand-mark--active .brand-mark__core { animation: brand-mark-pulse-core 1.6s ease-in-out infinite; }
+@keyframes brand-mark-spin-ring {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes brand-mark-pulse-core {
+  0%, 100% { r: 17; opacity: 1; }
+  50% { r: 19; opacity: .88; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-mark--active .brand-mark__ring,
+  .brand-mark--active .brand-mark__core { animation: none; }
+}

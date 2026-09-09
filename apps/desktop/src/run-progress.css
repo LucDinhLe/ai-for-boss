@@ -1,0 +1,22 @@
+.run-progress { margin: 0; padding: 3px 10px; color: var(--muted, #777); font-size: 12px; }
+.run-progress__headline { display: flex; align-items: center; gap: 8px; color: var(--ink, #3c3c3a); }
+.run-progress__headline small { margin-left: auto; color: var(--muted); font-size: 11px; }
+.run-progress[data-completed="true"] .run-progress__headline { color: var(--muted); }
+.run-progress[data-active="true"] .run-progress__headline > svg { animation: progress-pulse 1.8s ease-in-out infinite; }
+.run-progress details { margin-top: 5px; }
+.run-progress > .run-progress__completed { margin-top: 0; }
+.run-progress summary, .run-progress__reasoning > summary { cursor: pointer; padding: 4px 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.run-progress__reasoning { margin: 0 0 6px; }
+.run-progress__completed > summary { list-style: none; }
+.run-progress__completed > summary::-webkit-details-marker { display: none; }
+.run-progress__completed > summary::after { content: ''; width: 5px; height: 5px; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: rotate(45deg); margin-left: 3px; }
+.run-progress__completed[open] > summary::after { transform: rotate(225deg); }
+.run-progress__completed[open] { padding-bottom: 4px; }
+.run-progress__reasoning > div { max-height: 260px; overflow: auto; margin-top: 8px; color: var(--ink, #3c3c3a); }
+.run-progress__hint { margin: 5px 0 0; font-size: .78rem; }
+.run-progress ul, .run-progress ol { margin: 8px 0; padding: 0; list-style: none; }
+.run-progress li { display: flex; gap: 8px; align-items: baseline; margin: 6px 0; }
+.run-progress li svg { flex-shrink: 0; }
+.run-progress li small { margin-left: auto; white-space: nowrap; }
+@keyframes progress-pulse { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .run-progress[data-active="true"] .run-progress__headline > svg { animation: none; } }

@@ -18,6 +18,11 @@ coverage/
 *.jks
 *.keystore
 
+# Runtime staged into the packaged app by scripts/stage-runtime.mjs. Hundreds of
+# megabytes of downloaded binaries; the pins and digests live in
+# manifests/runtime/bundled-runtime.lock.json, which is what belongs in git.
+apps/desktop/resources/
+
 # Runtime and user data
 data/
 !manifests/data/
@@ -40,3 +45,6 @@ desktop.ini
 *.tmp
 *.temp
 tmp/
+
+# Local QA recordings and release signing material never belong in public source
+artifacts/

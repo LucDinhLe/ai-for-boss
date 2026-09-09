@@ -19,9 +19,14 @@ import {
   GATEWAY_EVENT_CHANNEL,
   GATEWAY_REQUEST_CHANNEL,
   GATEWAY_STATUS_CHANNEL,
+  GATEWAY_RETRY_CHANNEL,
   GATEWAY_STATUS_EVENT_CHANNEL,
   MAIN_TO_RENDERER_CHANNELS,
   RENDERER_INVOKE_CHANNELS,
+  SETUP_REQUEST_CHANNEL,
+  SETUP_OPEN_PAGE_CHANNEL,
+  ADVISOR_REQUEST_CHANNEL,
+  MANAGEMENT_REQUEST_CHANNEL,
   SHELL_STATUS_CHANNEL
 } from "../../apps/desktop/electron/security-policy.mjs";
 
@@ -51,6 +56,11 @@ test("capabilities this gate has not built stay unreachable from the renderer", 
     "plugins.setEnabled",
     "skills.install",
     "cron.add",
+    "cron.update",
+    "cron.remove",
+    "cron.run",
+    "conversations.send",
+    "conversations.turn",
     "node.invoke",
     "secrets.store.set",
     "config.set",
@@ -64,10 +74,19 @@ test("capabilities this gate has not built stay unreachable from the renderer", 
   }
 });
 
+test("workbench inventory and file previews use named read methods only", () => {
+  for (const method of ["projects.list", "sessions.usage", "sessions.files.list", "sessions.files.get",
+    "skills.status", "channels.status", "cron.list", "cron.status", "cron.runs"]) {
+    assert.ok(READ_METHODS.includes(method), `${method} must be a read capability`);
+    assert.equal(WRITE_METHODS.includes(method), false);
+  }
+});
+
 test("event forwarding covers the transcript and nothing that implies an unbuilt capability", () => {
   assert.ok(isForwardedEvent("session.message"));
   assert.ok(isForwardedEvent("chat"));
-  assert.equal(isForwardedEvent("exec.approval.requested"), false);
+  assert.equal(isForwardedEvent("exec.approval.requested"), true);
+  assert.equal(isForwardedEvent("exec.approval.resolved"), true);
   assert.equal(isForwardedEvent("terminal.data"), false);
   assert.equal(isForwardedEvent("question.requested"), false);
   assert.equal(new Set(FORWARDED_EVENTS).size, FORWARDED_EVENTS.length);
@@ -105,9 +124,14 @@ test("the client identifies with a registry-valid id", () => {
 
 test("the IPC surface is exactly the documented channels", () => {
   assert.deepEqual(RENDERER_INVOKE_CHANNELS, [
+    MANAGEMENT_REQUEST_CHANNEL,
     SHELL_STATUS_CHANNEL,
     GATEWAY_REQUEST_CHANNEL,
-    GATEWAY_STATUS_CHANNEL
+    GATEWAY_STATUS_CHANNEL,
+    SETUP_REQUEST_CHANNEL,
+    GATEWAY_RETRY_CHANNEL,
+    SETUP_OPEN_PAGE_CHANNEL,
+    ADVISOR_REQUEST_CHANNEL
   ]);
   assert.deepEqual(MAIN_TO_RENDERER_CHANNELS, [GATEWAY_STATUS_EVENT_CHANNEL, GATEWAY_EVENT_CHANNEL]);
 

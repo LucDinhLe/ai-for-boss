@@ -113,7 +113,7 @@ requireValue(probeSchema?.additionalProperties, false, "probe schema top-level a
 
 for (const marker of [
   "**Trạng thái hiện tại:**",
-  "dự án đang ở Cổng 0",
+  "bản thử nghiệm",
   "mục tiêu sản phẩm",
   "không capability nào đang được quảng cáo là production-ready"
 ]) requireIncludes(readme, marker, "README current-status disclaimer");

@@ -40,7 +40,7 @@ test("preload exposes only allowlisted, invoke-shaped IPC requests", () => {
   assert.equal(SHELL_STATUS_CHANNEL, "aifb:shell-status");
   // Beta 0 (D-0019) adds the two supervised-runtime channels. The shape stays
   // request/response against named channels; nothing fire-and-forget appears.
-  assert.equal([...preload.matchAll(/ipcRenderer\.invoke\(/g)].length, 3);
+  assert.equal([...preload.matchAll(/ipcRenderer\.invoke\(/g)].length, 8);
   assert.match(preload, /getShellStatus/);
   assert.doesNotMatch(preload, /ipcRenderer\.(?:send|sendSync|once)\s*\(/);
   // One receive helper, and it must hand back an unsubscribe.

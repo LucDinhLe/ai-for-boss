@@ -65,6 +65,12 @@ importers:
       '@openclaw/gateway-protocol':
         specifier: 2026.9.1
         version: 2026.9.1
+      htmlparser2:
+        specifier: 10.1.0
+        version: 10.1.0
+      jszip:
+        specifier: 3.10.1
+        version: 3.10.1
       openclaw:
         specifier: 2026.9.1
         version: 2026.9.1

@@ -1,0 +1,5 @@
+.channel-qr img { display: block; width: min(280px, 100%); aspect-ratio: 1; object-fit: contain; background: #fff; border-radius: 12px; padding: 12px; margin-block: 16px; }
+.channel-access-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-block: 12px; }
+.channel-access-row span { flex: 1 1 220px; overflow-wrap: anywhere; }
+.channel-secret-input { max-height: 240px; resize: vertical; overflow: auto; font: inherit; color: var(--ink); background: var(--paper); border: 1px solid var(--hairline); border-radius: 6px; }
+.channel-secret-input--masked { -webkit-text-security: disc; }

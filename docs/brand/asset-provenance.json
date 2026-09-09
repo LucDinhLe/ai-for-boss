@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "name": "Vành Đơn",
+  "approvalDate": "2026-08-26",
+  "sourceCommit": "f5b065c69e1c7e7ee869270178be8b03bc06bc21",
+  "synchronizedDate": "2026-09-06",
+  "files": [
+    {
+      "path": "assets/ai-for-boss-app-icon.svg",
+      "sha256": "be4767fbabe2d6d13effa4c535910e044f9b4d18021d8c8cfb77cbb548f43dba"
+    },
+    {
+      "path": "assets/ai-for-boss-mark-dark.svg",
+      "sha256": "87d1facb108f9f686ff1211567a76a17b6829372c5c78ff737e20f19655aa13e"
+    },
+    {
+      "path": "assets/ai-for-boss-mark-mono-dark.svg",
+      "sha256": "d832fdd54b428de458fb891fbf0f6525fd4da0e5a4db1d0539f26a81bc423f88"
+    },
+    {
+      "path": "assets/ai-for-boss-mark-mono-light.svg",
+      "sha256": "6af27b8d23e86b3c7de56839be90c02b35b98ce324eee634e72279ac07a0d444"
+    },
+    {
+      "path": "assets/ai-for-boss-mark.svg",
+      "sha256": "be4767fbabe2d6d13effa4c535910e044f9b4d18021d8c8cfb77cbb548f43dba"
+    },
+    {
+      "path": "assets/app-icons/favicon.ico",
+      "sha256": "711c1fa325e3eb669039b9b11316856e3510fe1418a2d0e7d870377ad74110dd"
+    },
+    {
+      "path": "assets/app-icons/icon-1024.png",
+      "sha256": "e6ec072a35fa4fc9dbf492f6074f1870d849b9ece6ad14e1a49e9df4c1a3ba1b"
+    },
+    {
+      "path": "assets/app-icons/icon-128.png",
+      "sha256": "bce037b7df763545e1ba3a0edf4d78b4c9a95e919dc022c9fd04ee1966bf2366"
+    },
+    {
+      "path": "assets/app-icons/icon-16.png",
+      "sha256": "dc8459a3c300bb737f3af3ebb21c746dd62b6df13fd9b5a28ff85225fc94b38b"
+    },
+    {
+      "path": "assets/app-icons/icon-256.png",
+      "sha256": "e49108801e9421a2b78b6eeeafd8360f8873e5bb61adac1e0d68198beab1b74d"
+    },
+    {
+      "path": "assets/app-icons/icon-32.png",
+      "sha256": "0277cb63883c1e629613bf14d3f60c698638660d665c86a2930efee22ac9aac3"
+    },
+    {
+      "path": "assets/app-icons/icon-48.png",
+      "sha256": "616b164c1e22eec214d8a88fae5499fe108fb53d7ba91e15b7c1c8ba4ad9f16c"
+    },
+    {
+      "path": "assets/app-icons/icon-512.png",
+      "sha256": "4f3c3710de3486283f10ece36d631b4ddce7529045bf9d0ad34fb123cb3d7a54"
+    },
+    {
+      "path": "assets/app-icons/icon-64.png",
+      "sha256": "1035f69df3da5a9e5c9a2931096fbbe381ed9adca907584131e67c859a578398"
+    },
+    {
+      "path": "assets/app-icons/icon.icns",
+      "sha256": "fe21167b4d70d9f1e8a8a39881eeca64ee27aba807d39bb2df6242cf7663c3a7"
+    },
+    {
+      "path": "assets/app-icons/icon.ico",
+      "sha256": "711c1fa325e3eb669039b9b11316856e3510fe1418a2d0e7d870377ad74110dd"
+    }
+  ]
+}

@@ -17,6 +17,8 @@ function commandAvailable(command) {
 }
 
 const powershell = commandAvailable("pwsh") ? "pwsh" : "powershell";
+const ignoredNames = new Set([".git", "node_modules", "dist", "out", "tmp"]);
+const generatedTrees = new Set(["apps/desktop/resources/bundle"]);
 
 function runInCopy(mutator = () => {}) {
   const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "aifb-governance-status-"));
@@ -24,8 +26,10 @@ function runInCopy(mutator = () => {}) {
   try {
     fs.cpSync(repoRoot, fixtureRoot, {
       recursive: true,
-      filter: (source) =>
-        !new Set([".git", "node_modules", "dist", "out"]).has(path.basename(source))
+      filter: (source) => {
+        const relative = path.relative(repoRoot, source).split(path.sep).join("/");
+        return !ignoredNames.has(path.basename(source)) && !generatedTrees.has(relative);
+      }
     });
     mutator(fixtureRoot);
     return spawnSync(

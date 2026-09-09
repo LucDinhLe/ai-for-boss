@@ -1,0 +1,1 @@
+{"id":"aifb-documents","name":"AI for Boss Documents","description":"Create Word, Excel, PowerPoint and PDF files inside the active workspace.","contracts":{"tools":["aifb_export_document"]},"activation":{"onStartup":true},"configSchema":{"type":"object","additionalProperties":false,"properties":{}}}

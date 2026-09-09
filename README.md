@@ -1,191 +1,56 @@
-# AI for Boss
+# AI for Boss — Windows preview
 
-**Tầm nhìn sản phẩm AI Agent dành cho chủ doanh nghiệp, nhà quản lý và người làm chuyên môn.**
+Ứng dụng desktop xây trên OpenClaw. Đây là bản thử nghiệm cho nhóm nhỏ, chưa phải bản ổn định.
 
-AI for Boss đang được xây dựng trên nền tảng mã nguồn mở OpenClaw, hướng tới việc giúp người dùng dễ dàng cài đặt, tạo, quản lý và giao việc cho AI Agent qua một giao diện đơn giản, an toàn và dễ sử dụng.
+[Tải bộ cài Windows beta36](https://github.com/LucDinhLe/ai-for-boss/releases/download/0.0.5-beta.36/AI-for-Boss-0.0.5-beta.36-Setup.exe) · [Ghi chú và mã SHA256](https://github.com/LucDinhLe/ai-for-boss/releases/tag/0.0.5-beta.36) · [Bản trước beta35/r2](https://github.com/LucDinhLe/ai-for-boss/releases/tag/0.0.5-beta.35).
 
-> [!IMPORTANT]
-> **Trạng thái hiện tại:** dự án đang ở Cổng 0. Phần tài liệu và hợp đồng của cổng này đã đóng, senior platform/security review độc lập vẫn chờ, và dự án đang thi công **beta 0** trên nhánh `experiment/beta-0`: ứng dụng tự nuôi một Gateway OpenClaw bên trong và nói chuyện với nó qua giao thức chính thức, kèm một cửa sổ trò chuyện tối thiểu. Beta 0 tồn tại để trả lời một câu hỏi bằng bằng chứng, rằng Gateway chạy được nguyên bản trên từng hệ điều hành hay Windows bắt buộc phải mượn Linux subsystem.
->
-> Chưa có: bộ cài, updater, ký số, kết nối nhà cung cấp model, Advisor thật, tool, duyệt hành động, quản lý dự án, và bất kỳ bản phát hành nào cho người dùng thật. Bản đóng gói vẫn là `experimental-internal` và chưa mang theo Node runtime nên chưa chạy được trên máy sạch. Các khả năng bên dưới là **mục tiêu sản phẩm** trừ khi hồ sơ release ghi rõ đã kiểm chứng; không capability nào đang được quảng cáo là production-ready.
->
-> Beta 0 chạy trên candidate train `oc-2026.9.1-candidate.1` (OpenClaw `2026.9.1`, Node `24.19.0`, Electron `43.3.0`, pnpm `11.2.2`, Gateway protocol v4). Đây là **candidate**, không phải release train đã khóa; train đã khóa vẫn là `oc-2026.7.1-2-locked.1`. Điều kiện để promote nằm trong `manifests/runtime/beta-0-candidate.lock.json`.
+## Cài và dùng thử
 
-## Vì sao AI for Boss ra đời?
+1. Tải `AI-for-Boss-0.0.5-beta.36-Setup.exe`, đối chiếu SHA256 trong cùng release rồi chạy bộ cài.
+2. Mở lối tắt AI for Boss. Kết nối tài khoản của chính bạn trong Cài đặt → Nhà cung cấp. Quyền truy cập mô hình phụ thuộc nhà cung cấp và gói tài khoản; có trong danh mục không đồng nghĩa đã dùng được.
+3. Tạo cuộc trò chuyện hoặc dự án. Tác vụ xuất tài liệu thông thường dùng công cụ có sẵn. Lệnh tùy ý trên máy vẫn có thể yêu cầu “Cho phép lần này” hoặc “Từ chối” khi lõi chưa xác nhận được phạm vi.
 
-Các mô hình AI ngày càng mạnh, nhưng việc biến chúng thành AI Agent có khả năng hỗ trợ công việc lâu dài vẫn còn phức tạp với phần lớn người dùng.
+Lệnh chạy trực tiếp với quyền tài khoản Windows hiện tại, **không có sandbox cho lệnh**. Advisor giữ vai trò chỉ đọc. Bộ cài chưa có chứng thư Authenticode; Windows có thể hiển thị cảnh báo nhà phát hành chưa xác định. Không tắt bảo vệ Windows để cài.
 
-Để tự cài đặt và vận hành AI Agent, người dùng thường phải làm quen với dòng lệnh, Node.js, Git, WSL, Gateway, API key, quyền truy cập, cấu hình mô hình và nhiều thành phần kỹ thuật khác.
+## Cập nhật
 
-Sau khi cài đặt, họ vẫn phải tự giải quyết nhiều câu hỏi quan trọng:
+Beta36 bổ sung tùy chọn đưa tệp do hội thoại tạo vào Thùng rác khi xóa hội thoại. Chỉ tệp có biên nhận nguồn gốc và còn nguyên nội dung mới được đưa vào danh sách; tệp nhập, bản lưu riêng và tệp cũ không đủ thông tin vẫn được giữ.
 
-- AI Agent được phép làm gì?
-- Agent đang sử dụng mô hình nào?
-- Dữ liệu nào được gửi ra ngoài?
-- Hành động nào cần người dùng phê duyệt?
-- Chi phí sử dụng được kiểm soát như thế nào?
-- Làm sao biết kết quả của Agent đủ tin cậy để sử dụng?
+Trong **Cache & cập nhật mô hình**, tối ưu kế hoạch đang ở mức thử nghiệm và mặc định tắt. Chọn model thực thi và model đánh giá khác nhau, nhập công việc/yêu cầu mẫu rồi chạy thử. Mỗi bài được đo hai lần; chỉ thay hồ sơ cho phiên mới khi tất cả bài đạt đánh giá và dùng ít token lập kế hoạch hơn. Có giới hạn lượt gọi, dừng và quay lại hồ sơ trước. Tùy chọn thử hàng ngày dùng lượt gọi model khi ứng dụng đang mở. Đây chưa phải kiểm chứng chi phí hoặc chất lượng của toàn bộ tác vụ thực thi; không tự nhập thư viện prompt bên ngoài hay tự bật model vừa xuất hiện.
 
-Mục tiêu của AI for Boss là đưa toàn bộ hành trình này vào một phần mềm thống nhất, dễ hiểu và phù hợp với người không chuyên kỹ thuật.
+Từ beta.31, Cài đặt → Giới thiệu & cập nhật có kiểm tra và tải bản mới. Tự động kiểm tra mặc định bật; tự động tải mặc định tắt. Sau khi tải và kiểm tra xong, đóng và mở lại ứng dụng để chọn bản mới. Nếu bản mới không xác nhận khởi động thành công, mở lại lối tắt cũ để quay về bản trước.
 
-## Hành trình mục tiêu gồm ba bước
+Bộ cài dùng cho cài mới và khôi phục. Giao diện/ứng dụng và lõi có gói riêng; lõi không đổi được dùng lại. Gói cập nhật được kiểm tra chữ ký Ed25519, SHA256 và tính tương thích trước khi dùng. Không tự đổi sang một bản OpenClaw bất kỳ vừa xuất hiện trên npm. Phiên bản trước beta.31 cần chạy bộ cài này một lần để có cơ chế cập nhật mới.
 
-Khi đạt các cổng phát hành, người dùng dự kiến bắt đầu với AI for Boss qua ba bước:
+## Phạm vi bản thử
 
-1. Cài đặt phần mềm.
-2. Kết nối mô hình và tạo AI Agent.
-3. Giao công việc đầu tiên.
+- Beta35: mỗi phiên kiểm tra trạng thái độc lập; giảm tải lại lịch sử khi đang chạy, phục hồi khi thiếu biên nhận và giữ nút Dừng có thể thử lại. Advisor tùy chọn review sau thực thi, tối đa hai lượt review và một lượt sửa; lời chào không gọi Advisor.
+- Từ beta33: trạng thái chạy, nháp và Advisor tách theo từng cuộc trò chuyện. Chuyển hoặc tạo tác vụ khác trong lúc chờ; hộp duyệt có thể thu gọn. Nút Dừng đối chiếu lại lượt chạy khi thiếu sự kiện.
+- Dán ảnh clipboard vào nháp và menu chuột phải Dán; bỏ nút chụp màn hình riêng. Thanh công cụ giữ tên/icon agent của phiên.
+- Bộ xuất Word/Excel/PowerPoint/PDF tiếng Việt đi kèm ứng dụng, ghi tệp mới trong workspace, không cần cài Python. Excel hỗ trợ công thức tổng cho cột cuối. Đây là bộ xuất cơ bản, chưa phải trình biên tập Office đầy đủ.
+- Hiển thị và lưu tệp đính kèm do OpenClaw bàn giao, kiểm tra session và nội dung tải xuống. Agents có thể khám phá, giao việc và nhắn tin qua công cụ OpenClaw.
+- Cài đặt → Dữ liệu & sao lưu: sao lưu mã hóa trên máy, xuất/nhập bằng mật khẩu, lịch hàng ngày/hàng tuần và giữ 3/5/10 bản. Phục hồi được kiểm tra trước, giữ bản trước để hoàn tác và dừng Gateway chờ xem lại. Bản thử khôi phục đúng thư mục dữ liệu gốc; chưa tự chuyển cấu hình sang máy khác hoặc ghi đè workspace bên ngoài. Bản lưu không gồm cookie trình duyệt. Giới hạn bản lõi 700 MB; tùy chọn loại khóa API/media riêng chưa có.
+- Chọn mô hình theo nhóm nhà cung cấp, kết nối qua phương thức lõi hỗ trợ, điều chỉnh cache và cập nhật danh mục mô hình.
+- Đọc/sửa tệp và chạy lệnh qua cơ chế quyền của lõi; giao diện duyệt từng lệnh đã được kiểm thử với OpenClaw native runtime. Các harness/CLI có thể có giới hạn riêng.
+- Browser tích hợp, đồng bộ màu giao diện, ghép tiện ích Chrome chính thức và chia sẻ tab. Thao tác website tự động trong browser tích hợp chưa được bật.
+- Chưa có giọng nói trực tiếp/local LLM tích hợp hoặc trình cài MCP tùy ý. Đăng nhập thuê bao thực tế và quyền dùng từng mô hình phải được kiểm tra với tài khoản của người thử; kiểm thử tự động không dùng tài khoản thật.
 
-Các thành phần kỹ thuật sẽ được quản lý phía sau. Người dùng tập trung vào mục tiêu, dữ liệu, quyết định và kết quả công việc.
+## Build mã nguồn
 
-## AI for Boss mang lại lợi ích gì?
+Cần Node.js 24.19.0 và pnpm 11.2.2 qua Corepack:
 
-### Cài đặt dễ dàng
+```powershell
+corepack pnpm install --frozen-lockfile
+corepack pnpm run documents:install
+corepack pnpm run verify
+```
 
-Mục tiêu phát hành là hỗ trợ Windows, macOS và Linux theo ma trận đã được kiểm thử của từng bản.
+Mã nguồn này là snapshot đã loại lịch sử riêng tư, ảnh/log kiểm thử và hồ sơ tài khoản. Các kiểm thử hành vi công khai nằm trong `tests/unit`; một số công cụ kiểm toán lịch sử phát triển còn cần tài liệu nội bộ không nằm trong snapshot này. Không đưa `.env`, hồ sơ đăng nhập, log người dùng hay khóa ký phát hành vào Git.
 
-Khi bộ cài đạt Cổng 4, người dùng sẽ không cần tự cài đặt hoặc vận hành OpenClaw, Gateway, Node.js, Git, WSL hay package manager.
+OpenClaw và các thư viện đi kèm giữ nguyên thông báo bản quyền và giấy phép của chúng. Công khai mã nguồn bản thử không làm thay đổi điều kiện sử dụng tài khoản của nhà cung cấp AI.
 
-### Tạo AI Agent theo nhu cầu riêng
+## Chuyển kho phát hành
 
-Người dùng có thể thiết lập cho Agent:
+Kho chính hiện là `LucDinhLe/ai-for-boss`. Các bản beta36 trở xuống đã phát hành giữ nguyên tệp cài và có địa chỉ cập nhật cũ được nhúng trong ứng dụng. Khi kho preview bị xóa, chức năng kiểm tra cập nhật của những bản này không còn truy cập được nguồn cũ; người dùng cần tải thủ công bản cài kế tiếp từ kho chính. Mã nguồn hiện tại đã chuyển địa chỉ cập nhật sang kho chính. Việc chuyển kho không thay dữ liệu hay cấu hình trên máy người dùng.
 
-- Tên gọi.
-- Vai trò và phạm vi công việc.
-- Giọng điệu giao tiếp.
-- Cách xưng hô.
-- Emoji hoặc hình ảnh đại diện.
-- Thứ tự ưu tiên.
-- Ranh giới và những hành động cần xin phép.
-
-Thiết kế mục tiêu yêu cầu mỗi Agent có danh tính, phiên làm việc, bộ nhớ và quyền truy cập riêng; biên này chưa được triển khai hoặc kiểm chứng trong runtime sản phẩm.
-
-### Kết nối mô hình AI của người dùng
-
-Kế hoạch sản phẩm hỗ trợ kết nối với nhiều nhà cung cấp mô hình như OpenAI, Anthropic, Google và các mô hình tương thích khác sau khi từng connector qua contract, điều khoản và live test.
-
-Người dùng sử dụng tài khoản của chính mình, lựa chọn mô hình phù hợp với từng công việc và chủ động kiểm soát chi phí.
-
-### Giao việc bằng ngôn ngữ thông thường
-
-Người dùng chỉ cần mô tả mục tiêu hoặc kết quả mong muốn.
-
-AI Agent dự kiến có thể:
-
-- Làm rõ yêu cầu.
-- Lập kế hoạch thực hiện.
-- Xác định dữ liệu và công cụ cần dùng.
-- Trình bày quyền truy cập cần thiết.
-- Thực hiện công việc.
-- Theo dõi tiến trình.
-- Tạo kết quả và tài liệu bàn giao.
-
-### Quản lý nhiều AI Agent
-
-Kế hoạch sản phẩm cho phép tạo nhiều Agent cho các vai trò khác nhau:
-
-- Trợ lý điều hành.
-- Phân tích kinh doanh.
-- Nghiên cứu thị trường.
-- Quản lý nội dung.
-- Hỗ trợ đào tạo.
-- Tổng hợp tài liệu.
-- Theo dõi kế hoạch và công việc.
-
-Kiến trúc mục tiêu tách không gian từng Agent để hạn chế việc lẫn danh tính, dữ liệu, bộ nhớ và quyền truy cập; capability này tiếp tục bị khóa tới khi có enforcement và isolation test thực thi.
-
-### Kiểm soát dữ liệu, quyền và chi phí
-
-Theo thiết kế mục tiêu, trước khi Agent thực hiện hành động quan trọng, người dùng có thể kiểm tra:
-
-- Dữ liệu nào sẽ được sử dụng.
-- Dữ liệu có rời khỏi thiết bị hay không.
-- Công cụ nào sẽ được kích hoạt.
-- Agent cần quyền đọc hay quyền chỉnh sửa.
-- Hành động nào cần phê duyệt.
-- Chi phí dự kiến của tác vụ.
-
-Người dùng luôn giữ quyền quyết định cuối cùng.
-
-### Advisor kiểm tra kế hoạch và kết quả
-
-Thiết kế mục tiêu sử dụng Advisor tại hai checkpoint:
-
-1. Kiểm tra kế hoạch trước khi Agent thực hiện.
-2. Kiểm tra kết quả trước khi bàn giao cho người dùng.
-
-Advisor giúp phát hiện yêu cầu chưa rõ, giả định thiếu cơ sở, dữ liệu chưa đủ, rủi ro bị bỏ sót và kết luận chưa đáng tin cậy.
-
-### Quản lý tập trung trong một giao diện
-
-Kế hoạch sản phẩm tập trung các hoạt động quan trọng vào một ứng dụng:
-
-- Cài đặt và cập nhật.
-- Kết nối mô hình.
-- Tạo và quản lý Agent.
-- Quản lý phiên làm việc.
-- Theo dõi tiến trình.
-- Xem và phê duyệt hành động.
-- Quản lý dữ liệu và quyền truy cập.
-- Kiểm tra tình trạng hệ thống.
-- Sao lưu và phục hồi.
-
-## AI for Boss dành cho ai?
-
-AI for Boss được phát triển cho:
-
-- Chủ doanh nghiệp nhỏ và vừa muốn ứng dụng AI vào vận hành.
-- Nhà quản lý cần hỗ trợ phân tích, lập kế hoạch và theo dõi công việc.
-- Chuyên gia, giảng viên, trainer, coach và consultant làm việc với nhiều tri thức.
-- Người làm nội dung, nghiên cứu và phát triển sản phẩm.
-- Học viên muốn học cách sử dụng và quản lý AI Agent.
-- Người muốn sử dụng sức mạnh của OpenClaw qua một giao diện dễ tiếp cận hơn.
-
-## AI for Boss được xây dựng từ đâu?
-
-AI for Boss được xây dựng trên OpenClaw, nền tảng mã nguồn mở cung cấp lõi vận hành cho AI Agent.
-
-OpenClaw cung cấp nền tảng cho các khả năng như:
-
-- Kết nối và lựa chọn mô hình AI.
-- Quản lý Agent và phiên làm việc.
-- Bộ nhớ và ngữ cảnh.
-- Công cụ và Browser.
-- Kỹ năng và plugin.
-- Kết nối MCP.
-- Lịch tác vụ và hoạt động nền.
-- Quản lý tệp và dữ liệu.
-- Chẩn đoán và phục hồi.
-
-Trên nền tảng đó, AI for Boss đang phát triển lớp trải nghiệm và quản trị dành cho người dùng phổ thông:
-
-- Ứng dụng desktop đa nền tảng.
-- Quy trình cài đặt và khởi tạo.
-- Giao diện tạo và quản lý Agent.
-- Kết nối mô hình qua trải nghiệm trực quan.
-- Kiểm soát dữ liệu và quyền truy cập.
-- Cơ chế phê duyệt hành động.
-- Advisor kiểm tra kế hoạch và kết quả.
-- Giám sát tình trạng hệ thống.
-- Sao lưu, phục hồi và cập nhật.
-
-Dự án ghi rõ **AI for Boss — Built on OpenClaw** để thể hiện nguồn nền tảng và giữ sự minh bạch với người dùng.
-
-## Nguyên tắc thiết kế
-
-AI for Boss được xây dựng theo các nguyên tắc:
-
-- Dễ sử dụng với người không chuyên kỹ thuật.
-- Người dùng luôn giữ quyền quyết định.
-- Quyền truy cập được cấp rõ ràng và có giới hạn.
-- Dữ liệu, công cụ và chi phí được trình bày minh bạch.
-- Hành động nhạy cảm cần được phê duyệt.
-- Mỗi Agent có danh tính và không gian riêng.
-- Lỗi phải dừng an toàn và có khả năng phục hồi.
-- Khả năng chưa được kiểm chứng không được trình bày như đã sẵn sàng.
-
-## Tầm nhìn
-
-AI for Boss giúp người dùng phổ thông có thể cài đặt, tạo, quản lý và giao việc cho AI Agent mà không phải tự vận hành một hệ thống kỹ thuật phức tạp.
-
-Sức mạnh của AI được đặt trong một trải nghiệm rõ ràng, nơi người dùng luôn nhìn thấy dữ liệu, quyền hạn, chi phí, tiến trình và trách nhiệm đằng sau mỗi hành động.
+**Trạng thái hiện tại:** beta36 là bản thử nghiệm. Tài liệu quản trị mô tả mục tiêu sản phẩm; không capability nào đang được quảng cáo là production-ready. Các mốc Cổng 0/Feature 0.x trong lịch sử không phải số phiên bản bộ cài.

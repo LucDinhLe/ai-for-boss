@@ -1,3 +1,4 @@
+import type { AdvisorRequest, AdvisorResponse } from "./advisor-types";
 export {};
 
 declare global {
@@ -39,6 +40,8 @@ declare global {
     supervisor: "idle" | "starting" | "ready" | "restarting" | "safe-mode";
     detail: string | null;
     connected: boolean;
+    setupReady: boolean;
+    attachmentPolicy: import("./chat-attachments").AttachmentPolicy | null;
     serverVersion: string | null;
     protocol: number | null;
     nodeRuntime: string | null;
@@ -55,11 +58,18 @@ declare global {
   interface Window {
     aiForBoss?: Readonly<{
       getShellStatus: () => Promise<ShellStatus>;
+      management: Readonly<{ request: <T = Record<string, unknown>>(payload: unknown) => Promise<T> }>;
+      advisor: Readonly<{ request: (payload: AdvisorRequest) => Promise<AdvisorResponse> }>;
       gateway: Readonly<{
         request: <T = Record<string, unknown>>(method: string, params?: unknown) => Promise<T>;
         getStatus: () => Promise<GatewayRuntimeStatus>;
+        retryStartup: () => Promise<boolean>;
         onStatus: (listener: (status: GatewayRuntimeStatus) => void) => () => void;
         onEvent: (listener: (event: GatewayEventFrame) => void) => () => void;
+      }>;
+      setup: Readonly<{
+        request: <T = Record<string, unknown>>(method: string, params?: unknown) => Promise<T>;
+        openPage: (sessionId: string) => Promise<boolean>;
       }>;
     }>;
   }

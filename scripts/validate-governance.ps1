@@ -240,7 +240,7 @@ foreach ($file in $forbiddenEnvFiles) {
 }
 
 $secretPatterns = @(
-  [pscustomobject]@{ Name = 'OpenAI-style key'; Pattern = 'sk-[A-Za-z0-9_-]{20,}' },
+  [pscustomobject]@{ Name = 'OpenAI-style key'; Pattern = '(?<![A-Za-z0-9_])sk-[A-Za-z0-9_-]{20,}' },
   [pscustomobject]@{ Name = 'GitHub token'; Pattern = 'gh[pousr]_[A-Za-z0-9]{20,}' },
   [pscustomobject]@{ Name = 'Google API key'; Pattern = 'AIza[0-9A-Za-z_-]{30,}' },
   [pscustomobject]@{ Name = 'AWS access key'; Pattern = 'AKIA[0-9A-Z]{16}' },

@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import BrandMark from "../BrandMark";
 import {
   approvePreviewGenesis,
   CONNECTION_FIXTURES,
@@ -268,7 +269,7 @@ function App() {
   return (
     <main className="first-run-shell">
       <aside className="journey-rail" aria-label={locale === "vi" ? "Hành trình khởi tạo" : "First-run journey"}>
-        <header className="brand-block"><div className="brand-glyph" aria-hidden="true"><span /><span /></div><div><strong>AI for Boss</strong><small>{text.builtOn}</small></div></header>
+        <header className="brand-block"><BrandMark /><div><strong>AI for Boss</strong><small>{text.builtOn}</small></div></header>
         <section className="journey-intro"><span className="internal-badge">{text.badge}</span><h1>{text.railTitle}</h1><p>{text.railBody}</p></section>
         <ol className="stepper">
           {text.steps.map((title, index) => <li key={title} aria-current={step === index + 1 && journey.stage !== "COMPLETE" ? "step" : undefined} className={step === index + 1 ? "current" : step > index + 1 || journey.stage === "COMPLETE" ? "done" : ""}><span>0{index + 1}</span><strong>{title}</strong></li>)}

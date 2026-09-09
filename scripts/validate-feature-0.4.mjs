@@ -60,13 +60,17 @@ for (const [key, expected] of Object.entries(expectedPreferences)) {
   requireEqual(options.webPreferences[key], expected, `webPreferences.${key}`);
 }
 
-// Beta 0 (D-0018) widens the preload from one read call to the three invoke
-// channels and one receive helper the supervised runtime needs. The surface
-// stays closed: renderer→main is invoke-only against a named allowlist, and
-// main→renderer carries only events the adapter already filtered.
+// Beta 0 (D-0019) widened the preload from one read call to the invoke
+// channels and one receive helper the supervised runtime needs; the Connect
+// screen (D-0021) adds a fourth, whose admin scope stays in the main process.
+// First-session recovery (D-0030) adds argument-free owned startup retry and
+// known-session page opening; neither exposes arbitrary commands or URLs.
+// The surface stays closed: renderer→main is invoke-only against a named
+// allowlist, and main→renderer carries only events the adapter already filtered.
 const preloadInvokes = [...preload.matchAll(/ipcRenderer\.invoke\(([^)]+)\)/g)];
-requireEqual(preloadInvokes.length, 3, "preload invoke count");
-for (const channel of ["aifb:shell-status", "aifb:gateway-request", "aifb:gateway-status"]) {
+requireEqual(preloadInvokes.length, 8, "preload invoke count");
+for (const channel of ["aifb:shell-status", "aifb:gateway-request", "aifb:gateway-status", "aifb:setup-request",
+  "aifb:gateway-retry-startup", "aifb:setup-open-page", "aifb:advisor-request", "aifb:native-management"]) {
   if (!preload.includes(`"${channel}"`)) {
     failures.push(`preload does not use the allowlisted channel ${channel}`);
   }
@@ -115,6 +119,23 @@ if (process.argv.includes("--require-artifact")) {
     if (inventory.fileCount < 2 || inventory.totalBytes <= 0 || !inventory.appAsar?.sha256) {
       failures.push("desktop artifact inventory is incomplete");
     }
+    // A self-contained package must declare exactly the runtime the manifest
+    // pins, and the shell-only package must not pretend to be one.
+    const bundledRuntime = JSON.parse(readText("manifests/runtime/bundled-runtime.lock.json"));
+    if (inventory.selfContained) {
+      requireEqual(inventory.bundledRuntime?.nodeVersion, bundledRuntime.node.version, "bundled Node version");
+      requireEqual(
+        inventory.bundledRuntime?.openclawVersion,
+        desktopPackage.dependencies?.openclaw,
+        "bundled OpenClaw version"
+      );
+      if (!/^[0-9a-f]{64}$/.test(inventory.bundledRuntime?.nodeBinarySha256 ?? "")) {
+        failures.push("bundled Node binary has no recorded digest");
+      }
+    } else if (inventory.bundledRuntime) {
+      failures.push("inventory declares a bundled runtime while reporting the package is not self-contained");
+    }
+
     const asarEntries = inventory.appAsar?.entries ?? [];
     if (
       asarEntries.length !== inventory.appAsar?.entryCount ||

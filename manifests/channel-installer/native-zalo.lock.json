@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "coreVersion": "2026.9.1",
+  "plugin": "@openclaw/zalo@2026.9.1",
+  "packages": [
+    {
+      "path": "node_modules/@openclaw/zalo",
+      "version": "2026.9.1",
+      "resolved": "https://registry.npmjs.org/@openclaw/zalo/-/zalo-2026.9.1.tgz",
+      "integrity": "sha512-oRqUpXMOxm+vjJzOxkPUHdA+gl5doO0VIeeko6SVJjSQQpVBnUzbPtEZVF2Un8ayOzVp1PZNwA66xx/JWRuGzA=="
+    }
+  ]
+}

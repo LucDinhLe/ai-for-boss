@@ -207,3 +207,6 @@ Các lệnh cấm trộn beta và coi placeholder là production vẫn giữ ngu
 - Hệ quả: Capability manifest, SBOM, license inventory và bằng chứng lab Feature 0.2 giữ nguyên bản đã kiểm, không bị viết lại theo phiên bản mới. Candidate mang sẵn danh sách điều kiện chưa đạt, và validator từ chối mọi mục bằng chứng tự nhận `spike-tested` mà không có tệp bằng chứng đúng nền tảng.
 - Điều kiện promote: capability diff giữa hai train, SBOM và license inventory mới, smoke đạt trên Windows x64 và macOS arm64, chọn được agent runtime cùng đường xác thực nhà cung cấp, và senior platform/security review.
 - Phương án bị loại: Sửa thẳng locked manifest lên `2026.9.1` và cập nhật các hợp đồng theo phiên bản mới mà chưa chạy lại capability diff; cách đó biến tài liệu thành lời khai thay vì bằng chứng.
+
+## Repository consolidation — 2026-09-09
+Owner explicitly approves one public ai-for-boss repository after privacy audit and deletion of ai-for-boss-preview after preserving source and releases. Existing installed legacy update URLs cannot be changed by a Git merge; document manual transition. Future source uses the main repository endpoint.

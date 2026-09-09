@@ -385,7 +385,7 @@ test("fixture-only probe proves containment mechanics without claiming sandbox i
   });
   assert.equal(typeof report.runtimeHints, "object");
   assert.ok(Object.values(report.runtimeHints).every((value) => typeof value === "boolean"));
-  assert.doesNotMatch(result.stdout, /AUS-PRO|OneDrive|\\Users\\|\/Users\//i);
+  assert.doesNotMatch(result.stdout, /FixtureUser|OneDrive|\\Users\\|\/Users\//i);
 });
 
 test("probe source policy rejects non-node prefixes, network modules, indirect loaders, and dynamic code", () => {
@@ -523,7 +523,7 @@ test("probe reports cleanup failure without exposing an absolute path or raw err
     assert.equal(report.code, "cleanup-failed");
     assert.equal(report.claimsIsolation, false);
     assert.equal(report.tempFixture.cleanupVerified, false);
-    assert.doesNotMatch(JSON.stringify(report), /cleanup failed|AUS-PRO|OneDrive|\\Users\\|\/Users\//i);
+    assert.doesNotMatch(JSON.stringify(report), /cleanup failed|FixtureUser|OneDrive|\\Users\\|\/Users\//i);
   } finally {
     if (createdRoot) fs.rmSync(createdRoot, { recursive: true, force: true });
   }

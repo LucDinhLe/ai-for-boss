@@ -1,0 +1,3214 @@
+{
+  "version": "2026.9.1",
+  "channels": [
+    {
+      "id": "a2a",
+      "label": "A2A",
+      "description": "Connect external agents through the A2A v1.0 protocol.",
+      "docsPath": "/channels/a2a",
+      "bundled": true,
+      "packageName": "@openclaw/a2a"
+    },
+    {
+      "id": "reef",
+      "label": "Reef",
+      "description": "Guarded end-to-end encrypted claw messaging.",
+      "docsPath": "/channels/reef",
+      "bundled": true,
+      "packageName": "@openclaw/reef"
+    },
+    {
+      "id": "telegram",
+      "label": "Telegram",
+      "description": "simplest way to get started — register a bot with @BotFather and get going.",
+      "docsPath": "/channels/telegram",
+      "bundled": true,
+      "packageName": "@openclaw/telegram"
+    },
+    {
+      "id": "buzz",
+      "label": "Buzz",
+      "description": "Connect OpenClaw agents to Buzz team rooms.",
+      "docsPath": "/channels/buzz",
+      "bundled": false,
+      "packageName": "@openclaw/buzz"
+    },
+    {
+      "id": "clickclack",
+      "label": "ClickClack",
+      "description": "self-hosted chat via first-class ClickClack bot tokens.",
+      "docsPath": "/channels/clickclack",
+      "bundled": false,
+      "packageName": "@openclaw/clickclack"
+    },
+    {
+      "id": "discord",
+      "label": "Discord",
+      "description": "very well supported right now.",
+      "docsPath": "/channels/discord",
+      "bundled": false,
+      "packageName": "@openclaw/discord"
+    },
+    {
+      "id": "feishu",
+      "label": "Feishu",
+      "description": "飞书/Lark enterprise messaging with doc/wiki/drive tools.",
+      "docsPath": "/channels/feishu",
+      "bundled": false,
+      "packageName": "@openclaw/feishu"
+    },
+    {
+      "id": "googlechat",
+      "label": "Google Chat",
+      "description": "Google Workspace Chat app with HTTP webhook.",
+      "docsPath": "/channels/googlechat",
+      "bundled": false,
+      "packageName": "@openclaw/googlechat"
+    },
+    {
+      "id": "imessage",
+      "label": "iMessage",
+      "description": "Local iMessage/SMS through the imsg bridge, including private API message actions when enabled.",
+      "docsPath": "/channels/imessage",
+      "bundled": false,
+      "packageName": "@openclaw/imessage"
+    },
+    {
+      "id": "irc",
+      "label": "IRC",
+      "description": "classic IRC networks with DM/channel routing and pairing controls.",
+      "docsPath": "/channels/irc",
+      "bundled": false,
+      "packageName": "@openclaw/irc"
+    },
+    {
+      "id": "line",
+      "label": "LINE",
+      "description": "LINE Messaging API webhook bot.",
+      "docsPath": "/channels/line",
+      "bundled": false,
+      "packageName": "@openclaw/line"
+    },
+    {
+      "id": "matrix",
+      "label": "Matrix",
+      "description": "open protocol; install the plugin to enable.",
+      "docsPath": "/channels/matrix",
+      "bundled": false,
+      "packageName": "@openclaw/matrix"
+    },
+    {
+      "id": "mattermost",
+      "label": "Mattermost",
+      "description": "self-hosted Slack-style chat; install the plugin to enable.",
+      "docsPath": "/channels/mattermost",
+      "bundled": false,
+      "packageName": "@openclaw/mattermost"
+    },
+    {
+      "id": "msteams",
+      "label": "Microsoft Teams",
+      "description": "Teams SDK; enterprise support.",
+      "docsPath": "/channels/msteams",
+      "bundled": false,
+      "packageName": "@openclaw/msteams"
+    },
+    {
+      "id": "nextcloud-talk",
+      "label": "Nextcloud Talk",
+      "description": "Self-hosted chat via Nextcloud Talk webhook bots.",
+      "docsPath": "/channels/nextcloud-talk",
+      "bundled": false,
+      "packageName": "@openclaw/nextcloud-talk"
+    },
+    {
+      "id": "nostr",
+      "label": "Nostr",
+      "description": "Decentralized protocol; encrypted DMs via NIP-04.",
+      "docsPath": "/channels/nostr",
+      "bundled": false,
+      "packageName": "@openclaw/nostr"
+    },
+    {
+      "id": "qqbot",
+      "label": "QQ Bot",
+      "description": "connect to QQ via official QQ Bot API with group chat and direct message support.",
+      "docsPath": "/channels/qqbot",
+      "bundled": false,
+      "packageName": "@tencent-connect/openclaw-qqbot"
+    },
+    {
+      "id": "raft",
+      "label": "Raft",
+      "description": "Raft CLI wake bridge for human and agent collaboration.",
+      "docsPath": "/channels/raft",
+      "bundled": false,
+      "packageName": "@openclaw/raft"
+    },
+    {
+      "id": "signal",
+      "label": "Signal",
+      "description": "signal-cli linked device with additional setup for the local REST bridge.",
+      "docsPath": "/channels/signal",
+      "bundled": false,
+      "packageName": "@openclaw/signal"
+    },
+    {
+      "id": "slack",
+      "label": "Slack",
+      "description": "supported (Socket Mode).",
+      "docsPath": "/channels/slack",
+      "bundled": false,
+      "packageName": "@openclaw/slack"
+    },
+    {
+      "id": "sms",
+      "label": "SMS",
+      "description": "Twilio-backed SMS/MMS with inbound webhooks and outbound replies.",
+      "docsPath": "/channels/sms",
+      "bundled": false,
+      "packageName": "@openclaw/sms"
+    },
+    {
+      "id": "synology-chat",
+      "label": "Synology Chat",
+      "description": "Connect your Synology NAS Chat to OpenClaw with full agent capabilities.",
+      "docsPath": "/channels/synology-chat",
+      "bundled": false,
+      "packageName": "@openclaw/synology-chat"
+    },
+    {
+      "id": "tlon",
+      "label": "Tlon",
+      "description": "decentralized messaging on Urbit; install the plugin to enable.",
+      "docsPath": "/channels/tlon",
+      "bundled": false,
+      "packageName": "@openclaw/tlon"
+    },
+    {
+      "id": "twitch",
+      "label": "Twitch",
+      "description": "Twitch chat integration",
+      "docsPath": "/channels/twitch",
+      "bundled": false,
+      "packageName": "@openclaw/twitch"
+    },
+    {
+      "id": "wecom",
+      "label": "WeCom",
+      "description": "Enterprise messaging and documents, scheduling, task tools.",
+      "docsPath": "/channels/wecom",
+      "bundled": false,
+      "packageName": "@wecom/wecom-openclaw-plugin"
+    },
+    {
+      "id": "openclaw-weixin",
+      "label": "Weixin",
+      "description": "Personal WeChat messaging via QR-code login.",
+      "docsPath": "/channels/wechat",
+      "bundled": false,
+      "packageName": "@tencent-weixin/openclaw-weixin"
+    },
+    {
+      "id": "whatsapp",
+      "label": "WhatsApp",
+      "description": "works with your own number; recommend a separate phone + eSIM.",
+      "docsPath": "/channels/whatsapp",
+      "bundled": false,
+      "packageName": "@openclaw/whatsapp"
+    },
+    {
+      "id": "yuanbao",
+      "label": "Yuanbao",
+      "description": "Tencent Yuanbao AI assistant conversation channel.",
+      "docsPath": "/channels/yuanbao",
+      "bundled": false,
+      "packageName": "openclaw-plugin-yuanbao"
+    },
+    {
+      "id": "zalo",
+      "label": "Zalo",
+      "description": "Vietnam-focused messaging platform with Bot API.",
+      "docsPath": "/channels/zalo",
+      "bundled": false,
+      "packageName": "@openclaw/zalo"
+    },
+    {
+      "id": "openclaw-zaloclawbot",
+      "label": "Zalo ClawBot",
+      "description": "Personal Zalo assistant bot via QR-code login — owner-bound, no setup.",
+      "docsPath": "/channels/zaloclawbot",
+      "bundled": false,
+      "packageName": "@zalo-platforms/openclaw-zaloclawbot"
+    },
+    {
+      "id": "zalouser",
+      "label": "Zalo Personal",
+      "description": "Zalo personal account via QR code login.",
+      "docsPath": "/channels/zalouser",
+      "bundled": false,
+      "packageName": "@openclaw/zalouser"
+    }
+  ],
+  "plugins": [
+    {
+      "id": "a2a",
+      "label": "a2a",
+      "description": "A2A v1.0 Agent-to-Agent protocol channel plugin.",
+      "docsPath": "/plugins/reference/a2a",
+      "packageName": "@openclaw/a2a",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "active-memory",
+      "label": "active-memory",
+      "description": "Runs bounded pre-reply memory retrieval and implements per-agent Remember across conversations for eligible private conversations.",
+      "docsPath": "/plugins/reference/active-memory",
+      "packageName": "openclaw",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "admin-http-rpc",
+      "label": "admin-http-rpc",
+      "description": "OpenClaw admin HTTP RPC endpoint.",
+      "docsPath": "/plugins/reference/admin-http-rpc",
+      "packageName": "@openclaw/admin-http-rpc",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "alibaba",
+      "label": "alibaba",
+      "description": "Adds video generation provider support.",
+      "docsPath": "/plugins/reference/alibaba",
+      "packageName": "@openclaw/alibaba-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "anthropic",
+      "label": "anthropic",
+      "description": "Anthropic models, Claude CLI, and native Claude session catalog.",
+      "docsPath": "/plugins/reference/anthropic",
+      "packageName": "@openclaw/anthropic-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "anthropic"
+      ]
+    },
+    {
+      "id": "azure-speech",
+      "label": "azure-speech",
+      "description": "Azure AI Speech text-to-speech (MP3, native Ogg/Opus voice notes, PCM telephony).",
+      "docsPath": "/plugins/reference/azure-speech",
+      "packageName": "@openclaw/azure-speech",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "beam",
+      "label": "beam",
+      "description": "Read-only coding-session Beam receiver.",
+      "docsPath": "/plugins/reference/beam",
+      "packageName": "@openclaw/beam",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "bonjour",
+      "label": "bonjour",
+      "description": "Advertise the local OpenClaw gateway over Bonjour/mDNS.",
+      "docsPath": "/plugins/reference/bonjour",
+      "packageName": "@openclaw/bonjour",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "browser",
+      "label": "browser",
+      "description": "Adds agent-callable tools.",
+      "docsPath": "/plugins/reference/browser",
+      "packageName": "@openclaw/browser-plugin",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "canvas",
+      "label": "canvas",
+      "description": "Presents hosted widget documents on paired macOS panels.",
+      "docsPath": "/plugins/reference/canvas",
+      "packageName": "@openclaw/canvas-plugin",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "clawrouter",
+      "label": "clawrouter",
+      "description": "Adds ClawRouter model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/clawrouter",
+      "packageName": "@openclaw/clawrouter",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "clawrouter"
+      ]
+    },
+    {
+      "id": "copilot-proxy",
+      "label": "copilot-proxy",
+      "description": "Adds Copilot Proxy model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/copilot-proxy",
+      "packageName": "@openclaw/copilot-proxy",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "copilot-proxy"
+      ]
+    },
+    {
+      "id": "crabbox",
+      "label": "crabbox",
+      "description": "Cloud worker provider backed by the Crabbox CLI.",
+      "docsPath": "/plugins/reference/crabbox",
+      "packageName": "@openclaw/crabbox-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "cua-computer",
+      "label": "cua-computer",
+      "description": "Experimental CUA Driver computer control for macOS, Windows, and Linux node hosts.",
+      "docsPath": "/plugins/reference/cua-computer",
+      "packageName": "@openclaw/cua-computer",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "deepgram",
+      "label": "deepgram",
+      "description": "Adds media understanding provider support. Adds realtime transcription provider support.",
+      "docsPath": "/plugins/reference/deepgram",
+      "packageName": "@openclaw/deepgram-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "device-pair",
+      "label": "device-pair",
+      "description": "Generate setup codes and approve device pairing requests.",
+      "docsPath": "/plugins/reference/device-pair",
+      "packageName": "openclaw",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "document-extract",
+      "label": "document-extract",
+      "description": "Extract text and fallback page images from local document attachments.",
+      "docsPath": "/plugins/reference/document-extract",
+      "packageName": "@openclaw/document-extract-plugin",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "elevenlabs",
+      "label": "elevenlabs",
+      "description": "Adds media understanding provider support. Adds realtime transcription provider support. Adds text-to-speech provider support.",
+      "docsPath": "/plugins/reference/elevenlabs",
+      "packageName": "@openclaw/elevenlabs-speech",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "fal",
+      "label": "fal",
+      "description": "Adds fal model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/fal",
+      "packageName": "@openclaw/fal-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "fal"
+      ]
+    },
+    {
+      "id": "file-transfer",
+      "label": "file-transfer",
+      "description": "Fetch, list, and write files on paired nodes via dedicated node commands. Bypasses bash stdout truncation by using base64 over node.invoke for binaries up to 16 MB.",
+      "docsPath": "/plugins/reference/file-transfer",
+      "packageName": "@openclaw/file-transfer",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "geolocation",
+      "label": "geolocation",
+      "description": "Resolves client IP addresses to a coarse city using a locally cached IP-geolocation database.",
+      "docsPath": "/plugins/reference/geolocation",
+      "packageName": "@openclaw/geolocation-plugin",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "github-copilot",
+      "label": "github-copilot",
+      "description": "Adds GitHub Copilot model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/github-copilot",
+      "packageName": "@openclaw/github-copilot-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "github-copilot"
+      ]
+    },
+    {
+      "id": "google",
+      "label": "google",
+      "description": "Adds Google, Google Gemini CLI, Google Vertex model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/google",
+      "packageName": "@openclaw/google-plugin",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "google",
+        "google-gemini-cli",
+        "google-vertex"
+      ]
+    },
+    {
+      "id": "huggingface",
+      "label": "huggingface",
+      "description": "Adds Hugging Face model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/huggingface",
+      "packageName": "@openclaw/huggingface-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "huggingface"
+      ]
+    },
+    {
+      "id": "imap",
+      "label": "imap",
+      "description": "Watch IMAP mailboxes and dispatch authenticated incoming email to isolated agent sessions.",
+      "docsPath": "/plugins/reference/imap",
+      "packageName": "@openclaw/imap",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "linux-node",
+      "label": "linux-node",
+      "description": "Desktop notifications, camera capture, and location for Linux node hosts.",
+      "docsPath": "/plugins/reference/linux-node",
+      "packageName": "@openclaw/linux-node",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "litellm",
+      "label": "litellm",
+      "description": "Adds LiteLLM model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/litellm",
+      "packageName": "@openclaw/litellm-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "litellm"
+      ]
+    },
+    {
+      "id": "llm-task",
+      "label": "llm-task",
+      "description": "Generic JSON-only LLM tool for structured tasks callable from workflows.",
+      "docsPath": "/plugins/reference/llm-task",
+      "packageName": "@openclaw/llm-task",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "lmstudio",
+      "label": "lmstudio",
+      "description": "Adds LM Studio model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/lmstudio",
+      "packageName": "@openclaw/lmstudio-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "lmstudio"
+      ]
+    },
+    {
+      "id": "logbook",
+      "label": "logbook",
+      "description": "Automatic work journal: captures periodic screen snapshots from a paired node and turns them into a reviewable timeline of your day.",
+      "docsPath": "/plugins/reference/logbook",
+      "packageName": "@openclaw/logbook",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "memory-core",
+      "label": "memory-core",
+      "description": "Adds agent-callable tools.",
+      "docsPath": "/plugins/reference/memory-core",
+      "packageName": "@openclaw/memory-core",
+      "bundled": true,
+      "kinds": [
+        "memory"
+      ],
+      "providers": []
+    },
+    {
+      "id": "memory-wiki",
+      "label": "memory-wiki",
+      "description": "Persistent wiki compiler and Obsidian-friendly knowledge vault for OpenClaw.",
+      "docsPath": "/plugins/reference/memory-wiki",
+      "packageName": "@openclaw/memory-wiki",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "microsoft",
+      "label": "microsoft",
+      "description": "Adds text-to-speech provider support.",
+      "docsPath": "/plugins/reference/microsoft",
+      "packageName": "@openclaw/microsoft-speech",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "microsoft-foundry",
+      "label": "microsoft-foundry",
+      "description": "Adds Microsoft Foundry model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/microsoft-foundry",
+      "packageName": "@openclaw/microsoft-foundry",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "microsoft-foundry"
+      ]
+    },
+    {
+      "id": "migrate-claude",
+      "label": "migrate-claude",
+      "description": "Imports Claude Code and Claude Desktop instructions, MCP servers, skills, and safe configuration into OpenClaw.",
+      "docsPath": "/plugins/reference/migrate-claude",
+      "packageName": "@openclaw/migrate-claude",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "migrate-hermes",
+      "label": "migrate-hermes",
+      "description": "Imports Hermes configuration, memories, skills, and supported credentials into OpenClaw.",
+      "docsPath": "/plugins/reference/migrate-hermes",
+      "packageName": "@openclaw/migrate-hermes",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "minimax",
+      "label": "minimax",
+      "description": "Adds MiniMax, MiniMax Portal model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/minimax",
+      "packageName": "@openclaw/minimax-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "minimax",
+        "minimax-portal"
+      ]
+    },
+    {
+      "id": "nvidia",
+      "label": "nvidia",
+      "description": "Adds NVIDIA model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/nvidia",
+      "packageName": "@openclaw/nvidia-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "nvidia"
+      ]
+    },
+    {
+      "id": "oc-path",
+      "label": "oc-path",
+      "description": "Adds the openclaw path CLI for oc:// workspace file addressing.",
+      "docsPath": "/plugins/reference/oc-path",
+      "packageName": "@openclaw/oc-path",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "ollama",
+      "label": "ollama",
+      "description": "Adds Ollama, Ollama Cloud model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/ollama",
+      "packageName": "@openclaw/ollama-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "ollama",
+        "ollama-cloud"
+      ]
+    },
+    {
+      "id": "onepassword",
+      "label": "onepassword",
+      "description": "1Password SecretRef resolver and curated agent broker with approval policy and SQLite audit history.",
+      "docsPath": "/plugins/reference/onepassword",
+      "packageName": "@openclaw/onepassword",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "openai",
+      "label": "openai",
+      "description": "Adds OpenAI model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/openai",
+      "packageName": "@openclaw/openai-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "openai"
+      ]
+    },
+    {
+      "id": "opencode-go",
+      "label": "opencode-go",
+      "description": "Adds OpenCode Go model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/opencode-go",
+      "packageName": "@openclaw/opencode-go-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "opencode-go"
+      ]
+    },
+    {
+      "id": "openrouter",
+      "label": "openrouter",
+      "description": "Adds OpenRouter model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/openrouter",
+      "packageName": "@openclaw/openrouter-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "openrouter"
+      ]
+    },
+    {
+      "id": "policy",
+      "label": "policy",
+      "description": "Adds policy-backed doctor checks for workspace conformance.",
+      "docsPath": "/plugins/reference/policy",
+      "packageName": "@openclaw/policy",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "reef",
+      "label": "reef",
+      "description": "Guarded end-to-end encrypted claw channel.",
+      "docsPath": "/plugins/reference/reef",
+      "packageName": "@openclaw/reef",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "runway",
+      "label": "runway",
+      "description": "Adds video generation provider support.",
+      "docsPath": "/plugins/reference/runway",
+      "packageName": "@openclaw/runway-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "senseaudio",
+      "label": "senseaudio",
+      "description": "Adds media understanding provider support.",
+      "docsPath": "/plugins/reference/senseaudio",
+      "packageName": "@openclaw/senseaudio-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "sglang",
+      "label": "sglang",
+      "description": "Adds SGLang model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/sglang",
+      "packageName": "@openclaw/sglang-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "sglang"
+      ]
+    },
+    {
+      "id": "talk-voice",
+      "label": "talk-voice",
+      "description": "Manage Talk voice selection (list/set).",
+      "docsPath": "/plugins/reference/talk-voice",
+      "packageName": "openclaw",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "telegram",
+      "label": "telegram",
+      "description": "Adds the Telegram channel surface for sending and receiving OpenClaw messages.",
+      "docsPath": "/plugins/reference/telegram",
+      "packageName": "@openclaw/telegram",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "together",
+      "label": "together",
+      "description": "Adds Together model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/together",
+      "packageName": "@openclaw/together-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "together"
+      ]
+    },
+    {
+      "id": "tts-local-cli",
+      "label": "tts-local-cli",
+      "description": "Adds text-to-speech provider support.",
+      "docsPath": "/plugins/reference/tts-local-cli",
+      "packageName": "@openclaw/tts-local-cli",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "vault",
+      "label": "vault",
+      "description": "HashiCorp Vault SecretRef provider integration.",
+      "docsPath": "/plugins/reference/vault",
+      "packageName": "@openclaw/vault",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "vllm",
+      "label": "vllm",
+      "description": "Adds vLLM model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/vllm",
+      "packageName": "@openclaw/vllm-provider",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "vllm"
+      ]
+    },
+    {
+      "id": "web-readability",
+      "label": "web-readability",
+      "description": "Extract readable article content from local HTML web fetch responses.",
+      "docsPath": "/plugins/reference/web-readability",
+      "packageName": "@openclaw/web-readability-plugin",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "webhooks",
+      "label": "webhooks",
+      "description": "Authenticated inbound webhooks that bind external automation to OpenClaw TaskFlows.",
+      "docsPath": "/plugins/reference/webhooks",
+      "packageName": "@openclaw/webhooks",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "workboard",
+      "label": "workboard",
+      "description": "Dashboard workboard for agent-owned issues and sessions.",
+      "docsPath": "/plugins/reference/workboard",
+      "packageName": "@openclaw/workboard",
+      "bundled": true,
+      "kinds": [],
+      "providers": []
+    },
+    {
+      "id": "xai",
+      "label": "xai",
+      "description": "Adds xAI model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/xai",
+      "packageName": "@openclaw/xai-plugin",
+      "bundled": true,
+      "kinds": [],
+      "providers": [
+        "xai"
+      ]
+    },
+    {
+      "id": "acpx",
+      "label": "acpx",
+      "description": "OpenClaw ACP runtime backend with plugin-owned session and transport management.",
+      "docsPath": "/plugins/reference/acpx",
+      "packageName": "@openclaw/acpx",
+      "bundled": false
+    },
+    {
+      "id": "amazon-bedrock",
+      "label": "amazon-bedrock",
+      "description": "OpenClaw Amazon Bedrock provider plugin with model discovery, embeddings, and guardrail support.",
+      "docsPath": "/plugins/reference/amazon-bedrock",
+      "packageName": "@openclaw/amazon-bedrock-provider",
+      "bundled": false
+    },
+    {
+      "id": "amazon-bedrock-mantle",
+      "label": "amazon-bedrock-mantle",
+      "description": "OpenClaw Amazon Bedrock Mantle provider plugin for OpenAI-compatible model routing.",
+      "docsPath": "/plugins/reference/amazon-bedrock-mantle",
+      "packageName": "@openclaw/amazon-bedrock-mantle-provider",
+      "bundled": false
+    },
+    {
+      "id": "anthropic-vertex",
+      "label": "anthropic-vertex",
+      "description": "OpenClaw Anthropic Vertex provider plugin for Claude models on Google Vertex AI.",
+      "docsPath": "/plugins/reference/anthropic-vertex",
+      "packageName": "@openclaw/anthropic-vertex-provider",
+      "bundled": false
+    },
+    {
+      "id": "arcee",
+      "label": "arcee",
+      "description": "Adds Arcee model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/arcee",
+      "packageName": "@openclaw/arcee-provider",
+      "bundled": false
+    },
+    {
+      "id": "baseten",
+      "label": "baseten",
+      "description": "OpenClaw Baseten provider plugin.",
+      "docsPath": "/plugins/reference/baseten",
+      "packageName": "@openclaw/baseten-provider",
+      "bundled": false
+    },
+    {
+      "id": "brave",
+      "label": "brave",
+      "description": "OpenClaw Brave Search provider plugin for web search.",
+      "docsPath": "/plugins/reference/brave",
+      "packageName": "@openclaw/brave-plugin",
+      "bundled": false
+    },
+    {
+      "id": "buzz",
+      "label": "buzz",
+      "description": "Connect OpenClaw agents to Buzz rooms.",
+      "docsPath": "/plugins/reference/buzz",
+      "packageName": "@openclaw/buzz",
+      "bundled": false
+    },
+    {
+      "id": "byteplus",
+      "label": "byteplus",
+      "description": "Adds BytePlus, BytePlus Plan model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/byteplus",
+      "packageName": "@openclaw/byteplus-provider",
+      "bundled": false
+    },
+    {
+      "id": "cerebras",
+      "label": "cerebras",
+      "description": "Adds Cerebras model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/cerebras",
+      "packageName": "@openclaw/cerebras-provider",
+      "bundled": false
+    },
+    {
+      "id": "chutes",
+      "label": "chutes",
+      "description": "Adds Chutes model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/chutes",
+      "packageName": "@openclaw/chutes-provider",
+      "bundled": false
+    },
+    {
+      "id": "clickclack",
+      "label": "clickclack",
+      "description": "Adds the Clickclack channel surface for sending and receiving OpenClaw messages.",
+      "docsPath": "/plugins/reference/clickclack",
+      "packageName": "@openclaw/clickclack",
+      "bundled": false
+    },
+    {
+      "id": "cloudflare-ai-gateway",
+      "label": "cloudflare-ai-gateway",
+      "description": "Adds Cloudflare AI Gateway model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/cloudflare-ai-gateway",
+      "packageName": "@openclaw/cloudflare-ai-gateway-provider",
+      "bundled": false
+    },
+    {
+      "id": "codex",
+      "label": "codex",
+      "description": "Codex app-server harness and native session catalog.",
+      "docsPath": "/plugins/reference/codex",
+      "packageName": "@openclaw/codex",
+      "bundled": false
+    },
+    {
+      "id": "cohere",
+      "label": "cohere",
+      "description": "OpenClaw Cohere provider plugin.",
+      "docsPath": "/plugins/reference/cohere",
+      "packageName": "@openclaw/cohere-provider",
+      "bundled": false
+    },
+    {
+      "id": "comfy",
+      "label": "comfy",
+      "description": "Adds ComfyUI model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/comfy",
+      "packageName": "@openclaw/comfy-provider",
+      "bundled": false
+    },
+    {
+      "id": "copilot",
+      "label": "copilot",
+      "description": "Registers the GitHub Copilot agent runtime.",
+      "docsPath": "/plugins/reference/copilot",
+      "packageName": "@openclaw/copilot",
+      "bundled": false
+    },
+    {
+      "id": "deepinfra",
+      "label": "deepinfra",
+      "description": "Adds DeepInfra model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/deepinfra",
+      "packageName": "@openclaw/deepinfra-provider",
+      "bundled": false
+    },
+    {
+      "id": "deepseek",
+      "label": "deepseek",
+      "description": "Adds DeepSeek model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/deepseek",
+      "packageName": "@openclaw/deepseek-provider",
+      "bundled": false
+    },
+    {
+      "id": "diagnostics-otel",
+      "label": "diagnostics-otel",
+      "description": "OpenClaw diagnostics OpenTelemetry exporter for metrics, traces, and logs.",
+      "docsPath": "/plugins/reference/diagnostics-otel",
+      "packageName": "@openclaw/diagnostics-otel",
+      "bundled": false
+    },
+    {
+      "id": "diagnostics-prometheus",
+      "label": "diagnostics-prometheus",
+      "description": "OpenClaw diagnostics Prometheus exporter for runtime metrics.",
+      "docsPath": "/plugins/reference/diagnostics-prometheus",
+      "packageName": "@openclaw/diagnostics-prometheus",
+      "bundled": false
+    },
+    {
+      "id": "diffs",
+      "label": "diffs",
+      "description": "OpenClaw read-only diff viewer plugin and file renderer for agents.",
+      "docsPath": "/plugins/reference/diffs",
+      "packageName": "@openclaw/diffs",
+      "bundled": false
+    },
+    {
+      "id": "diffs-language-pack",
+      "label": "diffs-language-pack",
+      "description": "Adds syntax highlighting for languages outside the default diffs viewer set.",
+      "docsPath": "/plugins/reference/diffs-language-pack",
+      "packageName": "@openclaw/diffs-language-pack",
+      "bundled": false
+    },
+    {
+      "id": "discord",
+      "label": "discord",
+      "description": "OpenClaw Discord channel plugin for channels, DMs, commands, and app events.",
+      "docsPath": "/plugins/reference/discord",
+      "packageName": "@openclaw/discord",
+      "bundled": false
+    },
+    {
+      "id": "duckduckgo",
+      "label": "duckduckgo",
+      "description": "Adds web search provider support.",
+      "docsPath": "/plugins/reference/duckduckgo",
+      "packageName": "@openclaw/duckduckgo-plugin",
+      "bundled": false
+    },
+    {
+      "id": "exa",
+      "label": "exa",
+      "description": "Adds web search provider support.",
+      "docsPath": "/plugins/reference/exa",
+      "packageName": "@openclaw/exa-plugin",
+      "bundled": false
+    },
+    {
+      "id": "featherless",
+      "label": "featherless",
+      "description": "OpenClaw Featherless AI provider plugin.",
+      "docsPath": "/plugins/reference/featherless",
+      "packageName": "@openclaw/featherless-provider",
+      "bundled": false
+    },
+    {
+      "id": "feishu",
+      "label": "feishu",
+      "description": "OpenClaw Feishu/Lark channel plugin for chats and workplace tools (community maintained by @m1heng).",
+      "docsPath": "/plugins/reference/feishu",
+      "packageName": "@openclaw/feishu",
+      "bundled": false
+    },
+    {
+      "id": "firecrawl",
+      "label": "firecrawl",
+      "description": "Adds agent-callable tools. Adds web fetch provider support. Adds web search provider support.",
+      "docsPath": "/plugins/reference/firecrawl",
+      "packageName": "@openclaw/firecrawl-plugin",
+      "bundled": false
+    },
+    {
+      "id": "fireworks",
+      "label": "fireworks",
+      "description": "Adds Fireworks model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/fireworks",
+      "packageName": "@openclaw/fireworks-provider",
+      "bundled": false
+    },
+    {
+      "id": "fish-audio-speech",
+      "label": "fish-audio-speech",
+      "description": "Fish Audio S2.1 hosted text-to-speech with streaming, voice notes, and telephony output.",
+      "docsPath": "/plugins/reference/fish-audio-speech",
+      "packageName": "@openclaw/fish-audio-speech",
+      "bundled": false
+    },
+    {
+      "id": "gmi",
+      "label": "gmi",
+      "description": "OpenClaw GMI Cloud provider plugin.",
+      "docsPath": "/plugins/reference/gmi",
+      "packageName": "@openclaw/gmi-provider",
+      "bundled": false
+    },
+    {
+      "id": "google-meet",
+      "label": "google-meet",
+      "description": "OpenClaw Google Meet participant plugin for joining calls through Chrome or Twilio transports.",
+      "docsPath": "/plugins/reference/google-meet",
+      "packageName": "@openclaw/google-meet",
+      "bundled": false
+    },
+    {
+      "id": "googlechat",
+      "label": "googlechat",
+      "description": "OpenClaw Google Chat channel plugin for spaces and direct messages.",
+      "docsPath": "/plugins/reference/googlechat",
+      "packageName": "@openclaw/googlechat",
+      "bundled": false
+    },
+    {
+      "id": "gradium",
+      "label": "gradium",
+      "description": "Adds text-to-speech provider support.",
+      "docsPath": "/plugins/reference/gradium",
+      "packageName": "@openclaw/gradium-speech",
+      "bundled": false
+    },
+    {
+      "id": "groq",
+      "label": "groq",
+      "description": "Adds Groq model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/groq",
+      "packageName": "@openclaw/groq-provider",
+      "bundled": false
+    },
+    {
+      "id": "imessage",
+      "label": "imessage",
+      "description": "Adds the iMessage channel surface for sending and receiving OpenClaw messages.",
+      "docsPath": "/plugins/reference/imessage",
+      "packageName": "@openclaw/imessage",
+      "bundled": false
+    },
+    {
+      "id": "inworld",
+      "label": "inworld",
+      "description": "Inworld streaming text-to-speech (MP3, OGG_OPUS, PCM telephony).",
+      "docsPath": "/plugins/reference/inworld",
+      "packageName": "@openclaw/inworld-speech",
+      "bundled": false
+    },
+    {
+      "id": "irc",
+      "label": "irc",
+      "description": "Adds the IRC channel surface for sending and receiving OpenClaw messages.",
+      "docsPath": "/plugins/reference/irc",
+      "packageName": "@openclaw/irc",
+      "bundled": false
+    },
+    {
+      "id": "kilocode",
+      "label": "kilocode",
+      "description": "Adds Kilocode model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/kilocode",
+      "packageName": "@openclaw/kilocode-provider",
+      "bundled": false
+    },
+    {
+      "id": "kimi",
+      "label": "kimi",
+      "description": "Adds Kimi, Kimi Coding model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/kimi",
+      "packageName": "@openclaw/kimi-provider",
+      "bundled": false
+    },
+    {
+      "id": "line",
+      "label": "line",
+      "description": "OpenClaw LINE channel plugin for LINE Bot API chats.",
+      "docsPath": "/plugins/reference/line",
+      "packageName": "@openclaw/line",
+      "bundled": false
+    },
+    {
+      "id": "llama-cpp",
+      "label": "llama-cpp",
+      "description": "Managed and external llama.cpp servers for GGUF chat and embeddings.",
+      "docsPath": "/plugins/reference/llama-cpp",
+      "packageName": "@openclaw/llama-cpp-provider",
+      "bundled": false
+    },
+    {
+      "id": "lobster",
+      "label": "lobster",
+      "description": "Lobster workflow tool plugin for typed pipelines and resumable approvals.",
+      "docsPath": "/plugins/reference/lobster",
+      "packageName": "@openclaw/lobster",
+      "bundled": false
+    },
+    {
+      "id": "longcat",
+      "label": "longcat",
+      "description": "OpenClaw LongCat provider plugin.",
+      "docsPath": "/plugins/reference/longcat",
+      "packageName": "@openclaw/longcat-provider",
+      "bundled": false
+    },
+    {
+      "id": "matrix",
+      "label": "matrix",
+      "description": "OpenClaw Matrix channel plugin for rooms and direct messages.",
+      "docsPath": "/plugins/reference/matrix",
+      "packageName": "@openclaw/matrix",
+      "bundled": false
+    },
+    {
+      "id": "mattermost",
+      "label": "mattermost",
+      "description": "Adds the Mattermost channel surface for sending and receiving OpenClaw messages.",
+      "docsPath": "/plugins/reference/mattermost",
+      "packageName": "@openclaw/mattermost",
+      "bundled": false
+    },
+    {
+      "id": "memory-lancedb",
+      "label": "memory-lancedb",
+      "description": "OpenClaw LanceDB-backed long-term memory plugin with auto-recall, auto-capture, and vector search.",
+      "docsPath": "/plugins/reference/memory-lancedb",
+      "packageName": "@openclaw/memory-lancedb",
+      "bundled": false
+    },
+    {
+      "id": "meta",
+      "label": "meta",
+      "description": "Adds Meta model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/meta",
+      "packageName": "@openclaw/meta-provider",
+      "bundled": false
+    },
+    {
+      "id": "mistral",
+      "label": "mistral",
+      "description": "Adds Mistral model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/mistral",
+      "packageName": "@openclaw/mistral-provider",
+      "bundled": false
+    },
+    {
+      "id": "moonshot",
+      "label": "moonshot",
+      "description": "Adds Moonshot model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/moonshot",
+      "packageName": "@openclaw/moonshot-provider",
+      "bundled": false
+    },
+    {
+      "id": "msteams",
+      "label": "msteams",
+      "description": "OpenClaw Microsoft Teams channel plugin for bot conversations.",
+      "docsPath": "/plugins/reference/msteams",
+      "packageName": "@openclaw/msteams",
+      "bundled": false
+    },
+    {
+      "id": "mxc",
+      "label": "mxc",
+      "description": "OS-level sandboxed tool execution via MXC: runs commands in a Windows ProcessContainer with configured MXC policy files.",
+      "docsPath": "/plugins/reference/mxc",
+      "packageName": "@openclaw/mxc-sandbox",
+      "bundled": false
+    },
+    {
+      "id": "nextcloud-talk",
+      "label": "nextcloud-talk",
+      "description": "OpenClaw Nextcloud Talk channel plugin for conversations.",
+      "docsPath": "/plugins/reference/nextcloud-talk",
+      "packageName": "@openclaw/nextcloud-talk",
+      "bundled": false
+    },
+    {
+      "id": "nostr",
+      "label": "nostr",
+      "description": "OpenClaw Nostr channel plugin for NIP-04 encrypted direct messages.",
+      "docsPath": "/plugins/reference/nostr",
+      "packageName": "@openclaw/nostr",
+      "bundled": false
+    },
+    {
+      "id": "novita",
+      "label": "novita",
+      "description": "Adds Novita, Novita AI, Novitaai model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/novita",
+      "packageName": "@openclaw/novita-provider",
+      "bundled": false
+    },
+    {
+      "id": "opencode",
+      "label": "opencode",
+      "description": "Adds OpenCode model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/opencode",
+      "packageName": "@openclaw/opencode-provider",
+      "bundled": false
+    },
+    {
+      "id": "openshell",
+      "label": "openshell",
+      "description": "OpenClaw sandbox backend for the NVIDIA OpenShell CLI with mirrored local workspaces and SSH command execution.",
+      "docsPath": "/plugins/reference/openshell",
+      "packageName": "@openclaw/openshell-sandbox",
+      "bundled": false
+    },
+    {
+      "id": "parallel",
+      "label": "parallel",
+      "description": "Adds web search provider support.",
+      "docsPath": "/tools/parallel-search",
+      "packageName": "@openclaw/parallel-plugin",
+      "bundled": false
+    },
+    {
+      "id": "perplexity",
+      "label": "perplexity",
+      "description": "Adds web search provider support.",
+      "docsPath": "/plugins/reference/perplexity",
+      "packageName": "@openclaw/perplexity-plugin",
+      "bundled": false
+    },
+    {
+      "id": "pixverse",
+      "label": "pixverse",
+      "description": "OpenClaw PixVerse video generation provider plugin.",
+      "docsPath": "/plugins/reference/pixverse",
+      "packageName": "@openclaw/pixverse-provider",
+      "bundled": false
+    },
+    {
+      "id": "qianfan",
+      "label": "qianfan",
+      "description": "Adds Qianfan model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/qianfan",
+      "packageName": "@openclaw/qianfan-provider",
+      "bundled": false
+    },
+    {
+      "id": "qqbot",
+      "label": "qqbot",
+      "description": "OpenClaw QQ Bot channel plugin for group and direct-message workflows.",
+      "docsPath": "/plugins/reference/qqbot",
+      "packageName": "@tencent-connect/openclaw-qqbot",
+      "bundled": false
+    },
+    {
+      "id": "qwen",
+      "label": "qwen",
+      "description": "Adds Qwen, Qwen Cloud, Model Studio, DashScope, Qwen Token Plan, Bailian Token Plan model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/qwen",
+      "packageName": "@openclaw/qwen-provider",
+      "bundled": false
+    },
+    {
+      "id": "raft",
+      "label": "raft",
+      "description": "OpenClaw Raft channel plugin for secure CLI wake bridges.",
+      "docsPath": "/plugins/reference/raft",
+      "packageName": "@openclaw/raft",
+      "bundled": false
+    },
+    {
+      "id": "searxng",
+      "label": "searxng",
+      "description": "Adds web search provider support.",
+      "docsPath": "/plugins/reference/searxng",
+      "packageName": "@openclaw/searxng-plugin",
+      "bundled": false
+    },
+    {
+      "id": "signal",
+      "label": "signal",
+      "description": "Adds the Signal channel surface for sending and receiving OpenClaw messages.",
+      "docsPath": "/plugins/reference/signal",
+      "packageName": "@openclaw/signal",
+      "bundled": false
+    },
+    {
+      "id": "slack",
+      "label": "slack",
+      "description": "OpenClaw Slack channel plugin for channels, DMs, commands, and app events.",
+      "docsPath": "/plugins/reference/slack",
+      "packageName": "@openclaw/slack",
+      "bundled": false
+    },
+    {
+      "id": "sms",
+      "label": "sms",
+      "description": "Twilio SMS/MMS channel plugin for OpenClaw messages.",
+      "docsPath": "/plugins/reference/sms",
+      "packageName": "@openclaw/sms",
+      "bundled": false
+    },
+    {
+      "id": "stepfun",
+      "label": "stepfun",
+      "description": "Adds StepFun, StepFun Plan model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/stepfun",
+      "packageName": "@openclaw/stepfun-provider",
+      "bundled": false
+    },
+    {
+      "id": "synology-chat",
+      "label": "synology-chat",
+      "description": "Synology Chat channel plugin for OpenClaw channels and direct messages.",
+      "docsPath": "/plugins/reference/synology-chat",
+      "packageName": "@openclaw/synology-chat",
+      "bundled": false
+    },
+    {
+      "id": "synthetic",
+      "label": "synthetic",
+      "description": "Adds Synthetic model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/synthetic",
+      "packageName": "@openclaw/synthetic-provider",
+      "bundled": false
+    },
+    {
+      "id": "tavily",
+      "label": "tavily",
+      "description": "Adds agent-callable tools. Adds web search provider support.",
+      "docsPath": "/plugins/reference/tavily",
+      "packageName": "@openclaw/tavily-plugin",
+      "bundled": false
+    },
+    {
+      "id": "teams-meetings",
+      "label": "teams-meetings",
+      "description": "Join Microsoft Teams meetings as a Chrome browser guest.",
+      "docsPath": "/plugins/reference/teams-meetings",
+      "packageName": "@openclaw/teams-meetings",
+      "bundled": false
+    },
+    {
+      "id": "tencent",
+      "label": "tencent",
+      "description": "Adds Tencent TokenHub, Tencent Tokenplan model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/tencent",
+      "packageName": "@openclaw/tencent-provider",
+      "bundled": false
+    },
+    {
+      "id": "tlon",
+      "label": "tlon",
+      "description": "OpenClaw Tlon/Urbit channel plugin for chat workflows.",
+      "docsPath": "/plugins/reference/tlon",
+      "packageName": "@openclaw/tlon",
+      "bundled": false
+    },
+    {
+      "id": "tokenjuice",
+      "label": "tokenjuice",
+      "description": "Compacts exec and bash tool results with tokenjuice reducers.",
+      "docsPath": "/plugins/reference/tokenjuice",
+      "packageName": "@openclaw/tokenjuice",
+      "bundled": false
+    },
+    {
+      "id": "twitch",
+      "label": "twitch",
+      "description": "OpenClaw Twitch channel plugin for chat and moderation workflows.",
+      "docsPath": "/plugins/reference/twitch",
+      "packageName": "@openclaw/twitch",
+      "bundled": false
+    },
+    {
+      "id": "venice",
+      "label": "venice",
+      "description": "Adds Venice model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/venice",
+      "packageName": "@openclaw/venice-provider",
+      "bundled": false
+    },
+    {
+      "id": "vercel-ai-gateway",
+      "label": "vercel-ai-gateway",
+      "description": "Adds Vercel AI Gateway model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/vercel-ai-gateway",
+      "packageName": "@openclaw/vercel-ai-gateway-provider",
+      "bundled": false
+    },
+    {
+      "id": "voice-call",
+      "label": "voice-call",
+      "description": "OpenClaw voice-call plugin for Twilio, Telnyx, and Plivo phone calls.",
+      "docsPath": "/plugins/reference/voice-call",
+      "packageName": "@openclaw/voice-call",
+      "bundled": false
+    },
+    {
+      "id": "volcengine",
+      "label": "volcengine",
+      "description": "Adds Volcengine, Volcengine Plan model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/volcengine",
+      "packageName": "@openclaw/volcengine-provider",
+      "bundled": false
+    },
+    {
+      "id": "voyage",
+      "label": "voyage",
+      "description": "Adds embedding provider support, including memory search.",
+      "docsPath": "/plugins/reference/voyage",
+      "packageName": "@openclaw/voyage-provider",
+      "bundled": false
+    },
+    {
+      "id": "vydra",
+      "label": "vydra",
+      "description": "Adds Vydra model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/vydra",
+      "packageName": "@openclaw/vydra-provider",
+      "bundled": false
+    },
+    {
+      "id": "whatsapp",
+      "label": "whatsapp",
+      "description": "OpenClaw WhatsApp channel plugin for WhatsApp Web chats.",
+      "docsPath": "/plugins/reference/whatsapp",
+      "packageName": "@openclaw/whatsapp",
+      "bundled": false
+    },
+    {
+      "id": "xiaomi",
+      "label": "xiaomi",
+      "description": "Adds Xiaomi, Xiaomi Token Plan model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/xiaomi",
+      "packageName": "@openclaw/xiaomi-provider",
+      "bundled": false
+    },
+    {
+      "id": "zai",
+      "label": "zai",
+      "description": "Adds Z.AI model provider support to OpenClaw.",
+      "docsPath": "/plugins/reference/zai",
+      "packageName": "@openclaw/zai-provider",
+      "bundled": false
+    },
+    {
+      "id": "zalo",
+      "label": "zalo",
+      "description": "OpenClaw Zalo channel plugin for bot and webhook chats.",
+      "docsPath": "/plugins/reference/zalo",
+      "packageName": "@openclaw/zalo",
+      "bundled": false
+    },
+    {
+      "id": "zalouser",
+      "label": "zalouser",
+      "description": "OpenClaw Zalo Personal Account plugin via native zca-js integration.",
+      "docsPath": "/plugins/reference/zalouser",
+      "packageName": "@openclaw/zalouser",
+      "bundled": false
+    },
+    {
+      "id": "zoom-meetings",
+      "label": "zoom-meetings",
+      "description": "Join Zoom meetings as a Chrome browser guest.",
+      "docsPath": "/plugins/reference/zoom-meetings",
+      "packageName": "@openclaw/zoom-meetings",
+      "bundled": false
+    }
+  ],
+  "providers": [
+    {
+      "id": "alibaba",
+      "label": "Alibaba Model Studio",
+      "description": "Alibaba Model Studio Wan video generation in OpenClaw",
+      "bundled": false,
+      "pluginId": "alibaba",
+      "docsPath": "/providers/alibaba"
+    },
+    {
+      "id": "bedrock",
+      "label": "Amazon Bedrock",
+      "description": "Use Amazon Bedrock (Converse API) models with OpenClaw",
+      "bundled": false,
+      "pluginId": "bedrock",
+      "docsPath": "/providers/bedrock"
+    },
+    {
+      "id": "bedrock-mantle",
+      "label": "Amazon Bedrock Mantle",
+      "description": "Use Amazon Bedrock Mantle OpenAI-compatible and Claude Messages models with OpenClaw",
+      "bundled": false,
+      "pluginId": "bedrock-mantle",
+      "docsPath": "/providers/bedrock-mantle"
+    },
+    {
+      "id": "anthropic",
+      "label": "Anthropic (API + Claude CLI)",
+      "description": "Use Anthropic Claude via API keys or Claude CLI in OpenClaw",
+      "bundled": true,
+      "pluginId": "anthropic",
+      "docsPath": "/providers/anthropic"
+    },
+    {
+      "id": "arcee",
+      "label": "Arcee AI (Trinity models)",
+      "description": "Arcee AI setup (auth + model selection)",
+      "bundled": false,
+      "pluginId": "arcee",
+      "docsPath": "/providers/arcee"
+    },
+    {
+      "id": "azure-speech",
+      "label": "Azure Speech",
+      "description": "Azure AI Speech text-to-speech for OpenClaw replies",
+      "bundled": false,
+      "pluginId": "azure-speech",
+      "docsPath": "/providers/azure-speech"
+    },
+    {
+      "id": "baseten",
+      "label": "Baseten (Inkling + Model APIs)",
+      "description": "Baseten setup for Inkling and hosted Model APIs",
+      "bundled": false,
+      "pluginId": "baseten",
+      "docsPath": "/providers/baseten"
+    },
+    {
+      "id": "byteplus-international",
+      "label": "BytePlus (International)",
+      "description": "Model provider overview with example configs + CLI flows",
+      "bundled": false,
+      "pluginId": "byteplus-international",
+      "docsPath": "/concepts/model-providers#byteplus-international"
+    },
+    {
+      "id": "cerebras",
+      "label": "Cerebras",
+      "description": "Cerebras setup (auth + model selection)",
+      "bundled": false,
+      "pluginId": "cerebras",
+      "docsPath": "/providers/cerebras"
+    },
+    {
+      "id": "chutes",
+      "label": "Chutes",
+      "description": "Chutes setup (OAuth or API key, model discovery, aliases)",
+      "bundled": false,
+      "pluginId": "chutes",
+      "docsPath": "/providers/chutes"
+    },
+    {
+      "id": "clawrouter",
+      "label": "ClawRouter (managed multi-provider routing)",
+      "description": "Route credential-scoped models through ClawRouter and show managed quotas",
+      "bundled": true,
+      "pluginId": "clawrouter",
+      "docsPath": "/providers/clawrouter"
+    },
+    {
+      "id": "cloudflare-ai-gateway",
+      "label": "Cloudflare AI Gateway",
+      "description": "Cloudflare AI Gateway setup (auth + model selection)",
+      "bundled": false,
+      "pluginId": "cloudflare-ai-gateway",
+      "docsPath": "/providers/cloudflare-ai-gateway"
+    },
+    {
+      "id": "cohere",
+      "label": "Cohere",
+      "description": "Cohere setup (auth + model selection)",
+      "bundled": false,
+      "pluginId": "cohere",
+      "docsPath": "/providers/cohere"
+    },
+    {
+      "id": "comfy",
+      "label": "ComfyUI",
+      "description": "ComfyUI workflow image, video, and music generation setup in OpenClaw",
+      "bundled": false,
+      "pluginId": "comfy",
+      "docsPath": "/providers/comfy"
+    },
+    {
+      "id": "copilot-proxy",
+      "label": "copilot-proxy",
+      "description": "Adds Copilot Proxy model provider support to OpenClaw.",
+      "bundled": true,
+      "pluginId": "copilot-proxy",
+      "docsPath": "/plugins/reference/copilot-proxy"
+    },
+    {
+      "id": "deepseek",
+      "label": "DeepSeek",
+      "description": "DeepSeek setup (auth + model selection)",
+      "bundled": false,
+      "pluginId": "deepseek",
+      "docsPath": "/providers/deepseek"
+    },
+    {
+      "id": "ds4",
+      "label": "ds4 (local DeepSeek V4)",
+      "description": "Run OpenClaw through ds4, a local DeepSeek V4 Flash OpenAI-compatible server",
+      "bundled": false,
+      "pluginId": "ds4",
+      "docsPath": "/providers/ds4"
+    },
+    {
+      "id": "elevenlabs",
+      "label": "ElevenLabs",
+      "description": "Use ElevenLabs speech, Scribe STT, and realtime transcription with OpenClaw",
+      "bundled": false,
+      "pluginId": "elevenlabs",
+      "docsPath": "/providers/elevenlabs"
+    },
+    {
+      "id": "fal",
+      "label": "fal",
+      "description": "fal image, video, and music generation setup in OpenClaw",
+      "bundled": true,
+      "pluginId": "fal",
+      "docsPath": "/providers/fal"
+    },
+    {
+      "id": "featherless",
+      "label": "Featherless AI",
+      "description": "Featherless AI setup, model selection, and tool calling",
+      "bundled": false,
+      "pluginId": "featherless",
+      "docsPath": "/providers/featherless"
+    },
+    {
+      "id": "fireworks",
+      "label": "Fireworks",
+      "description": "Fireworks setup (auth + model selection)",
+      "bundled": false,
+      "pluginId": "fireworks",
+      "docsPath": "/providers/fireworks"
+    },
+    {
+      "id": "github-copilot",
+      "label": "GitHub Copilot",
+      "description": "Sign in to GitHub Copilot from OpenClaw using the device flow or non-interactive token import",
+      "bundled": true,
+      "pluginId": "github-copilot",
+      "docsPath": "/providers/github-copilot"
+    },
+    {
+      "id": "gmi",
+      "label": "GMI Cloud",
+      "description": "Use GMI Cloud's OpenAI-compatible API with OpenClaw",
+      "bundled": false,
+      "pluginId": "gmi",
+      "docsPath": "/providers/gmi"
+    },
+    {
+      "id": "google",
+      "label": "Google (Gemini)",
+      "description": "Google Gemini setup (AI Studio API key, Vertex AI, optional CLI runtime, and multimodal tools)",
+      "bundled": true,
+      "pluginId": "google",
+      "docsPath": "/providers/google"
+    },
+    {
+      "id": "google-gemini-cli",
+      "label": "google-gemini-cli",
+      "description": "Adds Google, Google Gemini CLI, Google Vertex model provider support to OpenClaw.",
+      "bundled": true,
+      "pluginId": "google",
+      "docsPath": "/plugins/reference/google"
+    },
+    {
+      "id": "google-vertex",
+      "label": "google-vertex",
+      "description": "Adds Google, Google Gemini CLI, Google Vertex model provider support to OpenClaw.",
+      "bundled": true,
+      "pluginId": "google",
+      "docsPath": "/plugins/reference/google"
+    },
+    {
+      "id": "gradium",
+      "label": "Gradium",
+      "description": "Use Gradium text-to-speech in OpenClaw",
+      "bundled": false,
+      "pluginId": "gradium",
+      "docsPath": "/providers/gradium"
+    },
+    {
+      "id": "groq",
+      "label": "Groq (LPU inference)",
+      "description": "Groq setup (auth + model selection + Whisper transcription)",
+      "bundled": false,
+      "pluginId": "groq",
+      "docsPath": "/providers/groq"
+    },
+    {
+      "id": "huggingface",
+      "label": "Hugging Face (Inference)",
+      "description": "Hugging Face Inference setup (auth + model selection)",
+      "bundled": true,
+      "pluginId": "huggingface",
+      "docsPath": "/providers/huggingface"
+    },
+    {
+      "id": "inferrs",
+      "label": "inferrs (local models)",
+      "description": "Run OpenClaw through inferrs (OpenAI-compatible local server)",
+      "bundled": false,
+      "pluginId": "inferrs",
+      "docsPath": "/providers/inferrs"
+    },
+    {
+      "id": "kilocode",
+      "label": "Kilocode",
+      "description": "Use Kilo Gateway's unified API to access many models in OpenClaw",
+      "bundled": false,
+      "pluginId": "kilocode",
+      "docsPath": "/providers/kilocode"
+    },
+    {
+      "id": "litellm",
+      "label": "LiteLLM (unified gateway)",
+      "description": "Run OpenClaw through LiteLLM Proxy for unified model access and cost tracking",
+      "bundled": true,
+      "pluginId": "litellm",
+      "docsPath": "/providers/litellm"
+    },
+    {
+      "id": "llama-cpp",
+      "label": "llama.cpp (managed or existing server)",
+      "description": "Run GGUF chat with managed or existing llama.cpp servers and managed local embeddings",
+      "bundled": false,
+      "pluginId": "llama-cpp",
+      "docsPath": "/plugins/llama-cpp"
+    },
+    {
+      "id": "lmstudio",
+      "label": "LM Studio (local models)",
+      "description": "Run OpenClaw with LM Studio",
+      "bundled": true,
+      "pluginId": "lmstudio",
+      "docsPath": "/providers/lmstudio"
+    },
+    {
+      "id": "longcat",
+      "label": "LongCat",
+      "description": "LongCat API setup for LongCat-2.0",
+      "bundled": false,
+      "pluginId": "longcat",
+      "docsPath": "/providers/longcat"
+    },
+    {
+      "id": "microsoft-foundry",
+      "label": "microsoft-foundry",
+      "description": "Adds Microsoft Foundry model provider support to OpenClaw.",
+      "bundled": true,
+      "pluginId": "microsoft-foundry",
+      "docsPath": "/plugins/reference/microsoft-foundry"
+    },
+    {
+      "id": "minimax",
+      "label": "MiniMax",
+      "description": "Use MiniMax models in OpenClaw",
+      "bundled": true,
+      "pluginId": "minimax",
+      "docsPath": "/providers/minimax"
+    },
+    {
+      "id": "minimax-portal",
+      "label": "minimax-portal",
+      "description": "Adds MiniMax, MiniMax Portal model provider support to OpenClaw.",
+      "bundled": true,
+      "pluginId": "minimax",
+      "docsPath": "/plugins/reference/minimax"
+    },
+    {
+      "id": "mistral",
+      "label": "Mistral",
+      "description": "Use Mistral models and Voxtral transcription with OpenClaw",
+      "bundled": false,
+      "pluginId": "mistral",
+      "docsPath": "/providers/mistral"
+    },
+    {
+      "id": "moonshot",
+      "label": "Moonshot AI (Kimi + Kimi Coding)",
+      "description": "Configure Moonshot Kimi models vs Kimi Coding (separate providers + keys)",
+      "bundled": false,
+      "pluginId": "moonshot",
+      "docsPath": "/providers/moonshot"
+    },
+    {
+      "id": "novita",
+      "label": "NovitaAI",
+      "description": "Use NovitaAI's OpenAI-compatible API with OpenClaw",
+      "bundled": false,
+      "pluginId": "novita",
+      "docsPath": "/providers/novita"
+    },
+    {
+      "id": "nvidia",
+      "label": "NVIDIA",
+      "description": "Use NVIDIA's OpenAI-compatible API in OpenClaw",
+      "bundled": true,
+      "pluginId": "nvidia",
+      "docsPath": "/providers/nvidia"
+    },
+    {
+      "id": "ollama",
+      "label": "Ollama (cloud + local models)",
+      "description": "Run OpenClaw with Ollama (cloud and local models)",
+      "bundled": true,
+      "pluginId": "ollama",
+      "docsPath": "/providers/ollama"
+    },
+    {
+      "id": "ollama-cloud",
+      "label": "Ollama Cloud",
+      "description": "Use Ollama Cloud directly with OpenClaw",
+      "bundled": true,
+      "pluginId": "ollama",
+      "docsPath": "/providers/ollama-cloud"
+    },
+    {
+      "id": "openai",
+      "label": "OpenAI (API + Codex)",
+      "description": "Use OpenAI via API keys or Codex subscription in OpenClaw",
+      "bundled": true,
+      "pluginId": "openai",
+      "docsPath": "/providers/openai"
+    },
+    {
+      "id": "opencode",
+      "label": "OpenCode",
+      "description": "Use OpenCode Zen and Go catalogs with OpenClaw",
+      "bundled": false,
+      "pluginId": "opencode",
+      "docsPath": "/providers/opencode"
+    },
+    {
+      "id": "opencode-go",
+      "label": "OpenCode Go",
+      "description": "Use the OpenCode Go catalog with the shared OpenCode setup",
+      "bundled": true,
+      "pluginId": "opencode-go",
+      "docsPath": "/providers/opencode-go"
+    },
+    {
+      "id": "openrouter",
+      "label": "OpenRouter",
+      "description": "Use OpenRouter's unified API to access many models in OpenClaw",
+      "bundled": true,
+      "pluginId": "openrouter",
+      "docsPath": "/providers/openrouter"
+    },
+    {
+      "id": "perplexity-provider",
+      "label": "Perplexity (web search)",
+      "description": "Perplexity web search provider setup (API key, search modes, filtering)",
+      "bundled": false,
+      "pluginId": "perplexity-provider",
+      "docsPath": "/providers/perplexity-provider"
+    },
+    {
+      "id": "qianfan",
+      "label": "Qianfan",
+      "description": "Use Qianfan's unified API to access many models in OpenClaw",
+      "bundled": false,
+      "pluginId": "qianfan",
+      "docsPath": "/providers/qianfan"
+    },
+    {
+      "id": "qwen",
+      "label": "Qwen Cloud",
+      "description": "Use Qwen Cloud through its OpenClaw plugin",
+      "bundled": false,
+      "pluginId": "qwen",
+      "docsPath": "/providers/qwen"
+    },
+    {
+      "id": "runway",
+      "label": "Runway",
+      "description": "Runway video generation setup in OpenClaw",
+      "bundled": false,
+      "pluginId": "runway",
+      "docsPath": "/providers/runway"
+    },
+    {
+      "id": "senseaudio",
+      "label": "SenseAudio",
+      "description": "SenseAudio batch speech-to-text for inbound voice notes",
+      "bundled": false,
+      "pluginId": "senseaudio",
+      "docsPath": "/providers/senseaudio"
+    },
+    {
+      "id": "sglang",
+      "label": "SGLang (local models)",
+      "description": "Run OpenClaw with SGLang (OpenAI-compatible self-hosted server)",
+      "bundled": true,
+      "pluginId": "sglang",
+      "docsPath": "/providers/sglang"
+    },
+    {
+      "id": "stepfun",
+      "label": "StepFun",
+      "description": "Use StepFun models with OpenClaw",
+      "bundled": false,
+      "pluginId": "stepfun",
+      "docsPath": "/providers/stepfun"
+    },
+    {
+      "id": "synthetic",
+      "label": "Synthetic",
+      "description": "Use Synthetic's Anthropic-compatible API in OpenClaw",
+      "bundled": false,
+      "pluginId": "synthetic",
+      "docsPath": "/providers/synthetic"
+    },
+    {
+      "id": "tencent",
+      "label": "Tencent Cloud (TokenHub / TokenPlan)",
+      "description": "Tencent Cloud TokenHub and TokenPlan setup for hy3",
+      "bundled": false,
+      "pluginId": "tencent",
+      "docsPath": "/providers/tencent"
+    },
+    {
+      "id": "together",
+      "label": "Together AI",
+      "description": "Together AI setup (auth + model selection)",
+      "bundled": true,
+      "pluginId": "together",
+      "docsPath": "/providers/together"
+    },
+    {
+      "id": "venice",
+      "label": "Venice (Venice AI, privacy-focused)",
+      "description": "Use Venice AI privacy-focused models in OpenClaw",
+      "bundled": false,
+      "pluginId": "venice",
+      "docsPath": "/providers/venice"
+    },
+    {
+      "id": "vercel-ai-gateway",
+      "label": "Vercel AI Gateway",
+      "description": "Vercel AI Gateway setup (auth + model selection)",
+      "bundled": false,
+      "pluginId": "vercel-ai-gateway",
+      "docsPath": "/providers/vercel-ai-gateway"
+    },
+    {
+      "id": "vllm",
+      "label": "vLLM (local models)",
+      "description": "Run OpenClaw with vLLM (OpenAI-compatible local server)",
+      "bundled": true,
+      "pluginId": "vllm",
+      "docsPath": "/providers/vllm"
+    },
+    {
+      "id": "volcengine",
+      "label": "Volcengine (Doubao)",
+      "description": "Volcano Engine setup (Doubao models, coding endpoints, and Seed Speech TTS)",
+      "bundled": false,
+      "pluginId": "volcengine",
+      "docsPath": "/providers/volcengine"
+    },
+    {
+      "id": "vydra",
+      "label": "Vydra",
+      "description": "Use Vydra image, video, and speech in OpenClaw",
+      "bundled": false,
+      "pluginId": "vydra",
+      "docsPath": "/providers/vydra"
+    },
+    {
+      "id": "xai",
+      "label": "xAI",
+      "description": "Use xAI Grok models in OpenClaw",
+      "bundled": true,
+      "pluginId": "xai",
+      "docsPath": "/providers/xai"
+    },
+    {
+      "id": "xiaomi",
+      "label": "Xiaomi",
+      "description": "Use Xiaomi MiMo pay-as-you-go and Token Plan models with OpenClaw",
+      "bundled": false,
+      "pluginId": "xiaomi",
+      "docsPath": "/providers/xiaomi"
+    },
+    {
+      "id": "zai",
+      "label": "Z.AI (GLM)",
+      "description": "Use Z.AI (GLM models) with OpenClaw",
+      "bundled": false,
+      "pluginId": "zai",
+      "docsPath": "/providers/zai"
+    }
+  ],
+  "authMethods": [
+    {
+      "id": "alibaba-model-studio-api-key",
+      "provider": "alibaba",
+      "method": "api-key",
+      "label": "Alibaba Model Studio API key",
+      "hint": "",
+      "pluginId": "alibaba",
+      "docsPath": "/plugins/reference/alibaba",
+      "guidedSecret": false,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "image-generation"
+      ]
+    },
+    {
+      "id": "anthropic-cli",
+      "provider": "anthropic",
+      "method": "cli",
+      "label": "Anthropic Claude CLI",
+      "hint": "Keep using an existing Claude Code CLI login on this host",
+      "pluginId": "anthropic",
+      "docsPath": "/plugins/reference/anthropic",
+      "guidedSecret": false,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "apiKey",
+      "provider": "anthropic",
+      "method": "api-key",
+      "label": "Anthropic API key",
+      "hint": "",
+      "pluginId": "anthropic",
+      "docsPath": "/plugins/reference/anthropic",
+      "guidedSecret": true,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "setup-token",
+      "provider": "anthropic",
+      "method": "setup-token",
+      "label": "Anthropic setup-token",
+      "hint": "Token created by running 'claude setup-token' in your terminal",
+      "pluginId": "anthropic",
+      "docsPath": "/plugins/reference/anthropic",
+      "guidedSecret": true,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "clawrouter-api-key",
+      "provider": "clawrouter",
+      "method": "api-key",
+      "label": "ClawRouter proxy key",
+      "hint": "Approved models through one managed key",
+      "pluginId": "clawrouter",
+      "docsPath": "/plugins/reference/clawrouter",
+      "guidedSecret": false,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "copilot-proxy",
+      "provider": "copilot-proxy",
+      "method": "local",
+      "label": "Copilot Proxy",
+      "hint": "Configure base URL + model ids",
+      "pluginId": "copilot-proxy",
+      "docsPath": "/plugins/reference/copilot-proxy",
+      "guidedSecret": false,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "fal-api-key",
+      "provider": "fal",
+      "method": "api-key",
+      "label": "fal API key",
+      "hint": "",
+      "pluginId": "fal",
+      "docsPath": "/plugins/reference/fal",
+      "guidedSecret": false,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "image-generation",
+        "music-generation"
+      ]
+    },
+    {
+      "id": "github-copilot",
+      "provider": "github-copilot",
+      "method": "device",
+      "label": "GitHub Copilot",
+      "hint": "Device login with your GitHub account",
+      "pluginId": "github-copilot",
+      "docsPath": "/plugins/reference/github-copilot",
+      "guidedSecret": true,
+      "guidedAuth": "device-code",
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "github-copilot-enterprise",
+      "provider": "github-copilot",
+      "method": "device-enterprise",
+      "label": "GitHub Copilot (Enterprise / data residency)",
+      "hint": "Device login against your GitHub Enterprise (*.ghe.com) tenant",
+      "pluginId": "github-copilot",
+      "docsPath": "/plugins/reference/github-copilot",
+      "guidedSecret": false,
+      "guidedAuth": "device-code",
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "gemini-api-key",
+      "provider": "google",
+      "method": "api-key",
+      "label": "Google AI Studio API key",
+      "hint": "Supported API-key access from aistudio.google.com/apikey",
+      "pluginId": "google",
+      "docsPath": "/plugins/reference/google",
+      "guidedSecret": true,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "huggingface-api-key",
+      "provider": "huggingface",
+      "method": "api-key",
+      "label": "Hugging Face API key",
+      "hint": "Inference API (HF token)",
+      "pluginId": "huggingface",
+      "docsPath": "/plugins/reference/huggingface",
+      "guidedSecret": true,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "litellm-api-key",
+      "provider": "litellm",
+      "method": "api-key",
+      "label": "LiteLLM API key",
+      "hint": "Unified gateway for 100+ LLM providers",
+      "pluginId": "litellm",
+      "docsPath": "/plugins/reference/litellm",
+      "guidedSecret": true,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "lmstudio",
+      "provider": "lmstudio",
+      "method": "custom",
+      "label": "LM Studio",
+      "hint": "Connect to a running LM Studio server and use an already loaded model",
+      "pluginId": "lmstudio",
+      "docsPath": "/plugins/reference/lmstudio",
+      "guidedSecret": true,
+      "guidedAuth": null,
+      "discovery": true,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "microsoft-foundry-apikey",
+      "provider": "microsoft-foundry",
+      "method": "api-key",
+      "label": "Microsoft Foundry (API key)",
+      "hint": "Use an Azure OpenAI API key directly",
+      "pluginId": "microsoft-foundry",
+      "docsPath": "/plugins/reference/microsoft-foundry",
+      "guidedSecret": false,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference",
+        "image-generation"
+      ]
+    },
+    {
+      "id": "microsoft-foundry-entra",
+      "provider": "microsoft-foundry",
+      "method": "entra-id",
+      "label": "Microsoft Foundry (Entra ID / az login)",
+      "hint": "Use your Azure login — no API key needed",
+      "pluginId": "microsoft-foundry",
+      "docsPath": "/plugins/reference/microsoft-foundry",
+      "guidedSecret": false,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference",
+        "image-generation"
+      ]
+    },
+    {
+      "id": "minimax-cn-api",
+      "provider": "minimax",
+      "method": "api-cn",
+      "label": "MiniMax API key (CN)",
+      "hint": "CN endpoint - api.minimaxi.com",
+      "pluginId": "minimax",
+      "docsPath": "/plugins/reference/minimax",
+      "guidedSecret": true,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "minimax-global-api",
+      "provider": "minimax",
+      "method": "api-global",
+      "label": "MiniMax API key (Global)",
+      "hint": "Global endpoint - api.minimax.io",
+      "pluginId": "minimax",
+      "docsPath": "/plugins/reference/minimax",
+      "guidedSecret": true,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "minimax-cn-oauth",
+      "provider": "minimax-portal",
+      "method": "oauth-cn",
+      "label": "MiniMax OAuth (CN)",
+      "hint": "CN endpoint - api.minimaxi.com",
+      "pluginId": "minimax",
+      "docsPath": "/plugins/reference/minimax",
+      "guidedSecret": false,
+      "guidedAuth": "device-code",
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "minimax-global-oauth",
+      "provider": "minimax-portal",
+      "method": "oauth",
+      "label": "MiniMax OAuth (Global)",
+      "hint": "Global endpoint - api.minimax.io",
+      "pluginId": "minimax",
+      "docsPath": "/plugins/reference/minimax",
+      "guidedSecret": false,
+      "guidedAuth": "device-code",
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "nvidia-api-key",
+      "provider": "nvidia",
+      "method": "api-key",
+      "label": "NVIDIA API key",
+      "hint": "",
+      "pluginId": "nvidia",
+      "docsPath": "/plugins/reference/nvidia",
+      "guidedSecret": true,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "ollama",
+      "provider": "ollama",
+      "method": "local",
+      "label": "Ollama",
+      "hint": "Connect to an Ollama server and select a cloud or local model",
+      "pluginId": "ollama",
+      "docsPath": "/plugins/reference/ollama",
+      "guidedSecret": false,
+      "guidedAuth": null,
+      "discovery": true,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "ollama-cloud",
+      "provider": "ollama-cloud",
+      "method": "api-key",
+      "label": "Ollama Cloud",
+      "hint": "Hosted models via ollama.com",
+      "pluginId": "ollama",
+      "docsPath": "/plugins/reference/ollama",
+      "guidedSecret": true,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "openai",
+      "provider": "openai",
+      "method": "oauth",
+      "label": "ChatGPT Login",
+      "hint": "Sign in with your ChatGPT or Codex subscription",
+      "pluginId": "openai",
+      "docsPath": "/plugins/reference/openai",
+      "guidedSecret": false,
+      "guidedAuth": "oauth",
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "openai-api-key",
+      "provider": "openai",
+      "method": "api-key",
+      "label": "OpenAI API Key",
+      "hint": "Use your OpenAI API key directly",
+      "pluginId": "openai",
+      "docsPath": "/plugins/reference/openai",
+      "guidedSecret": true,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "openai-device-code",
+      "provider": "openai",
+      "method": "device-code",
+      "label": "ChatGPT Device Pairing",
+      "hint": "Pair your ChatGPT account in browser with a device code",
+      "pluginId": "openai",
+      "docsPath": "/plugins/reference/openai",
+      "guidedSecret": false,
+      "guidedAuth": "device-code",
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "opencode-go",
+      "provider": "opencode-go",
+      "method": "api-key",
+      "label": "OpenCode Go catalog",
+      "hint": "",
+      "pluginId": "opencode-go",
+      "docsPath": "/plugins/reference/opencode-go",
+      "guidedSecret": true,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "openrouter-api-key",
+      "provider": "openrouter",
+      "method": "api-key",
+      "label": "OpenRouter API key",
+      "hint": "",
+      "pluginId": "openrouter",
+      "docsPath": "/plugins/reference/openrouter",
+      "guidedSecret": true,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference",
+        "music-generation"
+      ]
+    },
+    {
+      "id": "openrouter-oauth",
+      "provider": "openrouter",
+      "method": "oauth",
+      "label": "OpenRouter OAuth",
+      "hint": "Browser sign-in",
+      "pluginId": "openrouter",
+      "docsPath": "/plugins/reference/openrouter",
+      "guidedSecret": false,
+      "guidedAuth": "oauth",
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference",
+        "music-generation"
+      ]
+    },
+    {
+      "id": "runway-api-key",
+      "provider": "runway",
+      "method": "api-key",
+      "label": "Runway API key",
+      "hint": "",
+      "pluginId": "runway",
+      "docsPath": "/plugins/reference/runway",
+      "guidedSecret": false,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "image-generation"
+      ]
+    },
+    {
+      "id": "sglang",
+      "provider": "sglang",
+      "method": "custom",
+      "label": "SGLang",
+      "hint": "Fast self-hosted OpenAI-compatible server",
+      "pluginId": "sglang",
+      "docsPath": "/plugins/reference/sglang",
+      "guidedSecret": false,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "together-api-key",
+      "provider": "together",
+      "method": "api-key",
+      "label": "Together AI API key",
+      "hint": "",
+      "pluginId": "together",
+      "docsPath": "/plugins/reference/together",
+      "guidedSecret": true,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "vllm",
+      "provider": "vllm",
+      "method": "custom",
+      "label": "vLLM",
+      "hint": "Local/self-hosted OpenAI-compatible server",
+      "pluginId": "vllm",
+      "docsPath": "/plugins/reference/vllm",
+      "guidedSecret": false,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "xai-api-key",
+      "provider": "xai",
+      "method": "api-key",
+      "label": "xAI API key",
+      "hint": "",
+      "pluginId": "xai",
+      "docsPath": "/plugins/reference/xai",
+      "guidedSecret": true,
+      "guidedAuth": null,
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "xai-device-code",
+      "provider": "xai",
+      "method": "device-code",
+      "label": "xAI device code",
+      "hint": "Compatibility alias for xAI OAuth device-code sign-in",
+      "pluginId": "xai",
+      "docsPath": "/plugins/reference/xai",
+      "guidedSecret": false,
+      "guidedAuth": "device-code",
+      "discovery": false,
+      "manualOnly": true,
+      "scopes": [
+        "text-inference"
+      ]
+    },
+    {
+      "id": "xai-oauth",
+      "provider": "xai",
+      "method": "oauth",
+      "label": "xAI OAuth",
+      "hint": "Remote-friendly browser sign-in without a localhost callback",
+      "pluginId": "xai",
+      "docsPath": "/plugins/reference/xai",
+      "guidedSecret": false,
+      "guidedAuth": "device-code",
+      "discovery": false,
+      "manualOnly": false,
+      "scopes": [
+        "text-inference"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "path": "dist/channel-catalog.json",
+      "sha256": "ea67371b32b346253291cc5e8a1bd1ca17c66598db8027b02febaaf2e6bffccc"
+    },
+    {
+      "path": "dist/extensions/a2a/package.json",
+      "sha256": "ef1e65c3a61bc2d5ecdfacbd0b9ad73277a4c2bf93799eca6a815268ce4d3056"
+    },
+    {
+      "path": "dist/extensions/reef/package.json",
+      "sha256": "2ebb295f952fdc984a75a0d5eb8754ad21f7c3a6c7fe8b50b0bf385f8820562d"
+    },
+    {
+      "path": "dist/extensions/telegram/package.json",
+      "sha256": "d2a80db953512acfa637d93bf08af57da7b28c66dbf179b2970a44a105b88ca1"
+    },
+    {
+      "path": "docs/plugins/plugin-inventory.md",
+      "sha256": "868b183ce2fd2d201a33d509f6aed31c4d987daf7175572a82a69d0db0782079"
+    },
+    {
+      "path": "dist/extensions/a2a/openclaw.plugin.json",
+      "sha256": "4524a4a6955cf3e0409809e0e026fda20ae5294e7b41795b3f7bf552e193fb25"
+    },
+    {
+      "path": "dist/extensions/active-memory/openclaw.plugin.json",
+      "sha256": "f7298c65bc5f2cacde8953a079129effb3898336b4239629107123dcd34a1e4d"
+    },
+    {
+      "path": "dist/extensions/admin-http-rpc/openclaw.plugin.json",
+      "sha256": "fdc5e1cdeef340d975c104515f0e8b3aec42bf80c27de8b26ac8ae8d3b1593d4"
+    },
+    {
+      "path": "dist/extensions/alibaba/openclaw.plugin.json",
+      "sha256": "265024c4369e734891f1e1c66295246f89362161a463fe1c00aa215f3593fc4f"
+    },
+    {
+      "path": "dist/extensions/anthropic/openclaw.plugin.json",
+      "sha256": "75117685b5f081f054f4170c63f493e2df28133e8580473b04279573cb8bd861"
+    },
+    {
+      "path": "dist/extensions/azure-speech/openclaw.plugin.json",
+      "sha256": "e9acb86a38021c6bcb2b97704c615b890ac9802b73ec34cbe537ef2665d457e0"
+    },
+    {
+      "path": "dist/extensions/beam/openclaw.plugin.json",
+      "sha256": "76d0a0e3674566a7c83c87dd6ffb410b7cc17cde806a3bda305fdfd0d689c019"
+    },
+    {
+      "path": "dist/extensions/bonjour/openclaw.plugin.json",
+      "sha256": "dd4a71a9d9bd4b33a0a5057c9caa5eabe2abc508993910e2f54fb092cb7b7a42"
+    },
+    {
+      "path": "dist/extensions/browser/openclaw.plugin.json",
+      "sha256": "0581ca260cb2280c37f240599f6de36755041bb6c6285cbb9154a8c3d05835cf"
+    },
+    {
+      "path": "dist/extensions/canvas/openclaw.plugin.json",
+      "sha256": "79ea1771c45c972f0bb218a651381f699cdb14d1eadb969853a4fe4fc1d96aa3"
+    },
+    {
+      "path": "dist/extensions/clawrouter/openclaw.plugin.json",
+      "sha256": "d39f98d3cecd8cf2aa9eedbab418df52d18c183c6f89780ef854151d7316fc9d"
+    },
+    {
+      "path": "dist/extensions/copilot-proxy/openclaw.plugin.json",
+      "sha256": "13f573ab0931741c475807a8230c6b3c392e146f4f0e7a4dad19c56e057a6210"
+    },
+    {
+      "path": "dist/extensions/crabbox/openclaw.plugin.json",
+      "sha256": "c4bfba38296a4902a81406a5bbb10ef5d4a70eeb04d0c107c9e5873e4d023309"
+    },
+    {
+      "path": "dist/extensions/cua-computer/openclaw.plugin.json",
+      "sha256": "5d1134e4d2e9bb4c10d8ae9b3efd811ea351fd8b2f9051019ac8dcd1225214ab"
+    },
+    {
+      "path": "dist/extensions/deepgram/openclaw.plugin.json",
+      "sha256": "5aae1758ab490c5577c6bbbf6b917add08a9478115b99d47a0f195655d70763a"
+    },
+    {
+      "path": "dist/extensions/device-pair/openclaw.plugin.json",
+      "sha256": "f157afc53503e866d4026cda05515019f8004935df60a6cc25d2e25b66a71c2d"
+    },
+    {
+      "path": "dist/extensions/document-extract/openclaw.plugin.json",
+      "sha256": "c4bcd246214ef231b69b438dc8a4b7d0bcf51c8605e0ea32f1db4c7a8dc0df18"
+    },
+    {
+      "path": "dist/extensions/elevenlabs/openclaw.plugin.json",
+      "sha256": "bf9ce7a46b14dff52c1196965686283307b658df2d476250a1c740557d72cd99"
+    },
+    {
+      "path": "dist/extensions/fal/openclaw.plugin.json",
+      "sha256": "c18ff410c367a62cf530e728937beb261ec29752cc0a1ac95cf8815a0451ad04"
+    },
+    {
+      "path": "dist/extensions/file-transfer/openclaw.plugin.json",
+      "sha256": "c217e0f01c4141bedaf01081e6bcbef815531d7f466960d5fed1495d66ab6623"
+    },
+    {
+      "path": "dist/extensions/geolocation/openclaw.plugin.json",
+      "sha256": "83ea41af18c8d333d08b25238501bc0a8cd5f605985fdc459487bac9606cc49b"
+    },
+    {
+      "path": "dist/extensions/github-copilot/openclaw.plugin.json",
+      "sha256": "515f9f9a38d943897162ef37946a2dccce67b4d04a63ddca4d9862c7443ea777"
+    },
+    {
+      "path": "dist/extensions/google/openclaw.plugin.json",
+      "sha256": "f7f0c4dc4225ea3a5f8feb96d788514e87748b433d02b719868c68850f02a7ae"
+    },
+    {
+      "path": "dist/extensions/huggingface/openclaw.plugin.json",
+      "sha256": "51317306e3bd666bdca032c2f8f81ae1abba6b8c48d725b464c36beec61758e0"
+    },
+    {
+      "path": "dist/extensions/imap/openclaw.plugin.json",
+      "sha256": "5ac24a28bd1cafbf9ea8c5f88b59a84a9ed7e03a51afb85beb1eeec4dc899e31"
+    },
+    {
+      "path": "dist/extensions/linux-node/openclaw.plugin.json",
+      "sha256": "36e8bb151cee3d49c1f80514a0f5ec5bd02229c33258f59aa362fa46d7db291d"
+    },
+    {
+      "path": "dist/extensions/litellm/openclaw.plugin.json",
+      "sha256": "e5f1084d2586b151729c1a26f65e35b57e1f68e0decb1baa32057ffd91d9bc68"
+    },
+    {
+      "path": "dist/extensions/llm-task/openclaw.plugin.json",
+      "sha256": "822a3281669721f3b0e29596da6ee8be93fbfd729b5ec29fdf3029c40085044e"
+    },
+    {
+      "path": "dist/extensions/lmstudio/openclaw.plugin.json",
+      "sha256": "c9db7c1c09ce85d3b222444fa5720534f55f9636ff5d8b42b62250841e70e456"
+    },
+    {
+      "path": "dist/extensions/logbook/openclaw.plugin.json",
+      "sha256": "0b0cd99d7fb14166aac8402cca0c570a1523dfdbfb2c82241a76b96f3a2b8494"
+    },
+    {
+      "path": "dist/extensions/memory-core/openclaw.plugin.json",
+      "sha256": "7f54202c3cec7a8b4b850c9cb7a5308d7538e1c0690106e35606bcc19c521a7b"
+    },
+    {
+      "path": "dist/extensions/memory-wiki/openclaw.plugin.json",
+      "sha256": "f4460240cb455cc990b623657ff966d13f8e56facc7449d93df754cc797ee350"
+    },
+    {
+      "path": "dist/extensions/microsoft/openclaw.plugin.json",
+      "sha256": "e8e0dc216fea2c3fddb0f9687cb6fac67576ac28f7fcdcf8cfe7659313920b9b"
+    },
+    {
+      "path": "dist/extensions/microsoft-foundry/openclaw.plugin.json",
+      "sha256": "951f1d2c41f412a9cd3fe8a7a76962b06142d497d0242d3b7bae3bfb43e5c679"
+    },
+    {
+      "path": "dist/extensions/migrate-claude/openclaw.plugin.json",
+      "sha256": "ab37718aca1e40a1347c058f5497719ba83f7d30a8c0b5de1bfc27f8638275f2"
+    },
+    {
+      "path": "dist/extensions/migrate-hermes/openclaw.plugin.json",
+      "sha256": "82bb35ee30b4305bd66d2c76d79c3efda1adc348164d36fcae4ba7484f2958d6"
+    },
+    {
+      "path": "dist/extensions/minimax/openclaw.plugin.json",
+      "sha256": "8a6dfb944cb0b5992a1fa52a4471c2b45073860877cfa625d171a98fc482e424"
+    },
+    {
+      "path": "dist/extensions/nvidia/openclaw.plugin.json",
+      "sha256": "c119c4e024523f05045402f6940cfa1022eacadca1e16931d1ced66eb93fa073"
+    },
+    {
+      "path": "dist/extensions/oc-path/openclaw.plugin.json",
+      "sha256": "d1fbf56f14aa1dba1c927c4410d2c65c5581e603bce4507002355611cf8695b6"
+    },
+    {
+      "path": "dist/extensions/ollama/openclaw.plugin.json",
+      "sha256": "ad089fcc95e8e263b811ce15ba8f01ff085ed9f146ef05ad1715d90376ec72b3"
+    },
+    {
+      "path": "dist/extensions/onepassword/openclaw.plugin.json",
+      "sha256": "b90d671a9f828f909b649325ded18ec3e2227dd956fee0f9e0b563bd66baceae"
+    },
+    {
+      "path": "dist/extensions/openai/openclaw.plugin.json",
+      "sha256": "791c846b5e0e13b58e238d2e06c86283b6c8f1da8bd50ae5f815d5e71db3d3f1"
+    },
+    {
+      "path": "dist/extensions/opencode-go/openclaw.plugin.json",
+      "sha256": "84f8e27049eb1ab9a4e740f29163d4d437345b342e516fac788a5c82f7f93ff9"
+    },
+    {
+      "path": "dist/extensions/openrouter/openclaw.plugin.json",
+      "sha256": "96ba18f25fcf89779da38c66ee958882d49d95aa3c5e566333a8ec7538822ea5"
+    },
+    {
+      "path": "dist/extensions/policy/openclaw.plugin.json",
+      "sha256": "7e9ba95842213ad6e3d99c78593c0372ec1c266c19e9ea6040fd06261a0b1bbc"
+    },
+    {
+      "path": "dist/extensions/reef/openclaw.plugin.json",
+      "sha256": "1c3ce7678fa1c03d7245207fd5580daa17dd49d2ba19592fb6d0d864041d5304"
+    },
+    {
+      "path": "dist/extensions/runway/openclaw.plugin.json",
+      "sha256": "eced36751d706363709775349163a0af9ec43806a0a9efa4b77ee266b4fac145"
+    },
+    {
+      "path": "dist/extensions/senseaudio/openclaw.plugin.json",
+      "sha256": "1544c80fee3d42abdc0a1cf33ecec449dc5980e838013a43c9b320132931fc79"
+    },
+    {
+      "path": "dist/extensions/sglang/openclaw.plugin.json",
+      "sha256": "b465a46190bb5661bf825981f07d58a970467256be8208d4636e687343a1d90a"
+    },
+    {
+      "path": "dist/extensions/talk-voice/openclaw.plugin.json",
+      "sha256": "e74b5b2dfff117b54cd80728c4fc5b54a56085fc870e6f9d5c9914a151aa812f"
+    },
+    {
+      "path": "dist/extensions/telegram/openclaw.plugin.json",
+      "sha256": "199e6b392ab6e82ed4e141a1565eaf4e107aa1e33a2be52625f878b5c9893474"
+    },
+    {
+      "path": "dist/extensions/together/openclaw.plugin.json",
+      "sha256": "a374c90ab6b8ff069b34b7ea72175684f2b54afc13b537eba98ef5abbdb7658a"
+    },
+    {
+      "path": "dist/extensions/tts-local-cli/openclaw.plugin.json",
+      "sha256": "3d5e89884b8b1e7a70bf66a931ac9065253f045e80c04121b706ab6cd60c26a7"
+    },
+    {
+      "path": "dist/extensions/vault/openclaw.plugin.json",
+      "sha256": "3326fdc8b71633807a96e0ddeb2200c5f5cfb0b0547311281a55c5f4da6b003b"
+    },
+    {
+      "path": "dist/extensions/vllm/openclaw.plugin.json",
+      "sha256": "988c2553a102569a9f240946c7812a9e8b75da89fd578dc359c92882c5c5ab34"
+    },
+    {
+      "path": "dist/extensions/web-readability/openclaw.plugin.json",
+      "sha256": "3fb9b2d5c284d27c5bef18b63c99baf5f2bdfd82ac874b342fd387f450b2d7e8"
+    },
+    {
+      "path": "dist/extensions/webhooks/openclaw.plugin.json",
+      "sha256": "4c44ed99015ca996bd412ac1e4cf932ba85e469662be85e19e6c9e9ba604d482"
+    },
+    {
+      "path": "dist/extensions/workboard/openclaw.plugin.json",
+      "sha256": "6a510f9286d657725256c577a58c023b27937d1e560c41a7ad5eb733ec3f8eee"
+    },
+    {
+      "path": "dist/extensions/xai/openclaw.plugin.json",
+      "sha256": "21d0464392131bb6244630e8f335690c6eccd0a951f51386f52a1faef536b7c3"
+    },
+    {
+      "path": "docs/providers/index.md",
+      "sha256": "a57b7d1f6fa2ef4d481852807d93f06714c7b1ed177b92c035794be235a9f292"
+    },
+    {
+      "path": "docs/providers/alibaba.md",
+      "sha256": "301eb385e83a767575f2b8e0bf91ca95d670c67bb95b1eac002e3004ac587f34"
+    },
+    {
+      "path": "docs/providers/bedrock.md",
+      "sha256": "9cbc9534c0d06e0d5642b8d167c633c16880908812b97adbbf9c6bd6c5511603"
+    },
+    {
+      "path": "docs/providers/bedrock-mantle.md",
+      "sha256": "d33c0ce3cf8d57794dbbcf11b328916cfb0d802fd8c391ebba95ae23f2faed49"
+    },
+    {
+      "path": "docs/providers/anthropic.md",
+      "sha256": "0c5bae99040d60d51c5e0cf56a588070a77fd884f5af2ab4a6c4dbd3b471b867"
+    },
+    {
+      "path": "docs/providers/arcee.md",
+      "sha256": "75b2a4bb8f55168d99bd5fff638a3b24fab550bed38cf222157892318caa612d"
+    },
+    {
+      "path": "docs/providers/azure-speech.md",
+      "sha256": "cfeeb9daa8d7d6aa24e497d57d64e07efa94c3c0c6b16f793343a450286ab3c1"
+    },
+    {
+      "path": "docs/providers/baseten.md",
+      "sha256": "daa57fe8ecd43f52295b7bd3442886c2c43e3e618b5d458f78c9cb7a14682158"
+    },
+    {
+      "path": "docs/concepts/model-providers.md",
+      "sha256": "46d122550651ad92cab27c5bdc8a4d5a0ffe79ccf648503a99c659b42d7caf8e"
+    },
+    {
+      "path": "docs/providers/cerebras.md",
+      "sha256": "2e7db36cc93b5bf9b5254c7ecb82becaa5a0e5102a415aa26de44d9f73d89ea4"
+    },
+    {
+      "path": "docs/providers/chutes.md",
+      "sha256": "b79a00d7074a87bd6b2fb21ee2ceee4d69b942c4f03b9131051a51afff5a6a50"
+    },
+    {
+      "path": "docs/providers/clawrouter.md",
+      "sha256": "d9d32f17edd659ce35d429a80f890e921a46280c8f3239e43247423566afc42e"
+    },
+    {
+      "path": "docs/providers/cloudflare-ai-gateway.md",
+      "sha256": "d3bb4c382803480fa10e958fa150ed5271809e9af17ca21be15ff3e6da705c34"
+    },
+    {
+      "path": "docs/providers/cohere.md",
+      "sha256": "b8df2028c15cb7b60f8d0821394738dc956a0bcc80942cc668732110ea32a183"
+    },
+    {
+      "path": "docs/providers/comfy.md",
+      "sha256": "309ad54d1e5ebd6b1f0ce996a79184184e4fbef596bddd498ed158d4887048d6"
+    },
+    {
+      "path": "docs/providers/deepseek.md",
+      "sha256": "2276ee7badea7093787cf557e9bf2a822fcf903e858e24d063ab39ef6836a2ac"
+    },
+    {
+      "path": "docs/providers/ds4.md",
+      "sha256": "be449813295648694625ef8003b3f4b12903535b74816916ca5af0695174fbf4"
+    },
+    {
+      "path": "docs/providers/elevenlabs.md",
+      "sha256": "f06dc123738621cf63762b0d4e11a9b88aac47c87e43dfb772bf9db775835c6e"
+    },
+    {
+      "path": "docs/providers/fal.md",
+      "sha256": "17d9dde7f5124d03a604e5dcd40174fad75ed25bfb606a590359a02c4a9f131e"
+    },
+    {
+      "path": "docs/providers/featherless.md",
+      "sha256": "e7aeaec19dccb1bee25295b18feff5c1862e23b0b08a869d7ae0672750ff159d"
+    },
+    {
+      "path": "docs/providers/fireworks.md",
+      "sha256": "23737029e0289fd74b2c67381c2f88fc041a9056452bf31232f574823cd9ac5b"
+    },
+    {
+      "path": "docs/providers/github-copilot.md",
+      "sha256": "1c36ec3db8e842a3b8ba882bd0171b391fb7a72bedb51c0c48c14ca83a911e5d"
+    },
+    {
+      "path": "docs/providers/gmi.md",
+      "sha256": "3480eb1d9b92254c830526067920c750a6276a19dacc17efc7a5f93ba023b783"
+    },
+    {
+      "path": "docs/providers/google.md",
+      "sha256": "27c33c54ec4647f1a89e3e7b3a8b760e5ed253bcd0ac9391008466b58228b04c"
+    },
+    {
+      "path": "docs/providers/gradium.md",
+      "sha256": "5536426eb6d3c8f24c04643b033ebb519a1f2f9df9d97c917ced1c7e23ad180d"
+    },
+    {
+      "path": "docs/providers/groq.md",
+      "sha256": "53f349abe5cdc73731b209d9d869b0113fff0d9d920470d596f1d655447df977"
+    },
+    {
+      "path": "docs/providers/huggingface.md",
+      "sha256": "b9c463ba9e7418b128d4154f53653a95c5d89e0a2ce3385dbc3df722eefa24ac"
+    },
+    {
+      "path": "docs/providers/inferrs.md",
+      "sha256": "8b9b6fe337a2ec6536332dd62840052fd802fad0a5f3d885ce137523266ff3c9"
+    },
+    {
+      "path": "docs/providers/kilocode.md",
+      "sha256": "6bd89cc8d780d762c4d095ec4b905b26f2ad94673e08ebee27052fed10cf48a5"
+    },
+    {
+      "path": "docs/providers/litellm.md",
+      "sha256": "73b1376c6e4a28de878c532bd2b8da03c13f368c661dc6c12892e76ac17d76a6"
+    },
+    {
+      "path": "docs/plugins/llama-cpp.md",
+      "sha256": "30e4c08d8070a96cbf12aafa59584c40ab69974e465459e38e0cb84243c577bb"
+    },
+    {
+      "path": "docs/providers/lmstudio.md",
+      "sha256": "eb7c00acf5cb10125dc234bc183c202d2ad54ff9bb3be5946f7ae182e976880a"
+    },
+    {
+      "path": "docs/providers/longcat.md",
+      "sha256": "33251153e589b2609bd23a88cb8995ef9e21b17e447583fdf4f61aa4b8552ebe"
+    },
+    {
+      "path": "docs/providers/minimax.md",
+      "sha256": "fba2511d13a4d18a6f57a300d01c1d35da4073eb80af8320b0fc377771e3f1f3"
+    },
+    {
+      "path": "docs/providers/mistral.md",
+      "sha256": "eefd5095cc8436c0ea54beb324105750929a7b5f266f1751289b2c24a4bc25b1"
+    },
+    {
+      "path": "docs/providers/moonshot.md",
+      "sha256": "90dffeedf083ac1087781d5ec8ab99fde5221f4ae5963057dc4b6704dfb33659"
+    },
+    {
+      "path": "docs/providers/novita.md",
+      "sha256": "e81c2a8e9d9fc86e99c736f4e71c926cfc8b9369018cd0e94ceed72e1ca2ba05"
+    },
+    {
+      "path": "docs/providers/nvidia.md",
+      "sha256": "02dbad919a67c54b34e384f5a7986f7e8f9bcce3738c5b904ed32ac248c211a8"
+    },
+    {
+      "path": "docs/providers/ollama.md",
+      "sha256": "0aeab80d719a511dfcdea845bc1ef75d773aa8cf436cfc9698e6ccba34b7a3c8"
+    },
+    {
+      "path": "docs/providers/ollama-cloud.md",
+      "sha256": "1c6f80daa8897481d7b04f5c9586e66bdb46a8d604b1bf6c432921023f753991"
+    },
+    {
+      "path": "docs/providers/openai.md",
+      "sha256": "7220290ad8fbc89b6427ef1cfac2091688689d939dbe6c123bdf650686bd168a"
+    },
+    {
+      "path": "docs/providers/opencode.md",
+      "sha256": "a4257e528e7b235c3cd422ff8e910378f109240717c913f161857e95f7651800"
+    },
+    {
+      "path": "docs/providers/opencode-go.md",
+      "sha256": "ed583bbb60f19beb22b459d43f579ee1e4c21eee8638ea0b3aa15eff7223cb40"
+    },
+    {
+      "path": "docs/providers/openrouter.md",
+      "sha256": "25efc495489b7f59f7f02382027622b5a7034a2d49ef2b806a347e73eb5147a2"
+    },
+    {
+      "path": "docs/providers/perplexity-provider.md",
+      "sha256": "ea76a5cb7befce95756e9bcc8f9c1637fac87711d02d8a486ec2a1b9f51b73dc"
+    },
+    {
+      "path": "docs/providers/qianfan.md",
+      "sha256": "29bc4a99b03cf3d7f3152ba4c041d965f5e3bf7e2d9ce66d5888005fbb167d50"
+    },
+    {
+      "path": "docs/providers/qwen.md",
+      "sha256": "c787c27318fb4adc10e0c431a1b24ea2067d4a21519e54faa43b5317edf27ab6"
+    },
+    {
+      "path": "docs/providers/runway.md",
+      "sha256": "961c2a00b61db065611bfc29047b874ed62b289c74273105b95cb3095819ee25"
+    },
+    {
+      "path": "docs/providers/senseaudio.md",
+      "sha256": "31d2acb8b26bac8a4be65e4fa79c043421ef3d29dbc42a542363c8a59bbbb294"
+    },
+    {
+      "path": "docs/providers/sglang.md",
+      "sha256": "54a7805315a7d65fdd2c7c9b6836aa2faccc88db7802cce0ba8c2d4a1aac9d65"
+    },
+    {
+      "path": "docs/providers/stepfun.md",
+      "sha256": "9b58488e0a5ac8f9ed4bf8f568b9220d8bdd8ef211a7eb98021f3ee1dfb7ba9f"
+    },
+    {
+      "path": "docs/providers/synthetic.md",
+      "sha256": "33b48c3bdabe4b0284b609a2891f6fcc1dd59f9280c5695abf13d343acc81ba2"
+    },
+    {
+      "path": "docs/providers/tencent.md",
+      "sha256": "06094f7275e8d1d42b28cb15ebdc2282a8d3d35178547f69e3ce2487d7132de4"
+    },
+    {
+      "path": "docs/providers/together.md",
+      "sha256": "100a4323129f60038412328b76adef969f8bb1342c4209782b34e0e2bae496a3"
+    },
+    {
+      "path": "docs/providers/venice.md",
+      "sha256": "4ec21d19e4e296dc592b2a9208e8b8492e72f14e5446bc131e3a51aa1b331b43"
+    },
+    {
+      "path": "docs/providers/vercel-ai-gateway.md",
+      "sha256": "95863cc58a5065b7e34eb2575ee2645f674136366ec43ea8ed1cae6a3d9d1f67"
+    },
+    {
+      "path": "docs/providers/vllm.md",
+      "sha256": "c891cedf60ea1ce7a1523b59fe544608434d3e4c47d9741e330ea4ae8805ed71"
+    },
+    {
+      "path": "docs/providers/volcengine.md",
+      "sha256": "ed9398781c52370a14cb36797c279c5dafc0e994b6ece2112a9e7ab0a47573b0"
+    },
+    {
+      "path": "docs/providers/vydra.md",
+      "sha256": "a8af41f2a97343cc2bc98b2c30331882a5eb953a375738bfbe92575a55939196"
+    },
+    {
+      "path": "docs/providers/xai.md",
+      "sha256": "05d5168544876360f760dd406aa76bdaa0f856a3197652f70642d2ae1bc30754"
+    },
+    {
+      "path": "docs/providers/xiaomi.md",
+      "sha256": "d58e74d6ed475a971111caa5e1e5991eff3dc0bff73bf417629b40ad21d19c2b"
+    },
+    {
+      "path": "docs/providers/zai.md",
+      "sha256": "7edae8bfa0634c86882e75d8872eedc646889835bcc5bd901fad5632b176fade"
+    }
+  ]
+}

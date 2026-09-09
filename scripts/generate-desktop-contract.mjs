@@ -7,6 +7,7 @@ const scriptsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptsDirectory, "..");
 
 const inputPaths = {
+  appPackage: "apps/desktop/package.json",
   runtime: "manifests/runtime/runtime-manifest.lock.json",
   capability: "manifests/capabilities/openclaw-2026.7.1-2.capability-manifest.json",
   auth: "manifests/providers/auth-support.manifest.json",
@@ -45,7 +46,10 @@ function stableDigest(value) {
   return crypto.createHash("sha256").update(JSON.stringify(value)).digest("hex");
 }
 
-export function buildShellContract({ runtime, capability, auth, source, threat }) {
+export function buildShellContract({ appPackage, runtime, capability, auth, source, threat }) {
+  if (typeof appPackage?.version !== "string" || !appPackage.version.trim()) {
+    throw new Error("Desktop package is missing its version");
+  }
   const capabilities = requireArray(capability.capabilities, "capabilities");
   const authRecords = requireArray(auth.records, "auth records");
   const sources = requireArray(source.sources, "sources of truth");
@@ -71,7 +75,7 @@ export function buildShellContract({ runtime, capability, auth, source, threat }
     classification: "experimental-internal",
     product: {
       name: "AI for Boss",
-      version: runtime.productVersion,
+      version: appPackage.version,
       attribution: "Built on OpenClaw"
     },
     releaseTrain: {

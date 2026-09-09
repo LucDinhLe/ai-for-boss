@@ -40,7 +40,8 @@ for (const marker of [
 ]) if (!combined.includes(marker)) failures.push(`missing first-run marker ${marker}`);
 
 if (!index.includes("connect-src 'none'")) failures.push("renderer network is not denied");
-if ([...preload.matchAll(/ipcRenderer\.invoke\(/g)].length !== 3) failures.push("preload IPC surface differs from the beta 0 allowlist");
+// D-0030 adds two bounded user actions to the four native runtime/setup reads.
+if ([...preload.matchAll(/ipcRenderer\.invoke\(/g)].length !== 8) failures.push("preload IPC surface differs from the documented allowlist");
 if (/localStorage|sessionStorage|indexedDB|fetch\s*\(|XMLHttpRequest|new WebSocket\s*\(/.test(combined)) failures.push("first-run contains persistence or outbound transport code");
 if ([...machine.matchAll(/live: false/g)].length !== 3 || /live:\s*true/.test(machine)) failures.push("connection fixtures are not strictly offline");
 if (!machine.includes('bootstrapRetained: true') || !machine.includes('reportReady: false') || !machine.includes('remove-bootstrap-last')) failures.push("Genesis fail-closed contract is incomplete");

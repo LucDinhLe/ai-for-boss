@@ -9,6 +9,7 @@ const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(testDirectory, "..", "..");
 
 const inputPaths = {
+  appPackage: "apps/desktop/package.json",
   runtime: "manifests/runtime/runtime-manifest.lock.json",
   capability: "manifests/capabilities/openclaw-2026.7.1-2.capability-manifest.json",
   auth: "manifests/providers/auth-support.manifest.json",
@@ -41,6 +42,18 @@ test("builds a sanitized shell contract from the locked evidence set", () => {
   assert.equal(JSON.stringify(contract).includes("sourceOfTruthRefs"), false);
 });
 
+test("displayed product version comes from the desktop package without changing locked runtime metadata", () => {
+  const fixture = baseline();
+  fixture.appPackage.version = "0.0.5-beta.1";
+  fixture.runtime.productVersion = "0.0.0-dev";
+  const contract = buildShellContract(fixture);
+  assert.equal(contract.product.version, "0.0.5-beta.1");
+  assert.equal(contract.releaseTrain.id, fixture.runtime.releaseTrainId);
+  assert.equal(contract.releaseTrain.openclaw, fixture.runtime.components.find((item) => item.name === "openclaw").version);
+  fixture.appPackage.version = "";
+  assert.throws(() => buildShellContract(fixture), /Desktop package.*version/);
+});
+
 test("rejects release-train drift before renderer data is generated", () => {
   const fixture = baseline();
   fixture.auth.releaseTrainId = "different-release";
@@ -54,4 +67,3 @@ test("rejects any prematurely advertisable capability", () => {
 
   assert.throws(() => buildShellContract(fixture), /cannot advertise unimplemented capabilities/);
 });
-

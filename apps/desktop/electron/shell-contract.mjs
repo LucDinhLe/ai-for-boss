@@ -15,7 +15,7 @@ function assertNonEmptyString(value, label) {
   }
 }
 
-export async function loadShellContract(filePath) {
+export async function loadShellContract(filePath, runningVersion) {
   const parsed = JSON.parse(await fs.readFile(filePath, "utf8"));
 
   for (const key of REQUIRED_TOP_LEVEL_KEYS) {
@@ -30,6 +30,13 @@ export async function loadShellContract(filePath) {
 
   assertNonEmptyString(parsed.releaseTrain.id, "releaseTrain.id");
   assertNonEmptyString(parsed.product.name, "product.name");
+
+  // The running package is authoritative; generated descriptive metadata can
+  // survive a UI-only build and must never label a newer executable as older.
+  if (runningVersion !== undefined) {
+    assertNonEmptyString(runningVersion, "runningVersion");
+    parsed.product.version = runningVersion;
+  }
 
   return structuredClone(parsed);
 }

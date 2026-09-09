@@ -128,7 +128,7 @@
     "Capability manifest diff between 2026.7.1-2 and the candidate has not been produced; the 23 locked capability families still describe the older train.",
     "SBOM baseline and third-party license inventory have not been regenerated for the candidate dependency tree.",
     "Three-platform smoke passes on CI runners only. A clean Windows machine and a real Mac have not installed or run the app, and CI proves neither the installer nor the user experience.",
-    "The default agent runtime in a fresh state directory is codex, whose harness plugin is absent; a supported runtime and provider path has not been chosen or tested.",
+    "Provider activation and a real chat turn are proven on Linux only (artifacts/beta-0/provider-verify-linux-x64.json); the same run has not been repeated on Windows or macOS.",
     "Independent senior platform and security review of the supervised runtime has not happened."
   ],
   "advertisable": false,

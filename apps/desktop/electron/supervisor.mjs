@@ -8,12 +8,13 @@ import { fileURLToPath } from "node:url";
 /** Startup exit code reserved by OpenClaw for configuration-class failures. */
 export const EX_CONFIG = 78;
 
-/** Environment the embedding guide prescribes for a supervised Gateway child. */
+/** Full product embedding: keep configured channels visible to the native runtime. */
 export const EMBEDDING_ENV = Object.freeze({
   OPENCLAW_DISABLE_BONJOUR: "1",
   OPENCLAW_EXEC_SHELL_SNAPSHOT: "0",
   OPENCLAW_NO_RESPAWN: "1",
-  OPENCLAW_SKIP_CHANNELS: "1"
+  OPENCLAW_SKIP_CHANNELS: "0",
+  OPENCLAW_SKIP_PROVIDERS: "0"
 });
 
 export const SUPERVISOR_STATES = Object.freeze({
@@ -66,8 +67,19 @@ export function resolveNodeExecutable({ env = process.env, resourcesPath, platfo
   return null;
 }
 
-/** Resolves the installed package entry; never a flattened or vendored copy. */
-export function resolveOpenClawEntry(resolver = (specifier) => import.meta.resolve(specifier)) {
+/**
+ * Resolves the installed package entry; never a flattened or vendored copy.
+ *
+ * A packaged app carries its own OpenClaw install beside the app bundle, since
+ * node_modules is deliberately absent from app.asar. That install is a real
+ * package tree, so the child resolves its dependencies exactly as it does in
+ * development. Outside a package, resolution falls back to the workspace.
+ */
+export function resolveOpenClawEntry(resolver = (specifier) => import.meta.resolve(specifier), { resourcesPath } = {}) {
+  if (resourcesPath) {
+    const bundled = path.join(resourcesPath, "node_modules", "openclaw", "openclaw.mjs");
+    if (existsSync(bundled)) return bundled;
+  }
   const packageEntry = fileURLToPath(resolver("openclaw"));
   return path.resolve(path.dirname(packageEntry), "..", "openclaw.mjs");
 }
@@ -79,25 +91,35 @@ export class GatewaySupervisor {
   #stopping = false;
   #lastExit = null;
   #doctorAttempted = false;
+  #generation = 0;
+  #startPromise = null;
+  #stopPromise = null;
+  #restartTimer = null;
 
   constructor({
     stateDirectory,
+    configPath = path.join(stateDirectory, 'openclaw.json'),
     nodeExecutable,
     openclawEntry,
     logger = console,
     onStateChange = () => {},
+    onOwnedChildExit = () => {},
     spawnChild = spawn,
     runDoctor = null,
-    restartDelaysMs = RESTART_BACKOFF_MS
+    restartDelaysMs = RESTART_BACKOFF_MS,
+    reservePort = reserveLoopbackPort
   }) {
     this.stateDirectory = stateDirectory;
+    this.configPath = configPath;
     this.nodeExecutable = nodeExecutable;
     this.openclawEntry = openclawEntry;
     this.logger = logger;
     this.onStateChange = onStateChange;
+    this.onOwnedChildExit = onOwnedChildExit;
     this.spawnChild = spawnChild;
     this.runDoctor = runDoctor ?? ((deps) => defaultDoctor(deps));
     this.restartDelaysMs = restartDelaysMs.length > 0 ? restartDelaysMs : RESTART_BACKOFF_MS;
+    this.reservePort = reservePort;
     this.port = null;
     this.token = null;
   }
@@ -124,7 +146,8 @@ export class GatewaySupervisor {
     return {
       ...process.env,
       ...EMBEDDING_ENV,
-      OPENCLAW_STATE_DIR: this.stateDirectory
+      OPENCLAW_STATE_DIR: this.stateDirectory,
+      OPENCLAW_CONFIG_PATH: this.configPath
     };
   }
 
@@ -145,8 +168,16 @@ export class GatewaySupervisor {
   }
 
   async start() {
+    if (this.#stopPromise) await this.#stopPromise;
+    if (this.#startPromise) return this.#startPromise;
+    if (this.#child && this.#stopping) throw new Error("The previous Gateway process has not stopped");
     if (this.#child) return { port: this.port, token: this.token };
     this.#stopping = false;
+    const generation = ++this.#generation;
+    clearTimeout(this.#restartTimer);
+    this.#restartTimer = null;
+    this.#restarts = [];
+    this.#doctorAttempted = false;
     this.#setState(SUPERVISOR_STATES.STARTING);
 
     if (!this.nodeExecutable) {
@@ -154,15 +185,27 @@ export class GatewaySupervisor {
       throw new Error("No Node runtime available for the OpenClaw child process");
     }
 
-    this.port = await reserveLoopbackPort();
-    this.token = createGatewayToken();
-    this.#spawn();
-    return { port: this.port, token: this.token };
+    const pending = (async () => {
+      const port = await this.reservePort();
+      if (generation !== this.#generation || this.#stopping) throw new Error("Gateway start cancelled");
+      this.port = port;
+      this.token = createGatewayToken();
+      this.#spawn(generation);
+      return { port: this.port, token: this.token };
+    })();
+    this.#startPromise = pending;
+    try {
+      return await pending;
+    } finally {
+      if (this.#startPromise === pending) this.#startPromise = null;
+    }
   }
 
-  #spawn() {
+  #spawn(generation) {
+    if (generation !== this.#generation || this.#stopping || this.#child) return;
     const child = this.spawnChild(this.nodeExecutable, this.#args(), {
       env: this.#childEnv(),
+      windowsHide: true,
       stdio: ["ignore", "pipe", "pipe"]
     });
     this.#child = child;
@@ -170,16 +213,20 @@ export class GatewaySupervisor {
     // Consume both streams immediately; an unread pipe eventually blocks the child.
     child.stdout?.on("data", (chunk) => this.logger.info?.(`[gateway] ${String(chunk).trimEnd()}`));
     child.stderr?.on("data", (chunk) => this.logger.warn?.(`[gateway] ${String(chunk).trimEnd()}`));
-    child.on("exit", (code, signal) => this.#handleExit(code, signal));
+    child.on("exit", (code, signal) => this.#handleExit(child, generation, code, signal));
     child.on("error", (error) => {
+      if (this.#child !== child || generation !== this.#generation || this.#stopping) return;
       this.logger.error?.("[gateway] spawn failed", error);
+      if (!child.pid) this.#child = null;
       this.#setState(SUPERVISOR_STATES.SAFE_MODE, "spawn-failed");
     });
   }
 
-  #handleExit(code, signal) {
+  #handleExit(child, generation, code, signal) {
+    if (this.#child !== child) return;
     this.#child = null;
     this.#lastExit = { code, signal, at: Date.now() };
+    this.onOwnedChildExit({ ...this.#lastExit });
     if (this.#stopping) {
       this.#setState(SUPERVISOR_STATES.IDLE, "stopped");
       return;
@@ -201,7 +248,7 @@ export class GatewaySupervisor {
         return;
       }
       this.#setState(SUPERVISOR_STATES.RESTARTING, "config-repaired");
-      setTimeout(() => this.#spawn(), this.restartDelaysMs[0]).unref?.();
+      this.#scheduleRestart(generation, this.restartDelaysMs[0]);
       return;
     }
 
@@ -214,38 +261,64 @@ export class GatewaySupervisor {
     const delay = this.restartDelaysMs[Math.min(this.#restarts.length, this.restartDelaysMs.length - 1)];
     this.#restarts.push(now);
     this.#setState(SUPERVISOR_STATES.RESTARTING, `exit-${code ?? signal}`);
-    setTimeout(() => {
-      if (!this.#stopping) this.#spawn();
-    }, delay).unref?.();
+    this.#scheduleRestart(generation, delay);
+  }
+
+  #scheduleRestart(generation, delay) {
+    clearTimeout(this.#restartTimer);
+    this.#restartTimer = setTimeout(() => {
+      this.#restartTimer = null;
+      this.#spawn(generation);
+    }, delay);
+    this.#restartTimer.unref?.();
   }
 
   markReady() {
+    if (!this.#child || this.#stopping) return;
     this.#doctorAttempted = false;
     this.#setState(SUPERVISOR_STATES.READY);
   }
 
-  async stop({ timeoutMs = 5_000 } = {}) {
+  async stop({ timeoutMs = 5_000, killTimeoutMs = 1_000 } = {}) {
+    if (this.#stopPromise) return this.#stopPromise;
     this.#stopping = true;
+    ++this.#generation;
+    this.#startPromise = null;
+    clearTimeout(this.#restartTimer);
+    this.#restartTimer = null;
     const child = this.#child;
     if (!child) {
       this.#setState(SUPERVISOR_STATES.IDLE, "stopped");
       return;
     }
-    child.kill("SIGTERM");
-    await new Promise((resolve) => {
-      const timer = setTimeout(() => {
-        try {
-          child.kill("SIGKILL");
-        } catch {
-          // already gone
-        }
-        resolve();
+    const pending = new Promise((resolve, reject) => {
+      let termTimer;
+      let killTimer;
+      const cleanup = () => {
+        clearTimeout(termTimer);
+        clearTimeout(killTimer);
+        child.removeListener("exit", exited);
+      };
+      const exited = () => { cleanup(); resolve(); };
+      const failed = (error) => {
+        cleanup();
+        this.#setState(SUPERVISOR_STATES.SAFE_MODE, "stop-timeout");
+        reject(error);
+      };
+      // Register before sending a signal: an already-exiting child can finish immediately.
+      child.once("exit", exited);
+      termTimer = setTimeout(() => {
+        killTimer = setTimeout(() => failed(new Error("Gateway process did not exit after termination")), killTimeoutMs);
+        try { child.kill("SIGKILL"); } catch (error) { failed(error); }
       }, timeoutMs);
-      child.once("exit", () => {
-        clearTimeout(timer);
-        resolve();
-      });
+      try { child.kill("SIGTERM"); } catch (error) { failed(error); }
     });
+    this.#stopPromise = pending;
+    try {
+      await pending;
+    } finally {
+      if (this.#stopPromise === pending) this.#stopPromise = null;
+    }
   }
 }
 

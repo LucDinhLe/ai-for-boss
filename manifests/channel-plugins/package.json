@@ -1,0 +1,12 @@
+{
+  "name": "aifb-official-channel-plugins",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Official optional OpenClaw channel plugins, pinned separately from the immutable core.",
+  "dependencies": {
+    "@openclaw/discord": "2026.9.1",
+    "@openclaw/googlechat": "2026.9.1",
+    "@openclaw/whatsapp": "2026.9.1",
+    "@openclaw/zalo": "2026.9.1"
+  }
+}

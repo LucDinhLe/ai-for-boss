@@ -10,17 +10,24 @@
   },
   "scripts": {
     "contracts:generate": "node scripts/generate-desktop-contract.mjs",
-    "build": "corepack pnpm run contracts:generate && corepack pnpm --filter @aifb/desktop build",
+    "build": "node scripts/stage-document-tools.mjs && corepack pnpm run contracts:generate && corepack pnpm --filter @aifb/desktop build",
     "dev": "corepack pnpm run build && corepack pnpm --filter @aifb/desktop start",
     "lint": "eslint .",
     "typecheck": "corepack pnpm --filter @aifb/desktop typecheck",
     "test": "node --test tests/contract/*.test.mjs tests/unit/*.test.mjs",
     "package:desktop": "corepack pnpm run build && node scripts/package-desktop.mjs",
     "qa:prepare": "corepack pnpm run build && node scripts/generate-feature-0.5-qa.mjs",
-    "validate:sandbox": "node scripts/validate-feature-0.6.mjs",
+    "verify": "corepack pnpm run lint && corepack pnpm run typecheck && corepack pnpm run test && corepack pnpm run build",
+    "smoke:gateway": "node scripts/gateway-smoke.mjs",
+    "stage:runtime": "node scripts/stage-runtime.mjs",
+    "smoke:packaged": "node scripts/packaged-runtime-smoke.mjs",
+    "smoke:app": "node scripts/packaged-app-smoke.mjs",
+    "smoke:ui": "node scripts/run-first-session-ui-smoke.mjs",
+    "verify:provider": "node scripts/provider-verify.mjs",
+    "documents:install": "npm ci --prefix packages/document-tools --ignore-scripts --no-audit --no-fund",
+    "documents:stage": "node scripts/stage-document-tools.mjs",
     "validate:desktop": "node scripts/validate-feature-0.4.mjs && node scripts/validate-feature-0.5.mjs && node scripts/validate-feature-0.6.mjs && node scripts/validate-beta-0.mjs",
-    "verify": "corepack pnpm run lint && corepack pnpm run typecheck && corepack pnpm run test && corepack pnpm run build && corepack pnpm run validate:desktop",
-    "smoke:gateway": "node scripts/gateway-smoke.mjs"
+    "validate:sandbox": "node scripts/validate-feature-0.6.mjs"
   },
   "devDependencies": {
     "@electron/packager": "20.2.1",

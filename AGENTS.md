@@ -73,3 +73,5 @@ D-0018 stay closed.
 ## Definition of done
 
 A feature is done only when its acceptance criteria pass, automated and manual checks pass, security/privacy/blast-radius reviews are recorded, documentation is current, no secret is present and a rollback path exists.
+
+Current scope0050: Owner authorizes merging preview source/history/releases into this repository, making it public after privacy review, then deleting preview. Current application source is beta36; earlier feature documents are historical. Preserve credentials, immutable core and profile boundaries. See docs/feature-specs/0050-repository-consolidation.md.
