@@ -134,6 +134,7 @@ public static class InstallLinks {
         $file
       }
     })
+    if ($eligible.Count -eq 0) { return }
     $report = if ($StatusWindow) { [Action[int,long]] { param($count, $seconds)
       [InstallProgress]::Update($StatusWindow, ('Đang dùng lại lõi đã kiểm tra: ' + $count + ' tệp — ' + $seconds + ' giây'), 0)
     } } else { $null }

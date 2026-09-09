@@ -61,6 +61,12 @@ test('Windows upgrade reuses only matching immutable core files and never the sh
     assert.equal((await fs.stat(path.join(previous, 'resources/runtime/node/node.exe'))).ino, (await fs.stat(path.join(stage, 'resources/runtime/node/node.exe'))).ino);
     await assert.rejects(fs.stat(path.join(stage, 'resources/app.asar')), { code: 'ENOENT' });
     await assert.rejects(fs.stat(path.join(stage, 'resources/node_modules/openclaw/readme.md')), { code: 'ENOENT' });
+    const distinct = 'qa-distinct', distinctManifest = path.join(root, 'distinct.json');
+    const changed = await installerManifest(source, distinct);
+    for (const file of changed.files) file.sha256 = '0'.repeat(64);
+    await fs.writeFile(distinctManifest, JSON.stringify(changed));
+    invoke('Prepare', distinct, distinctManifest);
+    await assert.rejects(fs.stat(path.join(install, 'staging', distinct, 'resources/runtime/node/node.exe')), { code: 'ENOENT' });
     const runtime = path.join(previous, 'resources/runtime'), outside = path.join(root, 'saved-runtime');
     await fs.rename(runtime, outside); await fs.symlink(outside, runtime, 'junction');
     invoke('Prepare', next, nextManifest, false);
