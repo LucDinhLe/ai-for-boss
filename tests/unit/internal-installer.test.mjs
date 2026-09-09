@@ -43,10 +43,11 @@ test('Windows upgrade reuses only matching immutable core files and never the sh
   try {
     const install = path.join(root, 'installed'), script = path.join(root, 'support.ps1');
     await fs.copyFile(path.join(repo, 'installer/install-support.ps1'), script);
-    const invoke = (action, version, manifest) => {
+    const invoke = (action, version, manifest, shouldPass = true) => {
       const result = spawnSync('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', script, '-Action', action, '-Root', install,
         '-Version', version, '-Manifest', manifest, '-Desktop', root, '-StartMenu', root], { encoding: 'utf8', windowsHide: true });
-      assert.equal(result.status, 0, result.stdout + result.stderr);
+      if (shouldPass) assert.equal(result.status, 0, result.stdout + result.stderr);
+      else assert.notEqual(result.status, 0, 'linked source must be rejected');
     };
     const old = '0.0.5-beta.31', next = '0.0.5-beta.32';
     const oldManifest = path.join(root, 'old.json'), nextManifest = path.join(root, 'next.json');
@@ -59,6 +60,10 @@ test('Windows upgrade reuses only matching immutable core files and never the sh
     assert.equal((await fs.stat(path.join(previous, 'resources/runtime/node/node.exe'))).ino, (await fs.stat(path.join(stage, 'resources/runtime/node/node.exe'))).ino);
     await assert.rejects(fs.stat(path.join(stage, 'resources/app.asar')), { code: 'ENOENT' });
     await assert.rejects(fs.stat(path.join(stage, 'resources/node_modules/openclaw/readme.md')), { code: 'ENOENT' });
+    const runtime = path.join(previous, 'resources/runtime'), outside = path.join(root, 'saved-runtime');
+    await fs.rename(runtime, outside); await fs.symlink(outside, runtime, 'junction');
+    invoke('Prepare', next, nextManifest, false);
+    assert.equal(await fs.readFile(path.join(outside, 'node/node.exe'), 'utf8'), 'test runtime');
   } finally { await fs.rm(root, { recursive: true, force: true }); }
 });
 test('Windows install engine preserves prior, foreign and modified files and rejects tamper', { skip: process.platform !== 'win32', timeout: 90000 }, async () => {

@@ -77,29 +77,67 @@ function Reuse-Core($payload) {
     if ($prior.product -ne 'AI for Boss' -or $prior.version -ne $candidate.Name) { continue }
     Add-Type @'
 using System;
+using System.IO;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Runtime.InteropServices;
 public static class InstallLinks {
   [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
   public static extern bool CreateHardLink(string target, string source, IntPtr reserved);
+  static void Plain(string file, HashSet<string> directories) {
+    for (string cursor = file; !String.IsNullOrEmpty(cursor) && !directories.Contains(cursor); cursor = Path.GetDirectoryName(cursor)) {
+      FileAttributes attributes;
+      try { attributes = File.GetAttributes(cursor); }
+      catch (FileNotFoundException) { continue; }
+      catch (DirectoryNotFoundException) { continue; }
+      if ((attributes & FileAttributes.ReparsePoint) != 0) throw new IOException("Core path contains a reparse point");
+      if ((attributes & FileAttributes.Directory) != 0) directories.Add(cursor);
+    }
+  }
+  static string Under(string root, string name) {
+    string file = Path.GetFullPath(Path.Combine(root, name.Replace('/', '\\')));
+    if (!file.StartsWith(root + "\\", StringComparison.OrdinalIgnoreCase)) throw new IOException("Core path outside installation");
+    return file;
+  }
+  public static void Reuse(string sourceRoot, string targetRoot, string[] names, string[] hashes, Action<int,long> progress) {
+    sourceRoot = Path.GetFullPath(sourceRoot).TrimEnd('\\');
+    targetRoot = Path.GetFullPath(targetRoot).TrimEnd('\\');
+    var directories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    var clock = Stopwatch.StartNew(); long last = -1000; int linked = 0;
+    using (var hash = SHA256.Create()) {
+      for (int i = 0; i < names.Length; i++) {
+        string source = Under(sourceRoot, names[i]), target = Under(targetRoot, names[i]);
+        if (!File.Exists(source)) continue;
+        Plain(source, directories);
+        using (var stream = File.OpenRead(source)) {
+          if (!String.Equals(BitConverter.ToString(hash.ComputeHash(stream)).Replace("-", ""), hashes[i], StringComparison.OrdinalIgnoreCase)) continue;
+        }
+        Plain(target, directories);
+        Directory.CreateDirectory(Path.GetDirectoryName(target));
+        // Never overwrite: failure falls back to extraction, then full verification.
+        if (CreateHardLink(target, source, IntPtr.Zero)) linked++;
+        if (progress != null && clock.ElapsedMilliseconds - last >= 500) {
+          progress(linked, clock.ElapsedMilliseconds / 1000); last = clock.ElapsedMilliseconds;
+        }
+      }
+    }
+    if (progress != null) progress(linked, clock.ElapsedMilliseconds / 1000);
+  }
 }
 '@
     $known = @{}; foreach ($item in $prior.files) { $known[$item.path] = $item.sha256 }
-    $count = 0; $clock = [Diagnostics.Stopwatch]::StartNew(); $last = -1000
-    foreach ($file in $payload.files) {
-      if ($file.path -notmatch '^resources/(node_modules/|runtime/node/)') { continue }
-      if ($known[$file.path] -ne $file.sha256) { continue }
-      $source = Owned-Path $candidate.FullName $file.path
-      if (-not [IO.File]::Exists($source)) { continue }
-      if ((Hash-File $source) -ne $file.sha256) { continue }
-      $target = Owned-Path $stagePath $file.path
-      [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($target)) | Out-Null
-      # The payload writer skips these verified hardlinks, never overwrites them.
-      # Failed links fall back to normal extraction. Commit rehashes everything.
-      if ([InstallLinks]::CreateHardLink($target, $source, [IntPtr]::Zero)) { $count++ }
-      if ($StatusWindow -and $clock.ElapsedMilliseconds - $last -ge 500) {
-        [InstallProgress]::Update($StatusWindow, ('Đang dùng lại lõi đã kiểm tra: ' + $count + ' tệp'), 0); $last = $clock.ElapsedMilliseconds
+    $eligible = @(foreach ($file in $payload.files) {
+      if ($file.path -match '^resources/(node_modules/|runtime/node/)' -and $known[$file.path] -eq $file.sha256) {
+        $file
       }
-    }
+    })
+    $report = if ($StatusWindow) { [Action[int,long]] { param($count, $seconds)
+      [InstallProgress]::Update($StatusWindow, ('Đang dùng lại lõi đã kiểm tra: ' + $count + ' tệp — ' + $seconds + ' giây'), 0)
+    } } else { $null }
+    # Keep per-file path inspection, SHA256 and linking inside .NET. PowerShell
+    # exception/provider dispatch on missing targets dominated large upgrades.
+    [InstallLinks]::Reuse($candidate.FullName, $stagePath, [string[]]$eligible.path, [string[]]$eligible.sha256, $report)
     break
   }
 }
