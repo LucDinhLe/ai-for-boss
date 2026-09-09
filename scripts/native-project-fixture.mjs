@@ -36,7 +36,7 @@ async function startModel(apiKey) {
         const revise = !observation.modes.includes(mode);
         reply = JSON.stringify({ decision: revise ? 'revise' : 'approve', pass: !revise, summary: revise ? 'Bổ sung thời hạn' : 'Đạt tiêu chí mô phỏng.', confidence: 0.8,
           evidence: [{ source: 'goal', quote: packet.goal }], issues: [] });
-      } else if (prompt.trim() === 'chào em,') { mode = 'greeting'; reply = 'Chào anh.';
+      } else if (prompt.includes('chào em,')) { mode = 'greeting'; reply = 'Chào anh.';
       } else { mode = 'worker';
         if (observation.modes.includes('worker') && !prompt.includes('Bổ sung thời hạn')) throw new Error('Final feedback not returned to worker');
         reply = 'Ba ưu tiên: 1. Xác định mục tiêu. 2. Chuẩn bị dữ liệu. 3. Kiểm kết quả.';
