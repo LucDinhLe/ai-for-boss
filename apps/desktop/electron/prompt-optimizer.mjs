@@ -54,7 +54,7 @@ export class PromptOptimizer {
   const settings=structuredClone(this.state.settings),job={id:randomUUID(),controller:new globalThis.AbortController(),calls:0,settings,evidence:[]};this.job=job;
   this.state.lastRun=this.now();
   // Return immediately; the independent batch must never occupy chat navigation.
-  job.done=this.save().then(()=>this.evaluate(job)).catch(error=>{this.state.results.unshift({id:job.id,at:this.now(),status:'error',message:job.controller.signal.aborted?'Đã dừng tối ưu.':String(error.message),calls:job.calls,evidence:job.evidence});})
+  job.done=this.save().then(()=>this.evaluate(job)).catch(error=>{this.state.results.unshift({id:job.id,at:this.now(),status:'error',message:job.controller.signal.aborted?'Đã hủy các lượt tối ưu tiếp theo. Nếu chưa xác nhận lượt model hiện tại đã dừng, ứng dụng sẽ chặn lượt thử mới.':String(error.message),calls:job.calls,evidence:job.evidence});})
    .finally(async()=>{this.state.results=this.state.results.slice(0,30);try{await this.save();}finally{this.job=null;}});
   void job.done.catch(()=>{});return this.status();
  }
