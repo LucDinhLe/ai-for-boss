@@ -40,7 +40,7 @@ export default function WorkspaceControls({ runtime, usage, agents, agentId, mod
       <button disabled={disabled} onClick={event => { event.currentTarget.closest('details')?.removeAttribute('open'); onManageAgents(); }}><WorkbenchIcon name="new" /> Tạo và quản lý agents</button><small>Chọn agent sẽ mở chat mới, giữ cuộc trò chuyện hiện tại.</small></div></details>
     <ContextMeter usage={usage} models={models} pending={contextPending} />
     <div className="advisor-control-group" aria-label="Giám sát tự động">
-    <span id="advisor-tab" className="advisor-label" title="Tự hỏi ý kiến khi lập kế hoạch, nhận góp ý và kiểm kết quả"><WorkbenchIcon name="shield" />Advisor{reviewBusy ? ' · Đang kiểm' : ''}</span>
+    <span id="advisor-tab" className="advisor-label" title="Review kết quả khi cần; mô hình thực thi làm công việc chính"><WorkbenchIcon name="shield" />Advisor{reviewBusy ? ' · Đang kiểm' : ''}</span>
     <ModelPicker id="advisor-model-picker" models={advisorModels} currentProvider={choice.model?.provider ?? null} currentId={choice.model?.id ?? null}
       label={selected?.name || choice.model?.id || 'Chọn mô hình'} disabled={disabled}
       onOpen={onBrowseModels ? () => { if (!disabled) onBrowseModels(false); } : undefined}
@@ -50,15 +50,18 @@ export default function WorkspaceControls({ runtime, usage, agents, agentId, mod
         if (!disabled && target && isSelectableModel(target)) onChoice({ ...choice, model: { id: target.id, provider: target.provider } });
       }} />
     <button type="button" role="switch" aria-label="Bật giám sát tự động" aria-checked={choice.enabled} className={`advisor-switch ${choice.enabled ? 'enabled' : ''}`}
-      disabled={!canToggle} title="Tự hỏi Advisor về kế hoạch và kết quả; có thêm chi phí mô hình. Dùng Dừng trong ô chat để ngắt lượt đang chạy." onClick={() => { if (canToggle) onChoice({ ...choice, enabled: !choice.enabled }); }}><span /></button>
+      disabled={!canToggle} title="Advisor review kết quả và lỗi; tối đa hai lượt review, có thêm chi phí mô hình. Dùng Dừng trong ô chat để ngắt lượt đang chạy." onClick={() => { if (canToggle) onChoice({ ...choice, enabled: !choice.enabled }); }}><span /></button>
     </div>
   </div>;
 }
-const phases: Record<string, string> = { planning: 'Đang lập kế hoạch và xin ý kiến', 'revising-plan': 'Đang chỉnh kế hoạch theo góp ý', 'plan-review': 'Đang kiểm kế hoạch', working: 'Đang thực hiện kế hoạch', 'revising-result': 'Đang sửa kết quả theo góp ý',
+const phases: Record<string, string> = { planning: 'Đang lập kế hoạch và xin ý kiến', 'revising-plan': 'Đang chỉnh kế hoạch theo góp ý', 'plan-review': 'Đang kiểm kế hoạch', working: 'Mô hình thực thi đang làm việc', 'revising-result': 'Đang sửa kết quả theo góp ý',
+  'failure-review': 'Advisor đang xem lỗi', 'review-skipped': 'Không cần review lời chào', unreviewed: 'Chưa được review',
   'final-review': 'Advisor đang kiểm kết quả', completed: 'Đạt tiêu chí đã kiểm', 'needs-changes': 'Cần chỉnh sửa hoặc làm rõ', cancelled: 'Đã dừng · chưa duyệt', error: 'Chưa hoàn tất giám sát' };
 export function SupervisionProgress({ state }: { state: SupervisionState }) {
-  return <details className="supervision-progress" open={state.phase === 'needs-changes' || state.phase === 'error'}><summary role="status">Advisor · {phases[state.phase] ?? state.phase}</summary>
-    {state.error && <p role="alert">{state.error}</p>}{state.plan && <><strong>Kế hoạch</strong><p className="preserve-lines">{state.plan}</p></>}
+  return <details className="supervision-progress" open={['needs-changes', 'error', 'unreviewed'].includes(state.phase)}><summary role="status">Advisor · {phases[state.phase] ?? state.phase}</summary>
+    {state.error && <p role="alert">{state.error}</p>}{state.warning && <p role="status">{state.warning}</p>}
+    {state.reviewCalls !== undefined && <p>{state.reviewCalls}/2 lượt review · tối đa một lượt sửa</p>}
+    {state.plan && <p><strong>Kế hoạch đã lưu từ lượt cũ:</strong> {state.plan}</p>}
     {state.consultation && <p><strong>Trợ lý hỏi Advisor:</strong> {state.consultation}</p>}
     {[['Kiểm kế hoạch', state.planReview], ['Kiểm kết quả', state.finalReview]].map(([name, value]) => {
       const review = value as AdvisorResult | null;
@@ -67,3 +70,4 @@ export function SupervisionProgress({ state }: { state: SupervisionState }) {
     })}<small>Kết quả review dựa trên nội dung gửi kiểm; không thay xác minh ngoài hoặc phê duyệt hành động nhạy cảm.</small>
   </details>;
 }
+

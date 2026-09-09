@@ -875,7 +875,7 @@ function App() {
         if (!choice.model) { setNotice('Chọn mô hình Advisor trước.'); return; }
         supervisionLock.current = true; setSupervisionBusy(true); setNotice(null);
         const ticket = ++work.ticket;
-        applySupervision(key, { id, key, phase: 'planning', busy: true, accepted: false, plan: '', planReview: null, finalReview: null, error: null });
+        applySupervision(key, { id, key, phase: 'working', busy: true, accepted: false, plan: '', planReview: null, finalReview: null, error: null });
         const submission = { key, id, kind: 'advisor' as const, cancelled: false, dispatched: false, previousDispatch };
         work.pending = submission;
         try {
@@ -1276,3 +1276,4 @@ function App() {
 
 export default App;
 import RunProgress from './RunProgress';
+

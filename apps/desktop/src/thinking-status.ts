@@ -9,8 +9,9 @@ const phases: Record<string, string> = {
   provisioning_environment: 'Đang chuẩn bị môi trường', preparing_context: 'Đang đọc ngữ cảnh', starting_model: 'Đang gọi mô hình'
 };
 const advisorPhases: Record<string, string> = {
+  'failure-review': 'Advisor đang xem lỗi', 'review-skipped': 'Đã trả lời · không cần Advisor', unreviewed: 'Chưa được review',
   planning: 'Đang lập kế hoạch', 'revising-plan': 'Đang chỉnh kế hoạch', 'plan-review': 'Advisor đang kiểm kế hoạch',
-  working: 'Đang thực hiện kế hoạch', 'revising-result': 'Đang chỉnh kết quả', 'final-review': 'Advisor đang kiểm kết quả',
+  working: 'Mô hình thực thi đang làm việc', 'revising-result': 'Đang chỉnh kết quả', 'final-review': 'Advisor đang kiểm kết quả',
   completed: 'Đã hoàn tất', 'needs-changes': 'Kết quả cần chỉnh sửa', error: 'Lượt làm việc gặp lỗi', cancelled: 'Đã dừng'
 };
 
@@ -39,3 +40,4 @@ export function thinkingStatus({ activeKey, connected, historyReady, run, superv
   if (run.terminal) return run.state === 'aborted' ? 'Đã dừng' : run.state === 'error' ? 'Lượt làm việc gặp lỗi' : 'Đã hoàn tất';
   return 'Xem hoạt động của phiên';
 }
+

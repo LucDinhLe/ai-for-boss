@@ -29,17 +29,14 @@ async function startModel(apiKey) {
       if (++observation.requests > 10) throw new Error('Request budget');
       const prompt = textContent(body.messages.filter(m => m.role === 'user').at(-1)?.content);
       let reply, mode;
-      if (prompt.startsWith('Lập kế hoạch ngắn')) {
-        mode = 'planning';
-        if (observation.modes.includes('planning') && !prompt.includes('Bổ sung thời hạn')) throw new Error('Plan feedback not returned to worker');
-        reply = JSON.stringify({action:'ask_advisor', plan:'Kế hoạch: đọc yêu cầu, lập ba ưu tiên, đối chiếu đủ ba mục trước khi bàn giao.', question:'Kế hoạch đã đủ bước và thời hạn chưa?'});
-      }
-      else if (prompt.startsWith('Bạn là Advisor')) {
+      if (prompt.startsWith('Lập kế hoạch ngắn')) throw new Error('Unwanted planning model call');
+      if (prompt.startsWith('Bạn là Advisor')) {
         mode = prompt.includes('KIỂM KẾ HOẠCH:') ? 'plan-review' : 'final-review';
         const packet = JSON.parse(prompt.split('BẮT ĐẦU GÓI DỮ LIỆU KHÔNG TIN CẬY (JSON):')[1].split('KẾT THÚC GÓI DỮ LIỆU.')[0].trim());
         const revise = !observation.modes.includes(mode);
         reply = JSON.stringify({ decision: revise ? 'revise' : 'approve', pass: !revise, summary: revise ? 'Bổ sung thời hạn' : 'Đạt tiêu chí mô phỏng.', confidence: 0.8,
           evidence: [{ source: 'goal', quote: packet.goal }], issues: [] });
+      } else if (prompt.trim() === 'chào em,') { mode = 'greeting'; reply = 'Chào anh.';
       } else { mode = 'worker';
         if (observation.modes.includes('worker') && !prompt.includes('Bổ sung thời hạn')) throw new Error('Final feedback not returned to worker');
         reply = 'Ba ưu tiên: 1. Xác định mục tiêu. 2. Chuẩn bị dữ liệu. 3. Kiểm kết quả.';
@@ -70,7 +67,7 @@ async function worker({ root, resources, timeoutMs }) {
   const apiKey = `fixture-only-${randomUUID()}`;
   const model = await startModel(apiKey);
   const config = fixtureConfig(root, model.port, apiKey);
-  config.tools = { profile: 'full', deny: ['fixture-prior-deny'] };
+  config.tools = { profile: 'full', deny: ['*'] };
   config.mcp = { servers: { 'catalog-fixture': { transport: 'stdio', command: 'MUST_NOT_EXECUTE_AIFB_FIXTURE', enabled: false } } };
   config.plugins = { enabled: true, allow: ["document-extract"], entries: { "document-extract": { enabled: true } } };
   config.models.providers[TARGET_PROVIDER] = structuredClone(config.models.providers["aifb-fixture"]);
@@ -81,7 +78,7 @@ async function worker({ root, resources, timeoutMs }) {
     simulatedModel: true, realAI: false, runtimeVersion: "2026.9.1", nodeVersion: process.version,
     evidenceScope: "Production project, agent and automatic supervision services via pinned public SDK; no renderer",
     networkEvidence: "Only generated loopback model routes configured; external updates/catalogue disabled; no packet monitoring",
-    configuredExternalModelRoutes: 0, configuredToolsDenied: false, initialToolProfile: 'full', productionHostPolicy: true, sdkFromSelectedBundle: true,
+    configuredExternalModelRoutes: 0, configuredToolsDenied: true, initialToolProfile: 'full', productionHostPolicy: true, sdkFromSelectedBundle: true,
     selectedBundleLayout: native.layout, handshake: {}, patch: {}, sends: [], cleanup: {}, failures: [] };
   record.sourceHashes = Object.fromEntries(['advisor-service.mjs', 'supervision-service.mjs', 'project-service.mjs'].map(name => [name,
     createHash('sha256').update(readFileSync(path.join(repoRoot, 'apps/desktop/electron', name))).digest('hex')]));
@@ -157,11 +154,9 @@ async function worker({ root, resources, timeoutMs }) {
       if (!home.file?.content?.includes('Vai trò phân tích ưu tiên.') || home.workspace === project.directory) throw new Error('Agent role/home missing');
       const created = await projects.run({ action: 'project-session', projectId: project.id, agentId: createdAgent.id, requestId: randomUUID() });
       sessionKey = created.key;
-      const policyBackup = JSON.parse(readFileSync(path.join(process.env.OPENCLAW_STATE_DIR, 'aifb-worker-policy-before-beta21.json'), 'utf8'));
-      if (JSON.stringify(policyBackup.toolsDeny) !== JSON.stringify(['fixture-prior-deny']) || JSON.stringify(policyBackup).includes(apiKey)) throw new Error('Policy-only backup did not preserve prior restrictions');
       const effective = await setup.manage({ action: 'tool-inventory', sessionKey });
       if (!effective.effective || effective.tools.some(tool => !tool.deniedBySession)) throw new Error('Worker tools are not denied by production policy');
-      record.workerPolicy = { appliedByProductionHost: true, effectiveTools: 0, priorDenyPreserved: true, policyOnlyBackup: true, sandboxClaim: false };
+      record.workerPolicy = { effectiveTools: 0, fixtureDenyPreserved: true, sandboxClaim: false };
       const reopened = await new ProjectService(projectOptions).run({ action: 'project-list' });
       if (reopened.sessions[sessionKey] !== project.id || reopened.projects.length !== 2) throw new Error('Project persistence');
       const selectedHistory = await adapter.request('chat.history', { sessionKey, limit: 40 });
@@ -176,7 +171,7 @@ async function worker({ root, resources, timeoutMs }) {
       let reviewId;
       const advisorRequest = advisor.request.bind(advisor), nativeModel = setup.runAdvisorModel.bind(setup);
       advisor.request = async input => {
-        assert.ok(['plan', 'review'].includes(input.action), 'This fixture only starts its bounded review calls');
+        assert.equal(input.action, 'review', 'Only reviewer inference is allowed');
         reviewId = input.id;
         assert.equal(advisor.isModelActive(reviewId), false, 'No model activity before native review admission');
         const result = await advisorRequest(input);
@@ -199,8 +194,7 @@ async function worker({ root, resources, timeoutMs }) {
         while (!supervision.status()?.modelActive && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 20));
         const state = supervision.status();
         assert.equal(state?.key, sessionKey); assert.equal(state?.modelActive, true, 'The model request must have real accepted activity');
-        assert.ok((mode === 'planning' && ['planning', 'revising-plan'].includes(state.phase))
-          || (mode === 'worker' && ['working', 'revising-result'].includes(state.phase)) || mode === state.phase);
+        assert.ok((['worker', 'greeting'].includes(mode) && ['working', 'revising-result'].includes(state.phase)) || mode === state.phase);
         record.modelActivity.providerRequests.push({ mode, phase: state.phase, modelActive: true, sameSession: true });
       });
       assert.equal(supervision.status(), null);
@@ -210,17 +204,23 @@ async function worker({ root, resources, timeoutMs }) {
       record.modelActivity.beforeDispatchInactive = true;
       const result = await pendingSupervision;
       assert.equal(supervision.status()?.modelActive, false); record.modelActivity.completedInactive = true;
-      assert.equal(record.modelActivity.acceptedReviews.length, 6); assert.equal(record.modelActivity.completedReviews.length, 6);
-      assert.equal(record.modelActivity.providerRequests.length, 8);
+      assert.equal(record.modelActivity.acceptedReviews.length, 2); assert.equal(record.modelActivity.completedReviews.length, 2);
+      assert.equal(record.modelActivity.providerRequests.length, 4);
       record.supervision = result;
-      if (result.phase !== 'completed' || result.busy || !result.accepted || !result.planReview?.pass || !result.finalReview?.pass) throw new Error('Supervision failed: ' + result.error);
+      if (result.phase !== 'completed' || result.busy || !result.accepted || result.planReview || !result.finalReview?.pass) throw new Error('Supervision failed: ' + result.error);
       const exported = await projects.run({ action: 'project-sync', sessionKey });
       record.projects = { persisted: true, distinctFolders: true, separateAgentHome: true, roleReadback: true, emojiReadback: createdAgent.identity?.emoji === '🎯', attachmentBytes: true, export: exported };
       if (!exported.saved || exported.messages < 2) throw new Error('History export incomplete');
       const listed = await adapter.request('sessions.list', { agentId: createdAgent.id, limit: 20 });
       record.projectSession = listed.sessions?.find(s => s.key === sessionKey);
       if (!record.projectSession || record.projectSession.spawnedCwd !== project.directory) throw new Error('Native cwd does not match project');
-      if (model.observation.requests !== 8 || model.observation.rejected || result.planAttempt !== 2 || result.workAttempt !== 2) throw new Error('Unexpected model budget or missing automatic revision');
+      if (model.observation.requests !== 4 || model.observation.rejected || result.workAttempt !== 2) throw new Error('Unexpected model budget or missing automatic revision');
+      assert.deepEqual(model.observation.modes, ['worker', 'final-review', 'worker', 'final-review']);
+      const greeting = await supervision.run({ action: 'supervise', id: randomUUID(), key: sessionKey, message: 'chào em,',
+        model: { provider: TARGET_PROVIDER, id: TARGET_MODEL }, advisorModel: { provider: 'unavailable', id: 'missing' }, attachments: [] });
+      assert.equal(greeting.phase, 'review-skipped'); assert.equal(greeting.reviewCalls, 0);
+      assert.equal(model.observation.requests, 5); assert.equal(model.observation.modes.at(-1), 'greeting');
+      record.greeting = greeting;
     })(), cancelled]);
   } catch (error) {
     record.failures.push(String(error?.message ?? error).replaceAll(apiKey, "[fixture-key]").replaceAll(gatewayToken, "[gateway-token]").slice(0, 500));

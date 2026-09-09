@@ -2,7 +2,7 @@ import type { ChatRun } from './chat-state';
 import type { SupervisionState } from './supervision-api';
 
 type ActivitySupervision = SupervisionState & { modelActive?: boolean };
-const reviewPhases = new Set(['planning', 'revising-plan', 'plan-review', 'working', 'revising-result', 'final-review']);
+const reviewPhases = new Set(['planning', 'revising-plan', 'plan-review', 'working', 'revising-result', 'final-review', 'failure-review']);
 const endedPhases = new Set(['end', 'error', 'aborted', 'cancelled', 'completed', 'needs-changes']);
 const modelPhases = new Set(['start', 'started', 'running', 'thinking', 'tool', 'working', 'planning', 'starting_model']);
 const nonModelPhases = new Set([...endedPhases, 'preparing_workspace', 'naming_worktree', 'creating_worktree',

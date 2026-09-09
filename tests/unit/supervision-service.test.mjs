@@ -1,76 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { SupervisionService } from '../../apps/desktop/electron/supervision-service.mjs';
+import { SupervisionService, skipsReview, reviewEvidence } from '../../apps/desktop/electron/supervision-service.mjs';
 import { WorkerNotSubmittedError } from '../../apps/desktop/electron/worker-policy.mjs';
-import { validateReviewRequest } from '../../apps/desktop/electron/advisor-contract.mjs';
-import { documentReviewContext } from '../../apps/desktop/electron/document-context.mjs';
 const model = { id: 'm', provider: 'p' };
 const approve = { pass: true, decision: 'approve', summary: 'OK', issues: [] };
-const document = text => ({ type: 'file', fileName: 'Kế hoạch.docx.txt', mimeType: 'text/plain', content: Buffer.from(text).toString('base64'), sizeBytes: Buffer.byteLength(text) });
-
-test('supervision activity follows the exact accepted review or worker, not phase or preflight', async () => {
-  const f = fixture(), priorReview = f.service.advisor.request, reviews = [];
-  let activeReview = null, finishReview, finishSend, finishWait;
-  f.service.advisor.isModelActive = id => id === activeReview;
-  f.service.advisor.request = async packet => {
-    if (packet.action === 'plan') { reviews.push(packet); await new Promise(resolve => { finishReview = resolve; }); }
-    return priorReview(packet);
-  };
-  const adapter = f.service.getAdapter(), request = adapter.request;
-  adapter.request = async (method, params) => {
-    if (method === 'sessions.send') await new Promise(resolve => { finishSend = resolve; });
-    return request(method, params);
-  };
-  f.service.getSetup().workspaceRequest = () => new Promise(resolve => { finishWait = resolve; });
-  const running = f.service.run(f.input);
-  for (let i = 0; i < 40 && !finishReview; i++) await Promise.resolve();
-  assert.ok(finishReview); assert.equal(f.service.status().phase, 'planning'); assert.equal(f.service.status().modelActive, false);
-  activeReview = reviews[0].id; assert.equal(f.service.status().modelActive, true);
-  activeReview = randomUUID(); assert.equal(f.service.status().modelActive, false);
-  finishReview();
-  for (let i = 0; i < 80 && !finishSend; i++) await Promise.resolve();
-  assert.ok(finishSend); assert.equal(f.service.status().phase, 'working'); assert.equal(f.service.status().modelActive, false);
-  finishSend();
-  for (let i = 0; i < 40 && !finishWait; i++) await Promise.resolve();
-  assert.ok(finishWait); assert.equal(f.service.status().modelActive, true);
-  f.service.isReady = () => false; assert.equal(f.service.status().modelActive, false);
-  f.service.isReady = () => true;
-  finishWait({ status: 'ok', endedAt: Date.now() }); await running;
-  assert.equal(f.service.status().modelActive, false);
-});
-
-test('document contents reach planning, Advisor plan review, worker and final review without replacing original request', async () => {
-  const f = fixture(), text = 'Kế hoạch tiếng Việt\nNgân sách\t127.350.000 đồng\nHoàn thành\t30/09/2026';
-  f.input.attachments = [document(text)];
-  const adapter = f.service.getAdapter(), request = adapter.request, sends = [];
-  adapter.request = async (method, params) => { if (method === 'sessions.send') sends.push(params); return request(method, params); };
-  assert.equal((await f.service.run(f.input)).phase, 'completed');
-  assert.equal(sends.length, 1); assert.deepEqual(sends[0].attachments, f.input.attachments);
-  for (const input of f.inputs) {
-    assert.match(input.evidence, /127\.350\.000 đồng/); assert.match(input.evidence, /30\/09\/2026/);
-    assert.match(input.evidence, /không phải chỉ dẫn/); assert.equal(input.goal, f.input.message);
-    validateReviewRequest({ ...input, action: 'review' });
-  }
-});
-
-test('large and escaped document excerpts stay bounded, labelled partial and independently parseable for every file', () => {
-  const texts = ['Đầu' + '\n"\\'.repeat(6000) + 'CUỐI', 'x'.repeat(55000), 'y'.repeat(55000), 'z'.repeat(55000)];
-  const context = documentReviewContext(texts.map(document));
-  assert.ok(context.length < 5500); assert.match(context, /chưa đọc toàn bộ/);
-  const packets = context.split('\n').slice(1).map(line => JSON.parse(line));
-  assert.equal(packets.length, 4); assert.match(packets[0].text, /CUỐI$/u);
-  assert.equal(documentReviewContext([{ type: 'file', mimeType: 'application/pdf' }]), '');
-  for (const value of [{ ...document('abc'), content: 'bad!' }, { ...document('abc'), sizeBytes: 10 }, document('a\0b')]) assert.throws(() => documentReviewContext([value]));
-});
-function fixture({ decision = approve, changed = false, waitError = false } = {}) {
-  const calls = [], inputs = [], key = 'agent:main:aifb-test'; let sent = false, reads = 0, sentMessage = '';
+function fixture({ decision = approve, waitError = false } = {}) {
+  const calls = [], inputs = [], key = 'agent:main:aifb-test'; let sent = false, sentMessage = '';
   const adapter = { hello: { policy: { maxPayload: 100000 } }, request: async (method, params) => {
     calls.push(method);
     if (method === 'models.list') return { models: [{ ...model, available: true }] };
     if (method === 'chat.history') return { sessionInfo: { model: 'm', modelProvider: 'p' }, messages: sent
-      ? [{ role: 'user', content: sentMessage }, { role: 'assistant', content: 'Kết quả' }]
-      : (++reads > 1 && changed ? [{ role: 'user', content: 'Changed' }] : []) };
+      ? [{ role: 'user', content: sentMessage }, { role: 'tool', toolName:'calculate', content:'Revenue = 370' }, { role: 'assistant', content: 'Kết quả' }] : [] };
     if (method === 'sessions.send') { sent = true; sentMessage = params.message; return { runId: params.idempotencyKey, status: 'accepted' }; }
     if (method === 'chat.abort') return { aborted: true };
     throw new Error(method);
@@ -79,115 +20,87 @@ function fixture({ decision = approve, changed = false, waitError = false } = {}
   const advisor = { request: async input => {
     inputs.push(input);
     if (input.action === 'cancel') return { status: 'cancelled' };
-    if (input.action === 'plan') return { status: 'completed', plan: 'Kế hoạch', consultation: 'Các bước có đáp ứng yêu cầu chưa?' };
+    assert.equal(input.action, 'review'); assert.equal(input.checkpoint, 'final');
     return { status: 'completed', result: typeof decision === 'function' ? decision(input, inputs) : decision };
   } };
   const service = new SupervisionService({ advisor, getAdapter: () => adapter, getSetup: () => setup, isReady: () => true });
-  return { service, inputs, calls, input: { action: 'supervise', id: randomUUID(), key, message: 'Mục tiêu', model, advisorModel: model } };
+  return { service, inputs, calls, input: { action: 'supervise', id: randomUUID(), key, message: 'Phân tích doanh thu', model, advisorModel: model } };
 }
-test('automatic supervision makes one plan, gates worker on approval, then reviews its result', async () => {
-  const f = fixture(), result = await f.service.run(f.input);
-  assert.equal(result.phase, 'completed'); assert.equal(result.busy, false); assert.equal(result.accepted, true);
-  assert.deepEqual(f.inputs.map(p => [p.action, p.checkpoint]), [['plan', 'plan'], ['review', 'plan'], ['review', 'final']]);
-  assert.equal(f.calls.filter(c => c === 'sessions.send').length, 1);
-  assert.equal(f.inputs.at(-1).content, 'Kết quả');
+test('executor gets original request and attachments before any reviewer call; one final review includes tool evidence', async () => {
+  const f=fixture(), adapter=f.service.getAdapter(), prior=adapter.request; let sent;
+  f.input.attachments=[{type:'file',fileName:'data.txt',mimeType:'text/plain',content:Buffer.from('Input facts').toString('base64'),sizeBytes:11}];
+  adapter.request=async (method,params)=>{if(method==='sessions.send'){assert.equal(f.inputs.length,0);sent=params;}return prior(method,params);};
+  const result=await f.service.run(f.input);
+  assert.equal(sent.message,f.input.message); assert.deepEqual(sent.attachments,f.input.attachments);
+  assert.equal(result.phase,'completed');assert.equal(result.reviewCalls,1);assert.equal(result.busy,false);
+  assert.equal(f.inputs.length,1);assert.match(f.inputs[0].evidence,/Revenue = 370/);
+  await assert.rejects(f.service.run(f.input),/đã được tiếp nhận/);
 });
-test('repeated plan revision stops at the cap without worker dispatch', async () => {
-  const f = fixture({ decision: { ...approve, pass: false, decision: 'revise' } }), result = await f.service.run(f.input);
-  assert.equal(result.phase, 'needs-changes'); assert.equal(result.accepted, false);
-  assert.equal(f.calls.includes('sessions.send'), false); assert.equal(f.inputs.length, 4);
-  assert.equal(result.planAttempt, 2);
+test('greetings skip reviewer even if its model has become unavailable; short work is not mistaken for greeting',async()=>{
+  for(const message of ['chào em,','Xin chào!','thanks','cảm ơn anh']){
+    const f=fixture(); f.input.message=message;f.input.advisorModel={provider:'offline',id:'missing'};
+    assert.equal((await f.service.run(f.input)).phase,'review-skipped');assert.equal(f.inputs.length,0);assert.equal(f.calls.filter(x=>x==='sessions.send').length,1);
+  }
+  assert.equal(skipsReview({message:'chào em, phân tích số liệu này'}),false);
+  assert.equal(skipsReview({message:'hi',attachments:[{}]}),false);
 });
-
-test('long previous plan and document context cannot displace Advisor corrections from planning retry', async () => {
-  let reviews = 0;
-  const f = fixture({ decision: input => input.checkpoint === 'plan' && ++reviews === 1
-    ? { ...approve, pass: false, decision: 'revise', issues: [{ title: 'Hạn', recommended_fix: 'Bổ sung mốc nghiệm thu 30/09/2026' }] } : approve });
-  const prior = f.service.advisor.request;
-  f.service.advisor.request = async input => { const result = await prior(input); return input.action === 'plan' ? { ...result, plan: 'Kế hoạch dài '.repeat(300) } : result; };
-  f.input.attachments = [document('Nội dung kế hoạch '.repeat(2500))];
-  assert.equal((await f.service.run(f.input)).phase, 'completed');
-  const retry = f.inputs.filter(input => input.action === 'plan')[1];
-  assert.match(retry.evidence, /Bổ sung mốc nghiệm thu 30\/09\/2026/);
-  validateReviewRequest({ ...retry, action: 'review' });
+test('reviewer failure preserves completed work, releases settled review and never resubmits work',async()=>{
+  const f=fixture();f.service.advisor.request=async()=>({status:'failed',message:'Bad JSON'});
+  const result=await f.service.run(f.input);
+  assert.equal(result.phase,'unreviewed');assert.equal(result.busy,false);assert.equal(result.error,null);assert.match(result.warning,/Bad JSON/);
+  assert.equal(f.calls.filter(x=>x==='sessions.send').length,1);assert.equal(result.finalReview,null);
 });
-
-test('worker receives Advisor feedback and consults again before work; final revise is returned to worker once', async () => {
-  let planReviews = 0, finalReviews = 0;
-  const revise = { pass: false, decision: 'revise', summary: 'Bổ sung mốc hoàn thành', issues: [{ title: 'Thiếu mốc', recommended_fix: 'Nêu thời hạn' }] };
-  const f = fixture({ decision: input => (input.checkpoint === 'plan' ? ++planReviews : ++finalReviews) === 1 ? revise : approve });
-  const result = await f.service.run(f.input);
-  assert.equal(result.phase, 'completed'); assert.equal(result.planAttempt, 2); assert.equal(result.workAttempt, 2);
-  assert.equal(f.inputs.length, 6); assert.equal(f.calls.filter(c => c === 'sessions.send').length, 2);
-  assert.match(f.inputs.filter(i => i.action === 'plan')[1].evidence, /Nêu thời hạn/);
-  assert.match(f.inputs.filter(i => i.action === 'review')[0].evidence, /Các bước có đáp ứng/);
-  await assert.rejects(f.service.run(f.input), /đã được tiếp nhận/);
+test('review correction is bounded to one executor repair and two reviews',async()=>{
+  const f=fixture({decision:{...approve,pass:false,decision:'revise',issues:[{title:'Missing',recommended_fix:'Check totals'}]}});
+  const result=await f.service.run(f.input);assert.equal(result.phase,'needs-changes');assert.equal(result.workAttempt,2);assert.equal(result.reviewCalls,2);
+  assert.equal(f.calls.filter(x=>x==='sessions.send').length,2);
+});
+test('native failed run can be reviewed but cannot be labelled completed just because reviewer approves',async()=>{
+  const f=fixture({waitError:true});const result=await f.service.run(f.input);
+  assert.equal(result.phase,'needs-changes');assert.match(f.inputs[0].content,/thất bại/);assert.equal(result.workAttempt,1);
+  assert.equal(result.finalReview,null);
 });
 
-test('clarify does not guess a user decision; missing worker consultation fails closed', async () => {
-  const f = fixture({ decision: { ...approve, pass: false, decision: 'clarify' } });
-  assert.equal((await f.service.run(f.input)).phase, 'needs-changes');
-  assert.equal(f.inputs.length, 2); assert.equal(f.calls.includes('sessions.send'), false);
-  const invalid = fixture(); invalid.service.advisor.request = async () => ({status:'completed',plan:'Plan without consultation'});
-  assert.equal((await invalid.service.run(invalid.input)).phase, 'error'); assert.equal(invalid.calls.includes('sessions.send'), false);
+test('failed current turn never reuses an earlier assistant answer as review content',async()=>{
+  const f=fixture({waitError:true}),adapter=f.service.getAdapter(),prior=adapter.request;
+  adapter.request=async(method,params)=>{
+    const result=await prior(method,params);
+    if(method==='chat.history' && result.messages.length) result.messages=[{role:'assistant',content:'OLD ANSWER'},result.messages[0]];
+    return result;
+  };
+  await f.service.run(f.input);assert.doesNotMatch(f.inputs[0].content,/OLD ANSWER/);
 });
 
-test('final revision cap does not turn rejected results into approved or continue forever', async () => {
-  const f = fixture({ decision: input => input.checkpoint === 'plan' ? approve : {...approve,pass:false,decision:'revise'} });
-  const result = await f.service.run(f.input);
-  assert.equal(result.phase,'needs-changes'); assert.equal(result.workAttempt,2);
-  assert.equal(f.calls.filter(c=>c==='sessions.send').length,2); assert.equal(result.finalReview.pass,false);
+test('failed executor plus unavailable reviewer is not described as successful work',async()=>{
+  const f=fixture({waitError:true});f.service.advisor.request=async()=>({status:'error',message:'Unavailable'});
+  const result=await f.service.run(f.input);assert.match(result.warning,/thực thi báo lỗi/);assert.equal(result.busy,false);
 });
 
-test('a changed transcript during final review cannot be labelled approved or automatically corrected', async () => {
-  const f=fixture(); const adapter=f.service.getAdapter(), request=adapter.request; let final=false;
-  const prior=f.service.advisor.request;
-  f.service.advisor.request=async input=>{const result=await prior(input);if(input.checkpoint==='final')final=true;return result;};
-  adapter.request=async(method,params)=>{const result=await request(method,params);if(method==='chat.history'&&final)result.messages.push({role:'user',content:'New instructions'});return result;};
+test('tool evidence with escaping stays bounded and contains whole JSON',()=>{
+  const evidence=reviewEvidence([{role:'user',content:'new'},...Array.from({length:6},()=>({role:'tool',content:'\u0001'.repeat(300)}))]);
+  assert.ok(evidence.length<2400);assert.ok(Array.isArray(JSON.parse(evidence.split('\n')[1])));
+});
+test('Stop during review cannot dispatch repair; later old review cannot release next session job',async()=>{
+  const f=fixture(), pending=[];
+  f.service.advisor.request=input=>input.action==='cancel'?Promise.resolve({status:'cancelled'}):new Promise(resolve=>pending.push(resolve));
+  const first=f.service.run(f.input);
+  for(let i=0;i<80&&!pending.length;i++)await Promise.resolve();assert.equal(pending.length,1);
+  await f.service.cancel();const next={...f.input,id:randomUUID()},second=f.service.run(next);
+  for(let i=0;i<80&&pending.length<2;i++)await Promise.resolve();assert.equal(pending.length,2);
+  pending[0]({status:'completed',result:approve});await first;assert.equal(f.service.status().id,next.id);assert.equal(f.service.status().busy,true);
+  await f.service.cancel();pending[1]({status:'completed',result:approve});await second;
+  assert.equal(f.calls.filter(x=>x==='sessions.send').length,2);
+});
+test('changing transcript during review prevents stale approval or repair',async()=>{
+  const f=fixture(),a=f.service.getAdapter(),prior=a.request;let reviewed=false;
+  f.service.advisor.request=async()=>{reviewed=true;return {status:'completed',result:approve};};
+  a.request=async(m,p)=>{const r=await prior(m,p);if(m==='chat.history'&&reviewed)r.messages.push({role:'user',content:'Changed'});return r;};
   const result=await f.service.run(f.input);assert.equal(result.phase,'error');assert.equal(result.finalReview,null);
-  assert.equal(f.calls.filter(c=>c==='sessions.send').length,1);
 });
-
-test('cancellation during final review never dispatches automatic correction', async () => {
-  const f=fixture(); const prior=f.service.advisor.request; let finish;
-  f.service.advisor.request = input => input.action === 'review' && input.checkpoint === 'final' ? new Promise(resolve=>{finish=resolve;}) : prior(input);
-  const running=f.service.run(f.input);
-  for(let i=0;i<80&&!finish;i++) await Promise.resolve();
-  assert.ok(finish); await f.service.cancel();
-  finish({status:'completed',result:{...approve,pass:false,decision:'revise'}});
-  assert.equal((await running).phase,'cancelled'); assert.equal(f.calls.filter(c=>c==='sessions.send').length,1);
+test('review evidence excludes unrelated earlier tool results and remains bounded',()=>{
+  const evidence=reviewEvidence([{role:'tool',content:'old secret'},{role:'user',content:'new'},{role:'tool',content:'x'.repeat(20000)}]);
+  assert.doesNotMatch(evidence,/old secret/);assert.ok(evidence.length<1000);
 });
-test('context changes between planning and send stop the pipeline; failed worker never receives final approval', async () => {
-  const changed = fixture({ changed: true }); assert.equal((await changed.service.run(changed.input)).phase, 'error');
-  assert.equal(changed.calls.includes('sessions.send'), false);
-  const failed = fixture({ waitError: true }); assert.equal((await failed.service.run(failed.input)).phase, 'error');
-  assert.equal(failed.inputs.filter(i => i.checkpoint === 'final').length, 0);
-});
-test('cancellation during planning cannot dispatch worker or revive completion', async () => {
-  const f = fixture(); let resolvePlan;
-  f.service.advisor.request = input => input.action === 'cancel' ? Promise.resolve({ status: 'cancelled' }) : new Promise(resolve => { resolvePlan = resolve; });
-  const running = f.service.run(f.input);
-  for (let i = 0; i < 10 && !resolvePlan; i++) await Promise.resolve();
-  assert.ok(resolvePlan); await f.service.cancel(); resolvePlan({ status: 'completed', plan: 'Late plan' });
-  const result = await running; assert.equal(result.phase, 'cancelled'); assert.equal(result.accepted, false);
-  assert.equal(f.calls.includes('sessions.send'), false);
-});
-
-test('late cancelled plan cannot release or cancel the next supervision job', async () => {
-  const f = fixture(), plans = [];
-  f.service.advisor.request = input => input.action === 'cancel' ? Promise.resolve({ status: 'cancelled' }) : new Promise(resolve => plans.push(resolve));
-  const first = f.service.run(f.input);
-  for (let i = 0; i < 20 && plans.length < 1; i++) await Promise.resolve();
-  await f.service.cancel();
-  const nextInput = { ...f.input, id: randomUUID() }, second = f.service.run(nextInput);
-  for (let i = 0; i < 20 && plans.length < 2; i++) await Promise.resolve();
-  plans[0]({ status: 'completed', plan: 'Late old plan' }); await first;
-  assert.equal(f.service.status().id, nextInput.id); assert.equal(f.service.status().busy, true);
-  await assert.rejects(f.service.run({ ...f.input, id: randomUUID() }), /giám sát/);
-  await f.service.cancel(); plans[1]({ status: 'completed', plan: 'Cancelled next plan' }); await second;
-  assert.equal(f.calls.includes('sessions.send'), false);
-});
-
 test('host-proven pre-submission rejection clears the worker lock and permits another job', async () => {
   const f = fixture(), adapter = f.service.getAdapter(), prior = adapter.request;
   let waits = 0;
@@ -235,3 +148,4 @@ test('policy refusal settling during abort never asks native wait about a cleare
   rejectSend(new WorkerNotSubmittedError(new Error('Policy refused'))); await run; finishAbort({ aborted: false });
   assert.equal((await cancelled).stopped, true); assert.equal(waits, 0); assert.equal(f.service.status().busy, false);
 });
+
