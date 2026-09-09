@@ -1,5 +1,5 @@
 import path from "node:path";
-import { setInterval } from 'node:timers';
+import { setInterval, clearInterval } from 'node:timers';
 import { mkdirSync, realpathSync, readFileSync, writeFileSync, existsSync, unlinkSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { app, BrowserWindow, WebContentsView, clipboard, Menu, dialog, ipcMain, nativeTheme, safeStorage, session, shell } from "electron";
@@ -12,6 +12,9 @@ import { WebTabs } from './web-tabs.mjs';
 import { ChromeBridge } from './chrome-bridge.mjs';
 import { ProjectService } from "./project-service.mjs";
 import { ConversationService } from "./conversation-service.mjs";
+import { trashOwnedFiles } from './trash-owned-files.mjs';
+import { PromptOptimizer } from './prompt-optimizer.mjs';
+import { OptimizerInference } from './optimizer-inference.mjs';
 import { SessionSupervision } from "./session-supervision.mjs";
 import { RuntimeControl } from "./runtime-control.mjs";
 import { UpdateService } from './update-service.mjs';
@@ -64,6 +67,16 @@ let adapter = null;
 let setupChannel = null;
 let gatewayEndpoint = null;
 let shuttingDown = false;
+let optimizer;
+const optimizerInference = new OptimizerInference(() => setupChannel);
+function getOptimizer() {
+  optimizer ??= new PromptOptimizer({directory:path.join(app.getPath('userData'),'aifb-optimizer'),
+    infer:(model,prompt,signal)=>optimizerInference.infer(model,prompt,signal),
+    publish:(model,variant)=>setupChannel.workspaceRequest('aifb.profiles.set',{model,variant})});
+  return optimizer;
+}
+const optimizerTimer=setInterval(()=>{if(!smoke&&!shuttingDown&&setupChannel?.connected)void getOptimizer().tick().catch(()=>{});},60000);
+optimizerTimer.unref();
 let connectionGeneration = 0;
 let appExitCode = 0;
 let smokeFinished = false;
@@ -207,7 +220,7 @@ async function startRuntime() {
     stateDirectory: directory,
     nodeExecutable,
     openclawEntry,
-    onOwnedChildExit: () => { advisorService.ownedRuntimeStopped(); supervisionService.ownedRuntimeStopped(); },
+    onOwnedChildExit: () => { advisorService.ownedRuntimeStopped(); supervisionService.ownedRuntimeStopped(); optimizerInference.stopped(); optimizer?.job?.controller.abort(); },
     onStateChange: ({ state, detail }) => {
       publishStatus({ supervisor: state, detail });
     }
@@ -518,9 +531,13 @@ ipcMain.handle(MANAGEMENT_REQUEST_CHANNEL, (event, ...args) => {
   }
   if (args.length === 1 && /^gateway-/u.test(args[0]?.action ?? '')) return runtimeControl.run(args[0]);
   if (smoke || shuttingDown || args.length !== 1 || !setupChannel?.connected) throw new Error("Chưa sẵn sàng quản lý.");
+  if (/^optimizer-/u.test(args[0]?.action ?? '')) return getOptimizer().run(args[0]);
   if (/^conversation-/u.test(args[0]?.action ?? '')) {
     if (supervisionService.status()?.busy) throw new Error('Hãy chờ công việc đang giám sát kết thúc trước khi xóa hội thoại.');
-    conversationService ??= new ConversationService((method, params) => setupChannel.workspaceRequest(method, params));
+    conversationService ??= new ConversationService((method, params) => setupChannel.workspaceRequest(method, params), {
+      inspectFiles: async row => [...(await setupChannel.workspaceRequest('aifb.documents.inspect', {key:row.key,sessionId:row.sessionId})).files,...await getProjectService().inspectFiles(row)],
+      trashFiles: files => trashOwnedFiles(files, file => shell.trashItem(file))
+    });
     if (args[0].action === 'conversation-delete') return getProjectService().withConversationDeletion(() => conversationService.run(args[0]));
     return conversationService.run(args[0]);
   }
@@ -697,6 +714,7 @@ app.on("before-quit", (event) => {
   void (async () => {
     try {
       for (const operation of [
+        () => { clearInterval(optimizerTimer); optimizer?.job?.controller.abort(); },
         () => backups?.stop(), () => ownedTabs?.dispose(), () => { advisorService.cancelForShutdown(); supervisionService.cancelForShutdown(); }, () => channelPluginInstaller?.stop(),
         () => setupPageAccess.clear(), () => adapter?.disconnect(),
         () => setupChannel?.disconnect(), () => supervisor?.stop(),

@@ -183,7 +183,7 @@ export class SetupChannel {
   // Host project/agent broker only. Never exposed as a generic renderer method.
   async workspaceRequest(method, params) {
     if (!['agents.list', 'agents.create', 'agents.files.get', 'agents.files.set', 'models.list', 'skills.status',
-      'sessions.create', 'sessions.describe', 'sessions.delete', 'chat.history', 'agent.wait', 'health'].includes(method)) throw new Error('Workspace method not allowed');
+      'sessions.create', 'sessions.describe', 'sessions.delete', 'chat.history', 'agent.wait', 'health', 'aifb.documents.inspect', 'aifb.profiles.set'].includes(method)) throw new Error('Workspace method not allowed');
     if (!this.#client || !this.#connected) throw new Error('Chưa kết nối bộ chạy.');
     const client = this.#client, generation = this.#generation;
     if (method === 'sessions.create') { params = restrictSessionCreate(params, true); await this.authorizeWorker(); }

@@ -3,6 +3,7 @@ import DataSettings from './DataSettings';
 import CapabilityCatalog from './CapabilityCatalog';
 import BrowserSettings from './BrowserSettings';
 import ModelSettings from './ModelSettings';
+import PromptOptimizerSettings from './PromptOptimizerSettings';
 import ToolCatalog from './ToolCatalog';
 import BrandNotices from './BrandNotices';
 import { useEffect, useRef, useState } from 'react';
@@ -60,7 +61,8 @@ export default function SettingsCenter(props: Props) {
     <main className="settings-main"><header className="settings-heading"><h1 id="settings-title"><WorkbenchIcon name={sections.find(item => item[0] === section)![2]} />{title}</h1><button className="tool-icon" aria-label="Đóng cài đặt" title="Đóng cài đặt (Esc)" onClick={props.onClose}><WorkbenchIcon name="close" /></button></header>
       <div className="settings-body" key={section}>
         {section === 'browser' && <BrowserSettings ready={props.runtime.connected && props.runtime.setupReady} />}
-        {section === 'cache' && <ModelSettings ready={props.runtime.connected && props.runtime.setupReady} disabled={props.modelDisabled || props.pending} />}
+        {section === 'cache' && <><ModelSettings ready={props.runtime.connected && props.runtime.setupReady} disabled={props.modelDisabled || props.pending} />
+          <PromptOptimizerSettings ready={props.runtime.connected && props.runtime.setupReady} models={props.models}/></>}
         {section === 'model' && <>
           <p className="settings-lead">Chọn mô hình cho cuộc trò chuyện hiện tại. Lịch sử và bản nháp được giữ khi đổi.</p>
           <div className="settings-card"><h2><WorkbenchIcon name={sections.find(item => item[0] === section)![2]} />Mô hình đang dùng</h2><p>{props.usage.modelProvider || 'Chưa có nhà cung cấp'}</p>

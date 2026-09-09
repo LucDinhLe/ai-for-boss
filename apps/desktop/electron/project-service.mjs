@@ -2,6 +2,7 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { randomUUID, createHash } from 'node:crypto';
 import { setTimeout as pause } from 'node:timers/promises';
+import {OwnedFiles} from './owned-files.mjs';
 
 const uuid = /^[0-9a-f-]{36}$/u;
 function fields(input, keys) {
@@ -19,7 +20,8 @@ export const messageText = content => typeof content === 'string' ? content : Ar
 export class ProjectService {
   #tail = Promise.resolve();
   #syncs = new Map();
-  constructor({ directory, request, chooseDirectory, openDirectory }) { Object.assign(this, { directory, request, chooseDirectory, openDirectory }); }
+  constructor({ directory, request, chooseDirectory, openDirectory }) { Object.assign(this, { directory, request, chooseDirectory, openDirectory }); this.ownedFiles=new OwnedFiles(path.join(directory,'owned-files')); }
+  inspectFiles(row) { return this.ownedFiles.inspect(row.key,row.sessionId); }
   run(input) {
     let syncKey;
     if (input?.action === 'project-sync') {
@@ -71,11 +73,12 @@ export class ProjectService {
       return value;
     } catch (error) { if (error.code === 'ENOENT') return { version: 1, projects: [], sessions: {}, agents: {} }; throw error; }
   }
-  async #write(file, value) {
+  async #write(file, value, owner) {
     try { if ((await fs.lstat(file)).isSymbolicLink()) throw new Error('Không ghi qua liên kết thư mục.'); } catch (e) { if (e.code !== 'ENOENT') throw e; }
     const temp = `${file}.${randomUUID()}.tmp`;
     await fs.writeFile(temp, typeof value === 'string' || Buffer.isBuffer(value) ? value : JSON.stringify(value, null, 2), { flag: 'wx' });
     await fs.rename(temp, file);
+    if(owner)await this.ownedFiles.record(owner.key,owner.sessionId,file,Buffer.isBuffer(value)?value:Buffer.from(typeof value==='string'?value:JSON.stringify(value,null,2)));
   }
   #save(data) { return this.#write(path.join(this.directory, 'projects.json'), data); }
   async #folder(project, sub = '') {
@@ -191,10 +194,10 @@ export class ProjectService {
             if (current?.session === null) return { saved: false };
             if (current?.session?.key !== key || current.session.sessionId !== sessionId) throw new Error('Phiên đã thay đổi; bản lịch sử đã lưu được giữ lại.');
             const messages = pages.flat();
-            await this.#write(path.join(folder, `${digest(key)}.json`), { source: 'OpenClaw chat.history', sessionKey: key, exportedAt: Date.now(), messages });
-            await this.#write(path.join(folder, `${digest(key)}.md`), messages.map(m => `## ${m.role}\n\n${messageText(m.content)}`).join('\n\n'));
+            await this.#write(path.join(folder, `${digest(key)}.json`), { source: 'OpenClaw chat.history', sessionKey: key, exportedAt: Date.now(), messages },{key,sessionId});
+            await this.#write(path.join(folder, `${digest(key)}.md`), messages.map(m => `## ${m.role}\n\n${messageText(m.content)}`).join('\n\n'),{key,sessionId});
             const answer = messageText(messages.filter(m => m.role === 'assistant').at(-1)?.content);
-            if (answer) await this.#write(path.join(await this.#folder(project, 'Ket qua'), `${digest(key)}.md`), answer);
+            if (answer) await this.#write(path.join(await this.#folder(project, 'Ket qua'), `${digest(key)}.md`), answer,{key,sessionId});
             return { saved: true, messages: messages.length };
           }
           if (!Number.isSafeInteger(history.nextOffset) || history.nextOffset <= offset) throw new Error('Phân trang lịch sử chưa hợp lệ.');

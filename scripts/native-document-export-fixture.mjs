@@ -16,12 +16,19 @@ async function worker(root, resources, prepare) {
   const { GatewaySupervisor } = await import('../apps/desktop/electron/supervisor.mjs');
   const { SetupChannel } = await import('../apps/desktop/electron/setup-channel.mjs');
   const { waitForGatewayListener } = await import('../apps/desktop/electron/startup-listener.mjs');
-  let client, requests = 0, child, token = ''; const toolResults = [], advertised = new Set();
+  let client, requests = 0, child, token = '', profileApplied = false; const toolResults = [], advertised = new Set();
   const logs = [], remember = value => { logs.push(String(value)); if (logs.length > 12) logs.shift(); };
   const key = 'agent:fixture:aifb-document-export'; let format='docx';
   const server = createServer(async (request, response) => {
     let raw = ''; for await (const chunk of request) raw += chunk;
     const body = JSON.parse(raw); requests++;
+    profileApplied ||= JSON.stringify(body.messages).includes('For work requiring a plan');
+    if(JSON.stringify(body.messages).includes('OPTIMIZER_NO_TOOLS')){
+      assert.equal((body.tools??[]).length,0,'Optimizer must have no tools');
+      response.writeHead(200,{'Content-Type':'text/event-stream'});
+      response.end('data: '+JSON.stringify({id:'optimizer-test',object:'chat.completion.chunk',model:MODEL_ID,choices:[{index:0,delta:{content:'{"steps":[{"text":"Check then export","requirements":[0]}]}'},finish_reason:null}]})+'\n\n'
+        +'data: '+JSON.stringify({id:'optimizer-test',object:'chat.completion.chunk',model:MODEL_ID,choices:[{index:0,delta:{},finish_reason:'stop'}],usage:{prompt_tokens:100,completion_tokens:50,total_tokens:150}})+'\n\ndata: [DONE]\n\n');return;
+    }
     if (requests > 30) { response.writeHead(429); response.end(); return; }
     for (const tool of body.tools ?? []) advertised.add(tool.function?.name);
     const lastUser = body.messages.findLastIndex(item => item.role === 'user');
@@ -40,7 +47,7 @@ async function worker(root, resources, prepare) {
   config.agents.defaults.timeoutSeconds = 120;
   config.models.providers['aifb-fixture'].models[0].compat.supportsTools = true;
   config.models.providers['aifb-fixture'].models[0].maxTokens = 2048;
-  config.plugins={enabled:true,allow:['aifb-documents'],load:{paths:[path.resolve('apps/desktop/resources/document-tools')]},entries:{'aifb-documents':{enabled:true}}};
+  config.plugins={enabled:true,allow:['aifb-documents'],load:{paths:[path.resolve('apps/desktop/resources/document-tools')]},entries:{'aifb-documents':{enabled:true,hooks:{allowConversationAccess:true,allowPromptInjection:true}}}};
   if(prepare)config.plugins={enabled:true,allow:['aifb-documents']};
   config.tools={allow:['aifb_export_document']};
   writeFileSync(process.env.OPENCLAW_CONFIG_PATH, JSON.stringify(config));
@@ -72,6 +79,7 @@ async function worker(root, resources, prepare) {
     assert.equal(restarts,prepare?1:0);receipt.pluginPreparationRestarts=restarts;
     await setup.prepareDocuments(path.resolve('apps/desktop/resources/document-tools'),async()=>{throw new Error('Second preparation must not restart');});
     receipt.plugins=(await client.request('plugins.list',{})).plugins.filter(p=>p.id==='aifb-documents');
+    await setup.workspaceRequest('aifb.profiles.set',{model:{provider:'aifb-fixture',id:MODEL_ID},variant:0});
     await client.request('sessions.create',{key,permissionMode:'workspace'});
     for(format of ['docx','xlsx','pptx','pdf']) {
       const sent=await client.request('sessions.send',{key,message:'Export '+format,idempotencyKey:randomUUID()});
@@ -94,6 +102,14 @@ async function worker(root, resources, prepare) {
       assert.equal(savedResult.saved,true);assert.ok(saved.equals(bytes),'Saved bytes match native output');
       receipt.checks.push({format,bytes:bytes.length,nativeTool:true,approvalRequired:false,nativeAttachmentDownload:true});
     }
+    const described=await client.request('sessions.describe',{key});
+    const owned=await setup.workspaceRequest('aifb.documents.inspect',{key,sessionId:described.session.sessionId});
+    assert.equal(owned.files.length,4,'Four native creation receipts');
+    assert.equal(profileApplied,true,'Static profile applied through native hook');
+    receipt.ownedFileReceipts=owned.files.length;receipt.planningProfileApplied=profileApplied;
+    const {OptimizerInference}=await import('../apps/desktop/electron/optimizer-inference.mjs');
+    const inference=await new OptimizerInference(()=>setup).infer({provider:'aifb-fixture',id:MODEL_ID},'OPTIMIZER_NO_TOOLS',new globalThis.AbortController().signal);
+    assert.equal(inference.inputTokens,100);assert.equal(inference.outputTokens,50);receipt.optimizerNativeUsage=true;
   } catch (error) { receipt.failures.push(error.message); receipt.toolResults = toolResults; receipt.logs = logs.map(line => token ? line.replaceAll(token, '[REDACTED]') : line); }
   finally { await setup.disconnect(); await supervisor.stop(); server.closeAllConnections(); await new Promise(resolve => server.close(resolve));
     receipt.gatewayExited = !child || child.exitCode !== null || child.signalCode !== null; receipt.providerRequests = requests; }

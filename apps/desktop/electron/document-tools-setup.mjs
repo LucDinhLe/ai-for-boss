@@ -20,8 +20,10 @@ export async function prepareDocumentTools({directory,configPath,request,restart
   &&path.dirname(path.dirname(path.dirname(p))).toLowerCase()===path.dirname(path.dirname(path.dirname(root))).toLowerCase();
  const paths=[...old.filter(p=>!same(p)&&!family(p)),root];
  const allow=plugins.allow===undefined?undefined:[...new Set([...plugins.allow,id])];
- if(JSON.stringify(old)!==JSON.stringify(paths)||plugins.entries?.[id]?.enabled!==true||allow&&JSON.stringify(allow)!==JSON.stringify(plugins.allow)) {
-  await request('config.patch',{baseHash:snapshot.hash,replacePaths:['plugins.load.paths',...(allow?['plugins.allow']:[])],raw:JSON.stringify({plugins:{load:{paths},...(allow?{allow}:{}),entries:{[id]:{enabled:true}}}})});
+ const hooks=plugins.entries?.[id]?.hooks??{};
+ const grants={...(hooks.allowConversationAccess===undefined?{allowConversationAccess:true}:{}),...(hooks.allowPromptInjection===undefined?{allowPromptInjection:true}:{})};
+ if(JSON.stringify(old)!==JSON.stringify(paths)||plugins.entries?.[id]?.enabled!==true||Object.keys(grants).length||allow&&JSON.stringify(allow)!==JSON.stringify(plugins.allow)) {
+  await request('config.patch',{baseHash:snapshot.hash,replacePaths:['plugins.load.paths',...(allow?['plugins.allow']:[])],raw:JSON.stringify({plugins:{load:{paths},...(allow?{allow}:{}),entries:{[id]:{enabled:true,hooks:{...hooks,...grants}}}}})});
   await restart();
  }
  const rows=(await request('plugins.list',{})).plugins;

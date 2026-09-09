@@ -784,13 +784,13 @@ function App() {
     if (deletingRef.current) return;
     ++deletePreviewEpoch.current; deleteDialogOpen.current = false; setDeleteConfirmation(null);
   }, []);
-  const confirmDeleteSession = useCallback(async () => {
+  const confirmDeleteSession = useCallback(async (includeFiles = false) => {
     const confirmation = deleteConfirmation;
     if (!confirmation?.ticket || deletingRef.current || !runtime.connected || !runtime.setupReady || runRef.current.busy
       || openingRef.current || changingModelRef.current || supervisionLock.current) return;
     deletingRef.current = true; deletingKey.current = confirmation.key; setDeleting(true);
     try {
-      const result = await manage<{ ok: boolean; key: string; warning?: string }>({ action: 'conversation-delete', ticket: confirmation.ticket });
+      const result = await manage<{ ok: boolean; key: string; warning?: string }>({ action: 'conversation-delete', ticket: confirmation.ticket, includeFiles });
       if (!result.ok || result.key !== confirmation.key) throw new Error('Chưa xác nhận đã xóa. Hãy tải lại danh sách.');
       deleteDialogOpen.current = false;
       closeTab(confirmation.key);
@@ -1274,7 +1274,7 @@ function App() {
       </details>
     </aside>
   </div>{deleteConfirmation && <ConversationDeleteDialog value={deleteConfirmation} busy={deleting} returnFocus={deleteReturnFocus}
-    onCancel={cancelDeleteSession} onConfirm={() => { void confirmDeleteSession(); }} />}
+    onCancel={cancelDeleteSession} onConfirm={includeFiles => { void confirmDeleteSession(includeFiles); }} />}
   {workspaceView === 'settings' && <SettingsCenter runtime={runtime} shell={shell} usage={usage} models={models}
     onBrowseModels={refresh => { void browseModels(refresh); }} catalogueLoading={catalogueLoading} catalogueError={catalogueError}
     layout={layout} projects={projects} sessionKey={activeKey} pending={changingModel || Boolean(activeKey && !historyReady)}
