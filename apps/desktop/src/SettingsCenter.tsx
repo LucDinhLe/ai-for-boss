@@ -1,6 +1,7 @@
 import UpdateSettings from './UpdateSettings';
 import DataSettings from './DataSettings';
 import CapabilityCatalog from './CapabilityCatalog';
+import ProviderSettings from './ProviderSettings';
 import BrowserSettings from './BrowserSettings';
 import ModelSettings from './ModelSettings';
 import PromptOptimizerSettings from './PromptOptimizerSettings';
@@ -88,7 +89,7 @@ export default function SettingsCenter(props: Props) {
         {section === 'advanced' && <><p className="settings-lead">Trạng thái bộ chạy và chẩn đoán kết nối.</p>{gateway}<dl className="settings-facts"><dt>OpenClaw</dt><dd>{props.runtime.serverVersion || 'Chưa xác nhận'}</dd><dt>Node</dt><dd>{props.runtime.nodeRuntime || 'Chưa xác nhận'}</dd><dt>Giao thức</dt><dd>{props.runtime.protocol || 'Chưa xác nhận'}</dd></dl>{props.runtime.lastError && <p role="status">{props.runtime.lastError}</p>}</>}
         {section === 'notifications' && <><p className="settings-lead">Thông báo công việc xuất hiện trong ứng dụng.</p><div className="settings-card"><h2><WorkbenchIcon name={sections.find(item => item[0] === section)![2]} />Lịch và lời nhắc</h2><p>Tạo lịch theo mẫu rồi chọn giờ và nội dung phù hợp.</p><button onClick={() => open('cron')}>Quản lý tác vụ định kỳ</button><p className="settings-muted">Thông báo hệ thống Windows và âm báo riêng chưa được bật.</p></div></>}
         {section === 'billing' && <><p className="settings-lead">Hạn mức và thanh toán thuộc tài khoản nhà cung cấp của anh. Số liệu dưới đây do OpenClaw ghi nhận, có thể chưa bao gồm toàn bộ hóa đơn.</p>{native('usage')}</>}
-        {section === 'providers' && <CapabilityCatalog kind="providers" ready={props.runtime.connected && props.runtime.setupReady} connectedProviders={[...new Set(props.models.filter(m => m.available).map(m => m.provider))]} onConnect={props.modelDisabled ? undefined : props.onConnect} />}
+        {section === 'providers' && <ProviderSettings ready={props.runtime.connected && props.runtime.setupReady} models={props.models} currentProvider={props.usage.modelProvider} currentModel={props.usage.model} onConnect={props.modelDisabled ? undefined : () => props.onConnect()} />}
         {section === 'channels' && <><p className="settings-lead">Quản lý Gateway và các kênh nhắn tin.</p>{gateway}{native('messages')}</>}
         {section === 'shortcuts' && <><p className="settings-lead">Các phím tắt đang hoạt động.</p><dl className="settings-shortcuts"><dt>Gửi tin nhắn</dt><dd><kbd>Enter</kbd></dd><dt>Xuống dòng</dt><dd><kbd>Shift + Enter</kbd></dd><dt>Phiên mới ngoài cửa sổ Cài đặt</dt><dd><kbd>Ctrl / ⌘ + N</kbd></dd><dt>Đóng menu hoặc Cài đặt</dt><dd><kbd>Esc</kbd></dd><dt>Ghim cuộc trò chuyện</dt><dd><kbd>Shift + nhấp</kbd></dd><dt>Chuyển mục trong menu mô hình</dt><dd><kbd>↑ / ↓</kbd></dd></dl></>}
         {section === 'tools' && <><p className="settings-lead">Khóa API được thiết lập qua trình kết nối, không dán vào cuộc chat.</p>{connect}<div className="settings-card"><h2><WorkbenchIcon name={sections.find(item => item[0] === section)![2]} />Công cụ của phiên</h2><p>Chọn kỹ năng dưới ô chat hoặc mở danh mục để xem những gì lõi đã nhận.</p><button onClick={() => open('skills')}>Xem kỹ năng</button><p className="settings-muted">Chưa có trình cấu hình MCP tùy ý hoặc công cụ chạy lệnh trong bảng này.</p></div></>}

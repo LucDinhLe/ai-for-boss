@@ -2,8 +2,8 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { CHROME, credentialLabel, localiseStep, type WizardStep } from "./wizard-vi";
 import BrandIcon from '../BrandIcon';
 import { WorkbenchIcon } from '../WorkspaceSidebar';
-import { compareProviders, providerFamily, providerLabel, providerSearchText } from '../provider-order';
-import { manage, type NativeCatalogue, type NativeAuthMethod } from '../workbench-api';
+import { FEATURED_FAMILY_COUNT, compareProviders, providerFamily } from '../provider-order';
+import { manage, type NativeCatalogue } from '../workbench-api';
 
 type Candidate = {
   kind: string;
@@ -23,16 +23,21 @@ type ManualProvider = {
   hint?: string;
 };
 
+type AuthOption = ManualProvider & { kind: "oauth" | "device-code"; featured: boolean };
+
 type DetectResult = {
   candidates?: Candidate[];
   manualProviders?: ManualProvider[];
-  authOptions?: (ManualProvider & { kind: "oauth" | "device-code"; featured: boolean })[];
+  authOptions?: AuthOption[];
   unavailableCandidates?: { id: string; label: string; detail: string; reason: string }[];
   prepareOptions?: (ManualProvider & { actionLabel?: string; website?: string })[];
   recommendedInstalls?: { id: string; label: string; hint: string; website: string }[];
+  configuredModel?: string;
   setupComplete?: boolean;
   workspace?: string;
 };
+
+type AuthStatusProvider = { provider: string; displayName?: string; status: string };
 
 /**
  * A wizard call returns as soon as the session is running, so the reply often
@@ -52,23 +57,24 @@ type WizardReply = {
 type Session = { sessionId: string; step: WizardStep };
 
 const SETTLE_POLL_MS = 700;
-const SETTLE_TIMEOUT_MS = 90_000;
+/**
+ * `wizard.next` blocks on the Gateway until the next step exists, and a browser
+ * sign-in can legitimately take minutes. The Gateway already expires a provider
+ * login after 25 minutes, so this is a last resort and not a user-facing limit.
+ */
+const SETTLE_TIMEOUT_MS = 30 * 60_000;
+
+/**
+ * The last successful detection for this Gateway connection. Re-opening the
+ * screen shows it at once while a fresh scan runs; it is dropped whenever the
+ * connection is lost, because a restarted Gateway may report different routes.
+ */
+let cachedDetect: DetectResult | null = null;
 
 function setupCall<T = Record<string, unknown>>(method: string, params?: unknown): Promise<T> {
-  const api = typeof window === "undefined" ? undefined : window.aiForBoss?.setup;
-  if (!api) return Promise.reject(new Error("Cầu nối cài đặt chưa sẵn sàng."));
+  const api = window.aiForBoss?.setup;
+  if (!api) return Promise.reject(new Error("Cầu nối thiết lập chưa sẵn sàng."));
   return api.request(method, params) as Promise<T>;
-}
-
-function groupProviders(providers: ManualProvider[]): [string, ManualProvider[]][] {
-  const groups = new Map<string, ManualProvider[]>();
-  for (const provider of providers) {
-    const group = provider.groupLabel ?? "Nhà cung cấp";
-    const list = groups.get(group) ?? [];
-    list.push(provider);
-    groups.set(group, list);
-  }
-  return [...groups.entries()];
 }
 
 function isFinished(reply: WizardReply | null): boolean {
@@ -80,25 +86,30 @@ function passiveStep(step: WizardStep): boolean {
     || (step.type === "note" && !step.externalUrl && !step.deviceCode);
 }
 
-function methodDescription(method: NativeAuthMethod, offered: boolean): string {
-  if (offered) return 'Có hướng dẫn kết nối trong danh sách phía trên.';
-  if (!method.scopes.includes('text-inference')) return 'Dành cho tính năng chuyên biệt của nhà cung cấp; không phải kết nối mô hình trò chuyện.';
-  if (method.method === 'cli') return 'Đăng nhập ứng dụng dòng lệnh chính thức trên máy, rồi bấm Tải lại danh sách để OpenClaw nhận kết nối.';
-  if (['local', 'custom'].includes(method.method)) return 'Cần máy chủ mô hình hoặc ứng dụng cục bộ đã được thiết lập. Xem hướng dẫn của OpenClaw.';
-  return method.guidedSecret || method.guidedAuth ? 'Phương thức có trong bộ chạy; cần chờ hoặc tải lại danh sách để kiểm tra có thể thiết lập trên máy này.'
-    : 'OpenClaw hỗ trợ qua thiết lập nhà cung cấp. Bản lõi này chưa cung cấp biểu mẫu kết nối trực tiếp trong ứng dụng.';
+function loginStep(step: WizardStep): boolean {
+  return Boolean(step.externalUrl || step.deviceCode);
 }
 
-export default function ConnectScreen({ onDone, ready = true, initialQuery = '' }: { onDone: () => void; ready?: boolean; initialQuery?: string }) {
-  const [query, setQuery] = useState(initialQuery);
-  const [detect, setDetect] = useState<DetectResult | null>(null);
+const CONNECTED_STATUSES = ["ok", "static", "expiring"];
+
+function statusLabel(status: string): string {
+  if (status === "expiring") return "sắp hết hạn";
+  if (status === "expired") return "hết hạn, cần đăng nhập lại";
+  if (status === "missing") return "chưa có thông tin đăng nhập";
+  return "";
+}
+
+export default function ConnectScreen({ onDone, ready = true }: { onDone: () => void; ready?: boolean; initialQuery?: string }) {
+  const [detect, setDetect] = useState<DetectResult | null>(() => cachedDetect);
   const [catalogue, setCatalogue] = useState<NativeCatalogue | null>(null);
+  const [authStatus, setAuthStatus] = useState<AuthStatusProvider[] | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [keyPrompt, setKeyPrompt] = useState<ManualProvider | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [verdict, setVerdict] = useState<string | null>(null);
   const [answer, setAnswer] = useState("");
+  const [secret, setSecret] = useState("");
+  const [keyChoice, setKeyChoice] = useState<string | null>(null);
   const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
   const [detectBusy, setDetectBusy] = useState(false);
   const [openingPage, setOpeningPage] = useState(false);
@@ -117,11 +128,6 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery = '' 
     finishPause.current = null;
   }, []);
   const isCurrent = useCallback((token: number) => mounted.current && generation.current === token, []);
-  const openDocumentation = async (methodId: string) => {
-    const token = generation.current;
-    try { await manage({ action: 'provider-doc', methodId }); }
-    catch (cause) { if (isCurrent(token)) setError(String((cause as Error).message)); }
-  };
   const pause = useCallback(() => new Promise<void>((resolve) => {
     finishPause.current = resolve;
     pollTimer.current = setTimeout(() => {
@@ -133,19 +139,36 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery = '' 
   const invalidateDetection = useCallback(() => { ++detectGeneration.current; }, []);
   const invalidateFlow = useCallback(() => { ++generation.current; invalidateDetection(); }, [invalidateDetection]);
 
+  const readAuthStatus = useCallback(async (token: number) => {
+    try {
+      const auth = await setupCall<{ providers?: AuthStatusProvider[] }>("models.authStatus", { refresh: false });
+      if (mounted.current && token === detectGeneration.current) setAuthStatus(auth.providers ?? []);
+    } catch {
+      if (mounted.current && token === detectGeneration.current) setAuthStatus(null);
+    }
+  }, []);
+
   const refreshDetect = useCallback(async () => {
     if (!ready || !mounted.current) return;
     const token = ++detectGeneration.current;
     setDetectBusy(true);
     try {
       const result = await setupCall<DetectResult>("openclaw.setup.detect", {});
-      if (mounted.current && token === detectGeneration.current) { setDetect(result); setError(null); }
+      if (mounted.current && token === detectGeneration.current) {
+        cachedDetect = result;
+        setDetect(result);
+        setError(null);
+        // Account state is only meaningful once a route exists; a blank machine
+        // must not spend a second RPC before the user has chosen anything.
+        if (result.setupComplete || result.configuredModel) void readAuthStatus(token);
+        else setAuthStatus(null);
+      }
     } catch (caught) {
       if (mounted.current && token === detectGeneration.current) setError(String((caught as Error)?.message ?? caught));
     } finally {
       if (mounted.current && token === detectGeneration.current) setDetectBusy(false);
     }
-  }, [ready]);
+  }, [ready, readAuthStatus]);
 
   useEffect(() => {
     mounted.current = true;
@@ -162,7 +185,7 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery = '' 
   useEffect(() => {
     let active = true;
     // Package metadata is available without the slower native account scan.
-    // These names only filter the list; they never authorize an auth flow.
+    // It only shapes the empty layout; it never authorizes an auth flow.
     void manage<NativeCatalogue>({ action: 'catalog' }).then(result => {
       if (active) setCatalogue(result);
     }).catch(() => { /* Live detection owns the actionable choices and error. */ });
@@ -177,6 +200,7 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery = '' 
       // restore a stale prompt or resubmit its answer after connection loss.
       invalidateFlow();
       clearPoll();
+      cachedDetect = null;
       activeSession.current = null;
       inFlight.current = false;
       opening.current = false;
@@ -184,52 +208,60 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery = '' 
         if (!active) return;
         setSession(null);
         setDetect(null);
-        setKeyPrompt(null);
+        setAuthStatus(null);
         setAnswer("");
         setBusy(false);
         setOpeningPage(false);
         setDetectBusy(false);
-        setVerdict(null);
       });
     }
     return () => { active = false; invalidateDetection(); };
   }, [ready, refreshDetect, invalidateDetection, invalidateFlow, clearPoll]);
+
+  /**
+   * A terminal activation receipt is a fact about what the Gateway saved, so it
+   * is shown even when the flow token moved on. That happens on every OAuth
+   * activation: committing the model restarts the Gateway, the screen loses
+   * `ready` for a moment, and the receipt arrives after the reset. A pending
+   * step, by contrast, is never resumed across that boundary.
+   */
+  const showReceipt = useCallback(async (reply: WizardReply) => {
+    const modelRef = reply.modelActivation!.modelRef;
+    let receipt = `Đã kết nối ${modelRef}. Bạn có thể bắt đầu trò chuyện; bấm Kiểm tra kết nối nếu muốn chắc chắn mô hình trả lời được.`;
+    try {
+      const auth = await setupCall<{ providers?: AuthStatusProvider[] }>("models.authStatus", { refresh: false });
+      if (!mounted.current) return;
+      const provider = auth.providers?.find((item) => item.provider === modelRef.split("/")[0]);
+      if (provider && ["missing", "expired", "error"].includes(provider.status)) {
+        receipt = "Thiết lập đã lưu, nhưng tài khoản chưa sẵn sàng. Hãy kiểm tra kết nối hoặc kết nối lại tài khoản.";
+      }
+    } catch {
+      if (!mounted.current) return;
+      receipt = "Thiết lập đã hoàn tất. Chưa đọc được trạng thái tài khoản; hãy dùng Kiểm tra kết nối trước khi bắt đầu.";
+    }
+    activeSession.current = null;
+    setSession(null);
+    setAnswer("");
+    setSecret("");
+    setVerdict(receipt);
+    // Catalogue discovery can be slow; the native activation receipt and
+    // credential readback already let the user return to the chat.
+    void refreshDetect();
+  }, [refreshDetect]);
 
   /** Waits for the wizard to hand over a step, or to say it is finished. */
   const settle = useCallback(async (sessionId: string, first: WizardReply, token: number) => {
       const deadline = Date.now() + SETTLE_TIMEOUT_MS;
       const acknowledged = new Set<string>();
       let current: WizardReply | null = first;
-      while (isCurrent(token) && Date.now() < deadline) {
+      while (mounted.current) {
+        if (isFinished(current)) { await showReceipt(current!); return; }
+        if (!isCurrent(token)) return;
         if (current?.done === true && (current.status === "error" || current.status === "cancelled")) {
           activeSession.current = null;
           setSession(null);
           setAnswer("");
           setError(current.error ?? (current.status === "cancelled" ? "Đã huỷ trình hướng dẫn." : "Trình hướng dẫn dừng với lỗi."));
-          return;
-        }
-        if (isFinished(current)) {
-          const modelRef = current!.modelActivation!.modelRef;
-          let receipt = `Đã lưu thiết lập ${modelRef}. Bấm Kiểm tra kết nối để xác nhận mô hình trả lời được.`;
-          try {
-            const auth = await setupCall<{ providers?: { provider: string; status: string }[] }>("models.authStatus", { refresh: false });
-            if (!isCurrent(token)) return;
-            const provider = auth.providers?.find((item) => item.provider === modelRef.split("/")[0]);
-            if (provider && ["missing", "expired", "error"].includes(provider.status)) {
-              receipt = "Thiết lập đã lưu, nhưng tài khoản chưa sẵn sàng. Hãy kiểm tra kết nối hoặc kết nối lại tài khoản.";
-            }
-          } catch {
-            if (!isCurrent(token)) return;
-            receipt = "Thiết lập đã hoàn tất. Chưa đọc được trạng thái tài khoản; hãy dùng Kiểm tra kết nối trước khi bắt đầu.";
-          }
-          if (!isCurrent(token)) return;
-          activeSession.current = null;
-          setSession(null);
-          setAnswer("");
-          setVerdict(receipt);
-          // Catalogue discovery can be slow; the native activation receipt and
-          // credential readback already let the user return to the chat.
-          void refreshDetect();
           return;
         }
         if (current?.done === true) {
@@ -251,18 +283,19 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery = '' 
             continue;
           }
         }
+        if (Date.now() >= deadline) break;
         await pause();
-        if (!mounted.current || token !== generation.current) return;
+        if (!isCurrent(token)) return;
         // status returns lifecycle only; next without an answer retrieves the
         // current native step and does not invent an answer for the user.
         current = await setupCall<WizardReply>("wizard.next", { sessionId });
       }
-      if (!mounted.current || token !== generation.current) return;
+      if (!isCurrent(token)) return;
       activeSession.current = null;
       setSession(null);
       setError("Trình hướng dẫn không trả về bước nào trong thời gian chờ.");
       void setupCall("wizard.cancel", { sessionId }).catch(() => {});
-    }, [isCurrent, pause, refreshDetect]);
+    }, [isCurrent, pause, showReceipt]);
 
   const run = async (sessionId: string, work: () => Promise<WizardReply>) => {
       if (!ready || inFlight.current || !mounted.current) return;
@@ -277,6 +310,7 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery = '' 
       try {
         const reply = await work();
         if (!isCurrent(token)) {
+          if (mounted.current && isFinished(reply)) { await showReceipt(reply); return; }
           // A cancelled start may finish creating its native wizard later.
           // Close that exact late session; never resume its UI or auth flow.
           void setupCall("wizard.cancel", { sessionId }).catch(() => {});
@@ -314,23 +348,20 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery = '' 
    * only takes a pasted secret. The screen offers both and names neither
    * provider.
    */
-  const startWithKey = (provider: ManualProvider, secret: string) => {
+  const startWithKey = (provider: ManualProvider, value: string) => {
     const sessionId = crypto.randomUUID();
-    setKeyPrompt(null);
-    setAnswer("");
     return run(sessionId, () =>
       setupCall("openclaw.setup.activate.start", {
         sessionId,
         kind: "api-key",
         authChoice: provider.id,
-        apiKey: secret
+        apiKey: value
       })
     );
   };
 
   const startGuided = (provider: ManualProvider) => {
     const sessionId = crypto.randomUUID();
-    setKeyPrompt(null);
     return run(sessionId, () => setupCall("openclaw.setup.auth.start", { sessionId, authChoice: provider.id }));
   };
 
@@ -353,7 +384,6 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery = '' 
     setDetectBusy(false);
     setOpeningPage(false);
     setSession(null);
-    setKeyPrompt(null);
     setAnswer("");
     setError(null);
     if (sessionId) void setupCall("wizard.cancel", { sessionId }).catch(() => {});
@@ -400,49 +430,10 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery = '' 
     }
   };
 
-  if (keyPrompt) {
-    const secretLabel = credentialLabel(keyPrompt);
-    const submitKey = (event: FormEvent) => {
-      event.preventDefault();
-      if (answer.trim().length > 0) void startWithKey(keyPrompt, answer.trim());
-    };
-
-    return (
-      <section className="connect">
-        <header className="connect__header">
-          <h1><BrandIcon id={keyPrompt.brandId || keyPrompt.id} label={keyPrompt.label} />{keyPrompt.label}</h1>
-          <button type="button" onClick={cancel}>
-            {CHROME.cancel}
-          </button>
-        </header>
-
-        <p className="connect__lead">{CHROME.pasteKeyHint}</p>
-        {keyPrompt.hint ? <p className="connect__hint">{keyPrompt.hint}</p> : null}
-
-        <form className="connect__form" onSubmit={submitKey}>
-          <input
-            type="password"
-            aria-label={secretLabel}
-            value={answer}
-            placeholder={`Dán ${secretLabel}`}
-            onChange={(event) => setAnswer(event.target.value)}
-            autoComplete="off"
-            spellCheck={false}
-            autoFocus
-          />
-          <button type="submit" disabled={!ready || busy || answer.trim().length === 0}>
-            {busy ? CHROME.working : CHROME.connectWithKey}
-          </button>
-        </form>
-
-        {error ? <p className="connect__error">{error}</p> : null}
-      </section>
-    );
-  }
-
   if (session) {
     const step = session.step;
     const local = localiseStep(step);
+    const login = loginStep(step);
     const submitText = (event: FormEvent) => {
       event.preventDefault();
       void answerStep(answer);
@@ -467,11 +458,11 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery = '' 
         ) : null}
 
         {step.externalUrl ? (
-          <div className="connect__origin">
-            <button type="button" disabled={!ready || busy || openingPage} onClick={() => void openPage()}>
+          <div className="connect__origin connect__login">
+            <button type="button" className="connect__primary" disabled={!ready || busy || openingPage} onClick={() => void openPage()}>
               {CHROME.openSignInPage}
             </button>
-            <p>Hoàn tất đăng nhập trong trình duyệt rồi quay lại đây.</p>
+            <p>Hoàn tất đăng nhập trong trình duyệt rồi quay lại đây và bấm “{CHROME.loggedInContinue}”.</p>
             <pre>{step.externalUrl}</pre>
           </div>
         ) : null}
@@ -541,11 +532,11 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery = '' 
           </div>
         ) : null}
 
-        {passiveStep(step) ? <p role="status">{CHROME.working}</p> : null}
+        {passiveStep(step) ? <p role="status">{step.type === "progress" && !step.message && !local.recognised ? CHROME.waitingLogin : CHROME.working}</p> : null}
         {(step.type === "note" || step.type === "action") && !passiveStep(step) ? (
           <div className="connect__options connect__options--row">
             <button type="button" disabled={!ready || busy} onClick={() => void answerStep(true)}>
-              {busy ? CHROME.working : CHROME.continue}
+              {busy ? CHROME.working : login ? CHROME.loggedInContinue : CHROME.continue}
             </button>
           </div>
         ) : null}
@@ -556,23 +547,33 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery = '' 
   }
 
   const identity = (item: { id?: string; brandId?: string; modelRef?: string; kind?: string }) => item.brandId
-    || catalogue?.authMethods?.find(method => method.id === item.id)?.provider || item.modelRef?.split('/')[0] || item.id || item.kind || '';
-  const order = (a: { id?: string; brandId?: string }, b: { id?: string; brandId?: string }) => compareProviders(identity(a), identity(b));
-  const matches = (item: { label: string; id?: string; brandId?: string; hint?: string; detail?: string; modelRef?: string; groupLabel?: string; description?: string }) =>
-    `${item.label} ${item.id ?? ''} ${item.brandId ?? ''} ${providerSearchText(identity(item))} ${item.hint ?? ''} ${item.detail ?? ''} ${item.modelRef ?? ''} ${item.groupLabel ?? ''} ${item.description ?? ''}`.toLocaleLowerCase('vi').includes(query.trim().toLocaleLowerCase('vi'));
-  const candidates = (detect?.candidates ?? []).filter(matches).sort(order);
-  const groups = groupProviders((detect?.manualProviders ?? []).filter(matches).sort(order));
-  const authOptions = (detect?.authOptions ?? []).filter(matches).sort(order);
-  const unavailable = (detect?.unavailableCandidates ?? []).filter(matches);
-  const prepareOptions = (detect?.prepareOptions ?? []).filter(matches);
-  const recommendedInstalls = (detect?.recommendedInstalls ?? []).filter(matches);
-  const methodMatches = (catalogue?.authMethods ?? []).filter(method => `${method.label} ${providerSearchText(method.provider)} ${method.provider} ${method.id} ${method.method} ${method.hint}`
-    .toLocaleLowerCase('vi').includes(query.trim().toLocaleLowerCase('vi'))).sort((a, b) => compareProviders(a.provider, b.provider)
-      || Number(Boolean(b.guidedAuth) || b.method === 'cli') - Number(Boolean(a.guidedAuth) || a.method === 'cli'));
-  const providerIndex = [...new Set((catalogue?.providers ?? []).map(item => providerFamily(item.id)))].sort(compareProviders);
-  const offeredMethods = new Set([...(detect?.authOptions ?? []), ...(detect?.manualProviders ?? []), ...(detect?.prepareOptions ?? [])].map(item => item.id));
-  const hasNativeMatches = candidates.length + groups.length + authOptions.length + unavailable.length + prepareOptions.length + recommendedInstalls.length > 0;
-  const hasMatches = hasNativeMatches || methodMatches.length > 0;
+    || item.modelRef?.split('/')[0] || item.id || item.kind || '';
+  const order = (a: { id?: string; brandId?: string; modelRef?: string; kind?: string }, b: { id?: string; brandId?: string; modelRef?: string; kind?: string }) =>
+    compareProviders(identity(a), identity(b));
+  const candidates = (detect?.candidates ?? []).slice().sort(order);
+  const authOptions = (detect?.authOptions ?? []).slice().sort((a, b) => order(a, b) || Number(b.featured) - Number(a.featured));
+  const manualProviders = (detect?.manualProviders ?? []).slice().sort(order);
+  const unavailable = detect?.unavailableCandidates ?? [];
+  const prepareOptions = detect?.prepareOptions ?? [];
+  const recommendedInstalls = detect?.recommendedInstalls ?? [];
+  const featuredSignIn = authOptions.slice(0, FEATURED_FAMILY_COUNT);
+  const moreSignIn = authOptions.slice(FEATURED_FAMILY_COUNT);
+  const keyProvider = manualProviders.find(provider => provider.id === keyChoice) ?? manualProviders[0] ?? null;
+  const keyFamily = keyProvider ? providerFamily(identity(keyProvider)) : '';
+  const hasChoices = candidates.length + authOptions.length + manualProviders.length > 0;
+  const scanning = detectBusy && !detect;
+  // Before the first scan answers, the shipped package list shapes the layout so
+  // the page is never blank. Nothing here is clickable: only the Gateway decides
+  // which of these routes exist on this machine.
+  const placeholderMethods = !detect && !error ? (catalogue?.authMethods ?? []).filter(method => method.scopes.includes('text-inference')) : [];
+  const placeholderSignIn = placeholderMethods.filter(method => method.guidedAuth).sort((a, b) => compareProviders(a.provider, b.provider)).slice(0, FEATURED_FAMILY_COUNT);
+  const placeholderKeys = placeholderMethods.filter(method => method.guidedSecret && !method.guidedAuth).sort((a, b) => compareProviders(a.provider, b.provider));
+  const connectedAccounts = (authStatus ?? []).filter(item => item.status !== 'missing');
+  const currentModel = detect?.configuredModel;
+  const submitKey = (event: FormEvent) => {
+    event.preventDefault();
+    if (keyProvider && secret.trim().length > 0) void startWithKey(keyProvider, secret.trim());
+  };
 
   return (
     <section className="connect">
@@ -589,118 +590,121 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery = '' 
       {busy ? <div className="connect__options connect__options--row"><span role="status">{CHROME.working}</span>
         <button type="button" onClick={cancel}>{CHROME.cancel}</button></div> : null}
 
-      <p className="connect__lead">
-        Chọn nhà cung cấp và cách kết nối: API key, token hoặc đăng nhập tài khoản. Mô hình khả dụng được xác nhận sau khi kết nối.
-      </p>
-      <label className="catalog-search connect__search"><WorkbenchIcon name="search" /><input type="search" aria-label="Tìm nhà cung cấp hoặc mô hình" placeholder="Tìm nhà cung cấp, tài khoản hoặc mô hình…" value={query} onChange={event => setQuery(event.target.value)} />{query && <button type="button" aria-label="Xóa tìm kiếm" onClick={() => setQuery('')}><WorkbenchIcon name="close" /></button>}</label>
-      <nav className="connect__provider-index" aria-label="Chọn nhà cung cấp">
-        <button type="button" aria-pressed={!query} onClick={() => setQuery('')}>Tất cả</button>
-        {providerIndex.slice(0, 4).map(provider => <button type="button" key={provider} aria-pressed={query === provider} onClick={() => setQuery(provider)}>
-          <BrandIcon id={provider} />{providerLabel(provider)}</button>)}
-      </nav>
-      {query === 'google' && <p className="connect__hint">Gemini dùng API key Google AI Studio hoặc Vertex. Bản lõi này không mở đăng nhập Gemini CLI OAuth mới.</p>}
-      {query === 'anthropic' && <p className="connect__hint">Claude CLI dùng kết nối chính thức đã có trên máy. Quyền sử dụng và cách tính phí phụ thuộc tài khoản Anthropic; đăng nhập CLI không bảo đảm mọi lượt chạy dùng hạn mức thuê bao.</p>}
-      {detectBusy && <p className="connect__note" role="status">Đang tìm cách kết nối và mô hình trên máy… Danh mục sẽ xuất hiện khi kiểm tra xong.</p>}
+      {currentModel || connectedAccounts.length > 0 || verdict ? <div className="connect__status" role="status">
+        {currentModel ? <p><strong><WorkbenchIcon name="model" />{CHROME.currentModel}: {currentModel}</strong></p> : null}
+        {connectedAccounts.length > 0 ? <ul className="connect__accounts">{connectedAccounts.map(item => {
+          const ok = CONNECTED_STATUSES.includes(item.status);
+          const note = statusLabel(item.status);
+          return <li key={item.provider} className={ok ? 'connect__account' : 'connect__account connect__account--warn'}>
+            <BrandIcon id={item.provider} label={item.displayName ?? item.provider} />{item.displayName ?? item.provider}{note ? <small> · {note}</small> : null}
+          </li>;
+        })}</ul> : null}
+        {verdict ? <p className="connect__verdict">{verdict}</p> : null}
+        {currentModel ? <p className="connect__hint">Muốn đổi sang tài khoản khác thì chọn một cách kết nối bên dưới; cách mới sẽ thay cho cách hiện tại.</p> : null}
+      </div> : null}
+
       {error ? <p className="connect__error" role="alert">{error} Bạn có thể bấm Tải lại danh sách để thử lại.</p> : null}
-      {!detect && (catalogue?.providers.length ?? 0) > 0 && <section className="connect__preview" aria-label="Nhà cung cấp trong bộ chạy">
-        <h2>Nhà cung cấp trong bộ chạy</h2>
-        <p className="connect__hint">Chọn tên để lọc. Đang chờ danh sách phương thức kết nối thực tế; đây chưa phải tài khoản đã đăng nhập.</p>
-        <div className="connect__provider-index">{catalogue!.providers.filter(matches).sort(order).map(provider => <button type="button" key={provider.id}
-          onClick={() => setQuery(provider.id)}><BrandIcon id={provider.id} label={provider.label} />{provider.label}</button>)}</div>
-      </section>}
-      {detect && !detectBusy && (!hasMatches || !query.trim() && !hasNativeMatches) && <p className="connect__note" role="status">{query.trim()
-        ? `Không tìm thấy “${query}” trong danh mục hiện tại. Xóa tìm kiếm để xem tất cả cách kết nối.`
-        : 'Bộ chạy chưa trả về cách kết nối AI nào. Bấm Tải lại danh sách; nếu vẫn trống, kiểm tra Gateway trong thanh công cụ.'}</p>}
+      {detect && !detectBusy && !hasChoices ? <p className="connect__note" role="status">
+        Bộ chạy chưa trả về cách kết nối AI nào. Bấm Tải lại danh sách; nếu vẫn trống, kiểm tra Gateway trong thanh công cụ.</p> : null}
 
-      {candidates.length > 0 ? (
-        <>
-          <h2>{CHROME.detected}</h2>
-          <p className="connect__hint">{CHROME.detectedHint}</p>
-          <div className="connect__options">
-            {candidates.map((candidate) => (
-              <button key={candidate.kind + candidate.modelRef + candidate.label} type="button" aria-label={candidate.label} disabled={!ready || busy} onClick={() => void startCandidate(candidate)}>
-                <strong><BrandIcon id={candidate.brandId || candidate.kind} label={candidate.label} />{candidate.label}</strong>
-                <small>{candidate.detail}</small>
-                {candidate.modelRef && <small>Mô hình: {candidate.modelRef}</small>}
-              </button>
-            ))}
-          </div>
-        </>
-      ) : null}
-
-      {authOptions.length > 0 ? <>
-        <h2>Đăng nhập tài khoản</h2>
-        <div className="connect__options">
-          {authOptions.map((option) => <button key={option.id} type="button" aria-label={option.label}
+      <section className="connect__tier" aria-label={CHROME.signIn}>
+        <h2><span className="connect__step-number">1</span>{CHROME.signIn}</h2>
+        <p className="connect__hint">{CHROME.signInHint}</p>
+        {scanning && placeholderSignIn.length > 0 ? <div className="connect__options connect__options--pending" aria-hidden="true">
+          {placeholderSignIn.map(method => <button key={method.id} type="button" disabled>
+            <strong><BrandIcon id={method.provider} label={method.label} />{method.label}</strong><small>{CHROME.scanning}</small></button>)}
+        </div> : null}
+        {featuredSignIn.length > 0 ? <div className="connect__options">
+          {featuredSignIn.map((option) => <button key={option.id} type="button" aria-label={option.label}
             disabled={!ready || busy} onClick={() => void startGuided(option)}>
             <strong><BrandIcon id={option.brandId || option.id} label={option.label} />{option.label}</strong>
-            <small>{option.kind === 'device-code' ? 'Đăng nhập tài khoản bằng mã thiết bị' : 'Đăng nhập tài khoản qua OAuth'}</small>
-            {option.hint ? <small>{option.hint}</small> : null}
+            <small>{option.kind === 'device-code' ? 'Đăng nhập tài khoản bằng mã thiết bị' : 'Đăng nhập tài khoản trên trình duyệt'}{option.hint ? ` · ${option.hint}` : ''}</small>
           </button>)}
-        </div>
-      </> : null}
-
-      {groups.length > 0 && <h2>{CHROME.allProviders}</h2>}
-      <div className="connect__groups">
-        {groups.map(([group, providers]) => (
-          <div key={group} className="connect__group">
-            <h3>{group}</h3>
-            {providers.map((provider) => (
-              <button
-                key={provider.id}
-                type="button"
-                disabled={!ready || busy}
-                onClick={() => {
-                  setAnswer("");
-                  setError(null);
-                  setKeyPrompt(provider);
-                }}
-              >
-                <strong><BrandIcon id={provider.brandId || provider.id} label={provider.label} />{provider.label}</strong>
-                {provider.hint ? <small>{provider.hint}</small> : null}
-              </button>
-            ))}
+        </div> : null}
+        {moreSignIn.length > 0 ? <details className="connect__more">
+          <summary>{CHROME.moreSignIn} ({moreSignIn.length})</summary>
+          <div className="connect__options">
+            {moreSignIn.map((option) => <button key={option.id} type="button" aria-label={option.label}
+              disabled={!ready || busy} onClick={() => void startGuided(option)}>
+              <strong><BrandIcon id={option.brandId || option.id} label={option.label} />{option.label}</strong>
+              <small>{option.kind === 'device-code' ? 'Đăng nhập tài khoản bằng mã thiết bị' : 'Đăng nhập tài khoản trên trình duyệt'}{option.hint ? ` · ${option.hint}` : ''}</small>
+            </button>)}
           </div>
-        ))}
-      </div>
+        </details> : null}
+        {detect && !detectBusy && authOptions.length === 0 && hasChoices ? <p className="connect__note">Bản lõi này chưa mở đăng nhập tài khoản trực tiếp; dùng bậc 2 hoặc 3.</p> : null}
+      </section>
 
-      {unavailable.map((item) => <div className="connect__origin" key={item.id}>
-        <strong>{item.label}</strong><p>{item.detail || item.reason}</p>
-      </div>)}
-      {prepareOptions.map((item) => <div className="connect__origin" key={item.id}>
-        <strong>{item.label}</strong>{item.hint ? <p>{item.hint}</p> : null}
-        {item.website ? <pre>{item.website}</pre> : null}
-      </div>)}
-      {recommendedInstalls.map((item) => <div className="connect__origin" key={item.id}>
-        <strong>{item.label}</strong><p>{item.hint}</p><pre>{item.website}</pre>
-      </div>)}
+      <section className="connect__tier" aria-label={CHROME.detected}>
+        <h2><span className="connect__step-number">2</span>{CHROME.detected}</h2>
+        <p className="connect__hint">{CHROME.detectedHint}</p>
+        {detectBusy ? <p className="connect__note" role="status">{CHROME.scanning}</p> : null}
+        {candidates.length > 0 ? <div className="connect__options">
+          {candidates.map((candidate) => (
+            <button key={candidate.kind + candidate.modelRef + candidate.label} type="button" aria-label={candidate.label} disabled={!ready || busy} onClick={() => void startCandidate(candidate)}>
+              <strong><BrandIcon id={candidate.brandId || candidate.kind} label={candidate.label} />{candidate.label}</strong>
+              <small>{candidate.detail}</small>
+              {candidate.modelRef && <small>Mô hình: {candidate.modelRef}</small>}
+            </button>
+          ))}
+        </div> : null}
+        {detect && !detectBusy && candidates.length === 0 ? <p className="connect__note">Chưa thấy Claude Code hay Codex CLI đã đăng nhập trên máy này. Nếu bạn vừa đăng nhập, bấm Tải lại danh sách.</p> : null}
+        {unavailable.length + prepareOptions.length + recommendedInstalls.length > 0 ? <details className="connect__more">
+          <summary>{CHROME.moreDetails} ({unavailable.length + prepareOptions.length + recommendedInstalls.length})</summary>
+          {unavailable.map((item) => <div className="connect__origin" key={item.id}>
+            <strong>{item.label}</strong><p>{item.detail || item.reason}</p>
+          </div>)}
+          {prepareOptions.map((item) => <div className="connect__origin" key={item.id}>
+            <strong>{item.label}</strong>{item.hint ? <p>{item.hint}</p> : null}
+            {item.website ? <pre>{item.website}</pre> : null}
+          </div>)}
+          {recommendedInstalls.map((item) => <div className="connect__origin" key={item.id}>
+            <strong>{item.label}</strong><p>{item.hint}</p><pre>{item.website}</pre>
+          </div>)}
+        </details> : null}
+      </section>
 
-      {methodMatches.length > 0 && <details className="connect__method-catalogue" open={query.trim() || detect && !hasNativeMatches ? true : undefined}>
-        <summary><WorkbenchIcon name="key" />Các phương thức OpenClaw hỗ trợ ({methodMatches.length})</summary>
-        <p className="connect__hint">Danh mục chính thức đi cùng OpenClaw {catalogue?.version}. Phương thức kết nối khác với tài khoản đã đăng nhập và quyền dùng từng mô hình.</p>
-        <div className="connect__groups">{methodMatches.map(method => <div className="connect__origin" key={`${method.pluginId}:${method.id}`}>
-          <strong><BrandIcon id={method.provider} label={method.provider} />{method.label}</strong>
-          <p>{method.provider} · {method.guidedAuth === 'device-code' ? 'Đăng nhập bằng mã thiết bị' : method.guidedAuth === 'oauth' ? 'Đăng nhập OAuth'
-            : method.method === 'api-key' || method.guidedSecret && /api/iu.test(method.method) ? 'API key'
-            : /token/iu.test(method.method) ? 'Token truy cập' : method.method === 'cli' ? 'Tài khoản ứng dụng trên máy' : method.method}</p>
-          {method.hint && <p className="connect__hint">{method.hint}</p>}
-          <p>{methodDescription(method, offeredMethods.has(method.id))}</p>
-          {authOptions.filter(option => option.id === method.id && providerFamily(identity(option)) === providerFamily(method.provider)).map(option =>
-            <button key={option.id} type="button" disabled={!ready || busy || detectBusy} onClick={() => void startGuided(option)}>Kết nối bằng {method.guidedAuth === 'device-code' ? 'mã thiết bị' : 'OAuth'}</button>)}
-          {(detect?.manualProviders ?? []).filter(option => option.id === method.id && providerFamily(identity(option)) === providerFamily(method.provider)).map(option =>
-            <button key={option.id} type="button" disabled={!ready || busy || detectBusy} onClick={() => { setAnswer(''); setError(null); setKeyPrompt(option); }}>Nhập {credentialLabel(option)}</button>)}
-          <button type="button" onClick={() => void openDocumentation(method.id)}><WorkbenchIcon name="web" />Tài liệu OpenClaw: {method.provider}</button>
-        </div>)}</div>
-      </details>}
+      <section className="connect__tier" aria-label={CHROME.allProviders}>
+        <h2><span className="connect__step-number">3</span>{CHROME.allProviders}</h2>
+        <p className="connect__hint">{CHROME.allProvidersHint}</p>
+        {scanning && placeholderKeys.length > 0 ? <div className="connect__form connect__form--pending" aria-hidden="true">
+          <select disabled aria-label="Nhà cung cấp">{placeholderKeys.map(method => <option key={method.id}>{method.label}</option>)}</select>
+          <input type="password" disabled placeholder={CHROME.scanning} /><button type="button" disabled>{CHROME.connectWithKey}</button>
+        </div> : null}
+        {manualProviders.length > 0 && keyProvider ? <>
+          <form className="connect__form" onSubmit={submitKey}>
+            <select aria-label="Nhà cung cấp" value={keyProvider.id} disabled={!ready || busy}
+              onChange={(event) => { setKeyChoice(event.target.value); setSecret(""); setError(null); }}>
+              {manualProviders.map(provider => <option key={provider.id} value={provider.id}>
+                {provider.groupLabel && provider.groupLabel !== provider.label ? `${provider.groupLabel} · ${provider.label}` : provider.label}</option>)}
+            </select>
+            <input
+              type="password"
+              aria-label={credentialLabel(keyProvider)}
+              value={secret}
+              placeholder={`Dán ${credentialLabel(keyProvider)}`}
+              onChange={(event) => setSecret(event.target.value)}
+              autoComplete="off"
+              spellCheck={false}
+              disabled={!ready || busy}
+            />
+            <button type="submit" disabled={!ready || busy || secret.trim().length === 0}>
+              {busy ? CHROME.working : CHROME.connectWithKey}
+            </button>
+          </form>
+          {keyProvider.hint ? <p className="connect__hint"><BrandIcon id={keyProvider.brandId || keyProvider.id} label={keyProvider.label} /> {keyProvider.hint}</p> : null}
+          {keyFamily === 'google' ? <p className="connect__hint">Gemini dùng API key Google AI Studio hoặc Vertex. Bản lõi này không mở đăng nhập Gemini CLI mới.</p> : null}
+          {keyFamily === 'anthropic' ? <p className="connect__hint">Nếu máy đã đăng nhập Claude Code, dùng bậc 2 để khỏi trả phí API riêng. Quyền dùng mô hình phụ thuộc tài khoản Anthropic.</p> : null}
+          <p className="connect__note">{CHROME.pasteKeyHint}</p>
+        </> : null}
+      </section>
 
       <div className="connect__footer">
         <button type="button" onClick={() => void refreshDetect()} disabled={!ready || busy || detectBusy}>
           {CHROME.refreshCatalogue}
         </button>
         <button type="button" onClick={verify} disabled={!ready || busy || detectBusy}>
-          {busy ? CHROME.verifying : "Kiểm tra kết nối"}
+          {busy ? CHROME.verifying : CHROME.checkNow}
         </button>
-        {verdict ? <span className="connect__verdict">{verdict}</span> : null}
       </div>
 
     </section>

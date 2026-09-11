@@ -635,40 +635,33 @@ app.whenReady().then(async () => {
   await click("Thử khởi động lại");
   if (!browserIntegration) {
     await until(() => Promise.resolve(Boolean(pendingDetect)), 'native detection intentionally delayed');
-    await until(() => evaluate("Boolean(document.querySelector('.connect__preview[aria-label=\"Nhà cung cấp trong bộ chạy\"]'))"), 'provider preview is present');
-    await until(() => evaluate("document.querySelectorAll('.connect__provider-index button').length > 20"), 'packaged catalogue visible before native detection');
-    assert.equal(await evaluate("document.querySelector('.connect__search').getBoundingClientRect().height < 60"), true);
-    assert.equal(await evaluate("document.querySelector('.connect__provider-index button').getBoundingClientRect().top < innerHeight"), true, 'catalogue appears in initial viewport');
-    const authBefore = counts['openclaw.setup.auth.start'] ?? 0;
-    await clickSelector('.connect__preview .connect__provider-index button');
-    assert.equal(counts['openclaw.setup.auth.start'] ?? 0, authBefore, 'preview filters without starting authentication');
-    await click('Xóa tìm kiếm'); await capture('connect-loading-catalogue.png'); pendingDetect();
+    await until(() => evaluate("document.querySelectorAll('.connect__tier').length === 3"), 'three connection tiers are laid out before native detection');
+    await until(() => evaluate("document.querySelectorAll('.connect__options--pending button, .connect__form--pending select').length > 0"), 'packaged placeholders visible before native detection');
+    assert.equal(await evaluate("Array.from(document.querySelectorAll('.connect__tier button, .connect__tier select')).every(node => node.disabled)"), true, 'placeholders cannot start authentication');
+    assert.equal(await evaluate("document.querySelector('.connect__tier').getBoundingClientRect().top < innerHeight"), true, 'first tier appears in initial viewport');
+    await capture('connect-loading-catalogue.png'); pendingDetect();
   }
   await hasText("Tài khoản thử OAuth");
   assert.equal(counts.retry, 1); checks.push("retry and wait for both channels; unavailable catalogue routes to setup");
   if (!browserIntegration) {
     for (const width of [980, 1440]) {
       window.setContentSize(width, 850); await wait(80);
-      const bounds = await evaluate("(() => {const input=document.querySelector('.connect__search').getBoundingClientRect(), option=document.querySelector('.connect__options button').getBoundingClientRect();return {inputHeight:input.height,optionTop:option.top,optionRight:option.right,width:innerWidth,height:innerHeight};})()");
-      assert.ok(bounds.inputHeight < 60 && bounds.optionTop < bounds.height && bounds.optionRight <= bounds.width, JSON.stringify(bounds));
+      const bounds = await evaluate("(() => {const tier=document.querySelector('.connect__tier').getBoundingClientRect(), option=document.querySelector('.connect__options button').getBoundingClientRect();return {tierTop:tier.top,optionTop:option.top,optionRight:option.right,width:innerWidth,height:innerHeight};})()");
+      assert.ok(bounds.tierTop < bounds.height && bounds.optionTop < bounds.height && bounds.optionRight <= bounds.width, JSON.stringify(bounds));
       await capture(`connect-ready-${width}px.png`);
     }
-    await fill('[aria-label="Tìm nhà cung cấp hoặc mô hình"]', 'missing-fixture'); await hasText('Không tìm thấy');
-    assert.equal(await evaluate("document.querySelectorAll('.connect__options button').length"), 0);
-    await click('Xóa tìm kiếm'); await hasText('Tài khoản thử OAuth');
     detectMode = 'error'; await click('Tải lại danh sách'); await hasText('Không đọc được danh sách mô phỏng.');
     assert.equal(await evaluate("Boolean(document.querySelector('.connect [role=alert]'))"), true);
     detectMode = 'empty'; await click('Tải lại danh sách'); await hasText('Bộ chạy chưa trả về cách kết nối AI nào');
-    assert.equal(await evaluate("document.querySelector('.connect__method-catalogue')?.open"), true, 'empty native methods expand official prerequisites instead of a blank screen');
-    assert.ok(await evaluate("(() => { const s=getComputedStyle(document.querySelector('.connect__origin button')); const luminance=color=>color.match(/[\\d.]+/g).slice(0,3).map(n=>{const c=Number(n)/255;return c<=.04045?c/12.92:((c+.055)/1.055)**2.4;}).reduce((sum,c,i)=>sum+c*[.2126,.7152,.0722][i],0); const a=luminance(s.color),b=luminance(s.backgroundColor);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05); })()") >= 4.5, 'connection documentation action has readable text contrast');
-    await capture('connect-empty-expanded-methods-1440px.png');
+    assert.equal(await evaluate("document.querySelectorAll('.connect__tier').length"), 3, 'an empty native catalogue keeps the three tiers instead of a blank screen');
+    await capture('connect-empty-1440px.png');
     detectMode = 'normal'; await click('Tải lại danh sách'); await hasText('Tài khoản thử OAuth');
-    checks.push('connect quick packaged catalogue visible while native detection waits; compact search and initial visible options at 980/1440; preview filtering makes no auth call; search/empty/error/retry and real authentication-method labels');
+    checks.push('connect three-tier layout visible while native detection waits; placeholders disabled; initial visible options at 980/1440; empty/error/retry states');
   }
   await click("Tài khoản thử OAuth");
   await hasText("ABCD-1234"); await hasText("https://example.invalid/authorize");
   await click("Mở trang đăng nhập"); assert.equal(counts["open-page"], 1);
-  await click("Tiếp tục");
+  await click("Đã đăng nhập xong, tiếp tục");
   await until(() => evaluate("Boolean(document.querySelector('input[type=password]'))"), "sensitive input masked");
   await fill("input[type=password]", "fixture-value"); await click("Tiếp tục");
   await hasText("Mục B");
@@ -677,7 +670,7 @@ app.whenReady().then(async () => {
   await hasText('Đang hoàn tất kết nối mô phỏng.');
   assert.equal(await evaluate("Boolean(document.querySelector('.connect [role=status]'))"), true, 'finishing step shows actual progress status');
   assert.equal(await evaluate("Array.from(document.querySelectorAll('.connect button')).some(button => button.textContent.trim() === 'Tiếp tục')"), false, 'finishing progress requires no extra Continue click');
-  await hasText('Đã lưu thiết lập fixture/model');
+  await hasText('Đã kết nối fixture/model');
   assert.equal(counts['models.authStatus'], 1); assert.equal(wizardIndex, 4);
   await click("Kiểm tra kết nối");
   await hasText("Phiên mới");
