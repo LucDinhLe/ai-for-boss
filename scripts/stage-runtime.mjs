@@ -14,6 +14,7 @@
  */
 
 import { createHash } from "node:crypto";
+import { pruneDevelopmentFiles } from "./lib/prune-runtime.mjs";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import fsp from "node:fs/promises";
@@ -192,8 +193,11 @@ function stageOpenClaw({ force }) {
 
   const entry = path.join(openclawRoot, "node_modules", "openclaw", "openclaw.mjs");
   if (!fs.existsSync(entry)) throw new Error("staged OpenClaw is missing openclaw.mjs");
-  return { versions: pinned, root: openclawRoot, allowScripts: allowBuilds };
+  const pruned = pruneDevelopmentFiles(path.join(openclawRoot, "node_modules"));
+  console.log(`[stage-runtime] pruned ${pruned.files} type-declaration/source-map files and ${pruned.directories} emptied directories (${(pruned.bytes / 1048576).toFixed(1)} MiB); ${pruned.remaining} files remain`);
+  return { versions: pinned, root: openclawRoot, allowScripts: allowBuilds, pruned };
 }
+
 
 const options = parseArgs(process.argv.slice(2));
 const node = await stageNode(options);

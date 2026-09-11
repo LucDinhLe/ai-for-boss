@@ -19,6 +19,10 @@ Bản beta36 hiển thị trên một màn hình sáu khối khác nhau (danh s�
 - `tests/unit/connect-screen.test.mjs`: 27 phép thử, gồm thứ tự phổ biến và gập phần đuôi, khung mờ không bấm được, bộ chọn API key và ghi chú Google, thẻ trạng thái, biên nhận sống qua khởi động lại, đăng nhập dài không bị huỷ; các bất biến cũ (một luồng một lúc, huỷ đúng phiên, không bịa câu trả lời, không nối lại bước cũ sau khi mất kết nối) giữ nguyên.
 - `scripts/first-session-ui-smoke.cjs` đã cập nhật theo giao diện mới nhưng chưa chạy lại trong lượt sửa này; cần chạy `pnpm smoke:ui` trước khi đóng gói beta37.
 
+## Cài đặt → Nhà cung cấp
+
+Trang này trước đây mở thẳng danh mục 66 tên và gọi `openclaw.setup.detect` mỗi lần mở. Nay `ProviderSettings.tsx` dẫn đầu bằng thẻ "Tài khoản đang dùng" (đọc từ danh sách mô hình khả dụng, không gọi thêm RPC), một nút vào màn hình Kết nối AI, và danh mục đầy đủ chỉ được gắn khi người dùng bấm "Xem toàn bộ danh mục". Test: `tests/unit/provider-settings.test.mjs`.
+
 ## Ngoài phạm vi
 
-Đăng xuất tài khoản (`models.authLogout`) từ màn hình này; rút ngắn thời gian dò của OpenClaw (thuộc lõi); trang Cài đặt → Nhà cung cấp vẫn là danh mục đầy đủ và chỉ dẫn về màn hình này.
+Đăng xuất tài khoản (`models.authLogout`) từ màn hình này; rút ngắn thời gian dò của OpenClaw (thuộc lõi).
