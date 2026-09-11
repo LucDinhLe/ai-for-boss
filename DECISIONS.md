@@ -216,3 +216,6 @@ Chủ sở hữu yêu cầu màn hình kết nối rõ ràng theo ưu tiên OAut
 
 ## Gỡ cài đặt chạy trong .NET — 2026-09-11
 Phần gỡ là chỗ duy nhất còn duyệt toàn bộ payload tuần tự trong PowerShell, trong khi phần cài đã chạy trong .NET bốn luồng. Đưa `Inspect`/`Apply` vào `InstallRemover`, gộp lượt kiểm tra khoá và lượt tính mã băm thành một lượt mở tệp. Mọi luật sở hữu giữ nguyên: không ra ngoài thư mục phiên bản, không theo reparse point, không xoá tệp sai mã băm, kiểm hết rồi mới xoá. Chi tiết: `docs/feature-specs/0053-uninstall-speed.md`.
+
+## Phát hành bộ cài bằng máy chủ GitHub — 2026-09-11
+Bộ cài trước nay dựng tay trên một máy Windows có NSIS, nên mã đã gộp vào main mà trang chủ vẫn trỏ về bản cũ. Thêm `.github/workflows/release-windows.yml` chạy đúng các script sẵn có trên runner Windows và đăng bản thử nghiệm bằng `gh`. Quy trình từ chối chạy khi phiên bản nhập vào không khớp `apps/desktop/package.json` và README, để ba nguồn không lệch nhau nữa. Kênh cập nhật ký Ed25519 trong `releases/preview.json` KHÔNG nằm trong quy trình này: đưa khoá ký vào CI là quyết định riêng của Product Owner. Chi tiết: `docs/feature-specs/0054-release-workflow.md`.

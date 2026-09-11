@@ -1,0 +1,165 @@
+name: Release Windows installer
+
+# Building the installer used to be a manual job on one Windows machine with
+# NSIS, the exact Node and pnpm installed. That is why main could carry merged
+# work while the download on the front page stayed at an older beta. This runs
+# the same scripts on a GitHub Windows runner so a release is one button.
+#
+# Out of scope on purpose: the signed component update feed in releases/
+# preview.json. Refreshing it needs the Ed25519 release key, and putting that
+# key into CI is a separate decision for the Product Owner. Until that decision
+# is made, existing installs do not see this build in Settings → About; they
+# download it from the release page.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Phiên bản, phải trùng apps/desktop/package.json (ví dụ 0.0.5-beta.37)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Chỉ dựng và kiểm tra, không tạo release'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  installer:
+    name: Build and publish ${{ inputs.version }}
+    runs-on: windows-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, Node 24
+
+      - name: Set up exact Node runtime
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0, Node 24
+        with:
+          node-version: 24.19.0
+
+      - name: Activate exact package manager
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.2.2 --activate
+
+      # A release whose installer, packaged app and README disagree about the
+      # version is how the download link drifts. Refuse before spending an hour.
+      - name: Check the version is the one on main
+        shell: pwsh
+        run: |
+          $requested = '${{ inputs.version }}'
+          if ($requested -notmatch '^[0-9A-Za-z][0-9A-Za-z.-]{0,69}$') { throw "Phiên bản không hợp lệ: $requested" }
+          $declared = (Get-Content apps/desktop/package.json -Raw | ConvertFrom-Json).version
+          if ($declared -ne $requested) { throw "apps/desktop/package.json ghi $declared, không phải $requested. Sửa trên main trước." }
+          $readme = Get-Content README.md -Raw
+          if (-not $readme.Contains($requested)) { throw "README.md chưa nhắc tới $requested. Sửa đường dẫn tải trên main trước." }
+          "Phiên bản $requested khớp package.json và README." | Tee-Object -FilePath $env:GITHUB_STEP_SUMMARY -Append
+
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install document tools
+        run: pnpm run documents:install
+
+      - name: Validate governance and locked contracts
+        shell: pwsh
+        run: |
+          ./scripts/validate-governance.ps1
+          node scripts/validate-runtime-manifest.mjs
+          node scripts/validate-feature-0.3.mjs
+
+      - name: Lint, type-check, test and build
+        run: pnpm verify
+
+      - name: Stage the bundled Node runtime and OpenClaw core
+        run: pnpm stage:runtime
+
+      - name: Package the desktop application
+        run: pnpm package:desktop
+
+      - name: Validate artifact inventory
+        run: node scripts/validate-feature-0.4.mjs --require-artifact
+
+      - name: Locate NSIS
+        id: nsis
+        shell: pwsh
+        run: |
+          $makensis = (Get-Command makensis -ErrorAction SilentlyContinue).Source
+          if (-not $makensis) { $makensis = 'C:\Program Files (x86)\NSIS\makensis.exe' }
+          if (-not (Test-Path -LiteralPath $makensis)) {
+            choco install nsis --no-progress -y
+            $makensis = 'C:\Program Files (x86)\NSIS\makensis.exe'
+          }
+          if (-not (Test-Path -LiteralPath $makensis)) { throw 'Không tìm thấy makensis trên runner' }
+          "path=$makensis" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Build the installer
+        shell: pwsh
+        run: |
+          $source = Get-ChildItem -Path out/desktop -Directory | Where-Object { $_.Name -like 'AI for Boss-win32-*' } | Select-Object -First 1
+          if (-not $source) { throw 'Không thấy thư mục ứng dụng đã đóng gói trong out/desktop' }
+          New-Item -ItemType Directory -Path out/installer -Force | Out-Null
+          node scripts/build-internal-installer.mjs `
+            --source $source.FullName `
+            --version '${{ inputs.version }}' `
+            --output (Join-Path (Get-Location) ('out/installer/AI-for-Boss-${{ inputs.version }}-Setup.exe')) `
+            --makensis "${{ steps.nsis.outputs.path }}"
+
+      # The installer's cost on Windows is per file, so the file count is the
+      # number worth reporting; it is also the only honest measure of pruning.
+      - name: Summarise the build
+        shell: pwsh
+        run: |
+          $manifest = Get-Content 'out/installer/AI-for-Boss-${{ inputs.version }}-Setup.exe.json' -Raw | ConvertFrom-Json
+          $megabytes = [math]::Round($manifest.installerBytes / 1MB, 1)
+          $payload = [math]::Round($manifest.totalBytes / 1MB, 1)
+          $lines = @(
+            "## Bộ cài ${{ inputs.version }}",
+            "",
+            "- Số tệp trong gói: $($manifest.files.Count) (beta36 là 36.668)",
+            "- Dung lượng gói: $payload MB",
+            "- Bộ cài: $megabytes MB",
+            "- SHA256: ``$($manifest.installerSha256)``"
+          )
+          $lines -join "`n" | Tee-Object -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          "INSTALLER_SHA256=$($manifest.installerSha256)" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "INSTALLER_FILES=$($manifest.files.Count)" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Upload the installer as a build artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1, Node 24
+        with:
+          name: ai-for-boss-${{ inputs.version }}-windows-installer
+          path: out/installer/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish the pre-release
+        if: ${{ !inputs.dry_run }}
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $notes = @(
+            "Bản thử nghiệm Windows x64. Bộ cài chưa có chứng thư Authenticode; Windows có thể cảnh báo nhà phát hành chưa xác định.",
+            "",
+            "- SHA256: ``$env:INSTALLER_SHA256``",
+            "- Số tệp trong gói: $env:INSTALLER_FILES",
+            "",
+            "Đối chiếu SHA256 trước khi chạy bộ cài. Bản này chưa nằm trong kênh cập nhật trong ứng dụng; tải thủ công từ trang này.",
+            "",
+            "Thay đổi: xem CHANGELOG.md tại thẻ này."
+          ) -join "`n"
+          $notes | Out-File -FilePath release-notes.md -Encoding utf8
+          gh release create '${{ inputs.version }}' `
+            'out/installer/AI-for-Boss-${{ inputs.version }}-Setup.exe' `
+            'out/installer/AI-for-Boss-${{ inputs.version }}-Setup.exe.json' `
+            --title 'AI for Boss ${{ inputs.version }}' `
+            --notes-file release-notes.md `
+            --prerelease `
+            --target '${{ github.sha }}'
