@@ -214,21 +214,139 @@ public static class InstallVerifier {
   } } else { $null }
   [InstallVerifier]::Verify($base, [string[]]$payload.files.path, [long[]]$payload.files.bytes, [string[]]$payload.files.sha256, $report)
 }
-function Clear-OwnedFiles([string]$base, $payload, [bool]$onlyMatching) {
-  if (-not (Test-Path -LiteralPath $base)) { return }
-  Assert-PlainPath $base
-  $directories = @{}
-  foreach ($file in $payload.files) {
-    $target = Owned-Path $base $file.path
-    if (Test-Path -LiteralPath $target -PathType Leaf) {
-      if (-not $onlyMatching -or (Hash-File $target) -eq $file.sha256) { Remove-Item -LiteralPath $target -Force }
+<#
+Removal used to walk the payload twice in PowerShell: once opening every file to
+prove nothing is locked, then once more hashing every file before deleting it.
+At 36,000 files that is two opens plus a full read of the tree, each through the
+PowerShell provider, and it dominated uninstall time. The loop now runs inside
+.NET on four threads like installation does, and the single open that proves a
+file is unlocked is the same one that reads it for hashing.
+
+Every rule the old code enforced still holds: nothing outside the version
+directory is touched, no reparse point is followed, a file whose hash does not
+match the manifest is left alone, and the lock check still completes for the
+whole payload before the first deletion.
+#>
+function Initialize-Remover {
+  if ('InstallRemover' -as [type]) { return }
+  Add-Type -ReferencedAssemblies $frameworkReferences -TypeDefinition @'
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Security.Cryptography;
+using System.Threading;
+using System.Threading.Tasks;
+public static class InstallRemover {
+  public sealed class Plan {
+    public string Root;
+    public List<string> Delete = new List<string>();
+    public List<string> Directories = new List<string>();
+    public string Locked;
+  }
+  static string Under(string root, string name) {
+    if (String.IsNullOrEmpty(name) || name.IndexOf('\\') >= 0 || name.IndexOf(':') >= 0 || name.StartsWith("/")) throw new IOException("Invalid payload path");
+    foreach (string part in name.Split('/')) if (part == "." || part == "..") throw new IOException("Invalid payload path");
+    string file = Path.GetFullPath(Path.Combine(root, name.Replace('/', '\\')));
+    if (!file.StartsWith(root + "\\", StringComparison.OrdinalIgnoreCase)) throw new IOException("Payload path outside version");
+    return file;
+  }
+  static void Plain(string file, ConcurrentDictionary<string, bool> directories) {
+    for (string cursor = file; !String.IsNullOrEmpty(cursor) && !directories.ContainsKey(cursor); cursor = Path.GetDirectoryName(cursor)) {
+      FileAttributes attributes;
+      try { attributes = File.GetAttributes(cursor); }
+      catch (FileNotFoundException) { continue; }
+      catch (DirectoryNotFoundException) { continue; }
+      if ((attributes & FileAttributes.ReparsePoint) != 0) throw new IOException("Path contains a reparse point");
+      if ((attributes & FileAttributes.Directory) != 0) directories.TryAdd(cursor, true);
     }
-    $parent = [IO.Path]::GetDirectoryName($target)
-    while ($parent.StartsWith($base + '\', [StringComparison]::OrdinalIgnoreCase)) { $directories[$parent] = $true; $parent = [IO.Path]::GetDirectoryName($parent) }
   }
-  foreach ($directory in ($directories.Keys | Sort-Object Length -Descending)) {
-    if ((Test-Path -LiteralPath $directory) -and @(Get-ChildItem -LiteralPath $directory -Force).Count -eq 0) { Remove-Item -LiteralPath $directory }
+  /// Proves every owned file can be opened exclusively and decides what may be
+  /// deleted. Reads each file at most once; deletes nothing.
+  public static Plan Inspect(string root, string[] names, string[] hashes, bool onlyMatching, Action<int,long> progress) {
+    root = Path.GetFullPath(root).TrimEnd('\\');
+    var plan = new Plan { Root = root };
+    var inspected = new ConcurrentDictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+    var parents = new ConcurrentDictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+    var doomed = new ConcurrentBag<string>();
+    var clock = Stopwatch.StartNew(); int done = 0; string locked = null;
+    using (var algorithms = new ThreadLocal<SHA256>(() => SHA256.Create(), true)) {
+      try {
+        var work = Task.Run(() => Parallel.For(0, names.Length, new ParallelOptions { MaxDegreeOfParallelism = 4 }, i => {
+          string file = Under(root, names[i]);
+          for (string parent = Path.GetDirectoryName(file);
+               parent != null && parent.StartsWith(root + "\\", StringComparison.OrdinalIgnoreCase);
+               parent = Path.GetDirectoryName(parent)) parents.TryAdd(parent, true);
+          if (File.Exists(file)) {
+            Plain(file, inspected);
+            try {
+              // One exclusive open serves both purposes: it fails while the app
+              // is still running, and it is the read that produces the hash.
+              using (var stream = File.Open(file, FileMode.Open, FileAccess.Read, FileShare.None)) {
+                if (!onlyMatching || String.Equals(BitConverter.ToString(algorithms.Value.ComputeHash(stream)).Replace("-", ""), hashes[i], StringComparison.OrdinalIgnoreCase))
+                  doomed.Add(file);
+              }
+            } catch (IOException) { Volatile.Write(ref locked, file); }
+            catch (UnauthorizedAccessException) { Volatile.Write(ref locked, file); }
+          }
+          Interlocked.Increment(ref done);
+        }));
+        while (!work.Wait(500)) if (progress != null) progress(Volatile.Read(ref done), clock.ElapsedMilliseconds / 1000);
+        work.GetAwaiter().GetResult();
+        if (progress != null) progress(done, clock.ElapsedMilliseconds / 1000);
+      } finally { foreach (var algorithm in algorithms.Values) algorithm.Dispose(); }
+    }
+    plan.Locked = Volatile.Read(ref locked);
+    plan.Delete.AddRange(doomed);
+    plan.Directories.AddRange(parents.Keys);
+    // Deepest first, so a directory is only tested once its children are gone.
+    plan.Directories.Sort((a, b) => b.Length.CompareTo(a.Length));
+    return plan;
   }
+  /// Deletes exactly what Inspect approved, then the directories it emptied.
+  public static void Apply(Plan plan, Action<int,long> progress) {
+    if (plan.Locked != null) throw new IOException("Payload file is locked");
+    var clock = Stopwatch.StartNew(); int done = 0;
+    var work = Task.Run(() => Parallel.For(0, plan.Delete.Count, new ParallelOptions { MaxDegreeOfParallelism = 4 }, i => {
+      string file = plan.Delete[i];
+      // npm writes its content-addressed cache entries read-only, and File.Delete
+      // refuses those. Remove-Item -Force used to clear the flag for us.
+      var attributes = File.GetAttributes(file);
+      if ((attributes & FileAttributes.ReadOnly) != 0) File.SetAttributes(file, attributes & ~FileAttributes.ReadOnly);
+      File.Delete(file);
+      Interlocked.Increment(ref done);
+    }));
+    while (!work.Wait(500)) if (progress != null) progress(Volatile.Read(ref done), clock.ElapsedMilliseconds / 1000);
+    work.GetAwaiter().GetResult();
+    if (progress != null) progress(done, clock.ElapsedMilliseconds / 1000);
+    foreach (string directory in plan.Directories) {
+      try { if (Directory.GetFileSystemEntries(directory).Length == 0) Directory.Delete(directory); }
+      catch (DirectoryNotFoundException) { }
+    }
+  }
+}
+'@
+}
+function Inspect-OwnedFiles([string]$base, $payload, [bool]$onlyMatching) {
+  Initialize-Remover
+  Assert-PlainPath $base
+  $report = if ($StatusWindow) { [Action[int,long]] { param($count, $seconds)
+    [InstallProgress]::Update($StatusWindow, ('Đang kiểm tra tệp: ' + $count + '/' + $payload.files.Count + ' — ' + $seconds + ' giây'), [int](100 * $count / $payload.files.Count))
+  } } else { $null }
+  return [InstallRemover]::Inspect($base, [string[]]$payload.files.path, [string[]]$payload.files.sha256, $onlyMatching, $report)
+}
+$inUse = 'Bản này đang được dùng. Đóng AI for Boss rồi gỡ cài đặt lại'
+function Clear-OwnedFiles([string]$base, $payload, [bool]$onlyMatching, $plan = $null) {
+  if (-not (Test-Path -LiteralPath $base)) { return }
+  if ($null -eq $plan) { $plan = Inspect-OwnedFiles $base $payload $onlyMatching }
+  if ($plan.Locked) { throw $inUse }
+  $report = if ($StatusWindow -and $plan.Delete.Count -gt 0) { [Action[int,long]] { param($count, $seconds)
+    [InstallProgress]::Update($StatusWindow, ('Đang xóa tệp: ' + $count + '/' + $plan.Delete.Count + ' — ' + $seconds + ' giây'), [int](100 * $count / $plan.Delete.Count))
+  } } else { $null }
+  # A file can still be opened between inspection and deletion. Report that the
+  # same way as a failed preflight rather than as a raw .NET error.
+  try { [InstallRemover]::Apply($plan, $report) } catch { throw $inUse }
   if (@(Get-ChildItem -LiteralPath $base -Force).Count -eq 0) { Remove-Item -LiteralPath $base }
 }
 function Shortcut([string]$file, [string]$target, [bool]$remove) {
@@ -325,18 +443,13 @@ try {
       if (-not (Test-Path -LiteralPath $manifestCopy)) { throw 'Thiếu thông tin sở hữu phiên bản; không xóa' }
       # Preflight every owned file before touching shortcuts or deleting anything.
       # A running build keeps its files locked; the installer never closes it.
-      foreach ($file in $payload.files) {
-        $target = Owned-Path $versionPath $file.path
-        if (Test-Path -LiteralPath $target -PathType Leaf) {
-          try { $handle = [IO.File]::Open($target, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::None); $handle.Dispose() }
-          catch { throw 'Bản này đang được dùng. Đóng AI for Boss rồi gỡ cài đặt lại' }
-        }
-      }
+      $plan = Inspect-OwnedFiles $versionPath $payload $true
+      if ($plan.Locked) { throw $inUse }
       $target = Join-Path $versionPath 'AI-for-Boss.exe'
       $label = 'AI for Boss - ' + $Version + '.lnk'
       Shortcut (Join-Path $Desktop $label) $target $true
       Shortcut (Join-Path $StartMenu ('AI for Boss Internal\' + $label)) $target $true
-      Clear-OwnedFiles $versionPath $payload $true
+      Clear-OwnedFiles $versionPath $payload $true $plan
       if (Test-Path -LiteralPath $manifestCopy) { Remove-Item -LiteralPath $manifestCopy }
       $key = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\AIforBossInternal-' + $Version
       if ((Get-ItemProperty -Path $key -ErrorAction SilentlyContinue).InstallLocation -eq $versionPath) { Remove-Item -LiteralPath $key }

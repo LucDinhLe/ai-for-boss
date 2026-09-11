@@ -135,7 +135,12 @@ test('Windows install engine preserves prior, foreign and modified files and rej
     finally { await held.close(); }
     const old = path.join(install, 'versions', 'prior'); await fs.mkdir(old); await fs.writeFile(path.join(old, 'keep.txt'), 'previous');
     await fs.writeFile(path.join(installed, 'my-document.txt'), 'foreign'); await fs.writeFile(path.join(installed, 'resources/app.asar'), 'modified');
+    // npm leaves its content-addressed cache entries read-only; removal must
+    // still clear them, the way Remove-Item -Force used to.
+    const installedCache = path.join(installed, 'ci/cache/_cacache/content-v2/sha512/01/99', 'a'.repeat(124));
+    await fs.chmod(installedCache, 0o444);
     assert.notEqual(invoke('Verify').status, 0); pass('Remove');
+    await assert.rejects(fs.access(installedCache), 'a read-only owned file is still removed');
     assert.equal(await fs.readFile(path.join(installed, 'my-document.txt'), 'utf8'), 'foreign');
     assert.equal(await fs.readFile(path.join(installed, 'resources/app.asar'), 'utf8'), 'modified');
     assert.equal(await fs.readFile(path.join(old, 'keep.txt'), 'utf8'), 'previous');
@@ -155,4 +160,40 @@ test('NSIS installer never recursively removes or overwrites a previous version'
 test('PowerShell installer source declares UTF-8 for Windows legacy code pages', async () => {
   const bytes = await fs.readFile(path.join(repo, 'installer/install-support.ps1'));
   assert.deepEqual([...bytes.subarray(0, 3)], [0xef, 0xbb, 0xbf]);
+});
+
+test('removal inspects and deletes the payload inside .NET, keeping every ownership rule', async () => {
+  const script = await fs.readFile(path.join(repo, 'installer/install-support.ps1'), 'utf8');
+  const remover = script.slice(script.indexOf('public static class InstallRemover'), script.indexOf("'@", script.indexOf('public static class InstallRemover')));
+  assert.ok(remover.length > 0, 'the removal engine is compiled from this file');
+
+  // The whole point of the change: no per-file PowerShell cmdlet may come back
+  // into the removal path, because provider dispatch is what made it slow.
+  const clear = script.slice(script.indexOf('function Clear-OwnedFiles'), script.indexOf('function Shortcut'));
+  const inspect = script.slice(script.indexOf('function Inspect-OwnedFiles'), script.indexOf('function Clear-OwnedFiles'));
+  for (const [name, body] of [['Clear-OwnedFiles', clear], ['Inspect-OwnedFiles', inspect]]) {
+    assert.doesNotMatch(body, /foreach\s*\(\$file in \$payload\.files\)/, `${name} must not walk the payload in PowerShell`);
+    assert.doesNotMatch(body, /Hash-File/, `${name} must not hash file by file in PowerShell`);
+  }
+  const removeAction = script.slice(script.indexOf("'Remove' {"), script.indexOf('$completed = @{'));
+  assert.doesNotMatch(removeAction, /foreach\s*\(\$file in \$payload\.files\)/, 'the lock preflight must not walk the payload in PowerShell');
+  assert.match(removeAction, /\$plan = Inspect-OwnedFiles \$versionPath \$payload \$true/);
+
+  // Order is a safety property: every file is proved unlocked, and the shortcuts
+  // are removed, before anything is deleted.
+  assert.ok(removeAction.indexOf('Inspect-OwnedFiles') < removeAction.indexOf('Shortcut '), 'preflight runs before shortcuts are touched');
+  assert.ok(removeAction.indexOf('Shortcut ') < removeAction.indexOf('Clear-OwnedFiles'), 'nothing is deleted before the preflight and shortcuts');
+  assert.match(removeAction, /if \(\$plan\.Locked\) \{ throw \$inUse \}/, 'a locked file stops removal before any deletion');
+  assert.match(clear, /if \(\$plan\.Locked\) \{ throw \$inUse \}/, 'a reused plan is re-checked before it is applied');
+
+  // Rules carried over from the PowerShell implementation.
+  assert.match(remover, /if \(plan\.Locked != null\) throw new IOException/, 'Apply refuses a plan with a locked file');
+  assert.match(remover, /!file\.StartsWith\(root \+ "\\\\", StringComparison\.OrdinalIgnoreCase\)\) throw new IOException\("Payload path outside version"\)/);
+  assert.match(remover, /part == "\." \|\| part == "\.\."/, 'relative traversal stays rejected');
+  assert.match(remover, /FileAttributes\.ReparsePoint\) != 0\) throw new IOException/, 'reparse points are still refused');
+  assert.match(remover, /FileShare\.None/, 'the lock proof is still an exclusive open');
+  assert.match(remover, /onlyMatching \|\| String\.Equals\(BitConverter\.ToString\(algorithms\.Value\.ComputeHash/, 'a file is deleted only when its hash matches');
+  assert.match(remover, /FileAttributes\.ReadOnly\) != 0\) File\.SetAttributes/, 'read-only owned files are still removable');
+  assert.match(remover, /MaxDegreeOfParallelism = 4/, 'removal uses the same bounded parallelism as installation');
+  assert.doesNotMatch(remover, /Directory\.Delete\([^)]*,\s*true\)/, 'no recursive directory delete');
 });
