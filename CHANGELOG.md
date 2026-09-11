@@ -6,6 +6,7 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 ### Added
 
+- Gỡ cài đặt chạy vòng lặp tệp trong .NET trên bốn luồng như khi cài, và dùng một lượt mở tệp cho cả việc kiểm tra khoá lẫn tính mã băm, thay cho hai lượt mở cộng một lượt đọc tuần tự trong PowerShell (spec 0053).
 - Màn hình Kết nối AI xếp lại theo ba bậc: đăng nhập tài khoản có sẵn, ứng dụng đã đăng nhập trên máy, dán API key; bốn tài khoản phổ biến hiện trước, phần còn lại gập lại; thẻ trạng thái nói rõ mô hình đang dùng và tài khoản còn hạn. Đăng nhập trình duyệt không còn bị huỷ sau 90 giây, và biên nhận kích hoạt không mất khi Gateway khởi động lại (spec 0051).
 - Cài đặt → Nhà cung cấp dẫn đầu bằng tài khoản đang dùng và một nút Kết nối AI; danh mục đầy đủ của OpenClaw chỉ tải khi bấm xem, không còn dò tài khoản mỗi lần mở trang (spec 0051).
 - Cây OpenClaw đóng gói được tỉa khai báo kiểu TypeScript, bản đồ mã nguồn và gói `@types/*` trước khi đóng bộ cài, để bớt số tệp phải ghi và băm khi cài (spec 0052).

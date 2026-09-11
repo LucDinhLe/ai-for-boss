@@ -213,3 +213,6 @@ Owner explicitly approves one public ai-for-boss repository after privacy audit 
 
 ## Màn hình Kết nối AI ba bậc — 2026-09-11
 Chủ sở hữu yêu cầu màn hình kết nối rõ ràng theo ưu tiên OAuth → ứng dụng CLI đã đăng nhập → API key, ưu tiên tài khoản phổ biến. Thứ tự và nhãn thương hiệu là trình bày trong vỏ; tuyến kết nối vẫn chỉ đến từ `openclaw.setup.detect` (giữ D-0022). Bỏ danh mục phương thức và bộ lọc thương hiệu khỏi màn hình. Sửa hai lỗi luồng: bỏ hạn 90 giây khi chờ đăng nhập trình duyệt, và giữ biên nhận kích hoạt qua lượt Gateway khởi động lại. Chi tiết: `docs/feature-specs/0051-connect-screen-three-tiers.md`.
+
+## Gỡ cài đặt chạy trong .NET — 2026-09-11
+Phần gỡ là chỗ duy nhất còn duyệt toàn bộ payload tuần tự trong PowerShell, trong khi phần cài đã chạy trong .NET bốn luồng. Đưa `Inspect`/`Apply` vào `InstallRemover`, gộp lượt kiểm tra khoá và lượt tính mã băm thành một lượt mở tệp. Mọi luật sở hữu giữ nguyên: không ra ngoài thư mục phiên bản, không theo reparse point, không xoá tệp sai mã băm, kiểm hết rồi mới xoá. Chi tiết: `docs/feature-specs/0053-uninstall-speed.md`.
