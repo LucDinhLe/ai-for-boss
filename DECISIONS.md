@@ -210,3 +210,6 @@ Các lệnh cấm trộn beta và coi placeholder là production vẫn giữ ngu
 
 ## Repository consolidation — 2026-09-09
 Owner explicitly approves one public ai-for-boss repository after privacy audit and deletion of ai-for-boss-preview after preserving source and releases. Existing installed legacy update URLs cannot be changed by a Git merge; document manual transition. Future source uses the main repository endpoint.
+
+## Màn hình Kết nối AI ba bậc — 2026-09-11
+Chủ sở hữu yêu cầu màn hình kết nối rõ ràng theo ưu tiên OAuth → ứng dụng CLI đã đăng nhập → API key, ưu tiên tài khoản phổ biến. Thứ tự và nhãn thương hiệu là trình bày trong vỏ; tuyến kết nối vẫn chỉ đến từ `openclaw.setup.detect` (giữ D-0022). Bỏ danh mục phương thức và bộ lọc thương hiệu khỏi màn hình. Sửa hai lỗi luồng: bỏ hạn 90 giây khi chờ đăng nhập trình duyệt, và giữ biên nhận kích hoạt qua lượt Gateway khởi động lại. Chi tiết: `docs/feature-specs/0051-connect-screen-three-tiers.md`.

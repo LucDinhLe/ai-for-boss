@@ -545,13 +545,21 @@ label em { min-height: 13px; color: var(--danger); font-size: 9px; font-style: n
 
 .connect { display: flex; flex-direction: column; gap: 14px; overflow-y: auto; width: 100%; height: 100%; padding: 28px 32px 36px; background: var(--surface); }
 .connect > * { flex-shrink: 0; min-width: 0; }
-.connect > .connect__search { flex: 0 0 auto; min-height: 42px; }
-.connect__preview { display: grid; gap: 10px; }
-.connect__provider-index { display: flex; flex-wrap: wrap; gap: 8px; }
-.connect__provider-index button { display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid var(--hairline); border-radius: 9px; background: var(--paper); text-align: left; font-size: 12px; }
-.connect__provider-index button:hover:not(:disabled) { border-color: var(--copper); background: var(--copper-soft); }
-.connect__provider-index button span { overflow-wrap: anywhere; }
-@media (max-width: 700px) { .connect { padding: 20px 16px; } .connect__groups { grid-template-columns: minmax(0, 1fr); } .connect__form { flex-wrap: wrap; } .connect__form input { min-width: 0; } .connect__footer { flex-wrap: wrap; } }
+.connect__tier { display: flex; flex-direction: column; gap: 8px; max-width: 760px; padding: 14px 16px 16px; border: 1px solid var(--hairline); border-radius: 12px; background: var(--paper-deep); }
+.connect__tier h2 { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 13px; letter-spacing: 0; text-transform: none; color: var(--ink); font-weight: 600; }
+.connect__step-number { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--copper); color: var(--paper); font-size: 12px; font-weight: 600; }
+.connect__status { display: flex; flex-direction: column; gap: 6px; max-width: 760px; padding: 12px 16px; border: 1px solid var(--copper); border-radius: 12px; background: var(--copper-soft); }
+.connect__status p { margin: 0; font-size: 13px; }
+.connect__accounts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.connect__account { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid var(--hairline); border-radius: 999px; background: var(--paper); font-size: 12px; }
+.connect__account--warn { border-color: var(--danger); color: var(--danger); }
+.connect__account small { color: var(--muted); }
+.connect__more summary { cursor: pointer; padding: 6px 0; color: var(--muted); font-size: 12px; }
+.connect__more > .connect__options, .connect__more > .connect__origin { margin-top: 6px; }
+.connect__options--pending, .connect__form--pending { opacity: .55; }
+.connect__primary { border-color: var(--copper) !important; background: var(--copper-soft) !important; font-weight: 600; }
+.connect__login p { margin: 8px 0; font-size: 12.5px; }
+@media (max-width: 700px) { .connect { padding: 20px 16px; } .connect__form { flex-wrap: wrap; } .connect__form input, .connect__form select { min-width: 0; } .connect__footer { flex-wrap: wrap; } }
 .chat-activity { display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; margin: 8px 0; padding: 6px 8px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: 12px; }
 .chat-activity:hover { color: var(--ink); background: var(--paper); }
 .chat-activity .brand-mark { flex-basis: 22px; width: 22px; height: 22px; }
@@ -565,7 +573,7 @@ label em { min-height: 13px; color: var(--danger); font-size: 9px; font-style: n
 
 .connect__options { display: flex; flex-direction: column; gap: 6px; }
 .connect__options--row { flex-direction: row; gap: 8px; }
-.connect__options button, .connect__group button {
+.connect__options button {
   display: block;
   padding: 10px 13px;
   border: 1px solid var(--hairline);
@@ -573,13 +581,11 @@ label em { min-height: 13px; color: var(--danger); font-size: 9px; font-style: n
   background: var(--paper);
   text-align: left;
 }
-.connect__options button:hover:not(:disabled), .connect__group button:hover:not(:disabled) { border-color: var(--copper); background: var(--copper-soft); }
-.connect__options strong, .connect__group strong { display: block; font-size: 13px; font-weight: 500; }
-.connect__options small, .connect__group small { display: block; margin-top: 2px; color: var(--muted); font-size: 11.5px; line-height: 1.45; }
+.connect__options button:hover:not(:disabled) { border-color: var(--copper); background: var(--copper-soft); }
+.connect__options button:disabled { cursor: default; }
+.connect__options strong { display: block; font-size: 13px; font-weight: 500; }
+.connect__options small { display: block; margin-top: 2px; color: var(--muted); font-size: 11.5px; line-height: 1.45; }
 .connect__options--row button { min-width: 116px; text-align: center; }
-
-.connect__groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(258px, 1fr)); gap: 14px; }
-.connect__group { display: flex; flex-direction: column; gap: 5px; }
 
 .connect__origin { padding: 11px 13px; border: 1px solid var(--hairline); border-radius: 9px; background: var(--paper-deep); }
 .connect__origin button { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 8px 10px; border: 1px solid var(--hairline); border-radius: 8px; background: var(--paper); color: var(--ink); font-size: 12px; text-align: left; }
@@ -590,6 +596,7 @@ label em { min-height: 13px; color: var(--danger); font-size: 9px; font-style: n
 
 .connect__form { display: flex; gap: 8px; }
 .connect__form input { flex: 1; padding: 9px 12px; border: 1px solid var(--hairline); border-radius: 8px; background: var(--paper); font-size: 13px; }
+.connect__form select { flex: 0 1 260px; min-width: 160px; padding: 9px 10px; border: 1px solid var(--hairline); border-radius: 8px; background: var(--paper); font-size: 13px; }
 .connect__form button { padding: 9px 16px; border: 1px solid var(--copper); border-radius: 8px; background: var(--copper-soft); font-size: 12.5px; }
 
 .connect__footer { display: flex; align-items: center; gap: 12px; margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--hairline); }

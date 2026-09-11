@@ -43,6 +43,9 @@ export const SETUP_METHODS = Object.freeze([
   "models.authLogout"
 ]);
 
+/** Longer than the Gateway's own 25-minute provider-login session. */
+export const WIZARD_NEXT_TIMEOUT_MS = 26 * 60_000;
+
 export function isSetupMethod(method) {
   return SETUP_METHODS.includes(method);
 }
@@ -202,15 +205,19 @@ export class SetupChannel {
         throw new Error('Gateway đã kết nối lại. Kiểm tra trạng thái kết nối trước khi thử lại.');
       }
     };
+    // wizard.next blocks on the Gateway until the next step exists. During a
+    // browser sign-in that is however long the person takes; the Gateway itself
+    // expires a provider login after 25 minutes, so the client waits at least as long.
+    const timeoutMs = method === 'wizard.next' ? WIZARD_NEXT_TIMEOUT_MS : 180_000;
     let result;
     try {
-      result = await client.request(method, params, { timeoutMs: 180_000 });
+      result = await client.request(method, params, { timeoutMs });
     } catch (error) {
       assertCurrent();
       // A delivered progress step can outlive its runner. Never equate the
       // rejection with success: read the exact session's terminal result.
       if (method !== 'wizard.next' || !params?.answer || error?.code !== 'INVALID_REQUEST' || error?.message !== 'wizard not running') throw error;
-      result = await client.request('wizard.next', { sessionId: params.sessionId }, { timeoutMs: 180_000 });
+      result = await client.request('wizard.next', { sessionId: params.sessionId }, { timeoutMs });
     }
     assertCurrent();
     return result;

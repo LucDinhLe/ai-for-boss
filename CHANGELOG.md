@@ -6,6 +6,7 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 ### Added
 
+- Màn hình Kết nối AI xếp lại theo ba bậc: đăng nhập tài khoản có sẵn, ứng dụng đã đăng nhập trên máy, dán API key; bốn tài khoản phổ biến hiện trước, phần còn lại gập lại; thẻ trạng thái nói rõ mô hình đang dùng và tài khoản còn hạn. Đăng nhập trình duyệt không còn bị huỷ sau 90 giây, và biên nhận kích hoạt không mất khi Gateway khởi động lại (spec 0051).
 - Khởi tạo Cổng 0, Feature 0.1 — Repo Governance.
 - Bộ quy tắc build và Master Execution Plan được đưa vào repo.
 - Decision Log, Risk Register, Feature Spec template và quy tắc đóng góp.
