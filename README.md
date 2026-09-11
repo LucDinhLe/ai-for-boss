@@ -2,17 +2,21 @@
 
 Ứng dụng desktop xây trên OpenClaw. Đây là bản thử nghiệm cho nhóm nhỏ, chưa phải bản ổn định.
 
-[Tải bộ cài Windows beta36](https://github.com/LucDinhLe/ai-for-boss/releases/download/0.0.5-beta.36/AI-for-Boss-0.0.5-beta.36-Setup.exe) · [Ghi chú và mã SHA256](https://github.com/LucDinhLe/ai-for-boss/releases/tag/0.0.5-beta.36) · [Bản trước beta35/r2](https://github.com/LucDinhLe/ai-for-boss/releases/tag/0.0.5-beta.35).
+[Tải bộ cài Windows beta37](https://github.com/LucDinhLe/ai-for-boss/releases/download/0.0.5-beta.37/AI-for-Boss-0.0.5-beta.37-Setup.exe) · [Ghi chú và mã SHA256](https://github.com/LucDinhLe/ai-for-boss/releases/tag/0.0.5-beta.37) · [Bản trước beta36](https://github.com/LucDinhLe/ai-for-boss/releases/tag/0.0.5-beta.36).
 
 ## Cài và dùng thử
 
-1. Tải `AI-for-Boss-0.0.5-beta.36-Setup.exe`, đối chiếu SHA256 trong cùng release rồi chạy bộ cài.
+1. Tải `AI-for-Boss-0.0.5-beta.37-Setup.exe`, đối chiếu SHA256 trong cùng release rồi chạy bộ cài.
 2. Mở lối tắt AI for Boss. Kết nối tài khoản của chính bạn trong Cài đặt → Nhà cung cấp. Quyền truy cập mô hình phụ thuộc nhà cung cấp và gói tài khoản; có trong danh mục không đồng nghĩa đã dùng được.
 3. Tạo cuộc trò chuyện hoặc dự án. Tác vụ xuất tài liệu thông thường dùng công cụ có sẵn. Lệnh tùy ý trên máy vẫn có thể yêu cầu “Cho phép lần này” hoặc “Từ chối” khi lõi chưa xác nhận được phạm vi.
 
 Lệnh chạy trực tiếp với quyền tài khoản Windows hiện tại, **không có sandbox cho lệnh**. Advisor giữ vai trò chỉ đọc. Bộ cài chưa có chứng thư Authenticode; Windows có thể hiển thị cảnh báo nhà phát hành chưa xác định. Không tắt bảo vệ Windows để cài.
 
 ## Cập nhật
+
+Beta37 xếp lại màn hình Kết nối AI theo ba bậc: đăng nhập tài khoản có sẵn, ứng dụng đã đăng nhập trên máy, rồi mới tới dán API key. Bốn tài khoản phổ biến hiện trước, phần còn lại gập lại. Thẻ trạng thái nói rõ đang dùng mô hình nào và tài khoản nào còn hạn. Hai lỗi khiến kết nối thất bại dù tài khoản đúng đã được sửa: đăng nhập trên trình duyệt không còn bị huỷ sau 90 giây, và biên nhận kích hoạt không mất khi Gateway khởi động lại. Cài đặt → Nhà cung cấp dẫn đầu bằng tài khoản đang dùng; danh mục đầy đủ của OpenClaw chỉ tải khi bấm xem.
+
+Beta37 cũng bớt số tệp phải ghi và băm khi cài, và đưa vòng lặp tệp lúc gỡ vào cùng cơ chế song song với lúc cài. Số tệp cụ thể của bản này nằm trong ghi chú phát hành.
 
 Beta36 bổ sung tùy chọn đưa tệp do hội thoại tạo vào Thùng rác khi xóa hội thoại. Chỉ tệp có biên nhận nguồn gốc và còn nguyên nội dung mới được đưa vào danh sách; tệp nhập, bản lưu riêng và tệp cũ không đủ thông tin vẫn được giữ.
 
@@ -24,6 +28,7 @@ Bộ cài dùng cho cài mới và khôi phục. Giao diện/ứng dụng và l�
 
 ## Phạm vi bản thử
 
+- Beta37 trở đi, bộ cài Windows được dựng và phát hành bằng quy trình tự động trên máy chủ GitHub, không dựng tay nữa. Bản dựng ghi lại số tệp và mã SHA256 trong ghi chú phát hành. Kênh cập nhật trong ứng dụng chưa bao gồm bản này; tải thủ công từ trang phát hành.
 - Beta35: mỗi phiên kiểm tra trạng thái độc lập; giảm tải lại lịch sử khi đang chạy, phục hồi khi thiếu biên nhận và giữ nút Dừng có thể thử lại. Advisor tùy chọn review sau thực thi, tối đa hai lượt review và một lượt sửa; lời chào không gọi Advisor.
 - Từ beta33: trạng thái chạy, nháp và Advisor tách theo từng cuộc trò chuyện. Chuyển hoặc tạo tác vụ khác trong lúc chờ; hộp duyệt có thể thu gọn. Nút Dừng đối chiếu lại lượt chạy khi thiếu sự kiện.
 - Dán ảnh clipboard vào nháp và menu chuột phải Dán; bỏ nút chụp màn hình riêng. Thanh công cụ giữ tên/icon agent của phiên.
@@ -53,4 +58,4 @@ OpenClaw và các thư viện đi kèm giữ nguyên thông báo bản quyền v
 
 Kho chính hiện là `LucDinhLe/ai-for-boss`. Các bản beta36 trở xuống đã phát hành giữ nguyên tệp cài và có địa chỉ cập nhật cũ được nhúng trong ứng dụng. Khi kho preview bị xóa, chức năng kiểm tra cập nhật của những bản này không còn truy cập được nguồn cũ; người dùng cần tải thủ công bản cài kế tiếp từ kho chính. Mã nguồn hiện tại đã chuyển địa chỉ cập nhật sang kho chính. Việc chuyển kho không thay dữ liệu hay cấu hình trên máy người dùng.
 
-**Trạng thái hiện tại:** beta36 là bản thử nghiệm. Tài liệu quản trị mô tả mục tiêu sản phẩm; không capability nào đang được quảng cáo là production-ready. Các mốc Cổng 0/Feature 0.x trong lịch sử không phải số phiên bản bộ cài.
+**Trạng thái hiện tại:** beta37 là bản thử nghiệm. Tài liệu quản trị mô tả mục tiêu sản phẩm; không capability nào đang được quảng cáo là production-ready. Các mốc Cổng 0/Feature 0.x trong lịch sử không phải số phiên bản bộ cài.
