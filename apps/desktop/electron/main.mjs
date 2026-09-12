@@ -1,10 +1,12 @@
 import path from "node:path";
 import { setInterval, clearInterval } from 'node:timers';
-import { mkdirSync, realpathSync, readFileSync, writeFileSync, existsSync, unlinkSync } from "node:fs";
+import { mkdirSync, realpathSync, readFileSync, readdirSync, writeFileSync, existsSync, unlinkSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { app, BrowserWindow, WebContentsView, clipboard, Menu, dialog, ipcMain, nativeTheme, safeStorage, session, shell } from "electron";
 import { BackupService, nativeBackupRunner } from './backup-service.mjs';
 import { installEditMenu } from './edit-menu.mjs';
+import { HOST_PLUGINS, hostPluginDirectory } from './host-plugin-setup.mjs';
+import { loadAgentTemplates } from './agent-templates.mjs';
 import { saveDeliveredFile } from './delivered-files.mjs';
 import { applyUiTheme } from './ui-theme.mjs';
 import { keepWindowControlsVisible } from './window-controls.mjs';
@@ -53,6 +55,17 @@ import { AdvisorService } from "./advisor-service.mjs";
 import { packagedChannelBundlePath } from './channel-bundle-path.mjs';
 
 const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
+// Role templates are read once, lazily, from the same resources root as the host plugins; a malformed pack disables templates without blocking startup.
+let agentTemplatesPromise = null;
+function agentTemplates() {
+  return agentTemplatesPromise ??= (async () => {
+    const resources = { packaged: app.isPackaged, resourcesPath: process.resourcesPath, electronDirectory: currentDirectory };
+    try {
+      const knownSkills = readdirSync(path.join(hostPluginDirectory('harness-plugin', resources), 'skills'));
+      return await loadAgentTemplates(hostPluginDirectory('agent-templates', resources), { knownSkills });
+    } catch (error) { console.warn(`[agent-templates] ${error?.message ?? error}`); return []; }
+  })();
+}
 const smoke = process.argv.includes("--smoke-test");
 const hasInstanceLock = app.requestSingleInstanceLock();
 if (!hasInstanceLock) app.quit();
@@ -283,7 +296,7 @@ async function startRuntime() {
       if (shuttingDown) return;
       if (status.phase !== "connected") setupPageAccess.clear();
       publishStatus({ setupReady: status.phase === "connected" });
-      if (status.phase === "connected") { void advisorService.connectionRestored(); void supervisionService.connectionRestored(); }
+      if (status.phase === "connected") { void advisorService.connectionRestored(); void supervisionService.connectionRestored(); void prepareHostPlugins(); }
       if (status.phase === 'connected') {
         try { if (JSON.parse(readFileSync(path.join(app.getPath('userData'), 'aifb-chrome-enabled.json'), 'utf8')).enabled === true) void chromeBridge.native('/').catch(() => {}); }
         catch { /* No Chrome pairing requested for this product profile. */ }
@@ -488,11 +501,57 @@ ipcMain.handle(SETUP_OPEN_PAGE_CHANNEL, (event, ...args) => {
 function getProjectService() {
   projectService ??= new ProjectService({ directory: path.join(app.getPath('userData'), 'aifb-projects'),
     request: (method, params) => setupChannel.workspaceRequest(method, params),
+    templates: () => agentTemplates(), assignSkills: (agentId, skills) => setupChannel.assignAgentSkills(agentId, skills),
     chooseDirectory: async () => {
       const result = await dialog.showOpenDialog(mainWindow, { title: 'Chọn nơi tạo thư mục dự án', properties: ['openDirectory', 'createDirectory'] });
       return result.canceled ? null : result.filePaths[0];
     }, openDirectory: async directory => { const error = await shell.openPath(directory); if (error) throw new Error('Chưa mở được thư mục.'); } });
   return projectService;
+}
+
+/** Task-contract buttons and the usage page talk to the harness plugin through the fixed workspace broker. */
+function runHarnessAction(input) {
+  const keyOk = typeof input.key === 'string' && /^agent:[a-z0-9_-]+:.{1,200}$/u.test(input.key);
+  if (input.action === 'harness-contract') {
+    if (Object.keys(input).some(k => !['action', 'key', 'sessionId', 'mode'].includes(k)) || !keyOk || typeof input.sessionId !== 'string'
+      || (input.mode !== undefined && input.mode !== null && typeof input.mode !== 'string')) throw new Error('Yêu cầu chế độ chưa hợp lệ.');
+    return setupChannel.workspaceRequest('aifb.harness.contract', { key: input.key, sessionId: input.sessionId, ...(input.mode === undefined ? {} : { mode: input.mode }) });
+  }
+  if (input.action === 'harness-usage') {
+    if (Object.keys(input).some(k => !['action', 'key'].includes(k)) || (input.key !== undefined && !keyOk)) throw new Error('Yêu cầu sổ sử dụng chưa hợp lệ.');
+    return setupChannel.workspaceRequest('aifb.harness.usage', input.key === undefined ? {} : { key: input.key });
+  }
+  throw new Error('Thao tác điều hành chưa được hỗ trợ.');
+}
+
+/**
+ * Host-owned plugins (documents, harness) are registered with the core once the
+ * admin setup channel is up. Registration is idempotent; a Gateway restart it
+ * triggers reconnects the channel, which calls this again and finds nothing to
+ * change. Two passes per app run is the ceiling so a broken config cannot loop.
+ */
+let hostPluginPasses = 0, hostPluginsInFlight = null;
+function prepareHostPlugins() {
+  if (smoke || shuttingDown || runtimePaused || hostPluginsInFlight || hostPluginPasses >= 2) return hostPluginsInFlight ?? Promise.resolve();
+  hostPluginPasses++;
+  hostPluginsInFlight = (async () => {
+    for (const spec of HOST_PLUGINS) {
+      if (shuttingDown || runtimePaused || !setupChannel?.connected) return;
+      const directory = hostPluginDirectory(spec.folder, { packaged: app.isPackaged, resourcesPath: process.resourcesPath, electronDirectory: currentDirectory });
+      if (!existsSync(directory)) { console.warn(`[host-plugins] ${spec.id}: thiếu thư mục ${directory}`); continue; }
+      try {
+        await setupChannel.prepareHostPlugin(spec.id, directory, async () => {
+          channelWorkGuard.assertExclusive();
+          if (!await restartGateway()) throw new Error('Gateway chưa sẵn sàng sau khi đăng ký plugin.');
+        });
+      } catch (error) {
+        console.warn(`[host-plugins] ${spec.id}: ${error?.message ?? error}`);
+        publishStatus({ lastError: `${spec.label} chưa sẵn sàng: ${error?.message ?? 'lỗi không rõ'}` });
+        return;
+      }
+    }
+  })().finally(() => { hostPluginsInFlight = null; });
+  return hostPluginsInFlight;
 }
 
 ipcMain.handle(MANAGEMENT_REQUEST_CHANNEL, (event, ...args) => {
@@ -541,9 +600,10 @@ ipcMain.handle(MANAGEMENT_REQUEST_CHANNEL, (event, ...args) => {
     if (args[0].action === 'conversation-delete') return getProjectService().withConversationDeletion(() => conversationService.run(args[0]));
     return conversationService.run(args[0]);
   }
-  if (/^(project-|agent-create$|agent-session$)/u.test(args[0]?.action ?? '')) {
+  if (/^(project-|agent-create$|agent-session$|agent-templates$)/u.test(args[0]?.action ?? '')) {
     return getProjectService().run(args[0]);
   }
+  if (/^harness-/u.test(args[0]?.action ?? '')) return runHarnessAction(args[0]);
   if (channelMutations.has(args[0]?.action) || args[0]?.action === 'model-settings-save') return channelWorkGuard.run(() => setupChannel.manage(args[0]));
   return setupChannel.manage(args[0]);
 });

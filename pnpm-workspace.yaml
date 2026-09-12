@@ -2,6 +2,8 @@ packages:
   - apps/*
   - packages/*
   - "!packages/document-tools"
+  - "!packages/harness-plugin"
+  - "!packages/agent-templates"
 
 # Beta 0 runs a real OpenClaw install, so the release train's own build scripts
 # have to be allowed explicitly. The list stays enumerated rather than blanket

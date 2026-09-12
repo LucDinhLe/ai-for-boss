@@ -6,6 +6,10 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 ### Added
 
+- Plugin `aifb-harness` đi kèm ứng dụng: trần bước và token cho mỗi lượt theo ba chế độ, câu dừng tiếng Việt khi chạm trần, sổ quyết định `QUYET-DINH.md` trong thư mục làm việc qua công cụ `aifb_record_decision`, trace một dòng mỗi lượt cho trang sử dụng sau này (spec 0055).
+- Ba nút hợp đồng tác vụ trong ô soạn: Nhanh, Kỹ, Quyết định quan trọng. Nút chọn mức suy nghĩ mà mô hình đang dùng có sẵn và đặt trần cho lượt; không đổi mô hình hay tài khoản (spec 0056).
+- Mười hai kỹ năng doanh nghiệp tiếng Việt cho mục tiêu, dự án, bán hàng, marketing và nội dung, chuyển thể từ `anthropics/knowledge-work-plugins`, mỗi kỹ năng kèm ba ca mẫu chấm được; kỹ năng `quy-tac-dieu-hanh` luôn bật cho mọi trợ lý (spec 0057).
+- Bốn mẫu agent theo vai (Trợ lý điều hành, Trợ lý bán hàng, Trợ lý marketing và nội dung, Quản lý dự án) với ba tệp tiếng Việt, danh sách kỹ năng và mức quyền bằng ngôn ngữ kinh doanh; màn tạo agent hỏi hai câu để gợi ý vai (spec 0058).
 - Quy trình phát hành bộ cài Windows chạy trên máy chủ GitHub: một lần bấm trong tab Actions là dựng, kiểm tra và đăng bản thử nghiệm kèm mã SHA256 và số tệp. Quy trình từ chối chạy nếu số phiên bản nhập vào không khớp `apps/desktop/package.json` và README (spec 0054).
 - Gỡ cài đặt chạy vòng lặp tệp trong .NET trên bốn luồng như khi cài, và dùng một lượt mở tệp cho cả việc kiểm tra khoá lẫn tính mã băm, thay cho hai lượt mở cộng một lượt đọc tuần tự trong PowerShell (spec 0053).
 - Màn hình Kết nối AI xếp lại theo ba bậc: đăng nhập tài khoản có sẵn, ứng dụng đã đăng nhập trên máy, dán API key; bốn tài khoản phổ biến hiện trước, phần còn lại gập lại; thẻ trạng thái nói rõ mô hình đang dùng và tài khoản còn hạn. Đăng nhập trình duyệt không còn bị huỷ sau 90 giây, và biên nhận kích hoạt không mất khi Gateway khởi động lại (spec 0051).
@@ -52,6 +56,10 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 - Manifest/schema sandbox feasibility khóa evidence taxonomy, ba hướng, ba họ OS, capability lock, review gate và mặc định fail closed.
 - Probe fixture-only chỉ đọc platform hints, tạo một thư mục tạm rỗng, kiểm canonical containment, tái ủy quyền ngay trước cleanup và xóa không recursive; không tạo child file, cài runtime, dùng credential, network hoặc process sandbox thật.
 - Validator cùng contract tests Feature 0.6 từ chối backend thiếu, silent fallback, evidence promotion giả, platform mismatch, stale report, realpath escape, cleanup failure và mở capability nguy hiểm.
+
+### Fixed
+
+- Bộ xuất Word/Excel/PowerPoint/PDF chưa từng được đăng ký với lõi trong bản chạy thật từ beta33; nay đăng ký cùng đường với plugin điều hành khi ứng dụng kết nối (spec 0055).
 
 ### Changed
 

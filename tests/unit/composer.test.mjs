@@ -7,6 +7,7 @@ import ts from "typescript";
 import { handleComposerKeyDown } from "../../apps/desktop/src/chat-drafts.ts";
 import { CHAT_FILE_ACCEPT, attachmentReadHint } from "../../apps/desktop/src/chat-attachments.ts";
 import { isSelectableModel } from "../../apps/desktop/src/chat-state.ts";
+import { CONTRACT_MODES } from "../../apps/desktop/src/task-contract.ts";
 
 const require = createRequire(import.meta.url);
 const source = fs.readFileSync(new URL("../../apps/desktop/src/Composer.tsx", import.meta.url), "utf8");
@@ -28,6 +29,7 @@ function fixture(patch = {}, globals = {}) {
     target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText, {
     ...globals, exports, require: (id) => id === "react" ? react : id === "./chat-drafts" ? { handleComposerKeyDown }
       : id === "./chat-attachments" ? { CHAT_FILE_ACCEPT, attachmentReadHint } : id === "./chat-state" ? { isSelectableModel }
+        : id === "./task-contract" ? { CONTRACT_MODES }
         : id === "./workbench-api" ? { manage: async () => ({ screens: [] }) }
         : id === "./ModelPicker" ? { __esModule: true, default: "model-picker" } : require(id)
   });
@@ -235,4 +237,24 @@ test('clipboard image paste attaches to the draft without sending or exposing a 
   element(tree, 'textarea').props.onPaste({ clipboardData: { files: [image] }, preventDefault() { prevented = true; } });
   assert.equal(prevented, true); assert.equal(f.calls.length, 1); assert.equal(f.calls[0][0], 'files'); assert.equal(f.calls[0][1], image);
   assert.equal(button(tree, 'Chụp màn hình'), undefined); assert.equal(f.calls.includes('send'), false);
+});
+
+test('task-contract buttons: three radios, one active at a time, click again clears, hidden without a handler, locked until the session id is known', async () => {
+  const plain = fixture();
+  assert.equal(walk(plain.render()).some(node => node?.props?.className === 'composer__contract'), false);
+  const f = fixture({ contract: { mode: null, ready: true }, onChangeContract: async (mode) => { f.calls.push(['contract', mode]); } });
+  const tree = f.render(), chips = walk(tree).filter(node => node?.props?.role === 'radio');
+  assert.deepEqual(chips.map(text), CONTRACT_MODES.map(mode => mode.label));
+  assert.deepEqual(chips.map(node => node.props['aria-checked']), [false, false, false]);
+  assert.ok(walk(tree).indexOf(chips[0]) < walk(tree).indexOf(element(tree, 'textarea')), 'buttons sit above the textbox');
+  chips[1].props.onClick(); await Promise.resolve(); await Promise.resolve();
+  assert.deepEqual(f.calls.at(-1), ['contract', 'ky']);
+  f.props.contract = { mode: 'ky', ready: true };
+  const active = walk(f.render()).filter(node => node?.props?.role === 'radio');
+  assert.deepEqual(active.map(node => node.props['aria-checked']), [false, true, false]);
+  assert.match(text(f.render()), new RegExp(CONTRACT_MODES[1].hint));
+  active[1].props.onClick(); await Promise.resolve(); await Promise.resolve();
+  assert.deepEqual(f.calls.at(-1), ['contract', null]);
+  f.props.contract = { mode: null, ready: false };
+  assert.ok(walk(f.render()).filter(node => node?.props?.role === 'radio').every(node => node.props.disabled === true));
 });

@@ -9,7 +9,7 @@ const strict = value => value?.security === 'allowlist' && value.ask === 'on-mis
   && value.askFallback === 'deny' && value.autoAllowSkills === false;
 const floor = { security: 'allowlist', ask: 'on-miss', askFallback: 'deny', autoAllowSkills: false };
 const allow = ['read', 'write', 'edit', 'apply_patch', 'exec', 'process', 'web_search', 'web_fetch', 'image', 'pdf',
-  'aifb_export_document', 'agents_list', 'sessions_list', 'sessions_send', 'sessions_spawn', 'subagents'];
+  'aifb_export_document', 'aifb_record_decision', 'agents_list', 'sessions_list', 'sessions_send', 'sessions_spawn', 'subagents'];
 
 /** Host-owned policy. Native OpenClaw executes and binds commands; the shell never evals model output. */
 export class HostExecutionPolicy {
