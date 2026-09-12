@@ -1,0 +1,73 @@
+name: Repin channel plugins
+
+# The channel installer records the exact dependency closure of every bundled
+# messaging plugin (manifests/channel-installer). A fresh resolution must match
+# it, so any upstream patch inside that closure stops the release build with
+# "review and repin". This workflow does the repin the reviewable way: it stages
+# on a clean runner with rewriting enabled, pushes whatever changed to a review
+# branch, and prints the link to open a pull request. Nothing touches main.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repin:
+    name: Re-resolve and record plugin closures
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, Node 24
+
+      - name: Set up exact Node runtime
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0, Node 24
+        with:
+          node-version: 24.19.0
+
+      - name: Activate exact package manager
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.2.2 --activate
+
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Stage the runtime with pin rewriting enabled
+        env:
+          AIFB_REPIN_CHANNEL_PLUGINS: '1'
+        run: pnpm stage:runtime
+
+      - name: Push the changed pins to a review branch
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $changed = git status --porcelain -- manifests/channel-installer
+          if (-not $changed) {
+            "Không có pin nào thay đổi. Bản ghi hiện tại vẫn khớp với kết quả phân giải mới." | Tee-Object -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            exit 0
+          }
+          $branch = "chore/repin-channel-plugins-${{ github.run_number }}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -b $branch
+          git add manifests/channel-installer
+          git commit -m "chore(installer): repin channel plugin closures (run ${{ github.run_number }})" -m "Re-resolved on a clean windows-latest runner with AIFB_REPIN_CHANNEL_PLUGINS=1. Review the per-package changes in this diff before merging; the next release build reproduces exactly this closure."
+          git push origin $branch
+          $compare = "https://github.com/${{ github.repository }}/compare/main...$branch?expand=1"
+          $lines = @(
+            "## Pin đã đổi",
+            "",
+            "Các tệp sau được ghi lại trên nhánh ``$branch``:",
+            "",
+            ($changed -split "`n" | ForEach-Object { "- $($_.Trim())" }),
+            "",
+            "Mở pull request để xem diff từng gói rồi gộp: $compare",
+            "",
+            "Sau khi gộp, chạy lại **Release Windows installer**."
+          )
+          $lines -join "`n" | Tee-Object -FilePath $env:GITHUB_STEP_SUMMARY -Append

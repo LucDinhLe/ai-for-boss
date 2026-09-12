@@ -10,6 +10,45 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const manifestRoot = path.join(repo, 'manifests/channel-installer');
 const markerName = 'channel-installer.json';
+/**
+ * Every plugin's transitive closure is recorded under manifests/channel-installer
+ * and a fresh resolution must reproduce it exactly, otherwise staging refuses to
+ * continue. That is the supply-chain gate, and it also means any upstream patch
+ * release inside the closure blocks the build until someone reviews the change.
+ * Repin mode turns that refusal into a rewrite of the recorded files plus a
+ * printed list of what moved, so the review happens on a pull request diff
+ * instead of on a red CI job. It is only ever enabled by the repin workflow.
+ */
+const repinChannelPlugins = process.env.AIFB_REPIN_CHANNEL_PLUGINS === '1';
+const repinned = [];
+export function describeLockChange(previous, next) {
+  const index = entries => new Map(entries.map(item => [item.path, item]));
+  const before = index(Array.isArray(previous.packages) ? previous.packages
+    : Object.entries(previous.packages ?? {}).map(([name, value]) => ({ path: name, version: value.version })));
+  const after = index(Array.isArray(next.packages) ? next.packages
+    : Object.entries(next.packages ?? {}).map(([name, value]) => ({ path: name, version: value.version })));
+  const lines = [];
+  for (const [name, item] of after) {
+    const old = before.get(name);
+    if (!old) lines.push(`+ ${name} ${item.version}`);
+    else if (old.version !== item.version) lines.push(`~ ${name} ${old.version} -> ${item.version}`);
+  }
+  for (const name of before.keys()) if (!after.has(name)) lines.push(`- ${name} ${before.get(name).version}`);
+  return lines;
+}
+async function reconcileRecordedLock(file, lock, label) {
+  if (!(await exists(file))) { await fs.writeFile(file, JSON.stringify(lock, null, 2) + '\n', { flag: 'wx' }); return; }
+  const previous = JSON.parse(await fs.readFile(file, 'utf8'));
+  if (JSON.stringify(previous) === JSON.stringify(lock)) return;
+  const changes = describeLockChange(previous, lock);
+  if (!repinChannelPlugins) {
+    throw new Error(`${label}; review and repin before rebuilding. Changed: ${changes.slice(0, 8).join(', ')}${changes.length > 8 ? ', ...' : ''}`
+      + ' (run the "Repin channel plugins" workflow to open a reviewable pull request)');
+  }
+  await fs.writeFile(file, JSON.stringify(lock, null, 2) + '\n');
+  repinned.push({ file: path.relative(repo, file).split(path.sep).join('/'), changes });
+  console.log(`[channel installer] repinned ${path.basename(file)}:\n  ${changes.join('\n  ') || '(only metadata changed)'}`);
+}
 const execute = promisify(execFile), activeChildren = new Set();
 const sha256 = data => createHash('sha256').update(data).digest('hex');
 async function exists(file) { try { await fs.access(file); return true; } catch { return false; } }
@@ -91,10 +130,7 @@ async function seedNativeInstaller({ work, toolkit, userconfig, pin, pluginSourc
       if (!offline) recorded.set(plugin.id, lock);
       else {
         if (JSON.stringify(recorded.get(plugin.id)) !== JSON.stringify(lock)) throw new Error(`Native offline dependency closure changed for ${plugin.id}`);
-        const file = path.join(manifestRoot, `native-${plugin.id}.lock.json`);
-        if (await exists(file)) {
-          if (JSON.stringify(JSON.parse(await fs.readFile(file, 'utf8'))) !== JSON.stringify(lock)) throw new Error(`Native dependency resolution changed for ${plugin.id}; review and repin`);
-        } else await fs.writeFile(file, JSON.stringify(lock, null, 2) + '\n', { flag: 'wx' });
+        await reconcileRecordedLock(path.join(manifestRoot, `native-${plugin.id}.lock.json`), lock, `Native dependency resolution changed for ${plugin.id}`);
         plugin.offlineNativeInstall = true;
         plugin.nativeLockSha256 = sha256(Buffer.from(JSON.stringify(lock)));
         plugin.nativeDependencyPackages = lock.packages.length;
@@ -255,11 +291,7 @@ export async function stageChannelInstaller({ force = false } = {}) {
       const lock = JSON.parse(await fs.readFile(path.join(trial, 'package/package-lock.json'), 'utf8'));
       const resolved = Object.entries(lock.packages ?? {}).filter(([, value]) => value.resolved).map(([name, value]) => ({ path: name, version: value.version, resolved: value.resolved, integrity: value.integrity }));
       if (resolved.some(item => !item.resolved.startsWith(pin.registry) || !item.integrity)) throw new Error(`Non-registry dependency in ${spec}`);
-      const pinnedDependencies = path.join(manifestRoot, `${plugin.id}.package-lock.json`);
-      if (await exists(pinnedDependencies)) {
-        const previous = JSON.parse(await fs.readFile(pinnedDependencies, 'utf8'));
-        if (JSON.stringify(previous) !== JSON.stringify(lock)) throw new Error(`Transitive dependency resolution changed for ${spec}; review and repin before rebuilding`);
-      } else await fs.writeFile(pinnedDependencies, JSON.stringify(lock, null, 2) + '\n', { flag: 'wx' });
+      await reconcileRecordedLock(path.join(manifestRoot, `${plugin.id}.package-lock.json`), lock, `Transitive dependency resolution changed for ${spec}`);
       pluginSources.push({ ...plugin, spec, resolved: expected.resolved, integrity: expected.integrity, offlineView: true, offlinePack: true, offlineInstall: true,
         lockSha256: sha256(Buffer.from(JSON.stringify(lock))), dependencyPackages: resolved.length });
       console.log(`[channel installer] ${plugin.id}: exact view/pack/install passed offline`);
@@ -271,7 +303,8 @@ export async function stageChannelInstaller({ force = false } = {}) {
       plugins: pluginSources, installScriptsExecuted: false, registry: pin.registry, isolatedUserConfig: true, commands,
       createdAt: new Date().toISOString(), ...await channelInstallerInventory(root) };
     await fs.writeFile(marker, JSON.stringify(result, null, 2) + '\n');
-    return { root, ...result };
+    if (repinned.length) console.log(`[channel installer] ${repinned.length} recorded lock file(s) rewritten; commit manifests/channel-installer after review`);
+    return { root, ...result, repinned };
   } finally {
     await cleanupWork(work, temporaryParent);
   }
