@@ -6,6 +6,7 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 ### Added
 
+- Workflow `Repin channel plugins`: khi một gói bắc cầu của plugin nhắn tin ra bản vá và làm cổng ghim từ chối dựng, chạy workflow này để ghi lại cấu trúc mới trên một nhánh rà soát thay vì sửa tay (spec 0054).
 - Plugin `aifb-harness` đi kèm ứng dụng: trần bước và token cho mỗi lượt theo ba chế độ, câu dừng tiếng Việt khi chạm trần, sổ quyết định `QUYET-DINH.md` trong thư mục làm việc qua công cụ `aifb_record_decision`, trace một dòng mỗi lượt cho trang sử dụng sau này (spec 0055).
 - Ba nút hợp đồng tác vụ trong ô soạn: Nhanh, Kỹ, Quyết định quan trọng. Nút chọn mức suy nghĩ mà mô hình đang dùng có sẵn và đặt trần cho lượt; không đổi mô hình hay tài khoản (spec 0056).
 - Mười hai kỹ năng doanh nghiệp tiếng Việt cho mục tiêu, dự án, bán hàng, marketing và nội dung, chuyển thể từ `anthropics/knowledge-work-plugins`, mỗi kỹ năng kèm ba ca mẫu chấm được; kỹ năng `quy-tac-dieu-hanh` luôn bật cho mọi trợ lý (spec 0057).
