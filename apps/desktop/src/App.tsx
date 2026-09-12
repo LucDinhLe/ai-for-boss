@@ -47,6 +47,7 @@ import { isModelActive } from './model-activity';
 import ConversationDeleteDialog, { type DeleteConfirmation } from './ConversationDeleteDialog';
 import { listProjects, manage, type ProjectSummary, type WorkspaceView } from "./workbench-api";
 import { readSessionThinking, type SessionThinking } from "./session-thinking";
+import { contractThinking, isContractMode, type ContractMode } from "./task-contract";
 
 import { WORK_TEMPLATES, appendToDraft } from "./work-templates";
 import { conversationTitle, workspaceStage } from "./workspace-ui";
@@ -152,6 +153,9 @@ function App() {
   const [thinking, setThinking] = useState<SessionThinking>({ level: null, levels: [] });
   const [thinkingSelections, setThinkingSelections] = useState<Record<string, { model: string; level: string | null }>>({});
   const thinkingSelectionsRef = useRef(new Map<string, { model: string; level: string | null }>());
+  // Task contract per session (spec 0056): the plugin is the source of truth, keyed by the native session id.
+  const [contracts, setContracts] = useState<Record<string, ContractMode | null>>({});
+  const sessionIdsRef = useRef(new Map<string, string>());
   const [draft, setDraftText] = useState("");
   const [attachments, setAttachments] = useState<readonly ChatAttachment[]>([]);
   const [changingModel, setChangingModel] = useState(false);
@@ -376,6 +380,13 @@ function App() {
         const nextThinking = readSessionThinking(history, nextUsage, modelsRef.current);
         thinkingRef.current = nextThinking;
         setThinking(nextThinking);
+        const sessionId = (history.sessionInfo as { sessionId?: unknown } | null | undefined)?.sessionId;
+        if (typeof sessionId === 'string' && sessionId && sessionIdsRef.current.get(key) !== sessionId) {
+          sessionIdsRef.current.set(key, sessionId);
+          void manage<{ mode?: unknown }>({ action: 'harness-contract', key, sessionId })
+            .then(result => { if (sessionIdsRef.current.get(key) === sessionId) setContracts(values => ({ ...values, [key]: isContractMode(result?.mode) ? result.mode : null })); })
+            .catch(() => {});
+        }
         const inFlight = history.inFlightRun as { runId?: unknown } | null | undefined;
         // A just-admitted request can precede its durable row and in-flight
         // snapshot. Only its exact run snapshot may replace that pending state.
@@ -439,6 +450,17 @@ function App() {
     thinkingSelectionsRef.current.set(key, choice);
     setThinkingSelections(values => ({ ...values, [key]: choice }));
   }, [runtime.connected, runtime.setupReady, modelCatalogueState]);
+
+  const changeContract = useCallback(async (mode: ContractMode | null) => {
+    const key = activeKeyRef.current, sessionId = key ? sessionIdsRef.current.get(key) : undefined;
+    if (!key || !sessionId || !runtime.connected || !runtime.setupReady || openingRef.current || runRef.current.busy || changingModelRef.current) return;
+    const result = await manage<{ mode?: unknown }>({ action: 'harness-contract', key, sessionId, mode });
+    const saved = isContractMode(result?.mode) ? result.mode : null;
+    setContracts(values => ({ ...values, [key]: saved }));
+    // The button also picks the thinking level this model offers; the model and account stay as chosen.
+    const level = contractThinking(saved, thinkingRef.current.levels);
+    if (level !== null || saved === null) await changeThinking(level);
+  }, [runtime.connected, runtime.setupReady, changeThinking]);
 
   const refreshTranscript = useCallback((key: string) => {
     // Initial history already retries stale snapshots; failures require the
@@ -1208,6 +1230,7 @@ function App() {
           stopping={stopping} stopDisabled={!runtime.connected} disabled={!activeKey || opening}
             models={models} usage={usage} modelsLoading={modelsLoading || !historyReady || !runtime.setupReady} paused={runtime.paused}
           changingModel={changingModel || supervisionBusy || skillsBusy} onChangeModel={changeModel} thinking={composerThinking} onChangeThinking={changeThinking}
+          contract={activeKey ? { mode: contracts[activeKey] ?? null, ready: historyReady && runtime.setupReady && sessionIdsRef.current.has(activeKey) } : undefined} onChangeContract={changeContract}
           attachments={attachments} onAddFiles={addFiles} onRemoveFile={removeFile}
           canAttach={Boolean(activeKey && runtime.connected && runtime.attachmentPolicy && !opening && !changingModel)}
           attachmentHint={runtime.attachmentPolicy

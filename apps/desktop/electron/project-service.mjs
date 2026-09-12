@@ -3,6 +3,7 @@ import { promises as fs } from 'node:fs';
 import { randomUUID, createHash } from 'node:crypto';
 import { setTimeout as pause } from 'node:timers/promises';
 import {OwnedFiles} from './owned-files.mjs';
+import { describeTemplates, suggestTemplate } from './agent-templates.mjs';
 
 const uuid = /^[0-9a-f-]{36}$/u;
 function fields(input, keys) {
@@ -20,8 +21,11 @@ export const messageText = content => typeof content === 'string' ? content : Ar
 export class ProjectService {
   #tail = Promise.resolve();
   #syncs = new Map();
-  constructor({ directory, request, chooseDirectory, openDirectory }) { Object.assign(this, { directory, request, chooseDirectory, openDirectory }); this.ownedFiles=new OwnedFiles(path.join(directory,'owned-files')); }
+  constructor({ directory, request, chooseDirectory, openDirectory, templates = null, assignSkills = null }) {
+    Object.assign(this, { directory, request, chooseDirectory, openDirectory, templates, assignSkills }); this.ownedFiles=new OwnedFiles(path.join(directory,'owned-files'));
+  }
   inspectFiles(row) { return this.ownedFiles.inspect(row.key,row.sessionId); }
+  async #templates() { const list = typeof this.templates === 'function' ? await this.templates() : this.templates; return Array.isArray(list) ? list : []; }
   run(input) {
     let syncKey;
     if (input?.action === 'project-sync') {
@@ -206,26 +210,44 @@ export class ProjectService {
         throw new Error('Lịch sử vượt số trang trong một lần đồng bộ.');
       }
       case 'agent-create': {
-        fields(input, ['action', 'name', 'role', 'goal', 'model', 'skills', 'emoji']);
+        fields(input, ['action', 'name', 'role', 'goal', 'model', 'skills', 'emoji', 'template']);
         const name = text(input.name, 100), role = text(input.role, 2000), goal = text(input.goal, 2000), model = text(input.model, 350);
-        const emoji = input.emoji ?? '🤖';
-        if (!['🤖', '💼', '📊', '🎯', '✍️', '🎨', '🔎', '📚', '🧭', '💡', '🛠️', '🌱'].includes(emoji)) throw new Error('Chọn biểu tượng trong danh sách.');
+        // A role template (spec 0058) supplies the three agent files, the skill allowlist and the emoji; the user's own role and goal are appended.
+        const template = input.template === undefined ? null : (await this.#templates()).find(item => item.id === input.template);
+        if (input.template !== undefined && !template) throw new Error('Mẫu agent chưa hợp lệ.');
+        if (template && !this.assignSkills) throw new Error('Chưa sẵn sàng gán kỹ năng cho agent.');
+        const emoji = template?.emoji ?? input.emoji ?? '🤖';
+        if (!template && !['🤖', '💼', '📊', '🎯', '✍️', '🎨', '🔎', '📚', '🧭', '💡', '🛠️', '🌱'].includes(emoji)) throw new Error('Chọn biểu tượng trong danh sách.');
         const catalog = await this.request('models.list', {});
         if (!catalog.models?.some(m => m.available === true && `${m.provider}/${m.id}` === model)) throw new Error('Mô hình chưa khả dụng.');
         const created = await this.request('agents.create', { name, model, emoji });
         if (!created.ok || !created.agentId) throw new Error('Chưa xác nhận tạo agent; tải lại trước khi thử tiếp.');
-        data.agents[created.agentId] = { name, role, goal, model, emoji, status: 'configuring' };
+        data.agents[created.agentId] = { name, role, goal, model, emoji, status: 'configuring', ...(template ? { template: template.id, skills: [...template.skills], defaultMode: template.defaultMode, permission: template.permission } : {}) };
         await this.#save(data);
         await this.#awaitCreatedAgent(created.agentId);
-        const prior = await this.request('agents.files.get', { agentId: created.agentId, name: 'SOUL.md' });
-        const content = `${prior.file?.content ?? ''}\n\n## Vai trò do người dùng cấu hình\n${role}\n\n## Mục tiêu\n${goal}\n`;
-        await this.request('agents.files.set', { agentId: created.agentId, name: 'SOUL.md', content });
-        const actual = await this.request('agents.files.get', { agentId: created.agentId, name: 'SOUL.md' });
-        if (actual.file?.content !== content) throw new Error('Agent đã tạo nhưng chưa xác nhận vai trò; không tạo lại.');
+        const writes = [];
+        if (template) for (const fileName of ['IDENTITY.md', 'USER.md']) writes.push({ name: fileName, content: template.files[fileName] });
+        const prior = template ? { file: { content: template.files['SOUL.md'] } } : await this.request('agents.files.get', { agentId: created.agentId, name: 'SOUL.md' });
+        writes.push({ name: 'SOUL.md', content: `${prior.file?.content ?? ''}\n\n## Vai trò do người dùng cấu hình\n${role}\n\n## Mục tiêu\n${goal}\n` });
+        for (const file of writes) {
+          await this.request('agents.files.set', { agentId: created.agentId, name: file.name, content: file.content });
+          const actual = await this.request('agents.files.get', { agentId: created.agentId, name: file.name });
+          if (actual.file?.content !== file.content) throw new Error('Agent đã tạo nhưng chưa xác nhận vai trò; không tạo lại.');
+        }
+        if (template) {
+          const assigned = await this.assignSkills(created.agentId, [...template.skills]);
+          if (JSON.stringify([...assigned.skills].sort()) !== JSON.stringify([...template.skills].sort())) throw new Error('Agent đã tạo nhưng chưa xác nhận kỹ năng; không tạo lại.');
+        }
         const roster = await this.request('agents.list', {});
         if (roster.agents?.find(item => item.id === created.agentId)?.identity?.emoji !== emoji) throw new Error('Agent đã tạo nhưng chưa xác nhận biểu tượng; tải lại danh sách, không tạo lại.');
         data.agents[created.agentId].status = 'ready'; await this.#save(data);
-        return { id: created.agentId, name, identity: { emoji } };
+        return { id: created.agentId, name, identity: { emoji }, ...(template ? { template: template.id, skills: [...template.skills], defaultMode: template.defaultMode } : {}) };
+      }
+      case 'agent-templates': {
+        fields(input, ['action', 'work', 'need']);
+        const templates = await this.#templates();
+        const answers = { work: typeof input.work === 'string' && input.work.trim() ? text(input.work, 500) : '', need: typeof input.need === 'string' && input.need.trim() ? text(input.need, 500) : '' };
+        return { templates: describeTemplates(templates), suggested: templates.length ? suggestTemplate(templates, answers) : null };
       }
       default: throw new Error('Thao tác dự án chưa được hỗ trợ.');
     }

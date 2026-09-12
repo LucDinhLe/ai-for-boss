@@ -1,10 +1,14 @@
 # PROGRESS — AI for Boss
 
-Cập nhật: 2026-09-05
-Nhánh: `experiment/beta-0`
+Cập nhật: 2026-09-12
+Nhánh: `main` (mục lịch sử bên dưới ghi theo `experiment/beta-0`)
 Base: `8f43070` (hợp nhất `feature/0.6-sandbox-feasibility` vào nhánh thử nghiệm)
 
-## Phạm vi phiên này
+## Trạng thái 2026-09-12
+
+Beta37 đang chờ phát hành bằng workflow GitHub sau khi gộp bản ghim lại plugin kênh (spec 0054). Trên main đã có: màn hình Kết nối ba bậc (0051), tỉa runtime (0052), gỡ cài đặt trong .NET (0053), quy trình phát hành (0054). Nhánh `feat/harness-sme` mang đợt một của kế hoạch harness cho SME: plugin `aifb-harness` (0055), ba nút hợp đồng (0056), gói mười hai kỹ năng (0057), bốn mẫu agent (0058), và sửa lỗi bộ xuất tài liệu chưa từng được đăng ký. Còn lại theo kế hoạch: trang sử dụng, bảng dịch quyền xuống chế độ phiên (0060), kho eval riêng (0061), khoá ký vào CI.
+
+## Phạm vi phiên beta 0 (lịch sử)
 
 Beta 0: nuôi một Gateway OpenClaw thật bên trong ứng dụng và mở một cửa sổ trò chuyện tối thiểu trên đó. Không làm bộ cài, updater, kết nối nhà cung cấp model, Advisor thật, tool, duyệt hành động hay quản lý dự án.
 

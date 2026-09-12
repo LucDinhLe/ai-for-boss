@@ -5,6 +5,7 @@ import type { ContextUsage, ModelSummary } from "./gateway-client";
 import type { SessionThinking } from "./session-thinking";
 import ModelPicker from "./ModelPicker";
 import { isSelectableModel } from "./chat-state";
+import { CONTRACT_MODES, type ContractMode } from "./task-contract";
 
 export type ComposerAttachment = {
   id: string;
@@ -38,6 +39,9 @@ export type ComposerProps = {
   onChangeModel(model: ModelSummary): Promise<void>;
   thinking?: SessionThinking;
   onChangeThinking?(level: string | null): Promise<void>;
+  /** Task contract (spec 0056): one of three buttons, or none for the safety-net defaults. */
+  contract?: { mode: ContractMode | null; ready: boolean };
+  onChangeContract?(mode: ContractMode | null): Promise<void>;
   attachments: readonly ComposerAttachment[];
   onAddFiles(files: File[]): void;
   onRemoveFile(id: string): void;
@@ -54,6 +58,7 @@ const fileSize = (bytes: number) => bytes < 1024 ? `${bytes} B` : bytes < 1024 *
 export default function Composer(props: ComposerProps) {
   const [changing, setChanging] = useState(false);
   const [changeError, setChangeError] = useState<string | null>(null);
+  const [contractBusy, setContractBusy] = useState(false);
   const picker = useRef<HTMLInputElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   const changeInFlight = useRef(false);
@@ -122,6 +127,22 @@ export default function Composer(props: ComposerProps) {
             disabled={props.disabled} onClick={() => { if (!props.disabled) props.onRemoveFile(file.id); }}>×</button>
         </li>)}
       </ul> : null}
+      {props.contract && props.onChangeContract ? <div className="composer__contract" role="radiogroup" aria-label="Chế độ làm việc cho lượt này">
+        {CONTRACT_MODES.map(mode => {
+          const active = props.contract?.mode === mode.id;
+          return <button type="button" key={mode.id} role="radio" aria-checked={active} title={mode.hint}
+            className={`composer__chip${active ? " composer__chip--active" : ""}`}
+            disabled={props.disabled || contractBusy || !props.contract?.ready || changing || props.changingModel}
+            onClick={() => {
+              if (contractBusy || !props.contract?.ready) return;
+              setContractBusy(true); setChangeError(null);
+              void props.onChangeContract?.(active ? null : mode.id)
+                .catch(() => setChangeError("Chưa đổi được chế độ. Hãy thử lại."))
+                .finally(() => setContractBusy(false));
+            }}>{mode.label}</button>;
+        })}
+        <span className="composer__chip-hint">{CONTRACT_MODES.find(mode => mode.id === props.contract?.mode)?.hint ?? "Chọn một chế độ để đặt trần bước và mức suy nghĩ cho lượt này."}</span>
+      </div> : null}
       <label className="sr-only" htmlFor="composer-input">Nội dung gửi cho trợ lý</label>
       <textarea ref={input} id="composer-input" value={props.draft} rows={1}
         onPaste={event => {

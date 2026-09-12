@@ -91,6 +91,7 @@ if (refresh && channelTarget !== legacyChannelTarget) {
   }
 }
 await cp(documentSource,path.join(target,'resources/document-tools'),{recursive:true});
+for (const name of ['harness-plugin', 'agent-templates']) { const source = path.join(app, 'resources', name); await access(path.join(source, name === 'harness-plugin' ? 'openclaw.plugin.json' : 'README.md')); await cp(source, path.join(target, 'resources', name), { recursive: true }); }
 await cp(channelSource, channelTarget, { recursive: true });
 const channelTargetInventory = await verifyChannelInstaller(channelTarget);
 const channelSourceAfter = await verifyChannelInstaller(channelSource);

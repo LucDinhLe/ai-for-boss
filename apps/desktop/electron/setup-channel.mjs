@@ -1,4 +1,4 @@
-import {prepareDocumentTools} from './document-tools-setup.mjs';
+import {prepareHostPlugin,HOST_PLUGINS} from './host-plugin-setup.mjs';
 import { NativeManagement } from "./native-management.mjs";
 import { HostExecutionPolicy } from './host-execution-policy.mjs';
 import { ApprovalService } from './approval-service.mjs';
@@ -165,13 +165,37 @@ export class SetupChannel {
     return this.channelSetup.handles(input) ? this.channelSetup.run(input) : this.management.run(input);
   }
 
-  // Fixed host call; cannot be selected through setup.request or management.
-  prepareDocuments(directory,restart) {
-    return prepareDocumentTools({directory,configPath:this.configPath,restart,
-      request:(method,params)=>{
-        if(!this.#connected||!this.grantedScopes.includes('operator.admin'))throw new Error('Chưa kết nối bộ chạy.');
-        return this.#client.request(method,params,{timeoutMs:180000});
-      }});
+  // Fixed host calls; cannot be selected through setup.request or management.
+  #adminRequest(method,params) {
+    if(!this.#connected||!this.grantedScopes.includes('operator.admin'))throw new Error('Chưa kết nối bộ chạy.');
+    return this.#client.request(method,params,{timeoutMs:180000});
+  }
+  prepareHostPlugin(id,directory,restart) {
+    const spec=HOST_PLUGINS.find(p=>p.id===id);
+    if(!spec)throw new Error('Plugin không thuộc vỏ ứng dụng.');
+    return prepareHostPlugin({...spec,directory,configPath:this.configPath,restart,request:(method,params)=>this.#adminRequest(method,params)});
+  }
+  prepareDocuments(directory,restart) { return this.prepareHostPlugin('aifb-documents',directory,restart); }
+
+  /**
+   * Per-agent skill allowlist (`agents.<id>.skills`), the core's own mechanism
+   * for limiting which skills an agent sees. Only skill names from the bundled
+   * business pack are accepted; the write is read back before it counts.
+   */
+  async assignAgentSkills(agentId,skills) {
+    if(!/^[a-z0-9][a-z0-9_-]{0,63}$/u.test(agentId)||!Array.isArray(skills)||skills.length>40||skills.some(s=>!/^[a-z0-9-]{1,64}$/u.test(s)))throw new Error('Danh sách kỹ năng chưa hợp lệ.');
+    const before=await this.#adminRequest('config.get',{});
+    if(before?.valid!==true||typeof before.hash!=='string'||!before.hash||path.resolve(before.path)!==path.resolve(this.configPath))throw new Error('Chưa xác nhận cấu hình ứng dụng.');
+    const list=before.config.agents?.list;
+    if(!Array.isArray(list)||!list.some(a=>a?.id===agentId))throw new Error('Agent chưa có trong cấu hình.');
+    const sorted=[...new Set(skills)].sort();
+    const next=list.map(a=>a?.id===agentId?{...a,skills:sorted}:a);
+    const ack=await this.#adminRequest('config.patch',{baseHash:before.hash,replacePaths:['agents.list'],raw:JSON.stringify({agents:{list:next}})});
+    if(ack?.ok!==true)throw new Error('Chưa xác nhận lưu kỹ năng cho agent.');
+    const after=await this.#adminRequest('config.get',{});
+    const saved=after?.config?.agents?.list?.find(a=>a?.id===agentId)?.skills;
+    if(JSON.stringify(saved)!==JSON.stringify(sorted))throw new Error('Kỹ năng đã gửi nhưng chưa xác nhận được kết quả.');
+    return {skills:sorted};
   }
   authorizeWorker(sessionKey) { return this.workerPolicy.ensure(sessionKey); }
 
@@ -186,7 +210,8 @@ export class SetupChannel {
   // Host project/agent broker only. Never exposed as a generic renderer method.
   async workspaceRequest(method, params) {
     if (!['agents.list', 'agents.create', 'agents.files.get', 'agents.files.set', 'models.list', 'skills.status',
-      'sessions.create', 'sessions.describe', 'sessions.delete', 'chat.history', 'agent.wait', 'health', 'aifb.documents.inspect', 'aifb.profiles.set'].includes(method)) throw new Error('Workspace method not allowed');
+      'sessions.create', 'sessions.describe', 'sessions.delete', 'chat.history', 'agent.wait', 'health', 'aifb.documents.inspect', 'aifb.profiles.set',
+      'aifb.harness.contract', 'aifb.harness.usage'].includes(method)) throw new Error('Workspace method not allowed');
     if (!this.#client || !this.#connected) throw new Error('Chưa kết nối bộ chạy.');
     const client = this.#client, generation = this.#generation;
     if (method === 'sessions.create') { params = restrictSessionCreate(params, true); await this.authorizeWorker(); }
