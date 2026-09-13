@@ -582,6 +582,19 @@ function runHarnessAction(input) {
   throw new Error('Thao tác điều hành chưa được hỗ trợ.');
 }
 
+/** Account order per provider (spec 0060); the renderer never reaches config.* itself. */
+function runProviderOrderAction(input) {
+  if (input.action === 'provider-order-read') {
+    if (Object.keys(input).length !== 1) throw new Error('Yêu cầu thứ tự tài khoản chưa hợp lệ.');
+    return setupChannel.authOrder();
+  }
+  if (input.action === 'provider-order-set') {
+    if (Object.keys(input).some(key => !['action', 'provider', 'profileIds'].includes(key))) throw new Error('Yêu cầu thứ tự tài khoản chưa hợp lệ.');
+    return channelWorkGuard.run(() => setupChannel.setAuthOrder(input.provider, input.profileIds));
+  }
+  throw new Error('Thao tác nhà cung cấp chưa được hỗ trợ.');
+}
+
 /**
  * Host-owned plugins (documents, harness) are registered with the core once the
  * admin setup channel is up. Registration is idempotent; a Gateway restart it
@@ -667,6 +680,7 @@ ipcMain.handle(MANAGEMENT_REQUEST_CHANNEL, (event, ...args) => {
     return getProjectService().run(args[0]);
   }
   if (/^harness-/u.test(args[0]?.action ?? '')) return runHarnessAction(args[0]);
+  if (/^provider-order/u.test(args[0]?.action ?? '')) return runProviderOrderAction(args[0]);
   if (channelMutations.has(args[0]?.action) || args[0]?.action === 'model-settings-save') return channelWorkGuard.run(() => setupChannel.manage(args[0]));
   return setupChannel.manage(args[0]);
 });
