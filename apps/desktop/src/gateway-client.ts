@@ -10,6 +10,8 @@ export type RuntimeStatus = {
   paused?: boolean;
   supervisor: "idle" | "starting" | "ready" | "restarting" | "safe-mode";
   detail: string | null;
+  /** Named startup step from the host's startup timeline; drives the waiting screen. */
+  startupPhase?: string;
   connected: boolean;
   setupReady: boolean;
   attachmentPolicy: AttachmentPolicy | null;

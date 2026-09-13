@@ -1,4 +1,4 @@
-import {prepareHostPlugin,HOST_PLUGINS} from './host-plugin-setup.mjs';
+import {prepareHostPlugins,HOST_PLUGINS} from './host-plugin-setup.mjs';
 import { NativeManagement } from "./native-management.mjs";
 import { HostExecutionPolicy } from './host-execution-policy.mjs';
 import { ApprovalService } from './approval-service.mjs';
@@ -68,6 +68,8 @@ export class SetupChannel {
   #generation = 0;
   #connectionEpoch = 0;
   #advisorRuns = new Map();
+  /** In-flight `models.list` reads shared per connection generation (spec 0059). */
+  #reads = new Map();
 
   constructor({ stateDirectory, appVersion = "0.0.0-dev", logger = console, onStatus = () => {},
     Client = GatewayClient, identityLoader = loadOrCreateDeviceIdentity, catalogue = { version: "unknown", channels: [] },
@@ -150,6 +152,7 @@ export class SetupChannel {
       onClose: () => {
         if (generation !== this.#generation) return;
         this.channelSetup.clear();
+        this.#reads.clear();
         ++this.#connectionEpoch;
         this.#connected = false;
         this.#hello = null;
@@ -170,11 +173,16 @@ export class SetupChannel {
     if(!this.#connected||!this.grantedScopes.includes('operator.admin'))throw new Error('Chưa kết nối bộ chạy.');
     return this.#client.request(method,params,{timeoutMs:180000});
   }
-  prepareHostPlugin(id,directory,restart) {
-    const spec=HOST_PLUGINS.find(p=>p.id===id);
-    if(!spec)throw new Error('Plugin không thuộc vỏ ứng dụng.');
-    return prepareHostPlugin({...spec,directory,configPath:this.configPath,restart,request:(method,params)=>this.#adminRequest(method,params)});
+  /** All host plugins in one patch and at most one restart (spec 0059). */
+  prepareHostPlugins(list,restart) {
+    const entries=list.map(item=>{
+      const spec=HOST_PLUGINS.find(p=>p.id===item.id);
+      if(!spec)throw new Error('Plugin không thuộc vỏ ứng dụng.');
+      return {...spec,directory:item.directory};
+    });
+    return prepareHostPlugins(entries,{configPath:this.configPath,restart,request:(method,params)=>this.#adminRequest(method,params)});
   }
+  prepareHostPlugin(id,directory,restart) { return this.prepareHostPlugins([{id,directory}],restart); }
   prepareDocuments(directory,restart) { return this.prepareHostPlugin('aifb-documents',directory,restart); }
 
   /**
@@ -216,7 +224,17 @@ export class SetupChannel {
     const client = this.#client, generation = this.#generation;
     if (method === 'sessions.create') { params = restrictSessionCreate(params, true); await this.authorizeWorker(); }
     if (!this.#connected || client !== this.#client || generation !== this.#generation) throw new Error('Gateway đã kết nối lại. Yêu cầu chưa được gửi; hãy thử lại.');
-    return client.request(method, params, { timeoutMs: 180_000 });
+    // `models.list` is a pure read that the core can take a minute to answer
+    // while it is also probing accounts. Three panels asking at once used to be
+    // three waits; they now share one (spec 0059). Never coalesce a mutation.
+    if (method !== 'models.list') return client.request(method, params, { timeoutMs: 180_000 });
+    const key = `${generation}:${JSON.stringify(params ?? null)}`;
+    const shared = this.#reads.get(key);
+    if (shared) return shared;
+    const work = client.request(method, params, { timeoutMs: 180_000 });
+    this.#reads.set(key, work);
+    work.catch(() => {}).finally(() => { if (this.#reads.get(key) === work) this.#reads.delete(key); });
+    return work;
   }
 
   async request(method, params) {

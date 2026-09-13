@@ -4,6 +4,10 @@ Cập nhật: 2026-09-12
 Nhánh: `main` (mục lịch sử bên dưới ghi theo `experiment/beta-0`)
 Base: `8f43070` (hợp nhất `feature/0.6-sandbox-feasibility` vào nhánh thử nghiệm)
 
+## Trạng thái 2026-09-13
+
+Beta37 đã phát hành và đang chạy trên máy Product Owner; log xác nhận cả hai plugin của vỏ được lõi nạp thật. Nhánh `feat/startup-speed` mang spec 0059: bộ chạy chạy nền với khay hệ thống, gộp đăng ký plugin còn một lần khởi động lại, chia sẻ lượt đọc `models.list`, dòng thời gian khởi động và màn hình chờ nói bước thật. Việc tiếp theo theo kế hoạch: trang Nhà cung cấp nhiều tài khoản, bảng dịch quyền (0060), kho eval (0061), khoá ký vào CI.
+
 ## Trạng thái 2026-09-12
 
 Beta37 đang chờ phát hành bằng workflow GitHub sau khi gộp bản ghim lại plugin kênh (spec 0054). Trên main đã có: màn hình Kết nối ba bậc (0051), tỉa runtime (0052), gỡ cài đặt trong .NET (0053), quy trình phát hành (0054). Nhánh `feat/harness-sme` mang đợt một của kế hoạch harness cho SME: plugin `aifb-harness` (0055), ba nút hợp đồng (0056), gói mười hai kỹ năng (0057), bốn mẫu agent (0058), và sửa lỗi bộ xuất tài liệu chưa từng được đăng ký. Còn lại theo kế hoạch: trang sử dụng, bảng dịch quyền xuống chế độ phiên (0060), kho eval riêng (0061), khoá ký vào CI.
