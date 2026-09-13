@@ -6,6 +6,7 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 ### Added
 
+- Cài đặt → Nhà cung cấp: mỗi nhà cung cấp một thẻ, dưới thẻ là các tài khoản đã kết nối theo đúng thứ tự lõi sẽ thử, kèm tình trạng, hạn còn lại và mức dùng lõi ghi nhận. Hai nút mũi tên đổi tài khoản nào dùng trước, nút Đăng xuất hiện ở hồ sơ lõi cho phép, và nhà cung cấp lõi hỗ trợ nhưng chưa kết nối nằm ở thẻ riêng (spec 0060).
 - Bộ chạy giữ nguyên khi đóng cửa sổ: ứng dụng thu về khay hệ thống và mở lại gần như tức thì, thay vì khởi động lại lõi mỗi lần. Menu khay có Mở, ô Giữ chạy nền khi đóng cửa sổ, và Thoát hẳn (spec 0059).
 - Màn hình chờ nói rõ đang ở bước nào khi mở ứng dụng, và mỗi lần chạy ghi một dòng thời gian khởi động vào `aifb-startup-timeline.jsonl` trong thư mục dữ liệu để đo thay vì đoán (spec 0059).
 - Workflow `Repin channel plugins`: khi một gói bắc cầu của plugin nhắn tin ra bản vá và làm cổng ghim từ chối dựng, chạy workflow này để ghi lại cấu trúc mới trên một nhánh rà soát thay vì sửa tay (spec 0054).

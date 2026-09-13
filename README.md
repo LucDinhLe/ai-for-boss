@@ -2,11 +2,11 @@
 
 Ứng dụng desktop xây trên OpenClaw. Đây là bản thử nghiệm cho nhóm nhỏ, chưa phải bản ổn định.
 
-[Tải bộ cài Windows beta37](https://github.com/LucDinhLe/ai-for-boss/releases/download/0.0.5-beta.37/AI-for-Boss-0.0.5-beta.37-Setup.exe) · [Ghi chú và mã SHA256](https://github.com/LucDinhLe/ai-for-boss/releases/tag/0.0.5-beta.37) · [Bản trước beta36](https://github.com/LucDinhLe/ai-for-boss/releases/tag/0.0.5-beta.36).
+[Tải bộ cài Windows beta38](https://github.com/LucDinhLe/ai-for-boss/releases/download/0.0.5-beta.38/AI-for-Boss-0.0.5-beta.38-Setup.exe) · [Ghi chú và mã SHA256](https://github.com/LucDinhLe/ai-for-boss/releases/tag/0.0.5-beta.38) · [Bản trước beta37](https://github.com/LucDinhLe/ai-for-boss/releases/tag/0.0.5-beta.37).
 
 ## Cài và dùng thử
 
-1. Tải `AI-for-Boss-0.0.5-beta.37-Setup.exe`, đối chiếu SHA256 trong cùng release rồi chạy bộ cài.
+1. Tải `AI-for-Boss-0.0.5-beta.38-Setup.exe`, đối chiếu SHA256 trong cùng release rồi chạy bộ cài.
 2. Mở lối tắt AI for Boss. Kết nối tài khoản của chính bạn trong Cài đặt → Nhà cung cấp. Quyền truy cập mô hình phụ thuộc nhà cung cấp và gói tài khoản; có trong danh mục không đồng nghĩa đã dùng được.
 3. Tạo cuộc trò chuyện hoặc dự án. Tác vụ xuất tài liệu thông thường dùng công cụ có sẵn. Lệnh tùy ý trên máy vẫn có thể yêu cầu “Cho phép lần này” hoặc “Từ chối” khi lõi chưa xác nhận được phạm vi.
 
@@ -37,6 +37,7 @@ Bộ cài dùng cho cài mới và khôi phục. Giao diện/ứng dụng và l�
 - Bộ xuất Word/Excel/PowerPoint/PDF tiếng Việt đi kèm ứng dụng, ghi tệp mới trong workspace, không cần cài Python. Excel hỗ trợ công thức tổng cho cột cuối. Đây là bộ xuất cơ bản, chưa phải trình biên tập Office đầy đủ.
 - Hiển thị và lưu tệp đính kèm do OpenClaw bàn giao, kiểm tra session và nội dung tải xuống. Agents có thể khám phá, giao việc và nhắn tin qua công cụ OpenClaw.
 - Cài đặt → Dữ liệu & sao lưu: sao lưu mã hóa trên máy, xuất/nhập bằng mật khẩu, lịch hàng ngày/hàng tuần và giữ 3/5/10 bản. Phục hồi được kiểm tra trước, giữ bản trước để hoàn tác và dừng Gateway chờ xem lại. Bản thử khôi phục đúng thư mục dữ liệu gốc; chưa tự chuyển cấu hình sang máy khác hoặc ghi đè workspace bên ngoài. Bản lưu không gồm cookie trình duyệt. Giới hạn bản lõi 700 MB; tùy chọn loại khóa API/media riêng chưa có.
+- Từ beta38, Cài đặt → Nhà cung cấp hiện mỗi nhà cung cấp một thẻ kèm các tài khoản đã kết nối theo đúng thứ tự lõi sẽ thử; đổi thứ tự bằng hai nút mũi tên, đăng xuất từng tài khoản, và xem tình trạng cùng mức dùng do lõi báo. Nhà cung cấp lõi hỗ trợ mà chưa kết nối nằm ở thẻ riêng.
 - Chọn mô hình theo nhóm nhà cung cấp, kết nối qua phương thức lõi hỗ trợ, điều chỉnh cache và cập nhật danh mục mô hình.
 - Đọc/sửa tệp và chạy lệnh qua cơ chế quyền của lõi; giao diện duyệt từng lệnh đã được kiểm thử với OpenClaw native runtime. Các harness/CLI có thể có giới hạn riêng.
 - Browser tích hợp, đồng bộ màu giao diện, ghép tiện ích Chrome chính thức và chia sẻ tab. Thao tác website tự động trong browser tích hợp chưa được bật.
@@ -60,4 +61,4 @@ OpenClaw và các thư viện đi kèm giữ nguyên thông báo bản quyền v
 
 Kho chính hiện là `LucDinhLe/ai-for-boss`. Các bản beta36 trở xuống đã phát hành giữ nguyên tệp cài và có địa chỉ cập nhật cũ được nhúng trong ứng dụng. Khi kho preview bị xóa, chức năng kiểm tra cập nhật của những bản này không còn truy cập được nguồn cũ; người dùng cần tải thủ công bản cài kế tiếp từ kho chính. Mã nguồn hiện tại đã chuyển địa chỉ cập nhật sang kho chính. Việc chuyển kho không thay dữ liệu hay cấu hình trên máy người dùng.
 
-**Trạng thái hiện tại:** beta37 là bản thử nghiệm. Tài liệu quản trị mô tả mục tiêu sản phẩm; không capability nào đang được quảng cáo là production-ready. Các mốc Cổng 0/Feature 0.x trong lịch sử không phải số phiên bản bộ cài.
+**Trạng thái hiện tại:** beta38 là bản thử nghiệm. Tài liệu quản trị mô tả mục tiêu sản phẩm; không capability nào đang được quảng cáo là production-ready. Các mốc Cổng 0/Feature 0.x trong lịch sử không phải số phiên bản bộ cài.

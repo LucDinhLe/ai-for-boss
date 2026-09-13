@@ -205,6 +205,40 @@ export class SetupChannel {
     if(JSON.stringify(saved)!==JSON.stringify(sorted))throw new Error('Kỹ năng đã gửi nhưng chưa xác nhận được kết quả.');
     return {skills:sorted};
   }
+  /**
+   * Preferred account order per provider (`auth.order.<provider>`), the core's
+   * own routing field (spec 0060). Fixed host call: only profile ids the core
+   * currently reports for that provider are accepted, and the write is read
+   * back before it counts. `config.*` never becomes a renderer-reachable method.
+   */
+  async setAuthOrder(provider,profileIds) {
+    if(typeof provider!=='string'||!/^[a-z0-9][a-z0-9_.-]{0,63}$/u.test(provider))throw new Error('Nhà cung cấp chưa hợp lệ.');
+    if(!Array.isArray(profileIds)||profileIds.length<2||profileIds.length>20
+      ||profileIds.some(id=>typeof id!=='string'||!id||id.length>200)
+      ||new Set(profileIds).size!==profileIds.length)throw new Error('Thứ tự tài khoản chưa hợp lệ.');
+    const status=await this.#adminRequest('models.authStatus',{refresh:false});
+    const known=status?.providers?.find(entry=>entry?.provider===provider)?.profiles?.map(profile=>profile.profileId)??[];
+    if(!profileIds.every(id=>known.includes(id))||profileIds.length!==known.length)throw new Error('Danh sách tài khoản đã thay đổi. Hãy tải lại trang.');
+    const before=await this.#adminRequest('config.get',{});
+    if(before?.valid!==true||typeof before.hash!=='string'||!before.hash||path.resolve(before.path)!==path.resolve(this.configPath))throw new Error('Chưa xác nhận cấu hình ứng dụng.');
+    const order={...(before.config.auth?.order??{}),[provider]:[...profileIds]};
+    const ack=await this.#adminRequest('config.patch',{baseHash:before.hash,replacePaths:[`auth.order.${provider}`],raw:JSON.stringify({auth:{order}})});
+    if(ack?.ok!==true&&ack?.noop!==true)throw new Error('Chưa xác nhận lưu thứ tự tài khoản.');
+    const after=await this.#adminRequest('config.get',{});
+    const saved=after?.config?.auth?.order?.[provider];
+    if(JSON.stringify(saved)!==JSON.stringify(profileIds))throw new Error('Đã gửi thứ tự nhưng chưa xác nhận được kết quả. Hãy tải lại trang.');
+    return {provider,profileIds:[...profileIds]};
+  }
+  /** Read-only projection of the stored order for the provider page. */
+  async authOrder() {
+    const snapshot=await this.#adminRequest('config.get',{});
+    const order=snapshot?.config?.auth?.order;
+    if(!order||typeof order!=='object')return {};
+    return Object.fromEntries(Object.entries(order)
+      .filter(([provider,ids])=>typeof provider==='string'&&Array.isArray(ids)&&ids.every(id=>typeof id==='string'))
+      .map(([provider,ids])=>[provider,[...ids]]));
+  }
+
   authorizeWorker(sessionKey) { return this.workerPolicy.ensure(sessionKey); }
 
   // Only the host's ChromeBridge may construct this fixed read-only route.
