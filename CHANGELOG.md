@@ -4,6 +4,10 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 ## [Unreleased]
 
+### Fixed
+
+- Nâng cấp lên bản mới không còn làm ứng dụng đứng ở "Ứng dụng chưa sẵn sàng". Khi bộ cài dọn bản trước, cấu hình vẫn trỏ plugin của vỏ vào thư mục đã mất và lõi từ chối cả tệp cấu hình; nay vỏ bỏ những đường dẫn không còn tồn tại trước khi gọi bộ chạy (spec 0061).
+
 ### Added
 
 - Cài đặt → Nhà cung cấp: mỗi nhà cung cấp một thẻ, dưới thẻ là các tài khoản đã kết nối theo đúng thứ tự lõi sẽ thử, kèm tình trạng, hạn còn lại và mức dùng lõi ghi nhận. Hai nút mũi tên đổi tài khoản nào dùng trước, nút Đăng xuất hiện ở hồ sơ lõi cho phép, và nhà cung cấp lõi hỗ trợ nhưng chưa kết nối nằm ở thẻ riêng (spec 0060).

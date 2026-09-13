@@ -8,6 +8,7 @@ import { installEditMenu } from './edit-menu.mjs';
 import { HOST_PLUGINS, hostPluginDirectory } from './host-plugin-setup.mjs';
 import { StartupTimeline } from './startup-timeline.mjs';
 import { BackgroundPreference, shouldHideOnClose, trayMenuTemplate, BACKGROUND_TOOLTIP } from './background-mode.mjs';
+import { repairPluginPaths } from './stale-plugin-paths.mjs';
 import { loadAgentTemplates } from './agent-templates.mjs';
 import { saveDeliveredFile } from './delivered-files.mjs';
 import { applyUiTheme } from './ui-theme.mjs';
@@ -252,6 +253,11 @@ function stateDirectory() {
 async function startRuntime() {
   if (shuttingDown) return;
   const directory = stateDirectory();
+  // A plugin path left behind by a previous version makes the core refuse the
+  // whole config, so the Gateway never starts and the registration that would
+  // have rewritten that path never runs. Prune before spawning (spec 0061).
+  const repair = repairPluginPaths(path.join(directory, 'openclaw.json'));
+  if (repair.repaired) console.warn(`[plugins] bỏ ${repair.removed.length} đường dẫn plugin không còn tồn tại: ${repair.removed.join(', ')}`);
   const nodeExecutable = resolveNodeExecutable({ resourcesPath: process.resourcesPath });
   publishStatus({ stateDirectory: directory, nodeRuntime: nodeExecutable, lastError: null });
 
