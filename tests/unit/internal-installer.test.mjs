@@ -197,3 +197,42 @@ test('removal inspects and deletes the payload inside .NET, keeping every owners
   assert.match(remover, /MaxDegreeOfParallelism = 4/, 'removal uses the same bounded parallelism as installation');
   assert.doesNotMatch(remover, /Directory\.Delete\([^)]*,\s*true\)/, 'no recursive directory delete');
 });
+
+/**
+ * Spec 0062. A locked file stopped an uninstall on the Product Owner's machine
+ * and the reason came back as "B???n n??y ??ang ???????c d??ng." — PowerShell
+ * writes stdout in the console code page, nsExec reads it as ANSI, and every
+ * diacritic dies on the way. So the script now speaks ASCII codes and the
+ * installer owns the Vietnamese.
+ */
+test('the support script never sends Vietnamese through stdout, and every code it can emit has wording in the installer', async () => {
+  const ps1 = await fs.readFile(path.join(repo, 'installer/install-support.ps1'), 'utf8');
+  const nsi = await fs.readFile(path.join(repo, 'installer/ai-for-boss.nsi'), 'utf8');
+  const diacritic = /[À-ɏḀ-ỿ]/;
+
+  const authored = [...ps1.matchAll(/throw '([^']+)'/g)].map(match => match[1])
+    .concat([...ps1.matchAll(/\$completed = @\{([^}]*)\}/g)].flatMap(match => [...match[1].matchAll(/'([^']+)'/g)].map(inner => inner[1])));
+  assert.ok(authored.length >= 25, `expected the full message surface, saw ${authored.length}`);
+  for (const message of authored) {
+    assert.doesNotMatch(message, diacritic, `"${message}" would arrive corrupted; emit an ASCII code instead`);
+    assert.match(message, /^[A-Z][A-Z_]{2,39}$/, `"${message}" is not a code the installer can map`);
+    assert.ok(nsi.includes(`"${message}"`), `the installer has no wording for ${message}`);
+  }
+
+  // The variable the script throws is a code too, and the one message that matters
+  // most now names the tray, because closing the window no longer stops the app.
+  assert.match(ps1, /\$inUse = 'IN_USE'/);
+  assert.match(nsi, /\$\{Case\} "IN_USE"[\s\S]{0,200}khay hệ thống[\s\S]{0,80}Thoát hẳn/);
+
+  // Trailing newline from Write-Output must go, or nothing ever matches a case.
+  assert.ok(nsi.indexOf('${TrimNewLines} "$Detail" $Detail') < nsi.indexOf('!insertmacro Explain'),
+    'the output is trimmed before it is matched');
+  assert.match(nsi, /!include "FileFunc\.nsh"/, 'TrimNewLines needs its header');
+  assert.match(nsi, /\$\{CaseElse\}\s+StrCpy \$\{OUT\} \$\{CODE\}/,
+    'an unexpected system error is still shown rather than swallowed');
+  assert.match(nsi, /MessageBox MB_OK\|MB_ICONSTOP "Chưa hoàn tất: \$Reason\./);
+
+  // Progress text goes to the NSIS window in-process, not through stdout, so it
+  // keeps its diacritics and must not be turned into codes.
+  assert.match(ps1, /InstallProgress\]::Update\(\$StatusWindow, \('Đang kiểm tra: /);
+});

@@ -43,7 +43,7 @@ function Hash-File([string]$file) {
 }
 function Assert-PlainPath([string]$value) {
   $full = [IO.Path]::GetFullPath($value)
-  if ($full.StartsWith('\\') -or $full.Length -lt 4) { throw 'Chọn một thư mục cục bộ riêng cho ứng dụng' }
+  if ($full.StartsWith('\\') -or $full.Length -lt 4) { throw 'LOCAL_FOLDER' }
   $cursor = $full
   while ($cursor) {
     if ($checkedDirectories.Contains($cursor)) { break }
@@ -53,7 +53,7 @@ function Assert-PlainPath([string]$value) {
     catch [IO.FileNotFoundException] { $attributes = $null }
     catch [IO.DirectoryNotFoundException] { $attributes = $null }
     if ($null -ne $attributes) {
-      if (($attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'Chọn thư mục cài đặt ngoài liên kết hoặc thư mục đồng bộ' }
+      if (($attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'NO_REPARSE' }
       if (($attributes -band [IO.FileAttributes]::Directory) -ne 0) { $null = $checkedDirectories.Add($cursor) }
     }
     $parent = [IO.Path]::GetDirectoryName($cursor)
@@ -61,9 +61,9 @@ function Assert-PlainPath([string]$value) {
   }
 }
 function Owned-Path([string]$base, [string]$relative, [bool]$inspect = $true) {
-  if (-not $relative -or $relative.Contains('\') -or $relative.Contains(':') -or $relative.StartsWith('/') -or $relative.Split('/') -contains '..' -or $relative.Split('/') -contains '.') { throw 'Đường dẫn trong gói không hợp lệ' }
+  if (-not $relative -or $relative.Contains('\') -or $relative.Contains(':') -or $relative.StartsWith('/') -or $relative.Split('/') -contains '..' -or $relative.Split('/') -contains '.') { throw 'BAD_PAYLOAD_PATH' }
   $full = [IO.Path]::GetFullPath([IO.Path]::Combine($base, $relative.Replace('/','\')))
-  if (-not $full.StartsWith($base + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Tệp nằm ngoài thư mục phiên bản' }
+  if (-not $full.StartsWith($base + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'OUTSIDE_VERSION' }
   if ($inspect) { Assert-PlainPath $full }
   return $full
 }
@@ -146,10 +146,10 @@ public static class InstallLinks {
 }
 function Read-Payload {
   $data = Get-Content -LiteralPath $Manifest -Raw -Encoding UTF8 | ConvertFrom-Json
-  if ($data.schemaVersion -ne 1 -or $data.product -ne 'AI for Boss' -or $data.version -ne $Version -or $data.files.Count -lt 3) { throw 'Thông tin bộ cài không khớp' }
+  if ($data.schemaVersion -ne 1 -or $data.product -ne 'AI for Boss' -or $data.version -ne $Version -or $data.files.Count -lt 3) { throw 'MANIFEST_MISMATCH' }
   $names = @{}
   foreach ($file in $data.files) {
-    if ($names.ContainsKey($file.path.ToLowerInvariant()) -or $file.sha256 -notmatch '^[a-f0-9]{64}$' -or $file.bytes -lt 0) { throw 'Danh sách tệp không hợp lệ' }
+    if ($names.ContainsKey($file.path.ToLowerInvariant()) -or $file.sha256 -notmatch '^[a-f0-9]{64}$' -or $file.bytes -lt 0) { throw 'BAD_FILE_LIST' }
     $names[$file.path.ToLowerInvariant()] = $true
     # Validate manifest names here; inspect real paths immediately before each
     # copy/hash/delete operation instead of scanning the whole tree twice.
@@ -158,12 +158,12 @@ function Read-Payload {
       $stageFile = [IO.Path]::Combine($stagePath, $file.path.Replace('/','\'))
       foreach ($candidate in @($finalFile, $stageFile)) {
         if ($candidate.Length -ge 260 -or [IO.Path]::GetDirectoryName($candidate).Length -ge 248) {
-          throw 'Đường dẫn cài đặt quá dài. Hãy dùng thư mục mặc định hoặc chọn thư mục ngắn hơn'
+          throw 'PATH_TOO_LONG'
         }
       }
     }
   }
-  if (-not $names.ContainsKey('ai-for-boss.exe') -or -not $names.ContainsKey('resources/app.asar') -or -not $names.ContainsKey('resources/runtime/node/node.exe')) { throw 'Gói thiếu giao diện hoặc lõi' }
+  if (-not $names.ContainsKey('ai-for-boss.exe') -or -not $names.ContainsKey('resources/app.asar') -or -not $names.ContainsKey('resources/runtime/node/node.exe')) { throw 'PAYLOAD_INCOMPLETE' }
   return $data
 }
 function Verify-Payload([string]$base, $payload) {
@@ -336,7 +336,7 @@ function Inspect-OwnedFiles([string]$base, $payload, [bool]$onlyMatching) {
   } } else { $null }
   return [InstallRemover]::Inspect($base, [string[]]$payload.files.path, [string[]]$payload.files.sha256, $onlyMatching, $report)
 }
-$inUse = 'Bản này đang được dùng. Đóng AI for Boss rồi gỡ cài đặt lại'
+$inUse = 'IN_USE'
 function Clear-OwnedFiles([string]$base, $payload, [bool]$onlyMatching, $plan = $null) {
   if (-not (Test-Path -LiteralPath $base)) { return }
   if ($null -eq $plan) { $plan = Inspect-OwnedFiles $base $payload $onlyMatching }
@@ -355,7 +355,7 @@ function Shortcut([string]$file, [string]$target, [bool]$remove) {
   $shell = New-Object -ComObject WScript.Shell
   if (Test-Path -LiteralPath $file) {
     $existing = $shell.CreateShortcut($file)
-    if ($existing.TargetPath -ne $target) { if ($remove) { return }; throw 'Lối tắt cùng tên thuộc bản khác; đã giữ nguyên' }
+    if ($existing.TargetPath -ne $target) { if ($remove) { return }; throw 'SHORTCUT_FOREIGN' }
     if ($remove) { Remove-Item -LiteralPath $file }; return
   }
   if ($remove) { return }
@@ -364,7 +364,7 @@ function Shortcut([string]$file, [string]$target, [bool]$remove) {
   $link = $shell.CreateShortcut($file)
   $link.TargetPath = $target; $link.WorkingDirectory = Split-Path -Parent $target; $link.IconLocation = $target + ',0'
   $link.Description = 'AI for Boss ' + $Version + ' - Built on OpenClaw'; $link.Save()
-  if ($shell.CreateShortcut($file).TargetPath -ne $target) { throw 'Chưa xác nhận được lối tắt mới' }
+  if ($shell.CreateShortcut($file).TargetPath -ne $target) { throw 'SHORTCUT_UNVERIFIED' }
 }
 try {
   Assert-PlainPath $rootPath
@@ -372,14 +372,14 @@ try {
   Assert-PlainPath $stagePath
   $payload = Read-Payload
   if (Test-Path -LiteralPath $rootMarker) {
-    if ((Get-Content -LiteralPath $rootMarker -Raw).Trim() -ne $signature) { throw 'Thư mục không thuộc bộ cài AI for Boss' }
+    if ((Get-Content -LiteralPath $rootMarker -Raw).Trim() -ne $signature) { throw 'ROOT_FOREIGN' }
   } elseif ($Action -eq 'Prepare') {
-    if ((Test-Path -LiteralPath $rootPath) -and @(Get-ChildItem -LiteralPath $rootPath -Force).Count -gt 0) { throw 'Chọn thư mục trống; không chọn thư mục tài liệu hoặc bản cài khác' }
+    if ((Test-Path -LiteralPath $rootPath) -and @(Get-ChildItem -LiteralPath $rootPath -Force).Count -gt 0) { throw 'ROOT_NOT_EMPTY' }
     New-Item -ItemType Directory -Path $rootPath -Force | Out-Null
     Set-Content -LiteralPath $rootMarker -Value $signature -Encoding UTF8
-  } else { throw 'Không tìm thấy thông tin sở hữu bộ cài' }
+  } else { throw 'ROOT_UNOWNED' }
   $manifestCopy = Join-Path $versionPath '.aifb-payload.json'
-  if ((Test-Path -LiteralPath $versionPath) -and (-not (Test-Path -LiteralPath $manifestCopy) -or (Hash-File $manifestCopy) -ne (Hash-File $Manifest))) { throw 'Thông tin sở hữu phiên bản không khớp; đã giữ nguyên' }
+  if ((Test-Path -LiteralPath $versionPath) -and (-not (Test-Path -LiteralPath $manifestCopy) -or (Hash-File $manifestCopy) -ne (Hash-File $Manifest))) { throw 'VERSION_UNOWNED' }
   switch ($Action) {
     'Prepare' {
       # NSIS routes an existing version directly to Verify before activation.
@@ -390,17 +390,17 @@ try {
         $ownedStage = @(Get-ChildItem -LiteralPath $stagePath -Force).Count -eq 0
         foreach ($proof in @($stageIntent, $stageManifest)) {
           if (Test-Path -LiteralPath $proof) {
-            if ((Hash-File $proof) -ne (Hash-File $Manifest)) { throw 'Thông tin bản cài dở không khớp; đã giữ nguyên' }
+            if ((Hash-File $proof) -ne (Hash-File $Manifest)) { throw 'STAGE_MISMATCH' }
             $ownedStage = $true
           }
         }
-        if (-not $ownedStage) { throw 'Thư mục cài dở chưa có thông tin sở hữu; đã giữ nguyên để kiểm tra' }
+        if (-not $ownedStage) { throw 'STAGE_UNOWNED' }
         # Keep ownership proof throughout cleanup so a lock or interruption can
         # be retried safely without adopting an unrelated staging directory.
         Clear-OwnedFiles $stagePath $payload $false
         if (Test-Path -LiteralPath $stagePath) {
           foreach ($remaining in @(Get-ChildItem -LiteralPath $stagePath -Force)) {
-            if ($remaining.FullName -notin @($stageIntent, $stageManifest)) { throw 'Thư mục cài dở có tệp khác; đã giữ lại để kiểm tra' }
+            if ($remaining.FullName -notin @($stageIntent, $stageManifest)) { throw 'STAGE_FOREIGN' }
           }
           foreach ($proof in @($stageIntent, $stageManifest)) { if (Test-Path -LiteralPath $proof) { Remove-Item -LiteralPath $proof } }
           Remove-Item -LiteralPath $stagePath
@@ -408,14 +408,14 @@ try {
       }
       New-Item -ItemType Directory -Path $stagePath -Force | Out-Null
       $drive = New-Object IO.DriveInfo([IO.Path]::GetPathRoot($rootPath))
-      if ($drive.AvailableFreeSpace -lt ([long]$payload.totalBytes + 33554432)) { throw 'Chưa đủ dung lượng trống cho phiên bản mới' }
+      if ($drive.AvailableFreeSpace -lt ([long]$payload.totalBytes + 33554432)) { throw 'NO_SPACE' }
       Copy-Item -LiteralPath $Manifest -Destination (Join-Path $stagePath '.aifb-stage-intent.json')
       Reuse-Core $payload
     }
     'Commit' {
-      if (Test-Path -LiteralPath $versionPath) { throw 'Phiên bản đã tồn tại; không ghi đè lõi' }
+      if (Test-Path -LiteralPath $versionPath) { throw 'VERSION_EXISTS' }
       $stageIntent = Join-Path $stagePath '.aifb-stage-intent.json'
-      if (-not (Test-Path -LiteralPath $stageIntent) -or (Hash-File $stageIntent) -ne (Hash-File $Manifest)) { throw 'Chưa xác nhận được thư mục cài dở; đã giữ nguyên' }
+      if (-not (Test-Path -LiteralPath $stageIntent) -or (Hash-File $stageIntent) -ne (Hash-File $Manifest)) { throw 'STAGE_UNVERIFIED' }
       Verify-Payload $stagePath $payload
       New-Item -ItemType Directory -Path (Split-Path -Parent $versionPath) -Force | Out-Null
       Copy-Item -LiteralPath $Manifest -Destination (Join-Path $stagePath '.aifb-payload.json')
@@ -426,7 +426,7 @@ try {
     }
     'Verify' { Verify-Payload $versionPath $payload }
     'Activate' {
-      if (-not (Test-Path -LiteralPath $manifestCopy)) { throw 'Chưa xác nhận bản đã cài' }
+      if (-not (Test-Path -LiteralPath $manifestCopy)) { throw 'INSTALL_UNVERIFIED' }
       $target = Join-Path $versionPath 'AI-for-Boss.exe'
       $label = 'AI for Boss - ' + $Version + '.lnk'
       Shortcut (Join-Path $Desktop $label) $target $false
@@ -440,7 +440,7 @@ try {
       Set-ItemProperty -Path $key -Name EstimatedSize -Type DWord -Value ([int][Math]::Ceiling($payload.totalBytes / 1024))
     }
     'Remove' {
-      if (-not (Test-Path -LiteralPath $manifestCopy)) { throw 'Thiếu thông tin sở hữu phiên bản; không xóa' }
+      if (-not (Test-Path -LiteralPath $manifestCopy)) { throw 'VERSION_UNOWNED_REMOVE' }
       # Preflight every owned file before touching shortcuts or deleting anything.
       # A running build keeps its files locked; the installer never closes it.
       $plan = Inspect-OwnedFiles $versionPath $payload $true
@@ -455,6 +455,6 @@ try {
       if ((Get-ItemProperty -Path $key -ErrorAction SilentlyContinue).InstallLocation -eq $versionPath) { Remove-Item -LiteralPath $key }
     }
   }
-  $completed = @{ Prepare='Đã kiểm tra thư mục'; Commit='Đã xác minh đầy đủ tệp'; Verify='Bản đã cài còn nguyên vẹn'; Activate='Đã tạo lối tắt và mục gỡ cài đặt'; Remove='Đã gỡ bản này, giữ dữ liệu và các bản khác' }
+  $completed = @{ Prepare='OK_PREPARE'; Commit='OK_COMMIT'; Verify='OK_VERIFY'; Activate='OK_ACTIVATE'; Remove='OK_REMOVE' }
   Write-Output ($completed[$Action] + ' (' + $Version + ')'); exit 0
 } catch { Write-Output $_.Exception.Message; exit 1 }

@@ -6,6 +6,7 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 ### Fixed
 
+- Hộp thoại lỗi của bộ cài và bộ gỡ hiện tiếng Việt đọc được thay vì dãy dấu hỏi, và khi tệp còn bị khoá thì nói đúng cách tắt: bấm chuột phải biểu tượng ở khay hệ thống rồi chọn Thoát hẳn, vì từ beta38 đóng cửa sổ không còn tắt ứng dụng (spec 0062).
 - Nâng cấp lên bản mới không còn làm ứng dụng đứng ở "Ứng dụng chưa sẵn sàng". Khi bộ cài dọn bản trước, cấu hình vẫn trỏ plugin của vỏ vào thư mục đã mất và lõi từ chối cả tệp cấu hình; nay vỏ bỏ những đường dẫn không còn tồn tại trước khi gọi bộ chạy (spec 0061).
 
 ### Added
