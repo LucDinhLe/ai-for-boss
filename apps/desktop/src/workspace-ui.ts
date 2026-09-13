@@ -1,5 +1,26 @@
 import type { RuntimeStatus, SessionSummary } from "./gateway-client";
 
+/**
+ * Vietnamese labels for the host's startup steps. A measured cold start took 84
+ * seconds, so the waiting screen names the step it is actually on instead of
+ * saying "this may take a few minutes" (spec 0059).
+ */
+export const STARTUP_STEP_LABELS: Record<string, string> = {
+  "app-start": "Đang mở ứng dụng",
+  "runtime-start": "Đang khởi động bộ chạy",
+  "runtime-spawned": "Bộ chạy đang nạp bộ mở rộng",
+  "chat-connected": "Đang mở cửa sổ trò chuyện",
+  "setup-connected": "Đang chuẩn bị kết nối AI",
+  "host-plugins-start": "Đang đăng ký bộ mở rộng của ứng dụng",
+  "host-plugins-ready": "Bộ mở rộng đã sẵn sàng",
+  ready: "Sẵn sàng"
+};
+export function startupStepDetail(phase?: string): string {
+  const step = phase ? STARTUP_STEP_LABELS[phase] : undefined;
+  return step ? `${step}. Lần mở đầu sau khi cài đặt lâu hơn những lần sau.`
+    : "Bạn có thể giữ cửa sổ này mở. Lần đầu có thể mất vài phút.";
+}
+
 export type WorkspaceStage = {
   kind: string;
   badge: string;
@@ -10,7 +31,7 @@ export type WorkspaceStage = {
 
 export function workspaceStage({ runtime, modelCatalogueState, availableModelCount, activeKey, busy, opening,
   historyReady = true, historyError = false, selectedModelStatus = "unknown" }: {
-  runtime: Pick<RuntimeStatus, "supervisor" | "connected" | "setupReady" | "paused">;
+  runtime: Pick<RuntimeStatus, "supervisor" | "connected" | "setupReady" | "paused"> & Pick<Partial<RuntimeStatus>, "startupPhase">;
   modelCatalogueState: "loading" | "ready" | "error";
   availableModelCount: number;
   activeKey: string | null;
@@ -26,12 +47,12 @@ export function workspaceStage({ runtime, modelCatalogueState, availableModelCou
     title: "Ứng dụng cần khởi động lại", detail: "Làm theo hướng dẫn phía trên để tiếp tục.", action: null };
   if (!runtime.connected) {
     if (["idle", "starting", "restarting"].includes(runtime.supervisor)) return { kind: "starting", badge: "Đang khởi động",
-      title: "Đang mở AI for Boss", detail: "Bạn có thể giữ cửa sổ này mở. Lần đầu có thể mất vài phút.", action: null };
+      title: "Đang mở AI for Boss", detail: startupStepDetail(runtime.startupPhase), action: null };
     return { kind: "disconnected", badge: "Đang kết nối lại", title: "Kết nối đang gián đoạn",
       detail: "Ứng dụng đang chờ kết nối trở lại. Nội dung bạn đang soạn vẫn được giữ trong cửa sổ này.", action: null };
   }
   if (!runtime.setupReady) return { kind: "preparing", badge: "Đang chuẩn bị", title: "Đang chuẩn bị kết nối AI",
-    detail: "Chờ một chút để ứng dụng hoàn tất kết nối.", action: null };
+    detail: startupStepDetail(runtime.startupPhase), action: null };
   if (modelCatalogueState === "loading") return { kind: "loading-models", badge: "Đang tải kết nối",
     title: "Đang kiểm tra các kết nối đã có", detail: "Ứng dụng đang đọc danh sách AI có thể dùng.", action: null };
   if (modelCatalogueState === "error") return { kind: "catalogue-error", badge: "Chưa tải được kết nối",

@@ -6,6 +6,8 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 ### Added
 
+- Bộ chạy giữ nguyên khi đóng cửa sổ: ứng dụng thu về khay hệ thống và mở lại gần như tức thì, thay vì khởi động lại lõi mỗi lần. Menu khay có Mở, ô Giữ chạy nền khi đóng cửa sổ, và Thoát hẳn (spec 0059).
+- Màn hình chờ nói rõ đang ở bước nào khi mở ứng dụng, và mỗi lần chạy ghi một dòng thời gian khởi động vào `aifb-startup-timeline.jsonl` trong thư mục dữ liệu để đo thay vì đoán (spec 0059).
 - Workflow `Repin channel plugins`: khi một gói bắc cầu của plugin nhắn tin ra bản vá và làm cổng ghim từ chối dựng, chạy workflow này để ghi lại cấu trúc mới trên một nhánh rà soát thay vì sửa tay (spec 0054).
 - Plugin `aifb-harness` đi kèm ứng dụng: trần bước và token cho mỗi lượt theo ba chế độ, câu dừng tiếng Việt khi chạm trần, sổ quyết định `QUYET-DINH.md` trong thư mục làm việc qua công cụ `aifb_record_decision`, trace một dòng mỗi lượt cho trang sử dụng sau này (spec 0055).
 - Ba nút hợp đồng tác vụ trong ô soạn: Nhanh, Kỹ, Quyết định quan trọng. Nút chọn mức suy nghĩ mà mô hình đang dùng có sẵn và đặt trần cho lượt; không đổi mô hình hay tài khoản (spec 0056).
@@ -60,6 +62,8 @@ Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng 
 
 ### Fixed
 
+- Lần mở đầu sau khi cài nhanh hơn khoảng một phút: hai bộ mở rộng của ứng dụng nay được đăng ký trong một lượt và làm lõi khởi động lại nhiều nhất một lần, thay vì hai lần như beta37 (spec 0059).
+- Các lượt đọc danh sách mô hình trùng nhau dùng chung một lời gọi, nên ba ô cùng hỏi không còn thành ba lượt chờ (spec 0059).
 - Bộ xuất Word/Excel/PowerPoint/PDF chưa từng được đăng ký với lõi trong bản chạy thật từ beta33; nay đăng ký cùng đường với plugin điều hành khi ứng dụng kết nối (spec 0055).
 
 ### Changed

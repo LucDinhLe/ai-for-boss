@@ -2,10 +2,12 @@ import path from "node:path";
 import { setInterval, clearInterval } from 'node:timers';
 import { mkdirSync, realpathSync, readFileSync, readdirSync, writeFileSync, existsSync, unlinkSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { app, BrowserWindow, WebContentsView, clipboard, Menu, dialog, ipcMain, nativeTheme, safeStorage, session, shell } from "electron";
+import { app, BrowserWindow, WebContentsView, clipboard, Menu, Tray, dialog, ipcMain, nativeTheme, safeStorage, session, shell } from "electron";
 import { BackupService, nativeBackupRunner } from './backup-service.mjs';
 import { installEditMenu } from './edit-menu.mjs';
 import { HOST_PLUGINS, hostPluginDirectory } from './host-plugin-setup.mjs';
+import { StartupTimeline } from './startup-timeline.mjs';
+import { BackgroundPreference, shouldHideOnClose, trayMenuTemplate, BACKGROUND_TOOLTIP } from './background-mode.mjs';
 import { loadAgentTemplates } from './agent-templates.mjs';
 import { saveDeliveredFile } from './delivered-files.mjs';
 import { applyUiTheme } from './ui-theme.mjs';
@@ -103,6 +105,7 @@ const chromeBridge = new ChromeBridge({ request: params => setupChannel.browserR
 let runtimeStatus = {
   supervisor: SUPERVISOR_STATES.IDLE,
   detail: null,
+  startupPhase: 'app-start',
   connected: false,
   setupReady: false,
   attachmentPolicy: null,
@@ -112,6 +115,45 @@ let runtimeStatus = {
   stateDirectory: null,
   lastError: null
 };
+
+// Startup timing evidence for spec 0059: one JSON line per run next to the app data.
+const startupTimeline = new StartupTimeline({
+  file: smoke ? null : path.join(app.getPath('userData'), 'aifb-startup-timeline.jsonl'),
+  onPhase: (phase) => publishStatus({ startupPhase: phase })
+});
+
+// Background mode (spec 0059): closing the window hides it and keeps the owned
+// Gateway warm; only the tray's "Thoát hẳn" or an OS quit really shuts down.
+const backgroundPreference = new BackgroundPreference({ file: path.join(app.getPath('userData'), 'aifb-background.json') });
+let tray = null, quitting = false;
+function backgroundEnabled() { return !smoke && backgroundPreference.enabled; }
+function showMainWindow() {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.show();
+  mainWindow.focus();
+}
+function refreshTray() {
+  if (!tray || tray.isDestroyed?.()) return;
+  const template = trayMenuTemplate({ backgroundEnabled: backgroundPreference.enabled, paused: runtimePaused,
+    windowVisible: Boolean(mainWindow && !mainWindow.isDestroyed() && mainWindow.isVisible()) });
+  tray.setContextMenu(Menu.buildFromTemplate(template.map(item => item.type === 'separator' ? { type: 'separator' } : {
+    label: item.label, type: item.type, checked: item.checked, enabled: item.enabled,
+    click: item.id === 'show' ? () => showMainWindow()
+      : item.id === 'background' ? () => { backgroundPreference.set(!backgroundPreference.enabled); refreshTray(); }
+      : item.id === 'quit' ? () => { quitting = true; app.quit(); }
+      : undefined
+  })));
+}
+function installTray() {
+  if (smoke || tray) return;
+  try {
+    tray = new Tray(fileURLToPath(new URL('./assets/icon-256.png', import.meta.url)));
+    tray.setToolTip(BACKGROUND_TOOLTIP);
+    tray.on('click', () => showMainWindow());
+    refreshTray();
+  } catch (error) { tray = null; console.warn(`[tray] ${error?.message ?? error}`); }
+}
 
 const setupPageAccess = createSetupPageAccess({
   openExternal: (url) => shell.openExternal(url),
@@ -139,6 +181,11 @@ app.on("second-instance", () => {
 
 function publishStatus(patch) {
   runtimeStatus = { ...runtimeStatus, ...patch };
+  if (Object.hasOwn(patch, 'paused')) refreshTray();
+  if (runtimeStatus.connected && runtimeStatus.setupReady && startupTimeline.phase !== 'ready') {
+    startupTimeline.mark('ready');
+    void startupTimeline.flush('ready');
+  }
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send(GATEWAY_STATUS_EVENT_CHANNEL, runtimeStatus);
   }
@@ -235,6 +282,8 @@ async function startRuntime() {
     openclawEntry,
     onOwnedChildExit: () => { advisorService.ownedRuntimeStopped(); supervisionService.ownedRuntimeStopped(); optimizerInference.stopped(); optimizer?.job?.controller.abort(); },
     onStateChange: ({ state, detail }) => {
+      if (state === SUPERVISOR_STATES.STARTING) startupTimeline.mark('runtime-start');
+      if (state === SUPERVISOR_STATES.READY) startupTimeline.mark('runtime-spawned');
       publishStatus({ supervisor: state, detail });
     }
   });
@@ -247,6 +296,7 @@ async function startRuntime() {
       if (shuttingDown) return;
       if (status.phase === "connected") {
         supervisor?.markReady();
+        startupTimeline.mark('chat-connected');
         publishStatus({
           connected: true,
           attachmentPolicy: status.attachmentPolicy ?? null,
@@ -296,7 +346,7 @@ async function startRuntime() {
       if (shuttingDown) return;
       if (status.phase !== "connected") setupPageAccess.clear();
       publishStatus({ setupReady: status.phase === "connected" });
-      if (status.phase === "connected") { void advisorService.connectionRestored(); void supervisionService.connectionRestored(); void prepareHostPlugins(); }
+      if (status.phase === "connected") { startupTimeline.mark('setup-connected'); void advisorService.connectionRestored(); void supervisionService.connectionRestored(); void prepareHostPlugins(); }
       if (status.phase === 'connected') {
         try { if (JSON.parse(readFileSync(path.join(app.getPath('userData'), 'aifb-chrome-enabled.json'), 'utf8')).enabled === true) void chromeBridge.native('/').catch(() => {}); }
         catch { /* No Chrome pairing requested for this product profile. */ }
@@ -445,6 +495,14 @@ async function createMainWindow() {
 
   mainWindow = new BrowserWindow(createWindowOptions({ preloadPath, isPackaged: app.isPackaged }));
   keepWindowControlsVisible(mainWindow);
+  mainWindow.on('close', (event) => {
+    if (!shouldHideOnClose({ enabled: backgroundEnabled(), quitting })) return;
+    event.preventDefault();
+    mainWindow.hide();
+    refreshTray();
+  });
+  mainWindow.on('show', () => refreshTray());
+  installTray();
   installEditMenu(mainWindow, Menu);
   if (smoke) mainWindow.webContents.setBackgroundThrottling(false);
 
@@ -535,20 +593,25 @@ function prepareHostPlugins() {
   if (smoke || shuttingDown || runtimePaused || hostPluginsInFlight || hostPluginPasses >= 2) return hostPluginsInFlight ?? Promise.resolve();
   hostPluginPasses++;
   hostPluginsInFlight = (async () => {
+    if (shuttingDown || runtimePaused || !setupChannel?.connected) return;
+    // One patch, one restart: registering them one at a time cost two restarts.
+    const present = [];
     for (const spec of HOST_PLUGINS) {
-      if (shuttingDown || runtimePaused || !setupChannel?.connected) return;
       const directory = hostPluginDirectory(spec.folder, { packaged: app.isPackaged, resourcesPath: process.resourcesPath, electronDirectory: currentDirectory });
-      if (!existsSync(directory)) { console.warn(`[host-plugins] ${spec.id}: thiếu thư mục ${directory}`); continue; }
-      try {
-        await setupChannel.prepareHostPlugin(spec.id, directory, async () => {
-          channelWorkGuard.assertExclusive();
-          if (!await restartGateway()) throw new Error('Gateway chưa sẵn sàng sau khi đăng ký plugin.');
-        });
-      } catch (error) {
-        console.warn(`[host-plugins] ${spec.id}: ${error?.message ?? error}`);
-        publishStatus({ lastError: `${spec.label} chưa sẵn sàng: ${error?.message ?? 'lỗi không rõ'}` });
-        return;
-      }
+      if (existsSync(directory)) present.push({ id: spec.id, directory });
+      else console.warn(`[host-plugins] ${spec.id}: thiếu thư mục ${directory}`);
+    }
+    if (!present.length) return;
+    startupTimeline.mark('host-plugins-start');
+    try {
+      await setupChannel.prepareHostPlugins(present, async () => {
+        channelWorkGuard.assertExclusive();
+        if (!await restartGateway()) throw new Error('Gateway chưa sẵn sàng sau khi đăng ký plugin.');
+      });
+      startupTimeline.mark('host-plugins-ready');
+    } catch (error) {
+      console.warn(`[host-plugins] ${error?.message ?? error}`);
+      publishStatus({ lastError: `Bộ mở rộng của ứng dụng chưa sẵn sàng: ${error?.message ?? 'lỗi không rõ'}` });
     }
   })().finally(() => { hostPluginsInFlight = null; });
   return hostPluginsInFlight;
@@ -762,6 +825,7 @@ if (hasInstanceLock) app.whenReady().then(async () => {
 app.on("before-quit", (event) => {
   // Every quit request must wait for the same cleanup, including recursive quits.
   event.preventDefault();
+  quitting = true;
   if (shuttingDown) return;
   shuttingDown = true;
   const ownedTabs = webTabs; webTabs = null;
@@ -776,7 +840,7 @@ app.on("before-quit", (event) => {
       for (const operation of [
         () => { clearInterval(optimizerTimer); optimizer?.job?.controller.abort(); },
         () => backups?.stop(), () => ownedTabs?.dispose(), () => { advisorService.cancelForShutdown(); supervisionService.cancelForShutdown(); }, () => channelPluginInstaller?.stop(),
-        () => setupPageAccess.clear(), () => adapter?.disconnect(),
+        () => setupPageAccess.clear(), () => { tray?.destroy(); tray = null; }, () => adapter?.disconnect(),
         () => setupChannel?.disconnect(), () => supervisor?.stop(),
       ]) await cleanup(operation);
     } finally {
@@ -790,6 +854,9 @@ app.on("before-quit", (event) => {
 });
 
 app.on("window-all-closed", () => {
+  // A hidden window is not a closed one; background mode keeps the owned
+  // Gateway warm until the tray asks to quit.
+  if (backgroundEnabled() && !quitting) return;
   if (process.platform !== "darwin") {
     app.quit();
   }
