@@ -47,7 +47,9 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
     }
   }, [ready, models]);
 
-  useEffect(() => { void load(false); }, [load]);
+  // The first read is deferred off the effect body: calling setState synchronously
+  // inside an effect cascades renders, and the lint rule that guards that is on.
+  useEffect(() => { void Promise.resolve().then(() => load(false)); }, [load]);
 
   const move = async (card: ProviderCard, profileId: string, direction: -1 | 1) => {
     const next = reorder(card.accounts.map(account => account.profileId), profileId, direction);
