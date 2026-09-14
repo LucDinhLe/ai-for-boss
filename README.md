@@ -2,11 +2,11 @@
 
 Ứng dụng desktop xây trên OpenClaw. Đây là bản thử nghiệm cho nhóm nhỏ, chưa phải bản ổn định.
 
-[Tải bộ cài Windows beta40](https://github.com/LucDinhLe/ai-for-boss/releases/download/0.0.5-beta.40/AI-for-Boss-0.0.5-beta.40-Setup.exe) · [Ghi chú và mã SHA256](https://github.com/LucDinhLe/ai-for-boss/releases/tag/0.0.5-beta.40) · [Bản trước beta39](https://github.com/LucDinhLe/ai-for-boss/releases/tag/0.0.5-beta.39).
+[Tải bộ cài Windows beta41](https://github.com/LucDinhLe/ai-for-boss/releases/download/0.0.5-beta.41/AI-for-Boss-0.0.5-beta.41-Setup.exe) · [Ghi chú và mã SHA256](https://github.com/LucDinhLe/ai-for-boss/releases/tag/0.0.5-beta.41) · [Bản trước beta39](https://github.com/LucDinhLe/ai-for-boss/releases/tag/0.0.5-beta.39).
 
 ## Cài và dùng thử
 
-1. Tải `AI-for-Boss-0.0.5-beta.40-Setup.exe`, đối chiếu SHA256 trong cùng release rồi chạy bộ cài.
+1. Tải `AI-for-Boss-0.0.5-beta.41-Setup.exe`, đối chiếu SHA256 trong cùng release rồi chạy bộ cài.
 2. Mở lối tắt AI for Boss. Kết nối tài khoản của chính bạn trong Cài đặt → Nhà cung cấp. Quyền truy cập mô hình phụ thuộc nhà cung cấp và gói tài khoản; có trong danh mục không đồng nghĩa đã dùng được.
 3. Tạo cuộc trò chuyện hoặc dự án. Tác vụ xuất tài liệu thông thường dùng công cụ có sẵn. Lệnh tùy ý trên máy vẫn có thể yêu cầu “Cho phép lần này” hoặc “Từ chối” khi lõi chưa xác nhận được phạm vi.
 
@@ -61,4 +61,4 @@ OpenClaw và các thư viện đi kèm giữ nguyên thông báo bản quyền v
 
 Kho chính hiện là `LucDinhLe/ai-for-boss`. Các bản beta36 trở xuống đã phát hành giữ nguyên tệp cài và có địa chỉ cập nhật cũ được nhúng trong ứng dụng. Khi kho preview bị xóa, chức năng kiểm tra cập nhật của những bản này không còn truy cập được nguồn cũ; người dùng cần tải thủ công bản cài kế tiếp từ kho chính. Mã nguồn hiện tại đã chuyển địa chỉ cập nhật sang kho chính. Việc chuyển kho không thay dữ liệu hay cấu hình trên máy người dùng.
 
-**Trạng thái hiện tại:** beta40 là bản thử nghiệm. Tài liệu quản trị mô tả mục tiêu sản phẩm; không capability nào đang được quảng cáo là production-ready. Các mốc Cổng 0/Feature 0.x trong lịch sử không phải số phiên bản bộ cài.
+**Trạng thái hiện tại:** beta41 là bản thử nghiệm. Tài liệu quản trị mô tả mục tiêu sản phẩm; không capability nào đang được quảng cáo là production-ready. Các mốc Cổng 0/Feature 0.x trong lịch sử không phải số phiên bản bộ cài.

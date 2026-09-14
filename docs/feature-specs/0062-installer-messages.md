@@ -25,6 +25,12 @@ Hai lỗi nằm trong một màn hình.
 - **Câu "đang được dùng" nói đúng chỗ bấm.** Nay là: bản này vẫn chạy kể cả khi cửa sổ đã đóng, bấm chuột phải biểu tượng ở khay hệ thống rồi chọn Thoát hẳn, sau đó gỡ lại.
 - **Dòng tiến trình giữ nguyên tiếng Việt.** Chúng đi bằng `SendMessage` chứ không qua stdout, và test khoá điều đó để đợt sau không "sửa" nhầm luôn cả chỗ đang đúng.
 
+## Lần đầu sửa hỏng, và vì sao
+
+Bản vá đầu dùng `${Select}` để ánh xạ và `${TrimNewLines}` để cắt xuống dòng. `makensis` trả về `Invalid command: "${TrimNewLines}"` và bản dựng chết ở phút thứ hai mươi. `TrimNewLines` nằm trong `FileFunc.nsh` và cần một lượt khai báo riêng cho từng ngữ cảnh, bản gỡ cài đặt lại cần biến thể `un.`, thứ mà một macro dùng chung cho cả cài lẫn gỡ không cấp được.
+
+Gốc rễ không phải chọn sai macro. Gốc rễ là môi trường sửa kho này không cài được NSIS (kho Ubuntu bị chặn), nên mọi cấu trúc mới đều không ai kiểm được cho tới khi một bản dựng thật chết. Vì thế luật bây giờ: chỉ dùng cấu trúc tệp này đã biên dịch được, và có test đọc tệp để giữ luật đó. Bản vá thứ hai chỉ dùng `If`/`ElseIf`, và bỏ hẳn nhu cầu cắt xuống dòng bằng cách cho PowerShell không phát ký tự xuống dòng nữa.
+
 ## Cố ý không làm
 
 Không để bộ cài tự tắt ứng dụng. `taskkill` đã bị test cấm từ đầu, và giết một tiến trình đang ghi dữ liệu để tiết kiệm cho người dùng một cú bấm là đổi chác tồi.
@@ -33,5 +39,5 @@ Không cố ép PowerShell ghi ra đúng bảng mã. `nsExec` không đọc UTF-
 
 ## Bằng chứng
 
-- `tests/unit/internal-installer.test.mjs`: mọi câu `throw` và mọi giá trị trong bảng `$completed` đều là mã ASCII hợp lệ và đều có lời trong bộ cài; câu `IN_USE` phải nhắc khay hệ thống và Thoát hẳn; lượt cắt xuống dòng phải đứng trước lượt ánh xạ; `FileFunc.nsh` phải được nạp; nhánh mặc định phải in nguyên văn; và dòng tiến trình phải giữ tiếng Việt.
+- `tests/unit/internal-installer.test.mjs`: tệp `.nsi` chỉ được dùng những dạng LogicLib đã biên dịch được và chỉ hai tệp header cũ, vì không ai chạy được `makensis` ở đây; mọi câu `throw` và mọi giá trị trong bảng `$completed` đều là mã ASCII hợp lệ và đều có lời trong bộ cài; câu `IN_USE` phải nhắc khay hệ thống và Thoát hẳn; lượt cắt xuống dòng phải đứng trước lượt ánh xạ; `FileFunc.nsh` phải được nạp; nhánh mặc định phải in nguyên văn; và dòng tiến trình phải giữ tiếng Việt.
 - Chưa chạy thử trên máy thật. Phải xác nhận bằng chính lần gỡ tiếp theo của Product Owner.

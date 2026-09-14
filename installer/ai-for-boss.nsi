@@ -6,7 +6,6 @@ RequestExecutionLevel user
 CRCCheck force
 !include "MUI2.nsh"
 !include "LogicLib.nsh"
-!include "FileFunc.nsh"
 !ifndef VERSION
   !error "VERSION is required"
 !endif
@@ -59,79 +58,81 @@ Var Stage
 ; PowerShell writes stdout in the console code page and nsExec reads it back as
 ; ANSI, so any diacritic sent that way arrives as question marks — which is what
 ; a Product Owner saw when a locked file stopped an uninstall. The wording lives
-; here instead, compiled into the installer, where it renders correctly. An
-; unrecognised code is shown as-is so an unexpected system error is still legible.
-!macro Explain CODE OUT
-  StrCpy ${OUT} ""
-  ${Select} ${CODE}
-    ${Case} "IN_USE"
-      StrCpy ${OUT} "Bản này vẫn đang chạy, kể cả khi cửa sổ đã đóng. Bấm chuột phải biểu tượng AI for Boss ở khay hệ thống rồi chọn Thoát hẳn, sau đó gỡ lại"
-    ${Case} "LOCAL_FOLDER"
-      StrCpy ${OUT} "Chọn một thư mục cục bộ riêng cho ứng dụng"
-    ${Case} "NO_REPARSE"
-      StrCpy ${OUT} "Chọn thư mục cài đặt ngoài liên kết hoặc thư mục đồng bộ"
-    ${Case} "BAD_PAYLOAD_PATH"
-      StrCpy ${OUT} "Đường dẫn trong gói không hợp lệ"
-    ${Case} "OUTSIDE_VERSION"
-      StrCpy ${OUT} "Tệp nằm ngoài thư mục phiên bản"
-    ${Case} "MANIFEST_MISMATCH"
-      StrCpy ${OUT} "Thông tin bộ cài không khớp"
-    ${Case} "BAD_FILE_LIST"
-      StrCpy ${OUT} "Danh sách tệp không hợp lệ"
-    ${Case} "PATH_TOO_LONG"
-      StrCpy ${OUT} "Đường dẫn cài đặt quá dài. Hãy dùng thư mục mặc định hoặc chọn thư mục ngắn hơn"
-    ${Case} "PAYLOAD_INCOMPLETE"
-      StrCpy ${OUT} "Gói thiếu giao diện hoặc lõi"
-    ${Case} "SHORTCUT_FOREIGN"
-      StrCpy ${OUT} "Lối tắt cùng tên thuộc bản khác; đã giữ nguyên"
-    ${Case} "SHORTCUT_UNVERIFIED"
-      StrCpy ${OUT} "Chưa xác nhận được lối tắt mới"
-    ${Case} "ROOT_FOREIGN"
-      StrCpy ${OUT} "Thư mục không thuộc bộ cài AI for Boss"
-    ${Case} "ROOT_NOT_EMPTY"
-      StrCpy ${OUT} "Chọn thư mục trống; không chọn thư mục tài liệu hoặc bản cài khác"
-    ${Case} "ROOT_UNOWNED"
-      StrCpy ${OUT} "Không tìm thấy thông tin sở hữu bộ cài"
-    ${Case} "VERSION_UNOWNED"
-      StrCpy ${OUT} "Thông tin sở hữu phiên bản không khớp; đã giữ nguyên"
-    ${Case} "VERSION_UNOWNED_REMOVE"
-      StrCpy ${OUT} "Thiếu thông tin sở hữu phiên bản; không xóa"
-    ${Case} "STAGE_MISMATCH"
-      StrCpy ${OUT} "Thông tin bản cài dở không khớp; đã giữ nguyên"
-    ${Case} "STAGE_UNOWNED"
-      StrCpy ${OUT} "Thư mục cài dở chưa có thông tin sở hữu; đã giữ nguyên để kiểm tra"
-    ${Case} "STAGE_FOREIGN"
-      StrCpy ${OUT} "Thư mục cài dở có tệp khác; đã giữ lại để kiểm tra"
-    ${Case} "STAGE_UNVERIFIED"
-      StrCpy ${OUT} "Chưa xác nhận được thư mục cài dở; đã giữ nguyên"
-    ${Case} "NO_SPACE"
-      StrCpy ${OUT} "Chưa đủ dung lượng trống cho phiên bản mới"
-    ${Case} "VERSION_EXISTS"
-      StrCpy ${OUT} "Phiên bản đã tồn tại; không ghi đè lõi"
-    ${Case} "INSTALL_UNVERIFIED"
-      StrCpy ${OUT} "Chưa xác nhận bản đã cài"
-    ${Case} "OK_PREPARE"
-      StrCpy ${OUT} "Đã kiểm tra thư mục"
-    ${Case} "OK_COMMIT"
-      StrCpy ${OUT} "Đã xác minh đầy đủ tệp"
-    ${Case} "OK_VERIFY"
-      StrCpy ${OUT} "Bản đã cài còn nguyên vẹn"
-    ${Case} "OK_ACTIVATE"
-      StrCpy ${OUT} "Đã tạo lối tắt và mục gỡ cài đặt"
-    ${Case} "OK_REMOVE"
-      StrCpy ${OUT} "Đã gỡ bản này, giữ dữ liệu và các bản khác"
-    ${CaseElse}
-      StrCpy ${OUT} ${CODE}
-  ${EndSelect}
-!macroend
+; here instead, compiled into the installer, where it renders correctly.
+;
+; Only the If/ElseIf construct is used, the one LogicLib form this file already
+; compiled with before. An earlier attempt reached for TrimNewLines and Select
+; and the build died on "Invalid command"; NSIS cannot be compiled in the
+; environment this repo is edited from, so the rule now is to add no construct
+; that is not already proven here. The support script drops its trailing
+; newline rather than making the installer trim one.
+;
+; $Reason starts as the raw code, so an unexpected system error from .NET or
+; Windows is still shown verbatim instead of being swallowed.
 !macro Support ACTION
   nsExec::ExecToStack '"$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$PLUGINSDIR\install-support.ps1" -Action ${ACTION} -Root "$INSTDIR" -Version "${VERSION}" -Manifest "$PLUGINSDIR\payload-manifest.json" -Desktop "$DESKTOP" -StartMenu "$SMPROGRAMS" -StatusWindow $HWNDPARENT'
   Pop $Result
   Pop $Detail
   ${If} $Result != 0
     SetErrorLevel 1
-    ${TrimNewLines} "$Detail" $Detail
-    !insertmacro Explain "$Detail" $Reason
+    StrCpy $Reason $Detail
+    ${If} $Detail == "IN_USE"
+      StrCpy $Reason "Bản này vẫn đang chạy, kể cả khi cửa sổ đã đóng. Bấm chuột phải biểu tượng AI for Boss ở khay hệ thống rồi chọn Thoát hẳn, sau đó gỡ lại"
+    ${ElseIf} $Detail == "LOCAL_FOLDER"
+      StrCpy $Reason "Chọn một thư mục cục bộ riêng cho ứng dụng"
+    ${ElseIf} $Detail == "NO_REPARSE"
+      StrCpy $Reason "Chọn thư mục cài đặt ngoài liên kết hoặc thư mục đồng bộ"
+    ${ElseIf} $Detail == "BAD_PAYLOAD_PATH"
+      StrCpy $Reason "Đường dẫn trong gói không hợp lệ"
+    ${ElseIf} $Detail == "OUTSIDE_VERSION"
+      StrCpy $Reason "Tệp nằm ngoài thư mục phiên bản"
+    ${ElseIf} $Detail == "MANIFEST_MISMATCH"
+      StrCpy $Reason "Thông tin bộ cài không khớp"
+    ${ElseIf} $Detail == "BAD_FILE_LIST"
+      StrCpy $Reason "Danh sách tệp không hợp lệ"
+    ${ElseIf} $Detail == "PATH_TOO_LONG"
+      StrCpy $Reason "Đường dẫn cài đặt quá dài. Hãy dùng thư mục mặc định hoặc chọn thư mục ngắn hơn"
+    ${ElseIf} $Detail == "PAYLOAD_INCOMPLETE"
+      StrCpy $Reason "Gói thiếu giao diện hoặc lõi"
+    ${ElseIf} $Detail == "SHORTCUT_FOREIGN"
+      StrCpy $Reason "Lối tắt cùng tên thuộc bản khác; đã giữ nguyên"
+    ${ElseIf} $Detail == "SHORTCUT_UNVERIFIED"
+      StrCpy $Reason "Chưa xác nhận được lối tắt mới"
+    ${ElseIf} $Detail == "ROOT_FOREIGN"
+      StrCpy $Reason "Thư mục không thuộc bộ cài AI for Boss"
+    ${ElseIf} $Detail == "ROOT_NOT_EMPTY"
+      StrCpy $Reason "Chọn thư mục trống; không chọn thư mục tài liệu hoặc bản cài khác"
+    ${ElseIf} $Detail == "ROOT_UNOWNED"
+      StrCpy $Reason "Không tìm thấy thông tin sở hữu bộ cài"
+    ${ElseIf} $Detail == "VERSION_UNOWNED"
+      StrCpy $Reason "Thông tin sở hữu phiên bản không khớp; đã giữ nguyên"
+    ${ElseIf} $Detail == "VERSION_UNOWNED_REMOVE"
+      StrCpy $Reason "Thiếu thông tin sở hữu phiên bản; không xóa"
+    ${ElseIf} $Detail == "STAGE_MISMATCH"
+      StrCpy $Reason "Thông tin bản cài dở không khớp; đã giữ nguyên"
+    ${ElseIf} $Detail == "STAGE_UNOWNED"
+      StrCpy $Reason "Thư mục cài dở chưa có thông tin sở hữu; đã giữ nguyên để kiểm tra"
+    ${ElseIf} $Detail == "STAGE_FOREIGN"
+      StrCpy $Reason "Thư mục cài dở có tệp khác; đã giữ lại để kiểm tra"
+    ${ElseIf} $Detail == "STAGE_UNVERIFIED"
+      StrCpy $Reason "Chưa xác nhận được thư mục cài dở; đã giữ nguyên"
+    ${ElseIf} $Detail == "NO_SPACE"
+      StrCpy $Reason "Chưa đủ dung lượng trống cho phiên bản mới"
+    ${ElseIf} $Detail == "VERSION_EXISTS"
+      StrCpy $Reason "Phiên bản đã tồn tại; không ghi đè lõi"
+    ${ElseIf} $Detail == "INSTALL_UNVERIFIED"
+      StrCpy $Reason "Chưa xác nhận bản đã cài"
+    ${ElseIf} $Detail == "OK_PREPARE"
+      StrCpy $Reason "Đã kiểm tra thư mục"
+    ${ElseIf} $Detail == "OK_COMMIT"
+      StrCpy $Reason "Đã xác minh đầy đủ tệp"
+    ${ElseIf} $Detail == "OK_VERIFY"
+      StrCpy $Reason "Bản đã cài còn nguyên vẹn"
+    ${ElseIf} $Detail == "OK_ACTIVATE"
+      StrCpy $Reason "Đã tạo lối tắt và mục gỡ cài đặt"
+    ${ElseIf} $Detail == "OK_REMOVE"
+      StrCpy $Reason "Đã gỡ bản này, giữ dữ liệu và các bản khác"
+    ${EndIf}
     MessageBox MB_OK|MB_ICONSTOP "Chưa hoàn tất: $Reason. Bản trước và dữ liệu được giữ nguyên." /SD IDOK
     Abort
   ${EndIf}
