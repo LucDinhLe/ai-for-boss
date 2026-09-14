@@ -456,5 +456,6 @@ try {
     }
   }
   $completed = @{ Prepare='OK_PREPARE'; Commit='OK_COMMIT'; Verify='OK_VERIFY'; Activate='OK_ACTIVATE'; Remove='OK_REMOVE' }
-  Write-Output ($completed[$Action] + ' (' + $Version + ')'); exit 0
-} catch { Write-Output $_.Exception.Message; exit 1 }
+  # No trailing newline: the installer compares this against a fixed code.
+  [Console]::Out.Write($completed[$Action]); exit 0
+} catch { [Console]::Out.Write($_.Exception.Message); exit 1 }

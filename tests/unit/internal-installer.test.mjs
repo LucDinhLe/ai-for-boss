@@ -216,23 +216,48 @@ test('the support script never sends Vietnamese through stdout, and every code i
   for (const message of authored) {
     assert.doesNotMatch(message, diacritic, `"${message}" would arrive corrupted; emit an ASCII code instead`);
     assert.match(message, /^[A-Z][A-Z_]{2,39}$/, `"${message}" is not a code the installer can map`);
-    assert.ok(nsi.includes(`"${message}"`), `the installer has no wording for ${message}`);
+    assert.ok(nsi.includes(`$Detail == "${message}"`), `the installer has no wording for ${message}`);
   }
 
   // The variable the script throws is a code too, and the one message that matters
   // most now names the tray, because closing the window no longer stops the app.
   assert.match(ps1, /\$inUse = 'IN_USE'/);
-  assert.match(nsi, /\$\{Case\} "IN_USE"[\s\S]{0,200}khay hệ thống[\s\S]{0,80}Thoát hẳn/);
+  assert.match(nsi, /\$\{If\} \$Detail == "IN_USE"[\s\S]{0,220}khay hệ thống[\s\S]{0,80}Thoát hẳn/);
 
-  // Trailing newline from Write-Output must go, or nothing ever matches a case.
-  assert.ok(nsi.indexOf('${TrimNewLines} "$Detail" $Detail') < nsi.indexOf('!insertmacro Explain'),
-    'the output is trimmed before it is matched');
-  assert.match(nsi, /!include "FileFunc\.nsh"/, 'TrimNewLines needs its header');
-  assert.match(nsi, /\$\{CaseElse\}\s+StrCpy \$\{OUT\} \$\{CODE\}/,
-    'an unexpected system error is still shown rather than swallowed');
+  // The script writes the bare code with no trailing newline, so the installer
+  // needs no trimming helper — the build died on ${TrimNewLines} once already.
+  assert.doesNotMatch(ps1, /Write-Output/, 'Write-Output appends a newline the comparison would never match');
+  assert.match(ps1, /\[Console\]::Out\.Write\(\$completed\[\$Action\]\); exit 0/);
+  assert.match(ps1, /catch \{ \[Console\]::Out\.Write\(\$_\.Exception\.Message\); exit 1 \}/);
+  assert.match(nsi, /StrCpy \$Reason \$Detail/,
+    'the raw code is the fallback, so an unexpected system error is shown rather than swallowed');
   assert.match(nsi, /MessageBox MB_OK\|MB_ICONSTOP "Chưa hoàn tất: \$Reason\./);
 
   // Progress text goes to the NSIS window in-process, not through stdout, so it
   // keeps its diacritics and must not be turned into codes.
   assert.match(ps1, /InstallProgress\]::Update\(\$StatusWindow, \('Đang kiểm tra: /);
+});
+
+/**
+ * NSIS cannot be compiled where this repo is edited, so a construct that is not
+ * already in the file is a construct nobody can check until a release build
+ * dies twenty minutes in. That is exactly how beta40 failed: ${TrimNewLines}
+ * and ${Select} were reached for, and makensis answered "Invalid command".
+ */
+test('the installer script uses only the LogicLib constructs it already compiled with', async () => {
+  const nsi = await fs.readFile(path.join(repo, 'installer/ai-for-boss.nsi'), 'utf8');
+  const code = nsi.split('\n').filter(line => !line.trim().startsWith(';')).join('\n');
+  // LogicLib forms this file has compiled with, plus the macro arguments and the
+  // defines scripts/build-internal-installer.mjs passes in on the command line.
+  const proven = new Set(['If', 'ElseIf', 'Else', 'EndIf', 'Errors',
+    'ACTION', 'TEXT', 'VERSION', 'BRAND_ICON', 'OUT_FILE', 'PAYLOAD_INCLUDE', 'PAYLOAD_MANIFEST', 'SUPPORT_SCRIPT']);
+  const used = new Set([...code.matchAll(/\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g)].map(match => match[1]));
+  assert.ok(used.has('If') && used.has('ElseIf'), 'sanity: the scan found the constructs it is meant to police');
+  for (const name of used) {
+    assert.ok(proven.has(name), `\${${name}} is not proven to compile here; add it only with a build that ran`);
+  }
+  // LogicLib is the only header the file has ever needed. A new !include is a
+  // new way for makensis to fail on a machine none of us can run it on.
+  assert.deepEqual([...code.matchAll(/!include "([^"]+)"/g)].map(match => match[1]).filter(name => !name.startsWith('${')),
+    ['MUI2.nsh', 'LogicLib.nsh']);
 });
