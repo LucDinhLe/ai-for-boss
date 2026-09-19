@@ -58,15 +58,26 @@ bản đang chạy và bản liền trước nó, để còn đường lùi. M�
 tệp `Uninstall-*.exe` của chính nó. Dọn sau khi bản mới đã khởi động thành công
 một lần, không phải trước.
 
-**2. Một mục đăng ký duy nhất, tên cố định.** Khoá đăng ký không mang số hiệu
-bản. `UninstallString` trỏ vào một bộ gỡ ổn định, bộ gỡ đó tự tìm mọi bản trong
-`versions/` mà xoá, chứ không chỉ xoá bản sinh ra nó. Đây là chỗ gốc của lỗi: số
-hiệu bản nằm trong tên khoá nên mỗi lần nâng cấp lại đẻ một danh tính mới.
+**2. Khoá đăng ký giữ nguyên cách đặt tên. Không làm khoá cố định.** Bản nháp
+đề xuất một khoá tên cố định, một bộ gỡ xoá mọi bản. Bỏ đề xuất đó sau khi đọc
+mã, vì ba lý do:
 
-**3. Bộ gỡ phải tự thoát ứng dụng trước khi xoá.** Nếu còn tiến trình đang chạy,
-bộ gỡ dừng lại, nói rõ bằng tiếng Việt rằng ứng dụng đang chạy trong khay hệ
-thống, và cho một nút thoát rồi gỡ tiếp. Không im lặng thất bại, không xoá được
-một nửa.
+- `Reuse-Core` cố ý dựa vào mô hình nhiều bản cạnh nhau: nó hardlink tệp lõi từ
+  bản trước để nâng cấp nhanh. Một bộ gỡ "xoá mọi bản" đi ngược mô hình ấy.
+- Khi mục 1 giữ đúng hai bản, Add/Remove Programs nhiều nhất có hai mục, cả hai
+  đều trỏ đúng. Mục mồ côi biến mất mà không phải đổi cách đặt tên khoá.
+- `installer/ai-for-boss.nsi` ghi rõ NSIS **không biên dịch được** từ máy đang
+  phát triển, và luật là không thêm cấu trúc chưa từng chạy. Đổi cách đặt khoá
+  buộc phải sửa `.nsi`, tức là đẩy rủi ro vào thứ không kiểm chứng tại chỗ được.
+
+Mục 1 dọn cả thư mục bản, tệp `Uninstall-*.exe` và khoá đăng ký của bản đó cùng
+lúc, nên vẫn hết mồ côi mà không đụng NSIS.
+
+**3. Bộ gỡ dừng lại khi ứng dụng đang chạy. Đã có sẵn, không làm lại.** Kiểm mã
+ngày 19/09: `Inspect-OwnedFiles` đã trả `Locked` và `Remove` đã `throw 'IN_USE'`,
+còn `ai-for-boss.nsi` đã có nguyên văn tiếng Việt: *"Bản này vẫn đang chạy, kể cả
+khi cửa sổ đã đóng. Bấm chuột phải biểu tượng AI for Boss ở khay hệ thống rồi
+chọn Thoát hẳn, sau đó gỡ lại."* Yêu cầu này coi như đã đạt từ trước.
 
 **4. Gỡ xong thì không còn gì.** Sau khi gỡ, `AI for Boss Internal/` không còn
 tồn tại: không `versions/`, không `staging/`, không tệp uninstaller nào. Dữ liệu
@@ -99,10 +110,38 @@ dòng: đã thu lại bao nhiêu GB. Máy của Product Owner sẽ thu lại kho
 - Đường dẫn dị dạng, symlink trỏ ra ngoài: từ chối.
 - Kiểm tay trên máy Product Owner, đo dung lượng trước và sau.
 
+## Đã làm trong đợt này, và chưa làm
+
+**Đã làm.** Mục 1 và mục 6: `Prune-OldVersions` trong `installer/install-support.ps1`,
+gọi ở cuối `Activate`, sau khi bản mới đã cài và đăng ký xong. Giữ bản đang chạy
+và bản khác mới nhất; mọi bản cũ hơn bị xoá cùng `Uninstall-<ver>.exe` và khoá
+đăng ký của chính nó. Một thư mục không có `.aifb-payload.json` thì không bao giờ
+bị đụng. Lỗi khi dọn không làm hỏng lượt cài: `try { Prune-OldVersions } catch { }`,
+vì lúc đó bản mới đã cài xong rồi. Mục 6 không cần mã riêng — máy đã lỡ tích sẽ
+được dọn ở lượt nâng cấp kế tiếp.
+
+Không sửa `ai-for-boss.nsi` một dòng nào.
+
+**Chưa làm, còn để lại:** mục 4 (gỡ xong thư mục biến mất hẳn) và mục 5 (hỏi một
+câu về dữ liệu). Hiện `Section "Uninstall"` vẫn chỉ xoá bản sinh ra nó, cố ý và
+có chú thích. Sau khi mục 1 chạy, số bản còn lại nhiều nhất là hai, nên thiệt hại
+đã nhỏ đi rất nhiều; nhưng gỡ xong vẫn còn một bản và thư mục vẫn tồn tại. Hai
+mục này cần sửa `.nsi`, tức là cần một máy biên dịch được NSIS.
+
 ## Bằng chứng hoàn thành
 
-Điền khi xong: commit, `pnpm verify`, dung lượng đo được trước và sau trên máy
-Product Owner, và xác nhận rằng gỡ cài đặt để lại thư mục rỗng.
+- `pnpm verify` exit code 0: 798 phép, 797 xanh, 0 hỏng, 1 bỏ qua (19/09).
+- Phép mới `tests/unit/internal-installer.test.mjs`, "Windows activate keeps the
+  running build and one rollback, and spares what it does not own": dựng bốn thư
+  mục bản, chạy thật `install-support.ps1`, khẳng định bản đang chạy và bản lùi
+  còn, bản cũ hơn mất cùng uninstaller của nó, và thư mục không có bằng chứng sở
+  hữu vẫn nguyên.
+- Dọn tay trên máy Product Owner ngày 19/09: xoá 12 thư mục bản và 12 tệp
+  uninstaller mồ côi, **thu lại 10,48 GB**, ổ C: từ 154,5 lên 164,9 GB trống.
+  Còn lại `0.0.5-beta.34` và `0.0.5-beta.41`. Ứng dụng đang chạy không bị ảnh
+  hưởng.
+- Còn thiếu để đóng: xác nhận rằng sau một lượt nâng cấp thật, bản cũ tự biến
+  mất mà không cần tay.
 
 ## Việc dọn tay trên máy Product Owner
 

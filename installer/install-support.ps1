@@ -144,6 +144,33 @@ public static class InstallLinks {
     break
   }
 }
+function Prune-OldVersions {
+  # Every upgrade used to leave its whole version directory, its Uninstall exe
+  # and its registry key behind: fourteen builds, 871 MB each, measured at
+  # 11.9 GB on the Product Owner's machine. Keep the running build and one
+  # rollback, which is also the newest build Reuse-Core hardlinks from.
+  $versions = Join-Path $rootPath 'versions'
+  if (-not [IO.Directory]::Exists($versions)) { return }
+  $others = @(Get-ChildItem -LiteralPath $versions -Directory -ErrorAction SilentlyContinue |
+    Where-Object { $_.Name -ne $Version -and $_.Name -match '^[0-9A-Za-z][0-9A-Za-z.-]{0,70}$' } |
+    Sort-Object LastWriteTime -Descending)
+  foreach ($stale in @($others | Select-Object -Skip 1)) {
+    # Ownership proof, same one Reuse-Core trusts. No proof, no delete.
+    $proof = Join-Path $stale.FullName '.aifb-payload.json'
+    if (-not [IO.File]::Exists($proof)) { continue }
+    try {
+      Assert-PlainPath $stale.FullName
+      $prior = Get-Content -LiteralPath $proof -Raw -Encoding UTF8 | ConvertFrom-Json
+      if ($prior.product -ne 'AI for Boss' -or $prior.version -ne $stale.Name) { continue }
+      [IO.Directory]::Delete($stale.FullName, $true)
+      $orphan = Join-Path $rootPath ('Uninstall-' + $stale.Name + '.exe')
+      if ([IO.File]::Exists($orphan)) { [IO.File]::Delete($orphan) }
+      $key = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\AIforBossInternal-' + $stale.Name
+      if ((Get-ItemProperty -Path $key -ErrorAction SilentlyContinue).InstallLocation -eq $stale.FullName) { Remove-Item -LiteralPath $key -Recurse }
+    } catch { continue }
+  }
+}
+
 function Read-Payload {
   $data = Get-Content -LiteralPath $Manifest -Raw -Encoding UTF8 | ConvertFrom-Json
   if ($data.schemaVersion -ne 1 -or $data.product -ne 'AI for Boss' -or $data.version -ne $Version -or $data.files.Count -lt 3) { throw 'MANIFEST_MISMATCH' }
@@ -438,6 +465,9 @@ try {
       Set-ItemProperty -Path $key -Name NoModify -Type DWord -Value 1
       Set-ItemProperty -Path $key -Name NoRepair -Type DWord -Value 1
       Set-ItemProperty -Path $key -Name EstimatedSize -Type DWord -Value ([int][Math]::Ceiling($payload.totalBytes / 1024))
+      # Last, and never fatal: this build is already installed and registered.
+      # A locked or unreadable leftover must not fail an upgrade that worked.
+      try { Prune-OldVersions } catch { }
     }
     'Remove' {
       if (-not (Test-Path -LiteralPath $manifestCopy)) { throw 'VERSION_UNOWNED_REMOVE' }
