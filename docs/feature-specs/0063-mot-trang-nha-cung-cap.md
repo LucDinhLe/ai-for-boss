@@ -293,7 +293,50 @@ cài, điều đó nói ở bước hai đường của chính nhà cung cấp �
 gợi ý, chứ không phải một danh sách thường trực. Còn hai nắp:
 `unavailableCandidates` và `prepareOptions`.
 
+## Làm hai đợt
+
+Feature này chạm hai file, một trong đó dài 712 dòng và là một màn hình riêng
+trong `App.tsx`. Chia đôi để mỗi đợt có bằng chứng riêng và có đường lùi riêng.
+
+**Đợt 1 — trang Nhà cung cấp. Đã xong.** Đây là mặt người dùng nhìn mỗi ngày và
+là chỗ hai trong bốn lối vào đang nằm.
+
+- Bỏ `CapabilityCatalog kind="providers"` khỏi trang: hết danh mục 84 mục, hết ô
+  tìm kiếm, hết nút "Thiết lập" trên từng mục, hết nút "Kết nối AI" đẩy ngược.
+  Cũng hết luôn lượt dò nửa phút mà khối đó kéo theo.
+- Khối "Nhà cung cấp lõi có hỗ trợ" rút thành một dòng chữ mờ cuối danh sách.
+- Thêm thanh **Mô hình mặc định** ở đầu trang, kèm nút Đổi mô hình chuyển sang
+  mục Mô hình trong Cài đặt.
+- Dòng tài khoản đổi sang **bốn biểu tượng cố định**: đăng nhập lại, lên, xuống,
+  gỡ. Nút lõi không cho thì mờ và `title` nói vì sao, không biến mất nữa. Mỗi
+  biểu tượng có `title` và `aria-label` tiếng Việt.
+- Thẻ nhà cung cấp có một biểu tượng **mức dùng**, vì `usage` chỉ tồn tại ở cấp
+  đó.
+- Biểu tượng lấy từ bộ `WorkbenchIcon` đã có trong kho (`plug`, `trash`,
+  `usage`); không thêm tài nguyên mới.
+- Số lối vào còn **hai**: trang này, và màn hình Kết nối cũ.
+
+**Đợt 2 — chưa làm.** `ConnectScreen` vẫn là một màn hình riêng do `App.tsx`
+định tuyến (`if (showConnect) return <ConnectScreen …>`). Còn lại: hạ nó xuống
+hộp thoại, bốn thẻ thương hiệu rồi hai đường, tách ba nắp có tên riêng, bỏ
+`recommendedInstalls`, ô đặt tên tài khoản, và bước "Đang khởi động lại bộ chạy"
+có tên. Sau đợt 2 số lối vào mới về **một**, và số cú bấm mới đo được.
+
+Trong lúc chờ đợt 2, nhà cung cấp ngoài bốn thương hiệu nổi vẫn nối được qua màn
+hình Kết nối cũ, nên không mất đường nào.
+
 ## Bằng chứng hoàn thành
 
-Điền khi xong: commit, kết quả `pnpm verify`, kết quả `pnpm smoke:ui`, số cú bấm
-đo được, số lối vào đếm được, reviewer, và xác nhận của Product Owner.
+Đợt 1, ngày 19/09:
+
+- `pnpm verify` exit code 0: 799 phép, 798 xanh, 0 hỏng, 1 bỏ qua.
+- `tests/unit/provider-settings.test.mjs` viết lại theo hợp đồng mới, 7 phép
+  xanh. Đáng chú ý: fixture **ném lỗi** nếu trang còn `require`
+  `./CapabilityCatalog`, nên việc danh mục rời khỏi trang được khoá bằng test
+  chứ không bằng lời hứa. Thêm phép khoá bộ biểu tượng: đúng 12 nút cho ba tài
+  khoản, mỗi nút phải có `title` và `aria-label` không rỗng, nút bị chặn phải
+  còn chỗ và phải nói lý do.
+- Chưa chạy `pnpm smoke:ui`; phải chạy trước khi đóng gói.
+
+Còn thiếu để đóng feature: đợt 2, số cú bấm đo được, số lối vào bằng một,
+reviewer, và xác nhận của Product Owner.

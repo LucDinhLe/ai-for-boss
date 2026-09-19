@@ -843,7 +843,7 @@ label em { min-height: 13px; color: var(--danger); font-size: 9px; font-style: n
 .provider-head h2 { margin: 0; }
 .provider-cards { display: flex; flex-direction: column; gap: 12px; margin: 16px 0 6px; padding: 0; list-style: none; }
 .provider-cards__item { border: 1px solid var(--hairline); border-radius: 10px; padding: 14px 16px; background: var(--paper); }
-.provider-cards__head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+.provider-cards__head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 12px; }
 .provider-cards__head svg, .provider-cards__head img { width: 22px; height: 22px; }
 .provider-cards__head strong { display: block; font-size: 14.5px; }
 .provider-cards__health { display: block; font-size: 11.5px; color: var(--muted); }
@@ -866,9 +866,19 @@ label em { min-height: 13px; color: var(--danger); font-size: 9px; font-style: n
 .settings-body .provider-accounts__actions button { margin: 0; padding: 4px 9px; font-size: 12px; line-height: 1.2; }
 .settings-body .provider-accounts__actions button:disabled { opacity: 0.4; }
 .settings-body .provider-accounts__remove { color: var(--danger); }
-.provider-rest { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
-.provider-rest li { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border: 1px solid var(--hairline); border-radius: 20px; font-size: 12.5px; color: var(--muted); }
-.provider-rest li svg, .provider-rest li img { width: 17px; height: 17px; }
+.provider-rest { margin: 14px 2px 0; font-size: 12.5px; line-height: 1.6; color: var(--muted); }
+/* Icon-only actions: the tooltip carries the wording, so keep a real target size. */
+.settings-body .provider-accounts__icon, .settings-body .provider-cards__icon {
+  display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px;
+  margin: 0; padding: 0; border: none; background: none; color: var(--muted); border-radius: 7px; }
+.settings-body .provider-accounts__icon svg, .settings-body .provider-cards__icon svg { width: 16px; height: 16px; }
+.settings-body .provider-accounts__icon:hover:enabled, .settings-body .provider-cards__icon:hover:enabled {
+  background: var(--hover); color: var(--ink); }
+.provider-default { display: flex; align-items: center; gap: 16px; }
+.provider-default__caption { margin: 0 0 3px; font-size: 12px; color: var(--muted); }
+.provider-default__model { margin: 0; font-size: 14.5px; font-weight: 600; }
+.provider-default__model span { font-weight: 400; font-size: 13px; color: var(--muted); }
+.provider-default > div { flex: 1 1 auto; min-width: 0; }
 .provider-error { margin: 12px 0 0; padding: 10px 12px; border: 1px solid var(--danger); border-radius: 8px; color: var(--danger); font-size: 12.5px; line-height: 1.5; }
 .provider-foot { margin-top: 14px; }
 .provider-foot p { margin: 4px 0 0; }

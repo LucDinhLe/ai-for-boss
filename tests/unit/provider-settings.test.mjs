@@ -14,12 +14,13 @@ const text = node => Array.isArray(node) ? node.map(text).join('') : node && typ
   : node == null || typeof node === 'boolean' ? '' : String(node);
 
 /**
- * The page holds four pieces of state in one order — cards, error, busy,
- * catalogue — so the fixture answers `useState` from that queue and can render
- * any moment of the page without a DOM.
+ * The page holds three pieces of state in one order — cards, error, busy — so
+ * the fixture answers `useState` from that queue and can render any moment of
+ * the page without a DOM. Spec 0063 took the catalogue off this page, so asking
+ * for it here is now a failure, not a fourth slot.
  */
-function render(props, { cards = null, error = null, busy = null, showCatalogue = false, manageCalls = [], setupCalls = [] } = {}) {
-  const exports = {}, catalogueMounts = [], queue = [cards, error, busy, showCatalogue];
+function render(props, { cards = null, error = null, busy = null, manageCalls = [], setupCalls = [] } = {}) {
+  const exports = {}, catalogueMounts = [], queue = [cards, error, busy];
   let index = 0;
   const source = fs.readFileSync(new URL('../../apps/desktop/src/ProviderSettings.tsx', import.meta.url), 'utf8');
   vm.runInNewContext(ts.transpileModule(source, { compilerOptions: {
@@ -31,7 +32,7 @@ function render(props, { cards = null, error = null, busy = null, showCatalogue 
       useState: () => [queue[index++], () => {}],
       useEffect: () => {}, useRef: initial => ({ current: initial }), useCallback: fn => fn
     };
-    if (id === './CapabilityCatalog') return { __esModule: true, default: 'catalogue' };
+    if (id === './CapabilityCatalog') throw new Error('spec 0063: the provider page must not pull in the 84-entry catalogue');
     if (id === './BrandIcon') return { __esModule: true, default: 'brand-icon' };
     if (id === './WorkspaceSidebar') return { WorkbenchIcon: 'icon' };
     if (id === './provider-order') return providerOrder;
@@ -96,38 +97,68 @@ test('projection: a stale stored order never hides a working account, and reorde
   assert.equal(providerAccounts.accountName('openai:work@example.com', 'ChatGPT'), 'work@example.com');
 });
 
-test('the page shows the accounts in the order the core will try them, and never scans the catalogue unless opened', () => {
+test('the page leads with the default model, then the accounts in the order the core will try them', () => {
   const clicks = [];
-  const { tree, catalogueMounts } = render({ ready: true, models, currentProvider: 'anthropic', currentModel: 'claude', onConnect: () => clicks.push('connect') }, { cards: cards() });
+  const { tree, catalogueMounts } = render({ ready: true, models, currentProvider: 'anthropic', currentModel: 'claude',
+    onConnect: query => clicks.push(query ?? 'connect'), onChangeModel: () => clicks.push('change-model') }, { cards: cards() });
   const rendered = text(tree);
+  assert.match(rendered, /Mô hình mặc định/, 'which model the app runs on is its own line, not a detail on a card');
+  assert.match(rendered, /claude · qua Claude \/ Anthropic/);
   assert.match(rendered, /1ca-nhan/, 'the first account is numbered one');
   assert.match(rendered, /Dùng trước/);
   assert.match(rendered, /Đang dùng claude/, 'the card says which model is live rather than a bare count');
   assert.match(rendered, /1 mô hình khả dụng/);
-  assert.match(rendered, /Mức dùng theo lõi ghi nhận: Max · còn 62% cửa sổ 5 giờ/);
-  assert.match(rendered, /Gemini \/ Google/, 'a provider with no account is listed separately, not hidden');
-  assert.equal(catalogueMounts.length, 0, 'the full catalogue (and its native scan) is not mounted by default');
+  assert.match(rendered, /Lõi còn hỗ trợ, chưa nối tài khoản nào:.*Gemini \/ Google/,
+    'a provider with no account is one dim line, no longer a card of its own');
+  assert.equal(catalogueMounts.length, 0, 'the full catalogue and its native scan are gone from this page');
   const primary = walk(tree).find(node => node.type === 'button' && node.props.className === 'settings-primary');
-  assert.equal(text(primary), 'Thêm tài khoản');
+  assert.equal(text(primary), 'Thêm nhà cung cấp');
   primary.props.onClick(); assert.deepEqual(clicks, ['connect']);
+  walk(tree).find(node => node.type === 'button' && text(node) === 'Đổi mô hình').props.onClick();
+  assert.deepEqual(clicks, ['connect', 'change-model']);
 });
 
-test('reorder buttons stop at the ends, logout only where the core allows it, and the order write goes through the fixed host call', async () => {
+test('usage rides on the card, because the core reports no per-account figure', () => {
+  const { tree } = render({ ready: true, models, onConnect() {} }, { cards: cards() });
+  const meters = walk(tree).filter(node => node.type === 'button' && node.props.className === 'provider-cards__icon');
+  assert.equal(meters.length, 2, 'one per connected provider');
+  const anthropic = meters.find(node => node.props['aria-label'] === 'Mức dùng của Claude / Anthropic');
+  assert.equal(anthropic.props.title, 'Mức dùng theo lõi ghi nhận: Max · còn 62% cửa sổ 5 giờ');
+  const openai = meters.find(node => node.props['aria-label'] === 'Mức dùng của ChatGPT / OpenAI');
+  assert.equal(openai.props.disabled, true, 'no figure from the core means a dimmed button, not a missing one');
+  assert.match(openai.props.title, /chưa báo mức dùng/);
+});
+
+test('every row carries the same four icons, dimmed with a reason where the core says no', async () => {
   const manageCalls = [];
   const { tree } = render({ ready: true, models, onConnect() {} }, { cards: cards(), manageCalls });
-  const up = walk(tree).filter(node => node.type === 'button' && node.props['aria-label']?.startsWith('Đưa') && text(node) === '↑');
-  assert.equal(up.length, 2, 'both anthropic accounts offer the move; the single-account provider offers none');
-  assert.equal(up[0].props.disabled, true, 'the first account cannot move up');
-  await up[1].props.onClick();
+  const icons = walk(tree).filter(node => node.type === 'button' && String(node.props.className ?? '').includes('provider-accounts__icon'));
+  assert.equal(icons.length, 12, 'three accounts, four icons each, whatever the core allows');
+  for (const icon of icons) {
+    assert.ok(icon.props.title?.length, 'an icon with no words on it must say what it does on hover');
+    assert.ok(icon.props['aria-label']?.length, 'and must say it to a screen reader');
+  }
+  const up = icons.filter(node => node.props['aria-label']?.startsWith('Đưa') && text(node) === '↑');
+  assert.equal(up.length, 3, 'the single-account provider keeps its slot instead of dropping a button');
+  const upFor = name => up.find(node => node.props['aria-label'] === `Đưa ${name} lên trên`);
+  assert.equal(upFor('ca-nhan').props.disabled, true, 'the first account cannot move up');
+  assert.equal(upFor('ca-nhan').props.title, 'Đã ở trên cùng');
+  const alone = up.find(node => node.props['aria-label'] === 'Đưa ChatGPT / OpenAI lên trên');
+  assert.equal(alone.props.disabled, true);
+  assert.equal(alone.props.title, 'Lõi không cho đổi thứ tự ở nhà cung cấp này', 'a blocked button explains itself');
+  await upFor('cong-ty').props.onClick();
   await new Promise(resolve => setTimeout(resolve, 10));
   assert.equal(JSON.stringify(manageCalls[0]), JSON.stringify({ action: 'provider-order-set', provider: 'anthropic', profileIds: ['anthropic:cong-ty', 'anthropic:ca-nhan'] }),
     'the write is a fixed action carrying the whole new order');
   assert.ok(manageCalls.slice(1).some(call => call.action === 'provider-order-read'), 'and the page rereads what the core stored');
-  const logout = walk(tree).filter(node => node.type === 'button' && text(node) === 'Đăng xuất');
-  assert.equal(logout.length, 2, 'only the two profiles the core marked logoutSupported');
+  const remove = icons.filter(node => node.props['aria-label']?.startsWith('Gỡ tài khoản'));
+  assert.equal(remove.length, 3);
+  assert.equal(remove.filter(node => !node.props.disabled).length, 2, 'only the two profiles the core marked logoutSupported');
+  const again = icons.filter(node => node.props['aria-label']?.startsWith('Đăng nhập lại'));
+  assert.equal(again.length, 3, 're-login is offered on every account, and routes into the one connect flow');
 });
 
-test('a blank machine gets one clear call to action, and the opened catalogue receives the connected set', () => {
+test('a blank machine gets one clear call to action', () => {
   const blank = render({ ready: true, models: [], onConnect() {} }, { cards: [] });
   assert.match(text(blank.tree), /Chưa có tài khoản nào/);
   const offline = render({ ready: false, models, onConnect() {} }, { cards: null });
@@ -137,10 +168,6 @@ test('a blank machine gets one clear call to action, and the opened catalogue re
   assert.match(text(loading.tree), /Đang đọc danh sách tài khoản/);
   const failed = render({ ready: true, models, onConnect() {} }, { cards: [], error: 'kênh thiết lập chưa sẵn sàng' });
   assert.match(text(walk(failed.tree).find(node => node.props?.role === 'alert')), /kênh thiết lập chưa sẵn sàng/);
-  const opened = render({ ready: true, models, onConnect() {} }, { cards: cards(), showCatalogue: true });
-  assert.equal(opened.catalogueMounts.length, 1);
-  assert.deepEqual([...opened.catalogueMounts[0].connectedProviders], ['openai-codex', 'anthropic']);
-  assert.equal(opened.catalogueMounts[0].kind, 'providers');
 });
 
 test('shell wiring: the order write is a fixed host call that validates against the core, and config.* stays out of the renderer', async () => {
