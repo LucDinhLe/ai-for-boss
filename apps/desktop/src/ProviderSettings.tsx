@@ -138,7 +138,6 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
                 onClick={() => void logout(card, account.profileId)}><WorkbenchIcon name="trash" /></button>
             </span>
           </li>)}</ol>
-          {card.usage && <p className="provider-cards__usage">Mức dùng theo lõi ghi nhận: {card.usage}</p>}
         </li>)}</ul>}
       {error && <p className="provider-error" role="alert">{error}</p>}
       <div className="provider-foot">

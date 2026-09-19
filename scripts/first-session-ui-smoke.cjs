@@ -16,6 +16,7 @@ const browserIntegration = process.argv.includes('--browser-workbench') || inter
 const output = path.join(root, process.argv.includes('--multitasking') ? 'artifacts/session-multitasking' : process.argv.includes('--data-agents') ? 'artifacts/installation-data-agents' : process.argv.includes('--trial-release') ? 'artifacts/trial-release' : 'artifacts/connection-browser-cache-settings', interactive ? 'interactive-renderer.json' : browserIntegration ? 'native-renderer-browser.json' : 'renderer-fixture.json');
 let pendingApproval = null;
 let updateFixture = { currentVersion: '0.0.5-beta.31', availableVersion: null, readyVersion: null, autoCheck: true, autoDownload: false, busy: false, message: '' };
+let providerPageData = false;
 let dataFixture = { settings: { enabled: true, everyDays: 1, retain: 3, includeWorkspace: false }, records: [], busy: false, message: '', startedAt: null, directory: 'Fixture backups' };
 let nativeTabs, browserServer, browserUrl, pointerDiagnostic, motionDiagnostic;
 let dragVisibility = null;
@@ -273,6 +274,7 @@ app.whenReady().then(async () => {
     }
     if (packet.action === 'model-settings') return { revision: 'fixture', cacheRetention: 'short', catalogRefresh: true };
     if (packet.action === 'model-settings-save') return { ...packet, revision: 'fixture-saved', applied: true };
+    if (packet.action === 'provider-order-read') return { fixture: ['fixture:cong-ty', 'fixture:ca-nhan'] };
     if (packet.action === 'ui-theme') return import('../apps/desktop/electron/ui-theme.mjs').then(({ applyUiTheme }) => applyUiTheme(packet, nativeTheme));
     if (packet.action?.startsWith('web-')) {
       if (browserIntegration) {
@@ -483,7 +485,17 @@ app.whenReady().then(async () => {
     if (method === "wizard.cancel") { activeWizard = null; return { status: "cancelled" }; }
     if (method === 'models.authStatus') {
       assert.ok(connectedAccount); assert.deepEqual(params, { refresh: false });
-      return { providers: [{ provider: 'fixture', status: 'static' }] };
+      // The connect flow reads this once and wants the plain shape. The provider
+      // page needs accounts to draw, so it asks for them by flipping the flag
+      // below rather than changing what the connect flow sees (0063).
+      if (!providerPageData) return { providers: [{ provider: 'fixture', status: 'static' }] };
+      return { providers: [
+        { provider: 'fixture', status: 'static', usage: { plan: 'Fixture', summary: 'còn 62% cửa sổ 5 giờ' }, profiles: [
+          { profileId: 'fixture:cong-ty', type: 'api_key', status: 'static', logoutSupported: true },
+          { profileId: 'fixture:ca-nhan', type: 'oauth', status: 'expiring', expiry: { label: '2 ngày' } }
+        ] },
+        { provider: 'google', status: 'missing', profiles: [] }
+      ] };
     }
     if (method === "openclaw.setup.verify") { assert.ok(connectedAccount); return { ok: true, latencyMs: 1 }; }
     throw new Error(`Unexpected fixture setup method ${method}`);
@@ -671,11 +683,31 @@ app.whenReady().then(async () => {
   assert.equal(await evaluate("Boolean(document.querySelector('.connect [role=status]'))"), true, 'finishing step shows actual progress status');
   assert.equal(await evaluate("Array.from(document.querySelectorAll('.connect button')).some(button => button.textContent.trim() === 'Tiếp tục')"), false, 'finishing progress requires no extra Continue click');
   await hasText('Đã kết nối fixture/model');
-  assert.equal(counts['models.authStatus'], 1); assert.equal(wizardIndex, 4);
+  // Two readers since 0051, both intended: the status card at the top of the
+  // connect screen, and the receipt after activation. Neither polls.
+  assert.equal(counts['models.authStatus'], 2); assert.equal(wizardIndex, 4);
   await click("Kiểm tra kết nối");
   await hasText("Phiên mới");
   await until(() => evaluate("document.querySelector('[data-workspace-stage]')?.dataset.workspaceStage === 'ready'"), "connect complete automatically opens usable chat in same window");
   checks.push("native OAuth option, device URL/code, user-click browser bridge, masked sensitive step/multiselect, automatic finishing poll with no answer, done modelActivation and account status readback");
+
+  // Settings -> Nhà cung cấp (spec 0063): one page, no catalogue, one fixed icon set.
+  providerPageData = true;
+  await click('Cài đặt'); await click('Nhà cung cấp');
+  await hasText('Mô hình mặc định');
+  assert.equal(await evaluate("Boolean(document.querySelector('.capability-catalog'))"), false,
+    'the 84-entry catalogue and its half-minute scan are off this page');
+  assert.equal(await evaluate("document.querySelectorAll('.provider-accounts > li').length"), 2, 'both stored accounts are listed');
+  assert.equal(await evaluate("document.querySelectorAll('.provider-accounts__icon').length"), 8,
+    'four icons on every row, whatever the core allows');
+  assert.equal(await evaluate("Array.from(document.querySelectorAll('.provider-accounts__icon, .provider-cards__icon')).every(button => button.title && button.getAttribute('aria-label'))"), true,
+    'an icon with no words on it says what it does on hover and to a screen reader');
+  assert.equal(await evaluate("document.querySelectorAll('.provider-accounts__icon:disabled').length"), 3,
+    'top row cannot move up, bottom row cannot move down, and the profile the core will not log out stays dimmed in place');
+  assert.match(await evaluate("document.querySelector('.provider-rest').textContent"), /Gemini \/ Google/);
+  await capture('providers-one-page-1440px.png');
+  await click('Đóng cài đặt');
+  checks.push('provider page: default model line, no catalogue, four icons per account with tooltips, dimmed buttons keep their slot');
 
   if (process.argv.includes('--multitasking')) {
     subscriptionFailed = true; historyFailed = true;
