@@ -2,7 +2,23 @@
 
 Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng ngôn ngữ người vận hành có thể hiểu.
 
-## [Unreleased]
+## [0.0.5-beta.42] - 2026-09-20
+
+### Changed
+
+- Việc kết nối tài khoản AI gom về **một chỗ duy nhất**. Trước đây có sáu nơi dẫn tới cùng một việc: màn hình Kết nối riêng, hai khối trên trang Nhà cung cấp, danh mục 84 mục mà mỗi mục lại có nút Thiết lập riêng, cộng hai nút Kết nối AI nằm lạc ở mục Mô hình và mục Công cụ. Nay chỉ còn Cài đặt → Nhà cung cấp → Thêm nhà cung cấp (spec 0063).
+- Cửa sổ kết nối không còn chiếm cả màn hình. Nó mở ra như một hộp thoại trên nền đang làm việc, nên anh chị không bị mất chỗ đang đứng.
+- Hộp thoại hỏi thẳng "anh chị đang dùng dịch vụ nào", mỗi hãng một thẻ, thay cho ba bậc đánh số 1-2-3. Chọn một hãng rồi chỉ còn những cách hãng đó thật sự có.
+- Trang Nhà cung cấp bỏ danh mục 84 mục và danh sách trùng lặp. Mỗi dòng tài khoản có bốn biểu tượng cố định: đăng nhập lại, đưa lên, đưa xuống, gỡ. Nút nào lõi không cho dùng thì mờ đi và nói lý do khi rê chuột, thay vì biến mất làm mỗi dòng một kiểu.
+- Trang Nhà cung cấp mở nhanh hơn: khối danh mục cũ kéo theo một lượt dò tài khoản mất tới nửa phút mỗi lần mở, nay không còn.
+- Thêm một dòng trên đầu trang nói cuộc trò chuyện đang mở chạy bằng mô hình nào, và đổi ở đâu.
+
+### Fixed
+
+- **Nâng cấp không còn tích bản cũ trên ổ đĩa.** Mỗi lần lên bản mới, bộ cài để lại nguyên thư mục bản trước cùng một tệp gỡ cài đặt riêng, không bao giờ dọn. Trên máy Product Owner đã tích 14 bản, 871 MB mỗi bản, gần 12 GB trong 11 ngày; chỉ bản mới nhất gỡ được nên bấm gỡ thì gỡ không sạch. Nay sau khi cài xong bản mới, bản cũ tự bị dọn, giữ lại bản đang chạy và một bản liền trước làm đường lùi (spec 0065).
+- Khi kết nối xong và bộ chạy cần khởi động lại, khoảng lặng đó có tên và có thanh chạy, kèm lời nhắc đừng bấm lại. Trước đây nó là một quãng trống, và bấm lại đúng lúc đó là cách làm hỏng một kết nối đã thành công.
+- Ô dán khoá API có thể mang nhãn của hãng khác và gửi sai lựa chọn khi máy có nhiều nhà cung cấp; nay nó luôn thuộc đúng hãng đang chọn.
+- Nhà cung cấp chỉ nhận khoá API không còn biến mất khỏi danh sách trong lúc ứng dụng đang dò tài khoản.
 
 ### Fixed
 
