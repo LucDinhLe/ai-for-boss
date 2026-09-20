@@ -647,10 +647,11 @@ app.whenReady().then(async () => {
   await click("Thử khởi động lại");
   if (!browserIntegration) {
     await until(() => Promise.resolve(Boolean(pendingDetect)), 'native detection intentionally delayed');
-    await until(() => evaluate("document.querySelectorAll('.connect__tier').length === 3"), 'three connection tiers are laid out before native detection');
-    await until(() => evaluate("document.querySelectorAll('.connect__options--pending button, .connect__form--pending select').length > 0"), 'packaged placeholders visible before native detection');
-    assert.equal(await evaluate("Array.from(document.querySelectorAll('.connect__tier button, .connect__tier select')).every(node => node.disabled)"), true, 'placeholders cannot start authentication');
-    assert.equal(await evaluate("document.querySelector('.connect__tier').getBoundingClientRect().top < innerHeight"), true, 'first tier appears in initial viewport');
+    // Spec 0063: one dialog asking which brand, not three numbered tiers.
+    await until(() => evaluate("Boolean(document.querySelector('.connect-modal .connect__pick'))"), 'the brand picker is laid out before native detection');
+    await until(() => evaluate("document.querySelectorAll('.connect__options--pending button').length > 0"), 'packaged placeholders visible before native detection');
+    assert.equal(await evaluate("Array.from(document.querySelectorAll('.connect__pick button')).every(node => node.disabled)"), true, 'placeholders cannot start authentication');
+    assert.equal(await evaluate("document.querySelector('.connect__pick').getBoundingClientRect().top < innerHeight"), true, 'the picker appears in the initial viewport');
     await capture('connect-loading-catalogue.png'); pendingDetect();
   }
   await hasText("Tài khoản thử OAuth");
@@ -658,19 +659,21 @@ app.whenReady().then(async () => {
   if (!browserIntegration) {
     for (const width of [980, 1440]) {
       window.setContentSize(width, 850); await wait(80);
-      const bounds = await evaluate("(() => {const tier=document.querySelector('.connect__tier').getBoundingClientRect(), option=document.querySelector('.connect__options button').getBoundingClientRect();return {tierTop:tier.top,optionTop:option.top,optionRight:option.right,width:innerWidth,height:innerHeight};})()");
+      const bounds = await evaluate("(() => {const tier=document.querySelector('.connect__pick').getBoundingClientRect(), option=document.querySelector('.connect__options button').getBoundingClientRect();return {tierTop:tier.top,optionTop:option.top,optionRight:option.right,width:innerWidth,height:innerHeight};})()");
       assert.ok(bounds.tierTop < bounds.height && bounds.optionTop < bounds.height && bounds.optionRight <= bounds.width, JSON.stringify(bounds));
       await capture(`connect-ready-${width}px.png`);
     }
     detectMode = 'error'; await click('Tải lại danh sách'); await hasText('Không đọc được danh sách mô phỏng.');
     assert.equal(await evaluate("Boolean(document.querySelector('.connect [role=alert]'))"), true);
-    detectMode = 'empty'; await click('Tải lại danh sách'); await hasText('Bộ chạy chưa trả về cách kết nối AI nào');
-    assert.equal(await evaluate("document.querySelectorAll('.connect__tier').length"), 3, 'an empty native catalogue keeps the three tiers instead of a blank screen');
+    detectMode = 'empty'; await click('Tải lại danh sách'); await hasText('Bộ chạy chưa trả về nhà cung cấp nào');
+    assert.equal(await evaluate("Boolean(document.querySelector('.connect__pick'))"), true, 'an empty native catalogue keeps the picker and says so, instead of a blank screen');
     await capture('connect-empty-1440px.png');
     detectMode = 'normal'; await click('Tải lại danh sách'); await hasText('Tài khoản thử OAuth');
-    checks.push('connect three-tier layout visible while native detection waits; placeholders disabled; initial visible options at 980/1440; empty/error/retry states');
+    checks.push('connect dialog brand picker visible while native detection waits; placeholders disabled; initial visible options at 980/1440; empty/error/retry states');
   }
+  // Spec 0063: pick the brand, then the one way in that brand offers.
   await click("Tài khoản thử OAuth");
+  await click("Đăng nhập bằng trình duyệt");
   await hasText("ABCD-1234"); await hasText("https://example.invalid/authorize");
   await click("Mở trang đăng nhập"); assert.equal(counts["open-page"], 1);
   await click("Đã đăng nhập xong, tiếp tục");

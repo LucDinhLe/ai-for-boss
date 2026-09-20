@@ -2,7 +2,7 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { CHROME, credentialLabel, localiseStep, type WizardStep } from "./wizard-vi";
 import BrandIcon from '../BrandIcon';
 import { WorkbenchIcon } from '../WorkspaceSidebar';
-import { FEATURED_FAMILY_COUNT, compareProviders, providerFamily } from '../provider-order';
+import { FEATURED_FAMILY_COUNT, compareProviders, providerFamily, providerLabel } from '../provider-order';
 import { manage, type NativeCatalogue } from '../workbench-api';
 
 type Candidate = {
@@ -108,6 +108,8 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
   /* The Gateway restarts on activation. That pause used to be a blank screen,
      which is where people clicked again and broke a connection that worked. */
   const [restarting, setRestarting] = useState(false);
+  /** Which brand the person picked. null means the dialog is still on the picker. */
+  const [family, setFamily] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [verdict, setVerdict] = useState<string | null>(null);
   const [answer, setAnswer] = useState("");
@@ -562,9 +564,31 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
   const prepareOptions = detect?.prepareOptions ?? [];
   // `detect.recommendedInstalls` is read no more (spec 0063): suggesting other
   // software to install is not the job of an account dialog.
-  const featuredSignIn = authOptions.slice(0, FEATURED_FAMILY_COUNT);
-  const moreSignIn = authOptions.slice(FEATURED_FAMILY_COUNT);
-  const keyProvider = manualProviders.find(provider => provider.id === keyChoice) ?? manualProviders[0] ?? null;
+  /**
+   * Spec 0063: one brand, then at most two ways in. The three lists the core
+   * returns are regrouped by provider family here; nothing is added to them and
+   * a family the core never mentioned never appears (D-0022).
+   */
+  const familyGroups = (() => {
+    const groups = new Map<string, { id: string; label: string; brandId: string;
+      signIn: typeof authOptions; candidates: typeof candidates; keys: typeof manualProviders }>();
+    const slot = (raw: string, label: string) => {
+      const id = providerFamily(raw);
+      // providerLabel echoes the input for a family it does not know, and that
+      // raw id is not a name anyone should read. Fall back to what the core called it.
+      const known = providerLabel(raw);
+      if (!groups.has(id)) groups.set(id, { id, label: known === raw ? label : known, brandId: raw, signIn: [], candidates: [], keys: [] });
+      return groups.get(id)!;
+    };
+    for (const option of authOptions) slot(identity(option), option.label).signIn.push(option);
+    for (const item of candidates) slot(identity(item), item.label).candidates.push(item);
+    for (const provider of manualProviders) slot(identity(provider), provider.groupLabel || provider.label).keys.push(provider);
+    return [...groups.values()].sort((a, b) => compareProviders(a.brandId, b.brandId));
+  })();
+  const featuredFamilies = familyGroups.slice(0, FEATURED_FAMILY_COUNT);
+  const restFamilies = familyGroups.slice(FEATURED_FAMILY_COUNT);
+  const chosen = familyGroups.find(group => group.id === family) ?? null;
+  const keyProvider = chosen ? (chosen.keys.find(provider => provider.id === keyChoice) ?? chosen.keys[0] ?? null) : null;
   const keyFamily = keyProvider ? providerFamily(identity(keyProvider)) : '';
   const hasChoices = candidates.length + authOptions.length + manualProviders.length > 0;
   const scanning = detectBusy && !detect;
@@ -572,8 +596,8 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
   // the page is never blank. Nothing here is clickable: only the Gateway decides
   // which of these routes exist on this machine.
   const placeholderMethods = !detect && !error ? (catalogue?.authMethods ?? []).filter(method => method.scopes.includes('text-inference')) : [];
-  const placeholderSignIn = placeholderMethods.filter(method => method.guidedAuth).sort((a, b) => compareProviders(a.provider, b.provider)).slice(0, FEATURED_FAMILY_COUNT);
-  const placeholderKeys = placeholderMethods.filter(method => method.guidedSecret && !method.guidedAuth).sort((a, b) => compareProviders(a.provider, b.provider));
+  const placeholderSignIn = placeholderMethods.filter(method => method.guidedAuth || method.guidedSecret)
+    .sort((a, b) => compareProviders(a.provider, b.provider)).slice(0, FEATURED_FAMILY_COUNT);
   const connectedAccounts = (authStatus ?? []).filter(item => item.status !== 'missing');
   const currentModel = detect?.configuredModel;
   const submitKey = (event: FormEvent) => {
@@ -622,100 +646,99 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
       {detect && !detectBusy && !hasChoices ? <p className="connect__note" role="status">
         Bộ chạy chưa trả về cách kết nối AI nào. Bấm Tải lại danh sách; nếu vẫn trống, kiểm tra Gateway trong thanh công cụ.</p> : null}
 
-      <section className="connect__tier" aria-label={CHROME.signIn}>
-        <h2><span className="connect__step-number">1</span>{CHROME.signIn}</h2>
-        <p className="connect__hint">{CHROME.signInHint}</p>
+      {!chosen ? <section className="connect__pick" aria-label="Chọn nhà cung cấp">
+        <p className="connect__hint">Anh chị đang dùng dịch vụ nào? Chọn một cái, bước sau chỉ còn tối đa hai cách.</p>
         {scanning && placeholderSignIn.length > 0 ? <div className="connect__options connect__options--pending" aria-hidden="true">
           {placeholderSignIn.map(method => <button key={method.id} type="button" disabled>
             <strong><BrandIcon id={method.provider} label={method.label} />{method.label}</strong><small>{CHROME.scanning}</small></button>)}
         </div> : null}
-        {featuredSignIn.length > 0 ? <div className="connect__options">
-          {featuredSignIn.map((option) => <button key={option.id} type="button" aria-label={option.label}
-            disabled={!ready || busy} onClick={() => void startGuided(option)}>
-            <strong><BrandIcon id={option.brandId || option.id} label={option.label} />{option.label}</strong>
-            <small>{option.kind === 'device-code' ? 'Đăng nhập tài khoản bằng mã thiết bị' : 'Đăng nhập tài khoản trên trình duyệt'}{option.hint ? ` · ${option.hint}` : ''}</small>
+        {featuredFamilies.length > 0 ? <div className="connect__options">
+          {featuredFamilies.map(group => <button key={group.id} type="button" disabled={!ready || busy}
+            aria-label={group.label} onClick={() => { setFamily(group.id); setError(null); }}>
+            <strong><BrandIcon id={group.brandId} label={group.label} />{group.label}</strong>
+            <small>{group.candidates.length > 0 ? 'Máy này đã đăng nhập sẵn, dùng luôn'
+              : group.signIn.length > 0 ? 'Đăng nhập trên trình duyệt' : 'Dán khoá API'}</small>
           </button>)}
         </div> : null}
-        {moreSignIn.length > 0 ? <details className="connect__more">
-          <summary>{CHROME.moreSignIn} ({moreSignIn.length})</summary>
+        {restFamilies.length > 0 ? <details className="connect__more">
+          <summary>Xem toàn bộ danh mục lõi ({restFamilies.length})</summary>
           <div className="connect__options">
-            {moreSignIn.map((option) => <button key={option.id} type="button" aria-label={option.label}
-              disabled={!ready || busy} onClick={() => void startGuided(option)}>
-              <strong><BrandIcon id={option.brandId || option.id} label={option.label} />{option.label}</strong>
-              <small>{option.kind === 'device-code' ? 'Đăng nhập tài khoản bằng mã thiết bị' : 'Đăng nhập tài khoản trên trình duyệt'}{option.hint ? ` · ${option.hint}` : ''}</small>
+            {restFamilies.map(group => <button key={group.id} type="button" disabled={!ready || busy}
+              aria-label={group.label} onClick={() => { setFamily(group.id); setError(null); }}>
+              <strong><BrandIcon id={group.brandId} label={group.label} />{group.label}</strong>
+              <small>{group.signIn.length > 0 ? 'Đăng nhập trên trình duyệt' : 'Dán khoá API'}</small>
             </button>)}
           </div>
         </details> : null}
-        {detect && !detectBusy && authOptions.length === 0 && hasChoices ? <p className="connect__note">Bản lõi này chưa mở đăng nhập tài khoản trực tiếp; dùng bậc 2 hoặc 3.</p> : null}
-      </section>
+        {/* The scan can take half a minute; saying so beats an empty box. The
+            placeholder cards already say it, so do not say it twice. */}
+        {detectBusy && placeholderSignIn.length === 0 ? <p className="connect__note" role="status">{CHROME.scanning}</p> : null}
+        {detect && !detectBusy && !hasChoices ? <p className="connect__note">Bộ chạy chưa trả về nhà cung cấp nào.</p> : null}
+      </section> : null}
 
-      <section className="connect__tier" aria-label={CHROME.detected}>
-        <h2><span className="connect__step-number">2</span>{CHROME.detected}</h2>
-        <p className="connect__hint">{CHROME.detectedHint}</p>
-        {detectBusy ? <p className="connect__note" role="status">{CHROME.scanning}</p> : null}
-        {candidates.length > 0 ? <div className="connect__options">
-          {candidates.map((candidate) => (
-            <button key={candidate.kind + candidate.modelRef + candidate.label} type="button" aria-label={candidate.label} disabled={!ready || busy} onClick={() => void startCandidate(candidate)}>
-              <strong><BrandIcon id={candidate.brandId || candidate.kind} label={candidate.label} />{candidate.label}</strong>
-              <small>{candidate.detail}</small>
-              {candidate.modelRef && <small>Mô hình: {candidate.modelRef}</small>}
-            </button>
-          ))}
+      {chosen ? <section className="connect__paths" aria-label={chosen.label}>
+        <div className="connect__paths-head">
+          <button type="button" onClick={() => { setFamily(null); setError(null); setSecret(''); }}>← Chọn dịch vụ khác</button>
+          <h2><BrandIcon id={chosen.brandId} label={chosen.label} />{chosen.label}</h2>
+        </div>
+
+        {chosen.candidates.length > 0 ? <div className="connect__options">
+          {chosen.candidates.map(candidate => <button key={candidate.kind + candidate.modelRef + candidate.label}
+            type="button" disabled={!ready || busy} aria-label={`Dùng ${candidate.label} đã đăng nhập trên máy`}
+            onClick={() => void startCandidate(candidate)}>
+            <strong><BrandIcon id={candidate.brandId || candidate.kind} label={candidate.label} />Dùng {candidate.label} đã đăng nhập trên máy</strong>
+            <small>{candidate.detail}{candidate.modelRef ? ` · ${candidate.modelRef}` : ''}</small>
+          </button>)}
         </div> : null}
-        {detect && !detectBusy && candidates.length === 0 ? <p className="connect__note">Chưa thấy Claude Code hay Codex CLI đã đăng nhập trên máy này. Nếu bạn vừa đăng nhập, bấm Tải lại danh sách.</p> : null}
-        {/* Spec 0063: three different lists used to share one lid and one count,
-            so opening it told you nothing. Each keeps its own name now, and an
-            empty one shows no lid at all. `recommendedInstalls` is gone: telling
-            someone to install other software is not this dialog's job. */}
+
+        {chosen.signIn.length > 0 ? <div className="connect__options">
+          {chosen.signIn.map(option => <button key={option.id} type="button" disabled={!ready || busy}
+            aria-label={chosen.signIn.length > 1 ? `Đăng nhập bằng trình duyệt — ${option.label}` : 'Đăng nhập bằng trình duyệt'}
+            onClick={() => void startGuided(option)}>
+            <strong><BrandIcon id={option.brandId || option.id} label={option.label} />Đăng nhập bằng trình duyệt</strong>
+            <small>{option.kind === 'device-code' ? 'Mã thiết bị' : 'Mở trang của hãng'}{option.hint ? ` · ${option.hint}` : ''}
+              {chosen.signIn.length > 1 ? ` · ${option.label}` : ''}</small>
+          </button>)}
+        </div> : null}
+
+        {chosen.keys.length > 0 && keyProvider ? <>
+          <form className="connect__form" onSubmit={submitKey}>
+            {chosen.keys.length > 1 ? <select aria-label="Cách dán khoá" value={keyProvider.id} disabled={!ready || busy}
+              onChange={event => { setKeyChoice(event.target.value); setSecret(''); setError(null); }}>
+              {chosen.keys.map(provider => <option key={provider.id} value={provider.id}>{provider.label}</option>)}
+            </select> : null}
+            <input type="password" aria-label={credentialLabel(keyProvider)} value={secret}
+              placeholder={`Dán ${credentialLabel(keyProvider)}`} onChange={event => setSecret(event.target.value)}
+              autoComplete="off" spellCheck={false} disabled={!ready || busy} />
+            <button type="submit" disabled={!ready || busy || secret.trim().length === 0}>
+              {busy ? CHROME.working : CHROME.connectWithKey}
+            </button>
+          </form>
+          {keyProvider.hint ? <p className="connect__hint">{keyProvider.hint}</p> : null}
+          {keyFamily === 'google' ? <p className="connect__hint">Gemini dùng API key Google AI Studio hoặc Vertex. Bản lõi này không mở đăng nhập Gemini CLI mới.</p> : null}
+          {keyFamily === 'anthropic' && chosen.candidates.length > 0 ? <p className="connect__hint">Máy đã đăng nhập Claude Code thì dùng cách trên để khỏi trả phí API riêng.</p> : null}
+          <p className="connect__note">{CHROME.pasteKeyHint}</p>
+        </> : null}
+
+        {/* Spec 0063: no box for naming the account. The core takes no label on
+            `openclaw.setup.auth.start` or `openclaw.setup.activate.start`; the
+            name comes back from `models.authStatus`. A field here would accept
+            text and quietly drop it. */}
+
         {unavailable.length > 0 ? <details className="connect__more">
           <summary>Ứng dụng tìm thấy nhưng chưa dùng được ({unavailable.length})</summary>
-          {unavailable.map((item) => <div className="connect__origin" key={item.id}>
+          {unavailable.map(item => <div className="connect__origin" key={item.id}>
             <strong>{item.label}</strong><p>{item.detail || item.reason}</p>
           </div>)}
         </details> : null}
         {prepareOptions.length > 0 ? <details className="connect__more">
           <summary>Cần chuẩn bị thêm trước khi nối ({prepareOptions.length})</summary>
-          {prepareOptions.map((item) => <div className="connect__origin" key={item.id}>
+          {prepareOptions.map(item => <div className="connect__origin" key={item.id}>
             <strong>{item.label}</strong>{item.hint ? <p>{item.hint}</p> : null}
             {item.website ? <pre>{item.website}</pre> : null}
           </div>)}
         </details> : null}
-      </section>
-
-      <section className="connect__tier" aria-label={CHROME.allProviders}>
-        <h2><span className="connect__step-number">3</span>{CHROME.allProviders}</h2>
-        <p className="connect__hint">{CHROME.allProvidersHint}</p>
-        {scanning && placeholderKeys.length > 0 ? <div className="connect__form connect__form--pending" aria-hidden="true">
-          <select disabled aria-label="Nhà cung cấp">{placeholderKeys.map(method => <option key={method.id}>{method.label}</option>)}</select>
-          <input type="password" disabled placeholder={CHROME.scanning} /><button type="button" disabled>{CHROME.connectWithKey}</button>
-        </div> : null}
-        {manualProviders.length > 0 && keyProvider ? <>
-          <form className="connect__form" onSubmit={submitKey}>
-            <select aria-label="Nhà cung cấp" value={keyProvider.id} disabled={!ready || busy}
-              onChange={(event) => { setKeyChoice(event.target.value); setSecret(""); setError(null); }}>
-              {manualProviders.map(provider => <option key={provider.id} value={provider.id}>
-                {provider.groupLabel && provider.groupLabel !== provider.label ? `${provider.groupLabel} · ${provider.label}` : provider.label}</option>)}
-            </select>
-            <input
-              type="password"
-              aria-label={credentialLabel(keyProvider)}
-              value={secret}
-              placeholder={`Dán ${credentialLabel(keyProvider)}`}
-              onChange={(event) => setSecret(event.target.value)}
-              autoComplete="off"
-              spellCheck={false}
-              disabled={!ready || busy}
-            />
-            <button type="submit" disabled={!ready || busy || secret.trim().length === 0}>
-              {busy ? CHROME.working : CHROME.connectWithKey}
-            </button>
-          </form>
-          {keyProvider.hint ? <p className="connect__hint"><BrandIcon id={keyProvider.brandId || keyProvider.id} label={keyProvider.label} /> {keyProvider.hint}</p> : null}
-          {keyFamily === 'google' ? <p className="connect__hint">Gemini dùng API key Google AI Studio hoặc Vertex. Bản lõi này không mở đăng nhập Gemini CLI mới.</p> : null}
-          {keyFamily === 'anthropic' ? <p className="connect__hint">Nếu máy đã đăng nhập Claude Code, dùng bậc 2 để khỏi trả phí API riêng. Quyền dùng mô hình phụ thuộc tài khoản Anthropic.</p> : null}
-          <p className="connect__note">{CHROME.pasteKeyHint}</p>
-        </> : null}
-      </section>
+      </section> : null}
 
       <div className="connect__footer">
         <button type="button" onClick={() => void refreshDetect()} disabled={!ready || busy || detectBusy}>

@@ -145,11 +145,16 @@ Code, dùng luôn". Ba nhóm `unavailableCandidates`, `prepareOptions`,
 `recommendedInstalls` **tách làm ba nắp riêng có tên riêng**, không cộng dồn
 thành một con số; nhóm nào rỗng thì không hiện nắp.
 
-**3b. Đặt tên tài khoản nằm trong hộp thoại thêm, không phải trên dòng.** Vì lõi
-không có lệnh đổi tên (xem mục kiểm chứng), tên tài khoản chính là phần đuôi của
-`profileId` và chỉ đặt được lúc tạo. Hộp thoại có một ô **"Đặt tên cho tài khoản
-này — không bắt buộc"**, kèm câu nói thật: *"Tên chỉ đặt được lúc thêm, đổi sau
-phải nối lại."* Không vẽ nút đổi tên ở bất kỳ đâu khác.
+**3b. Không có ô đặt tên tài khoản. Bỏ đề xuất này.** Bản trước của spec định
+đặt một ô "Đặt tên cho tài khoản này" trong hộp thoại, theo cách AICoworker làm.
+Kiểm lại mã ngày 20/09: `openclaw.setup.auth.start` chỉ nhận
+`{ sessionId, authChoice }`, `openclaw.setup.activate.start` nhận thêm
+`{ kind, apiKey }`. **Không có tham số nhãn nào.** Tên tài khoản do lõi sinh ra
+và trả về qua `models.authStatus`.
+
+Một ô như vậy sẽ nhận chữ người dùng gõ rồi lặng lẽ vứt đi — đúng loại lỗi R-025
+cảnh báo. Ghi lại ở đây, và ghi cả trong mã tại chỗ đáng lẽ nó nằm, để lần sau
+không ai đề xuất lại mà không kiểm tham số trước.
 
 **3c. Vì sao không có ô "điền email".** Giữ nguyên lập luận của bản nháp, ghi lại
 để lần sau không ai đề xuất lại. Không nhà cung cấp nào cấp quyền dùng mô hình
@@ -331,14 +336,21 @@ là chỗ hai trong bốn lối vào đang nằm.
   (số 3 và số 4), nhưng lối số 5 và số 6 ở mục Mô hình và mục Công cụ vẫn còn và
   thuộc đợt 2.
 
-**Đợt 2 — chưa làm.** `ConnectScreen` vẫn là một màn hình riêng do `App.tsx`
-định tuyến (`if (showConnect) return <ConnectScreen …>`). Còn lại: hạ nó xuống
-hộp thoại, bốn thẻ thương hiệu rồi hai đường, tách ba nắp có tên riêng, bỏ
-`recommendedInstalls`, ô đặt tên tài khoản, và bước "Đang khởi động lại bộ chạy"
-có tên. Sau đợt 2 số lối vào mới về **một**, và số cú bấm mới đo được.
+**Đợt 2 — xong ngày 20/09.**
 
-Trong lúc chờ đợt 2, nhà cung cấp ngoài bốn thương hiệu nổi vẫn nối được qua màn
-hình Kết nối cũ, nên không mất đường nào.
+- `ConnectScreen` thôi làm một tuyến của `App.tsx`; nó là lớp phủ mở từ một nút.
+- Bỏ hai nút "Kết nối AI" ở mục Mô hình và mục Công cụ. **Số lối vào còn một.**
+- Ba bậc đánh số thay bằng **bộ chọn thương hiệu rồi tối đa hai đường**. Các
+  danh sách lõi trả về được gom theo họ nhà cung cấp bằng `providerFamily`; vỏ
+  không thêm tên nào. Bốn họ phổ biến hiện thành thẻ, phần còn lại nằm sau
+  "Xem toàn bộ danh mục lõi (N)" — đó cũng là chỗ danh mục về, đúng quyết định 1.
+- Ba nắp gộp tách làm hai nắp có tên riêng; bỏ `recommendedInstalls`.
+- Bước "Đang khởi động lại bộ chạy" có tên và có thanh chạy.
+
+Ba lỗi lộ ra trong lúc làm, đã sửa: `keyProvider` vẫn chọn từ **toàn bộ** danh
+sách lõi thay vì từ họ đang đứng, nên ô dán khoá có thể mang nhãn của hãng khác
+và gửi sai `authChoice`; danh sách chờ chỉ dựng từ tuyến đăng nhập nên hãng chỉ
+có khoá API biến mất lúc đang dò; và câu "đang dò tài khoản" hiện hai lần.
 
 ## Bằng chứng hoàn thành
 
