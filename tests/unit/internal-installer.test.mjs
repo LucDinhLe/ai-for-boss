@@ -73,6 +73,50 @@ test('Windows upgrade reuses only matching immutable core files and never the sh
     assert.equal(await fs.readFile(path.join(outside, 'node/node.exe'), 'utf8'), 'test runtime');
   } finally { await fs.rm(root, { recursive: true, force: true }); }
 });
+test('Windows activate keeps the running build and one rollback, and spares what it does not own', { skip: process.platform !== 'win32', timeout: 90000 }, async () => {
+  const { root, source } = await fixture();
+  const owned = ['qa-prune-1', 'qa-prune-2', 'qa-prune-3'], current = 'qa-prune-3';
+  const key = version => 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\AIforBossInternal-' + version;
+  try {
+    const install = path.join(root, 'installed'), script = path.join(root, 'support.ps1');
+    await fs.copyFile(path.join(repo, 'installer/install-support.ps1'), script);
+    const invoke = (action, version, manifest) => {
+      const result = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', script, '-Action', action,
+        '-Root', install, '-Version', version, '-Manifest', manifest, '-Desktop', root, '-StartMenu', root, '-StatusWindow', '1'],
+        { cwd: root, encoding: 'utf8', windowsHide: true });
+      assert.equal(result.status, 0, action + ' ' + version + ': ' + result.stdout + result.stderr);
+    };
+    for (const version of owned) {
+      const manifest = path.join(root, version + '.json');
+      await fs.writeFile(manifest, JSON.stringify(await installerManifest(source, version)));
+      invoke('Prepare', version, manifest); await fs.cp(source, path.join(install, 'staging', version), { recursive: true });
+      invoke('Commit', version, manifest);
+      await fs.writeFile(path.join(install, 'Uninstall-' + version + '.exe'), 'stub uninstaller');
+    }
+    // A directory the installer never wrote: no payload proof, so never deleted.
+    const foreign = path.join(install, 'versions', 'qa-prune-0');
+    await fs.mkdir(foreign, { recursive: true }); await fs.writeFile(path.join(foreign, 'notes.txt'), 'someone else');
+    // Age is what picks the rollback, so make it explicit rather than incidental.
+    for (const [index, version] of ['qa-prune-0', ...owned].entries()) {
+      const when = new Date(Date.now() - (10 - index) * 60000);
+      await fs.utimes(path.join(install, 'versions', version), when, when);
+    }
+    invoke('Activate', current, path.join(root, current + '.json'));
+    const there = async name => fs.stat(path.join(install, 'versions', name)).then(() => true, () => false);
+    assert.equal(await there(current), true, 'the running build must stay');
+    assert.equal(await there('qa-prune-2'), true, 'the newest other build is the rollback');
+    assert.equal(await there('qa-prune-1'), false, 'older owned builds are pruned');
+    assert.equal(await there('qa-prune-0'), true, 'a directory without ownership proof is never touched');
+    const exe = async version => fs.stat(path.join(install, 'Uninstall-' + version + '.exe')).then(() => true, () => false);
+    assert.equal(await exe('qa-prune-1'), false, 'a pruned build takes its uninstaller with it');
+    assert.equal(await exe('qa-prune-2'), true);
+  } finally {
+    spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
+      owned.map(version => 'Remove-Item -LiteralPath ' + JSON.stringify(key(version)) + ' -Recurse -ErrorAction SilentlyContinue').join('; ')],
+      { encoding: 'utf8', windowsHide: true });
+    await fs.rm(root, { recursive: true, force: true });
+  }
+});
 test('Windows install engine preserves prior, foreign and modified files and rejects tamper', { skip: process.platform !== 'win32', timeout: 90000 }, async () => {
   const { root, source } = await fixture();
   // Exercise the real PowerShell 5 install/verify/remove flow with an unchanged

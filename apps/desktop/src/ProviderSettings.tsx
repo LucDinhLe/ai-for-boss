@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import CapabilityCatalog from './CapabilityCatalog';
 import BrandIcon from './BrandIcon';
 import { WorkbenchIcon } from './WorkspaceSidebar';
 import { manage } from './workbench-api';
@@ -20,13 +19,13 @@ function setupCall<T = Record<string, unknown>>(method: string, params?: unknown
  * will actually try them, and the health and usage the core reports. Everything
  * shown comes from `models.authStatus`; the page names no provider of its own.
  */
-export default function ProviderSettings({ ready, models, currentProvider, currentModel, onConnect }: {
-  ready: boolean; models: ModelSummary[]; currentProvider?: string | null; currentModel?: string | null; onConnect?(): void;
+export default function ProviderSettings({ ready, models, currentProvider, currentModel, onConnect, onChangeModel }: {
+  ready: boolean; models: ModelSummary[]; currentProvider?: string | null; currentModel?: string | null;
+  onConnect?(query?: string): void; onChangeModel?(): void;
 }) {
   const [cards, setCards] = useState<ProviderCard[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
-  const [showCatalogue, setShowCatalogue] = useState(false);
   const epoch = useRef(0);
 
   const load = useCallback(async (refresh = false) => {
@@ -76,16 +75,24 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
   const rest = cards?.filter(card => card.accounts.length === 0) ?? [];
 
   return <>
-    <p className="settings-lead">Mỗi nhà cung cấp là một thẻ. Tài khoản đầu danh sách được dùng trước; những tài khoản sau là dự phòng khi tài khoản trước hết lượt hoặc hết hạn. Thứ tự này do lõi OpenClaw thực thi.</p>
+    <p className="settings-lead">Mỗi nhà cung cấp là một thẻ, dưới thẻ là các tài khoản của anh chị. Tài khoản số 1 được dùng trước; những tài khoản sau là dự phòng khi tài khoản trước hết lượt hoặc hết hạn. Thứ tự này do lõi OpenClaw thực thi. Di chuột lên một biểu tượng để biết nó làm gì.</p>
+    {currentModel && <div className="settings-card provider-default">
+      <div>
+        <p className="provider-default__caption">Cuộc trò chuyện đang mở chạy bằng — đổi ở mục Mô hình, theo từng phiên</p>
+        <p className="provider-default__model">{currentModel}
+          {currentProvider && <span> · qua {cards?.find(card => card.provider === currentProvider)?.label ?? currentProvider}</span>}</p>
+      </div>
+      {onChangeModel && <button type="button" onClick={() => onChangeModel()}>Đổi mô hình</button>}
+    </div>}
     <div className="settings-card">
       <div className="provider-head">
         <h2><WorkbenchIcon name="model" />Tài khoản AI của anh chị</h2>
         {onConnect && <button className="settings-primary" disabled={!ready} onClick={() => onConnect()}>
-          <WorkbenchIcon name="plug" />Thêm tài khoản</button>}
+          <WorkbenchIcon name="plug" />Thêm nhà cung cấp</button>}
       </div>
       {!ready ? <p>Bật Gateway để xem tài khoản đã kết nối.</p>
         : cards === null ? <p role="status">Đang đọc danh sách tài khoản…</p>
-        : connected.length === 0 ? <p>Chưa có tài khoản nào. Bấm Thêm tài khoản để đăng nhập hoặc dán khoá API.</p>
+        : connected.length === 0 ? <p>Chưa có tài khoản nào. Bấm Thêm nhà cung cấp để đăng nhập hoặc dán khoá API.</p>
         : <ul className="provider-cards">{connected.map(card => <li key={card.provider} className="provider-cards__item">
           <div className="provider-cards__head">
             <BrandIcon id={card.provider} label={card.label} />
@@ -95,6 +102,11 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
             </div>
             <span className="provider-cards__count">{card.provider === currentProvider && currentModel
               ? `Đang dùng ${currentModel}` : `${card.modelCount} mô hình khả dụng`}</span>
+            {/* Usage sits on the card, not on a row: the core reports it per
+                provider and has no per-account figure to show. */}
+            <button type="button" className="provider-cards__icon" disabled={!card.usage}
+              title={card.usage ? `Mức dùng theo lõi ghi nhận: ${card.usage}` : 'Lõi chưa báo mức dùng cho nhà cung cấp này'}
+              aria-label={`Mức dùng của ${card.label}`}><WorkbenchIcon name="usage" /></button>
           </div>
           <ol className="provider-accounts">{card.accounts.map((account, index) => <li key={account.profileId}>
             <span className="provider-accounts__rank">{index + 1}</span>
@@ -103,18 +115,29 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
               <small>{account.kind}</small>
             </span>
             <span className={`provider-accounts__health provider-accounts__health--${account.health.tone}`}>{account.health.label}</span>
+            {/* Four icons, always all four. A button the core will not allow is dimmed
+                and says why in its tooltip, so every row keeps the same shape. */}
             <span className="provider-accounts__actions">
-              {card.canReorder && <>
-                <button type="button" aria-label={`Đưa ${account.name} lên trên`} disabled={index === 0 || Boolean(busy)}
-                  onClick={() => void move(card, account.profileId, -1)}>↑</button>
-                <button type="button" aria-label={`Đưa ${account.name} xuống dưới`} disabled={index === card.accounts.length - 1 || Boolean(busy)}
-                  onClick={() => void move(card, account.profileId, 1)}>↓</button>
-              </>}
-              {account.canLogout && <button type="button" className="provider-accounts__remove" disabled={Boolean(busy)}
-                aria-label={`Đăng xuất ${account.name}`} onClick={() => void logout(card, account.profileId)}>Đăng xuất</button>}
+              <button type="button" className="provider-accounts__icon" disabled={!onConnect || Boolean(busy)}
+                title={onConnect ? 'Đăng nhập lại, làm mới token' : 'Bản này không mở kết nối nhà cung cấp'}
+                aria-label={`Đăng nhập lại ${account.name}`}
+                onClick={() => onConnect?.(card.label)}><WorkbenchIcon name="plug" /></button>
+              <button type="button" className="provider-accounts__icon" disabled={!card.canReorder || index === 0 || Boolean(busy)}
+                title={!card.canReorder ? 'Lõi không cho đổi thứ tự ở nhà cung cấp này'
+                  : index === 0 ? 'Đã ở trên cùng' : 'Đưa lên trên, cho dùng trước'}
+                aria-label={`Đưa ${account.name} lên trên`}
+                onClick={() => void move(card, account.profileId, -1)}>↑</button>
+              <button type="button" className="provider-accounts__icon" disabled={!card.canReorder || index === card.accounts.length - 1 || Boolean(busy)}
+                title={!card.canReorder ? 'Lõi không cho đổi thứ tự ở nhà cung cấp này'
+                  : index === card.accounts.length - 1 ? 'Đã ở dưới cùng' : 'Hạ xuống, nhường tài khoản dưới dùng trước'}
+                aria-label={`Đưa ${account.name} xuống dưới`}
+                onClick={() => void move(card, account.profileId, 1)}>↓</button>
+              <button type="button" className="provider-accounts__icon provider-accounts__remove" disabled={!account.canLogout || Boolean(busy)}
+                title={account.canLogout ? 'Gỡ tài khoản khỏi máy' : 'Lõi không cho gỡ tài khoản này'}
+                aria-label={`Gỡ tài khoản ${account.name}`}
+                onClick={() => void logout(card, account.profileId)}><WorkbenchIcon name="trash" /></button>
             </span>
           </li>)}</ol>
-          {card.usage && <p className="provider-cards__usage">Mức dùng theo lõi ghi nhận: {card.usage}</p>}
         </li>)}</ul>}
       {error && <p className="provider-error" role="alert">{error}</p>}
       <div className="provider-foot">
@@ -122,18 +145,10 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
         <p className="settings-muted">Quyền dùng từng mô hình và cách tính phí thuộc tài khoản của anh chị tại nhà cung cấp. Có trong danh mục chưa đồng nghĩa đã dùng được.</p>
       </div>
     </div>
-    {rest.length > 0 && <div className="settings-card">
-      <h2><WorkbenchIcon name="model" />Nhà cung cấp lõi có hỗ trợ</h2>
-      <p>Những nhà cung cấp lõi báo lên nhưng anh chị chưa kết nối tài khoản nào. Cách kết nối tuỳ nhà cung cấp: đăng nhập tài khoản, dùng ứng dụng đã đăng nhập trên máy, hoặc dán khoá API.</p>
-      <ul className="provider-rest">{[...rest].sort((a, b) => compareProviders(a.provider, b.provider)).map(card =>
-        <li key={card.provider}><BrandIcon id={card.provider} label={card.label} /><span>{card.label}</span></li>)}</ul>
-    </div>}
-    <div className="settings-card">
-      <h2><WorkbenchIcon name="model" />Danh mục nhà cung cấp của OpenClaw</h2>
-      <p>Toàn bộ tên mà bộ chạy biết, kể cả những nhà cung cấp cần plugin hoặc máy chủ riêng. Mở khi cần tra cứu; việc đọc danh mục sẽ dò lại tài khoản trên máy nên mất tới nửa phút.</p>
-      {showCatalogue
-        ? <CapabilityCatalog kind="providers" ready={ready} connectedProviders={connected.map(card => card.provider)} onConnect={onConnect ? () => onConnect() : undefined} />
-        : <button onClick={() => setShowCatalogue(true)}>Xem toàn bộ danh mục</button>}
-    </div>
+    {/* The second list and the 84-entry catalogue used to be two more cards here,
+        each its own way into connecting (spec 0063). The tail is one dim line now,
+        and the catalogue belongs to the Thêm nhà cung cấp flow, not to this page. */}
+    {rest.length > 0 && <p className="provider-rest">Lõi còn hỗ trợ, chưa nối tài khoản nào:{' '}
+      {[...rest].sort((a, b) => compareProviders(a.provider, b.provider)).map(card => card.label).join(' · ')}</p>}
   </>;
 }
