@@ -97,12 +97,13 @@ test('projection: a stale stored order never hides a working account, and reorde
   assert.equal(providerAccounts.accountName('openai:work@example.com', 'ChatGPT'), 'work@example.com');
 });
 
-test('the page leads with the default model, then the accounts in the order the core will try them', () => {
+test('the page leads with the running model, then the accounts in the order the core will try them', () => {
   const clicks = [];
   const { tree, catalogueMounts } = render({ ready: true, models, currentProvider: 'anthropic', currentModel: 'claude',
     onConnect: query => clicks.push(query ?? 'connect'), onChangeModel: () => clicks.push('change-model') }, { cards: cards() });
   const rendered = text(tree);
-  assert.match(rendered, /Mô hình mặc định/, 'which model the app runs on is its own line, not a detail on a card');
+  assert.match(rendered, /Cuộc trò chuyện đang mở chạy bằng/,
+    'the running model is its own line, and says it is per conversation rather than a machine default');
   assert.match(rendered, /claude · qua Claude \/ Anthropic/);
   assert.match(rendered, /1ca-nhan/, 'the first account is numbered one');
   assert.match(rendered, /Dùng trước/);

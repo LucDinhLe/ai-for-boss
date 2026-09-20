@@ -19,7 +19,10 @@ Nhà cung cấp theo mô hình thẻ-nhà-cung-cấp cộng dòng-tài-khoản. 
 đúng phần của mình. Việc chưa làm là **dỡ cái cũ sau khi dựng cái mới**, nên
 người dùng beta41 đang đứng trước bốn lối vào cho cùng một việc.
 
-**Thứ nhất, bốn lối vào cùng một việc.** Đếm trên beta41 đang chạy:
+**Thứ nhất, sáu lối vào cùng một việc.** Đếm lại trên beta41 ngày 19/09. Lần
+đếm đầu ra bốn vì chỉ nhìn trang Nhà cung cấp; hai lối nữa nằm ở mục khác của
+Cài đặt và chỉ lộ ra khi Product Owner hỏi mục Mô hình khác mục Nhà cung cấp chỗ
+nào:
 
 1. Màn hình Kết nối AI — `ConnectScreen.tsx`, 712 dòng, ba bậc đánh số.
 2. Cài đặt → Nhà cung cấp, khối "Tài khoản AI của anh chị" — phần 0060 làm đúng.
@@ -27,6 +30,11 @@ người dùng beta41 đang đứng trước bốn lối vào cho cùng một vi
 4. Cùng trang đó, khối "Danh mục nhà cung cấp của OpenClaw" — `CapabilityCatalog`
    với **84 mục**, mỗi mục một nút "Thiết lập" riêng, cộng một ô tìm kiếm, một
    nút "Tải lại" và một nút "Kết nối AI" đẩy ngược về lối vào số 1.
+5. Cài đặt → **Mô hình**, nút "Kết nối AI" (`SettingsCenter.tsx:78`).
+6. Cài đặt → **Công cụ**, nút "Kết nối AI" (`SettingsCenter.tsx:95`).
+
+Bài học ghi lại: đếm lối vào phải grep `onConnect` trên toàn `src/`, không đếm
+bằng mắt trên một trang.
 
 Spec 0051 ghi là đã bỏ danh mục, ô tìm kiếm và thanh lọc "khỏi màn hình này".
 Đúng chữ nhưng không đúng ý: chúng chỉ chuyển sang trang Nhà cung cấp. Tổng số
@@ -49,7 +57,7 @@ hình làm bộ chạy khởi động lại. `apps/desktop/electron/main.mjs:745
 *không đánh rơi biên nhận*, nhưng trên giao diện khoảng lặng ấy vẫn trống, và đó
 là chỗ người dùng bấm lại rồi hỏng thật.
 
-**Thứ năm, không có chỗ nào xem hay đổi mô hình mặc định.** Trang hiện tại nói
+**Thứ năm, không có chỗ nào xem mô hình đang chạy khi đứng ở trang tài khoản.** Trang hiện tại nói
 "Đang dùng {model}" lẫn trong dòng đếm mô hình của một thẻ. Product Owner hỏi
 ngày 19/09 "chọn làm mô hình chính mặc định ở đâu" và câu trả lời là: chôn trong
 luồng kích hoạt, không có mặt trên trang. Đây là hai tầng khác nhau bị gộp làm
@@ -151,11 +159,16 @@ không ai đọc hiểu. Đường "đăng nhập bằng trình duyệt" chính 
 email mà người dùng mong đợi, chỉ khác chỗ ô email nằm trên trang của hãng, nơi
 nó có nghĩa, và app không bao giờ thấy mật khẩu.
 
-**4. Một thanh Mô hình mặc định, đặt trên cùng, tách hẳn khỏi thẻ nhà cung cấp.**
-Nội dung: tên mô hình đang chạy, qua nhà cung cấp nào, và một nút **Đổi mô hình**.
-Đọc `configuredModel` từ lượt dò và danh sách `models` đã có trong bộ nhớ. Đây là
-chỗ trả lời câu "app đang chạy bằng cái gì", tách khỏi câu "trong hãng này dùng
-tài khoản nào".
+**4. Một thanh mô hình đang chạy, đặt trên cùng, tách hẳn khỏi thẻ nhà cung cấp.**
+Nội dung: tên mô hình đang chạy, qua nhà cung cấp nào, và một nút **Đổi mô hình**
+dẫn sang mục Mô hình. Đây là chỗ trả lời câu "app đang chạy bằng cái gì", tách
+khỏi câu "trong hãng này dùng tài khoản nào".
+
+Nhãn phải nói rõ **theo từng phiên**, không được gọi là "mặc định". `usage.model`
+là mô hình của cuộc trò chuyện đang mở; mục Mô hình ghi đúng như vậy: "Chọn mô
+hình cho cuộc trò chuyện hiện tại". Bản đầu của đợt 1 viết "Mô hình mặc định —
+cái mà mọi việc chạy bằng" và đó là nói quá; đã sửa thành "Cuộc trò chuyện đang
+mở chạy bằng — đổi ở mục Mô hình, theo từng phiên".
 
 **5. Một đoạn giải thích mô hình, đặt đầu trang.** `ProviderSettings.tsx` đã có
 `settings-lead` nói đúng ý này. Bổ sung: tài khoản số 1 được dùng trước, phần sau
@@ -314,7 +327,9 @@ là chỗ hai trong bốn lối vào đang nằm.
   đó.
 - Biểu tượng lấy từ bộ `WorkbenchIcon` đã có trong kho (`plug`, `trash`,
   `usage`); không thêm tài nguyên mới.
-- Số lối vào còn **hai**: trang này, và màn hình Kết nối cũ.
+- Số lối vào còn **bốn**, không phải hai như lần báo đầu: đợt 1 bỏ được hai lối
+  (số 3 và số 4), nhưng lối số 5 và số 6 ở mục Mô hình và mục Công cụ vẫn còn và
+  thuộc đợt 2.
 
 **Đợt 2 — chưa làm.** `ConnectScreen` vẫn là một màn hình riêng do `App.tsx`
 định tuyến (`if (showConnect) return <ConnectScreen …>`). Còn lại: hạ nó xuống

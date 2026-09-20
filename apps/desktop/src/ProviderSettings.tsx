@@ -78,7 +78,7 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
     <p className="settings-lead">Mỗi nhà cung cấp là một thẻ, dưới thẻ là các tài khoản của anh chị. Tài khoản số 1 được dùng trước; những tài khoản sau là dự phòng khi tài khoản trước hết lượt hoặc hết hạn. Thứ tự này do lõi OpenClaw thực thi. Di chuột lên một biểu tượng để biết nó làm gì.</p>
     {currentModel && <div className="settings-card provider-default">
       <div>
-        <p className="provider-default__caption">Mô hình mặc định — cái mà mọi việc chạy bằng</p>
+        <p className="provider-default__caption">Cuộc trò chuyện đang mở chạy bằng — đổi ở mục Mô hình, theo từng phiên</p>
         <p className="provider-default__model">{currentModel}
           {currentProvider && <span> · qua {cards?.find(card => card.provider === currentProvider)?.label ?? currentProvider}</span>}</p>
       </div>

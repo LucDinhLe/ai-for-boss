@@ -694,7 +694,7 @@ app.whenReady().then(async () => {
   // Settings -> Nhà cung cấp (spec 0063): one page, no catalogue, one fixed icon set.
   providerPageData = true;
   await click('Cài đặt'); await click('Nhà cung cấp');
-  await hasText('Mô hình mặc định');
+  await hasText('Cuộc trò chuyện đang mở chạy bằng');
   assert.equal(await evaluate("Boolean(document.querySelector('.capability-catalog'))"), false,
     'the 84-entry catalogue and its half-minute scan are off this page');
   assert.equal(await evaluate("document.querySelectorAll('.provider-accounts > li').length"), 2, 'both stored accounts are listed');
