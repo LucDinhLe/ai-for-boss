@@ -1075,15 +1075,6 @@ function App() {
     if (node) { node.focus(); focusAfterRender.current = null; }
   }, [workspaceView, draft, dockTab, rightHidden]);
 
-  if (showConnect) {
-    return <><RuntimeRecovery runtime={runtime} /><ConnectScreen initialQuery={connectQuery} ready={runtime.connected && runtime.setupReady} onDone={() => {
-      setShowConnect(false);
-      void refreshModels(false);
-      void refreshAdvisorModels();
-      if (activeKeyRef.current) void subscribeHistory(activeKeyRef.current);
-    }} /></>;
-  }
-
   const currentModel = selectedChatModel(usage, models);
   const stage = workspaceStage({ runtime, modelCatalogueState, availableModelCount: availableModels.length,
     activeKey, busy, opening, historyReady, historyError, selectedModelStatus: currentModel.status });
@@ -1307,6 +1298,12 @@ function App() {
     onConnect={openConnect} onNavigate={navigateWorkspace} onRetry={() => { void retryRuntimeStartup().catch(error => setNotice(String(error.message))); }}
     onRefreshInfo={async () => { if (!window.aiForBoss) throw new Error('Chưa có kết nối ứng dụng'); const current = await window.aiForBoss.getShellStatus(); setShell(current); }}
     onUseSkill={name => { if (!activeKey || openingRef.current || changingModelRef.current) return; appendDraft(`Dùng kỹ năng ${name} để hỗ trợ công việc sau: `); setWorkspaceView('chat'); }} />}
+  {showConnect && <ConnectScreen initialQuery={connectQuery} ready={runtime.connected && runtime.setupReady} onDone={() => {
+    setShowConnect(false);
+    void refreshModels(false);
+    void refreshAdvisorModels();
+    if (activeKeyRef.current) void subscribeHistory(activeKeyRef.current);
+  }} />}
   <ApprovalInbox ready={runtime.connected && runtime.setupReady} onVisibility={setApprovalVisible} /></>;
 }
 

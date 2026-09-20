@@ -332,6 +332,24 @@ test("reconnecting clears stale wizard controls and ignores a late pre-reconnect
   h.dispose();
 });
 
+test('the Gateway restart gets a name and a bar, instead of a blank pause (0063)', async () => {
+  let release;
+  const h = harness(async method => {
+    if (method === 'openclaw.setup.auth.start') return { done: true, status: 'done', modelActivation: { modelRef: 'synthetic/model', gatewayRestartRequired: true } };
+    // Hold the readback open: that gap is exactly the restart the user sees.
+    if (method === 'models.authStatus') return new Promise(resolve => { release = () => resolve({ providers: [{ provider: 'synthetic', status: 'ok' }] }); });
+    return catalogue;
+  });
+  await h.flush(); h.button('Native browser').props.onClick(); await h.flush();
+  assert.match(h.text(), /Đang khởi động lại bộ chạy/, 'the pause is named while it lasts');
+  assert.match(h.text(), /đừng bấm lại/, 'and says what not to do, because clicking again is what breaks it');
+  assert.equal(h.nodes().some(node => node.type === 'progress'), true, 'with something that moves');
+  release(); await h.flush(); await h.flush();
+  assert.doesNotMatch(h.text(), /Đang khởi động lại bộ chạy/, 'and it goes away once the receipt lands');
+  assert.match(h.text(), /Đã kết nối synthetic\/model/);
+  h.dispose();
+});
+
 test("credential readback failure does not repeat activation or claim a verified connection", async () => {
   const h = harness(async method => {
     if (method === 'openclaw.setup.auth.start') return { done: true, status: 'done', modelActivation: { modelRef: 'synthetic/model' } };
@@ -444,14 +462,32 @@ test('the API-key picker lists providers by popularity and explains the Google l
   h.dispose();
 });
 
-test('detected local apps, notes and preparation-only results stay in tier two', async () => {
+test('each kind of detected result gets its own named lid, and an empty kind gets none (0063)', async () => {
   const h = harness(async () => ({ ...catalogue, candidates: [{ kind: 'claude-cli', label: 'Claude Code', detail: 'Logged in', modelRef: 'anthropic/exact-model-64', recommended: false }],
     unavailableCandidates: [{ id: 'pi-cli', label: 'Pi CLI', detail: 'installed', reason: 'separate setup' }],
-    prepareOptions: [{ id: 'prep', label: 'Local setup', hint: 'Install companion first' }] }));
+    prepareOptions: [{ id: 'prep', label: 'Local setup', hint: 'Install companion first' }],
+    recommendedInstalls: [{ id: 'extra', label: 'Một phần mềm khác', hint: 'nên cài thêm', website: 'https://example.invalid' }] }));
   await h.flush();
   assert.ok(h.button('Claude Code')); assert.match(h.text(), /Mô hình: anthropic\/exact-model-64/);
-  const more = h.nodes().find(node => node.type === 'details' && h.text(node).includes('Ghi chú và cách khác'));
-  assert.match(h.text(more), /Ghi chú và cách khác \(2\)/); assert.match(h.text(more), /Install companion first/); assert.match(h.text(more), /Pi CLI/);
+  const lids = h.nodes().filter(node => node.type === 'details');
+  assert.equal(lids.length, 2, 'two kinds present, two lids; the old single lid counted three kinds into one number');
+  const unusable = lids.find(node => h.text(node).includes('chưa dùng được'));
+  assert.match(h.text(unusable), /Ứng dụng tìm thấy nhưng chưa dùng được \(1\)/);
+  assert.match(h.text(unusable), /Pi CLI/);
+  const prepare = lids.find(node => h.text(node).includes('Cần chuẩn bị thêm'));
+  assert.match(h.text(prepare), /Cần chuẩn bị thêm trước khi nối \(1\)/);
+  assert.match(h.text(prepare), /Install companion first/);
+  assert.doesNotMatch(h.text(), /Một phần mềm khác/,
+    'suggesting other software to install is not the job of an account dialog');
+  h.dispose();
+});
+
+test('an empty kind shows no lid at all (0063)', async () => {
+  const h = harness(async () => ({ ...catalogue, candidates: [{ kind: 'claude-cli', label: 'Claude Code', detail: 'Logged in', modelRef: 'anthropic/exact-model-64', recommended: false }],
+    unavailableCandidates: [], prepareOptions: [] }));
+  await h.flush();
+  assert.equal(h.nodes().filter(node => node.type === 'details' && h.text(node).includes('chưa dùng được')).length, 0);
+  assert.equal(h.nodes().filter(node => node.type === 'details' && h.text(node).includes('Cần chuẩn bị')).length, 0);
   h.dispose();
 });
 

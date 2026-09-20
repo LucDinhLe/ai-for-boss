@@ -16,7 +16,14 @@ import { fixtureDocx } from '../../scripts/fixture-documents.mjs';
 // Execute the real App handlers and effects with a small React hook dispatcher.
 // Gateway requests are synthetic; no socket, profile, provider or Electron starts.
 const source = fs.readFileSync(new URL("../../apps/desktop/src/App.tsx", import.meta.url), "utf8");
-const body = source.slice(source.indexOf("function App()"), source.indexOf("  if (showConnect)"));
+// The harness runs App's logic without its JSX, so it needs the line the body
+// ends on. That used to be the connect screen's early return; 0063 made connect
+// an overlay, so the boundary is the first line after the hooks instead. A
+// missing marker silently truncates the source, so fail loudly on one.
+const BODY_END = "  const currentModel = selectedChatModel(usage, models);";
+const bodyEnd = source.indexOf(BODY_END);
+if (bodyEnd < 0) throw new Error(`App.tsx no longer contains the body boundary: ${BODY_END}`);
+const body = source.slice(source.indexOf("function App()"), bodyEnd);
 const javascript = ts.transpileModule(`${body}
   return { activeKey, messages, usage, run, busy, draft, showConnect, models, historyReady, historyError, canSubmit, modelsLoading, modelCatalogueState,
     send, abort, openSession, createSession, setDraft, appendDraft, loadHistory, reloadHistory, refreshModels, browseModels, catalogueLoading, catalogueError,

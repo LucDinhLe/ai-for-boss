@@ -105,6 +105,9 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
   const [authStatus, setAuthStatus] = useState<AuthStatusProvider[] | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [busy, setBusy] = useState(false);
+  /* The Gateway restarts on activation. That pause used to be a blank screen,
+     which is where people clicked again and broke a connection that worked. */
+  const [restarting, setRestarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [verdict, setVerdict] = useState<string | null>(null);
   const [answer, setAnswer] = useState("");
@@ -228,6 +231,7 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
   const showReceipt = useCallback(async (reply: WizardReply) => {
     const modelRef = reply.modelActivation!.modelRef;
     let receipt = `Đã kết nối ${modelRef}. Bạn có thể bắt đầu trò chuyện; bấm Kiểm tra kết nối nếu muốn chắc chắn mô hình trả lời được.`;
+    if (reply.modelActivation?.gatewayRestartRequired) setRestarting(true);
     try {
       const auth = await setupCall<{ providers?: AuthStatusProvider[] }>("models.authStatus", { refresh: false });
       if (!mounted.current) return;
@@ -240,6 +244,7 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
       receipt = "Thiết lập đã hoàn tất. Chưa đọc được trạng thái tài khoản; hãy dùng Kiểm tra kết nối trước khi bắt đầu.";
     }
     activeSession.current = null;
+    setRestarting(false);
     setSession(null);
     setAnswer("");
     setSecret("");
@@ -555,7 +560,8 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
   const manualProviders = (detect?.manualProviders ?? []).slice().sort(order);
   const unavailable = detect?.unavailableCandidates ?? [];
   const prepareOptions = detect?.prepareOptions ?? [];
-  const recommendedInstalls = detect?.recommendedInstalls ?? [];
+  // `detect.recommendedInstalls` is read no more (spec 0063): suggesting other
+  // software to install is not the job of an account dialog.
   const featuredSignIn = authOptions.slice(0, FEATURED_FAMILY_COUNT);
   const moreSignIn = authOptions.slice(FEATURED_FAMILY_COUNT);
   const keyProvider = manualProviders.find(provider => provider.id === keyChoice) ?? manualProviders[0] ?? null;
@@ -576,9 +582,12 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
   };
 
   return (
-    <section className="connect">
+    /* Spec 0063: no longer a route of its own. One dialog, opened from one
+       button, over whatever the person was already looking at. */
+    <div className="connect-modal" role="dialog" aria-modal="true" aria-label="Thêm nhà cung cấp">
+    <section className="connect connect--dialog">
       <header className="connect__header">
-        <h1>Kết nối AI</h1>
+        <h1>Thêm nhà cung cấp</h1>
         {/* Always leavable. On a first run nothing is connected yet, and a
             screen with no way out is a trap rather than a wizard. */}
         <button type="button" onClick={leave}>
@@ -587,8 +596,14 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
       </header>
 
       {!ready ? <p className="connect__note" role="status">Đang chuẩn bị kết nối. Bạn chờ một chút nhé…</p> : null}
-      {busy ? <div className="connect__options connect__options--row"><span role="status">{CHROME.working}</span>
+      {busy && !restarting ? <div className="connect__options connect__options--row"><span role="status">{CHROME.working}</span>
         <button type="button" onClick={cancel}>{CHROME.cancel}</button></div> : null}
+      {restarting ? <div className="connect__restart" role="status">
+        <strong>Đang khởi động lại bộ chạy</strong>
+        <p>Kết nối xong rồi. Bộ chạy cần khởi động lại một lần để nhận tài khoản mới.
+          Anh chị không phải làm gì, đừng bấm lại.</p>
+        <progress aria-label="Đang khởi động lại bộ chạy" />
+      </div> : null}
 
       {currentModel || connectedAccounts.length > 0 || verdict ? <div className="connect__status" role="status">
         {currentModel ? <p><strong><WorkbenchIcon name="model" />{CHROME.currentModel}: {currentModel}</strong></p> : null}
@@ -648,17 +663,21 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
           ))}
         </div> : null}
         {detect && !detectBusy && candidates.length === 0 ? <p className="connect__note">Chưa thấy Claude Code hay Codex CLI đã đăng nhập trên máy này. Nếu bạn vừa đăng nhập, bấm Tải lại danh sách.</p> : null}
-        {unavailable.length + prepareOptions.length + recommendedInstalls.length > 0 ? <details className="connect__more">
-          <summary>{CHROME.moreDetails} ({unavailable.length + prepareOptions.length + recommendedInstalls.length})</summary>
+        {/* Spec 0063: three different lists used to share one lid and one count,
+            so opening it told you nothing. Each keeps its own name now, and an
+            empty one shows no lid at all. `recommendedInstalls` is gone: telling
+            someone to install other software is not this dialog's job. */}
+        {unavailable.length > 0 ? <details className="connect__more">
+          <summary>Ứng dụng tìm thấy nhưng chưa dùng được ({unavailable.length})</summary>
           {unavailable.map((item) => <div className="connect__origin" key={item.id}>
             <strong>{item.label}</strong><p>{item.detail || item.reason}</p>
           </div>)}
+        </details> : null}
+        {prepareOptions.length > 0 ? <details className="connect__more">
+          <summary>Cần chuẩn bị thêm trước khi nối ({prepareOptions.length})</summary>
           {prepareOptions.map((item) => <div className="connect__origin" key={item.id}>
             <strong>{item.label}</strong>{item.hint ? <p>{item.hint}</p> : null}
             {item.website ? <pre>{item.website}</pre> : null}
-          </div>)}
-          {recommendedInstalls.map((item) => <div className="connect__origin" key={item.id}>
-            <strong>{item.label}</strong><p>{item.hint}</p><pre>{item.website}</pre>
           </div>)}
         </details> : null}
       </section>
@@ -708,5 +727,6 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
       </div>
 
     </section>
+    </div>
   );
 }
