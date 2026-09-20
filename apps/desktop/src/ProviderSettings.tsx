@@ -110,9 +110,11 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
           </div>
           <ol className="provider-accounts">{card.accounts.map((account, index) => <li key={account.profileId}>
             <span className="provider-accounts__rank">{index + 1}</span>
-            <span className="provider-accounts__name">{account.name}
+            {/* No readable name from the core means the row leads with what it
+                really is — OAuth or a key — instead of repeating the provider. */}
+            <span className="provider-accounts__name">{account.name ?? account.kind}
               {account.primary && <em className="provider-accounts__primary">Dùng trước</em>}
-              <small>{account.kind}</small>
+              {account.name && <small>{account.kind}</small>}
             </span>
             <span className={`provider-accounts__health provider-accounts__health--${account.health.tone}`}>{account.health.label}</span>
             {/* Four icons, always all four. A button the core will not allow is dimmed
@@ -120,21 +122,21 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
             <span className="provider-accounts__actions">
               <button type="button" className="provider-accounts__icon" disabled={!onConnect || Boolean(busy)}
                 title={onConnect ? 'Đăng nhập lại, làm mới token' : 'Bản này không mở kết nối nhà cung cấp'}
-                aria-label={`Đăng nhập lại ${account.name}`}
+                aria-label={`Đăng nhập lại tài khoản ${index + 1} của ${card.label}`}
                 onClick={() => onConnect?.(card.label)}><WorkbenchIcon name="plug" /></button>
               <button type="button" className="provider-accounts__icon" disabled={!card.canReorder || index === 0 || Boolean(busy)}
                 title={!card.canReorder ? 'Lõi không cho đổi thứ tự ở nhà cung cấp này'
                   : index === 0 ? 'Đã ở trên cùng' : 'Đưa lên trên, cho dùng trước'}
-                aria-label={`Đưa ${account.name} lên trên`}
+                aria-label={`Đưa tài khoản ${index + 1} của ${card.label} lên trên`}
                 onClick={() => void move(card, account.profileId, -1)}>↑</button>
               <button type="button" className="provider-accounts__icon" disabled={!card.canReorder || index === card.accounts.length - 1 || Boolean(busy)}
                 title={!card.canReorder ? 'Lõi không cho đổi thứ tự ở nhà cung cấp này'
                   : index === card.accounts.length - 1 ? 'Đã ở dưới cùng' : 'Hạ xuống, nhường tài khoản dưới dùng trước'}
-                aria-label={`Đưa ${account.name} xuống dưới`}
+                aria-label={`Đưa tài khoản ${index + 1} của ${card.label} xuống dưới`}
                 onClick={() => void move(card, account.profileId, 1)}>↓</button>
               <button type="button" className="provider-accounts__icon provider-accounts__remove" disabled={!account.canLogout || Boolean(busy)}
                 title={account.canLogout ? 'Gỡ tài khoản khỏi máy' : 'Lõi không cho gỡ tài khoản này'}
-                aria-label={`Gỡ tài khoản ${account.name}`}
+                aria-label={`Gỡ tài khoản ${index + 1} của ${card.label}`}
                 onClick={() => void logout(card, account.profileId)}><WorkbenchIcon name="trash" /></button>
             </span>
           </li>)}</ol>

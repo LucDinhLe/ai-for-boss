@@ -28,9 +28,9 @@ export type AuthProvider = {
 
 export type AccountRow = {
   profileId: string;
-  /** What the user reads: the account label, never the raw profile id when we can do better. */
-  name: string;
-  kind: "Đăng nhập tài khoản" | "Khoá API" | "Ứng dụng trên máy";
+  /** Null when the core gave no readable name: the row then leads with `kind`. */
+  name: string | null;
+  kind: "OAuth" | "Khoá API" | "Ứng dụng trên máy";
   health: { tone: "ok" | "warn" | "error" | "muted"; label: string };
   primary: boolean;
   canLogout: boolean;
@@ -62,15 +62,20 @@ const PROFILE_TONE: Record<string, { tone: AccountRow["health"]["tone"]; label: 
   missing: { tone: "muted", label: "Chưa dùng được" }
 };
 const KIND: Record<AuthProfile["type"], AccountRow["kind"]> = {
-  oauth: "Đăng nhập tài khoản",
+  oauth: "OAuth",
   token: "Ứng dụng trên máy",
   api_key: "Khoá API"
 };
 
-/** `openai:setup-3c9947ca-…` reads as noise; show the readable half when there is one. */
-export function accountName(profileId: string, fallback: string): string {
+/**
+ * `openai:setup-3c9947ca-…` reads as noise, and so does falling back to the
+ * provider name: three OAuth logins under one provider then all read "openai"
+ * and the rows are indistinguishable. Return null instead and let the row lead
+ * with what it actually knows — OAuth or a key.
+ */
+export function accountName(profileId: string): string | null {
   const tail = profileId.includes(":") ? profileId.slice(profileId.indexOf(":") + 1) : profileId;
-  if (!tail || /^setup-[0-9a-f-]{8,}$/i.test(tail) || /^[0-9a-f-]{16,}$/i.test(tail)) return fallback;
+  if (!tail || /^setup-[0-9a-f-]{8,}$/i.test(tail) || /^[0-9a-f-]{16,}$/i.test(tail)) return null;
   return tail;
 }
 
@@ -107,7 +112,7 @@ export function providerCards(providers: AuthProvider[], options: {
           const health = PROFILE_TONE[profile.status] ?? { tone: "muted" as const, label: profile.status };
           return {
             profileId: profile.profileId,
-            name: accountName(profile.profileId, label),
+            name: accountName(profile.profileId),
             kind: KIND[profile.type] ?? "Đăng nhập tài khoản",
             health: { tone: health.tone, label: profile.expiry?.label ? `${health.label} · còn ${profile.expiry.label}` : health.label },
             primary: index === 0,

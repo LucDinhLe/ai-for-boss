@@ -73,12 +73,13 @@ test('providerCards: order, tones, usage and model counts all come from the core
   assert.equal(anthropic.accounts[0].health.tone, 'warn');
   assert.match(anthropic.accounts[0].health.label, /Sắp hết hạn · còn 2 ngày/);
   assert.equal(anthropic.accounts[0].name, 'ca-nhan');
-  assert.equal(anthropic.accounts[0].kind, 'Đăng nhập tài khoản');
+  assert.equal(anthropic.accounts[0].kind, 'OAuth');
   assert.equal(anthropic.canReorder, true);
   assert.equal(anthropic.modelCount, 2);
   assert.equal(anthropic.usage, 'Max · còn 62% cửa sổ 5 giờ');
   const openai = list.find(card => card.provider === 'openai-codex');
-  assert.equal(openai.accounts[0].name, 'ChatGPT / OpenAI', 'a generated setup id is noise, so the label is shown instead');
+  assert.equal(openai.accounts[0].name, null, 'a generated setup id is noise, and so is repeating the provider name');
+  assert.equal(openai.accounts[0].kind, 'Khoá API', 'so the row leads with what the account actually is');
   assert.equal(openai.accounts[0].kind, 'Khoá API');
   assert.equal(openai.accounts[0].canLogout, false, 'the core did not say this one can be logged out');
   assert.equal(openai.canReorder, false, 'one account has no order to change');
@@ -93,8 +94,11 @@ test('projection: a stale stored order never hides a working account, and reorde
   assert.equal(providerAccounts.reorder(['a', 'b'], 'a', -1), null);
   assert.equal(providerAccounts.reorder(['a', 'b'], 'b', 1), null);
   assert.equal(providerAccounts.reorder(['a', 'b'], 'missing', 1), null);
-  assert.equal(providerAccounts.accountName('openai:setup-3c9947ca9182', 'ChatGPT'), 'ChatGPT');
-  assert.equal(providerAccounts.accountName('openai:work@example.com', 'ChatGPT'), 'work@example.com');
+  // A generated id is not a name, and neither is the provider's own name: three
+  // OAuth logins under one provider would then all read the same and the rows
+  // would be indistinguishable. Null means "lead with the kind instead".
+  assert.equal(providerAccounts.accountName('openai:setup-3c9947ca9182'), null);
+  assert.equal(providerAccounts.accountName('openai:work@example.com'), 'work@example.com');
 });
 
 test('the page leads with the running model, then the accounts in the order the core will try them', () => {
@@ -141,13 +145,15 @@ test('every row carries the same four icons, dimmed with a reason where the core
   }
   const up = icons.filter(node => node.props['aria-label']?.startsWith('Đưa') && text(node) === '↑');
   assert.equal(up.length, 3, 'the single-account provider keeps its slot instead of dropping a button');
-  const upFor = name => up.find(node => node.props['aria-label'] === `Đưa ${name} lên trên`);
-  assert.equal(upFor('ca-nhan').props.disabled, true, 'the first account cannot move up');
-  assert.equal(upFor('ca-nhan').props.title, 'Đã ở trên cùng');
-  const alone = up.find(node => node.props['aria-label'] === 'Đưa ChatGPT / OpenAI lên trên');
+  // Rows are addressed by position and provider now, because several accounts
+  // under one provider can share every readable detail.
+  const upFor = (position, provider) => up.find(node => node.props['aria-label'] === `Đưa tài khoản ${position} của ${provider} lên trên`);
+  assert.equal(upFor(1, 'Claude / Anthropic').props.disabled, true, 'the first account cannot move up');
+  assert.equal(upFor(1, 'Claude / Anthropic').props.title, 'Đã ở trên cùng');
+  const alone = upFor(1, 'ChatGPT / OpenAI');
   assert.equal(alone.props.disabled, true);
   assert.equal(alone.props.title, 'Lõi không cho đổi thứ tự ở nhà cung cấp này', 'a blocked button explains itself');
-  await upFor('cong-ty').props.onClick();
+  await upFor(2, 'Claude / Anthropic').props.onClick();
   await new Promise(resolve => setTimeout(resolve, 10));
   assert.equal(JSON.stringify(manageCalls[0]), JSON.stringify({ action: 'provider-order-set', provider: 'anthropic', profileIds: ['anthropic:cong-ty', 'anthropic:ca-nhan'] }),
     'the write is a fixed action carrying the whole new order');
