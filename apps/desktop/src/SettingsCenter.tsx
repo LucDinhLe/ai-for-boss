@@ -26,7 +26,7 @@ const sections = [
   ['workspace', 'Không gian làm việc', 'projects'], ['browser', 'Trình duyệt & tiện ích', 'web'], ['safety', 'An toàn', 'shield'], ['memory', 'Bộ nhớ & bối cảnh', 'context'],
   ['voice', 'Giọng nói', 'voice'], ['advanced', 'Hệ thống & chẩn đoán', 'settings'], ['notifications', 'Thông báo', 'bell'],
   ['billing', 'Thanh toán & sử dụng', 'usage'], ['providers', 'Nhà cung cấp', 'model'], ['channels', 'Cổng kết nối', 'web'],
-  ['shortcuts', 'Phím tắt bàn phím', 'keyboard'], ['tools', 'Công cụ & khóa API', 'key'], ['plugins', 'Plugin', 'plugin'], ['skills', 'Kỹ năng', 'skills'], ['mcp', 'MCP', 'plug'],
+  ['shortcuts', 'Phím tắt bàn phím', 'keyboard'], ['tools', 'Công cụ & API key', 'key'], ['plugins', 'Plugin', 'plugin'], ['skills', 'Kỹ năng', 'skills'], ['mcp', 'MCP', 'plug'],
   ['history', 'Lịch sử trò chuyện', 'files'], ['about', 'Giới thiệu & cập nhật', 'info']
 ] as const;
 type Section = typeof sections[number][0];
@@ -92,7 +92,7 @@ export default function SettingsCenter(props: Props) {
         {section === 'providers' && <ProviderSettings ready={props.runtime.connected && props.runtime.setupReady} models={props.models} currentProvider={props.usage.modelProvider} currentModel={props.usage.model} onConnect={props.modelDisabled ? undefined : query => props.onConnect(query)} onChangeModel={() => setSection('model')} />}
         {section === 'channels' && <><p className="settings-lead">Quản lý Gateway và các kênh nhắn tin.</p>{gateway}{native('messages')}</>}
         {section === 'shortcuts' && <><p className="settings-lead">Các phím tắt đang hoạt động.</p><dl className="settings-shortcuts"><dt>Gửi tin nhắn</dt><dd><kbd>Enter</kbd></dd><dt>Xuống dòng</dt><dd><kbd>Shift + Enter</kbd></dd><dt>Phiên mới ngoài cửa sổ Cài đặt</dt><dd><kbd>Ctrl / ⌘ + N</kbd></dd><dt>Đóng menu hoặc Cài đặt</dt><dd><kbd>Esc</kbd></dd><dt>Ghim cuộc trò chuyện</dt><dd><kbd>Shift + nhấp</kbd></dd><dt>Chuyển mục trong menu mô hình</dt><dd><kbd>↑ / ↓</kbd></dd></dl></>}
-        {section === 'tools' && <><p className="settings-lead">Khóa API được thiết lập ở mục Nhà cung cấp, không dán vào cuộc chat.</p><div className="settings-card"><h2><WorkbenchIcon name={sections.find(item => item[0] === section)![2]} />Công cụ của phiên</h2><p>Chọn kỹ năng dưới ô chat hoặc mở danh mục để xem những gì lõi đã nhận.</p><button onClick={() => open('skills')}>Xem kỹ năng</button><p className="settings-muted">Chưa có trình cấu hình MCP tùy ý hoặc công cụ chạy lệnh trong bảng này.</p></div></>}
+        {section === 'tools' && <><p className="settings-lead">API key được thiết lập ở mục Nhà cung cấp, không dán vào cuộc chat.</p><div className="settings-card"><h2><WorkbenchIcon name={sections.find(item => item[0] === section)![2]} />Công cụ của phiên</h2><p>Chọn kỹ năng dưới ô chat hoặc mở danh mục để xem những gì lõi đã nhận.</p><button onClick={() => open('skills')}>Xem kỹ năng</button><p className="settings-muted">Chưa có trình cấu hình MCP tùy ý hoặc công cụ chạy lệnh trong bảng này.</p></div></>}
         {section === 'tools' && <ToolCatalog key={props.sessionKey} ready={props.runtime.connected} sessionKey={props.sessionKey} />}
         {section === 'plugins' && <CapabilityCatalog kind="plugins" ready={props.runtime.connected && props.runtime.setupReady} mutationDisabled={props.modelDisabled} />}
         {section === 'skills' && <><p className="settings-lead">Kỹ năng và điều kiện dùng theo agent đang chọn.</p>{native('skills')}</>}

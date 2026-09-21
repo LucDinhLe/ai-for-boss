@@ -473,7 +473,7 @@ test('the API-key picker lists providers by popularity and explains the Google l
   await h.flush();
   // Brands come in popularity order, and each one owns its own keys (0063).
   const cards = h.nodes().filter(node => node.type === 'button' && node.props['aria-label'] && node.props.onClick
-    && h.text(node).includes('Dán khoá API')).map(node => node.props['aria-label']);
+    && h.text(node).includes('Dán API key')).map(node => node.props['aria-label']);
   assert.deepEqual(cards, ['Claude / Anthropic', 'Gemini / Google', 'Grok / xAI', 'Zzz key'],
     'popularity order, and an unknown brand sorts last under the name the core gave it');
   h.button('Gemini / Google').props.onClick(); await h.flush();

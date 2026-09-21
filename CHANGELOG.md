@@ -2,6 +2,18 @@
 
 Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng ngôn ngữ người vận hành có thể hiểu.
 
+## [0.0.5-beta.43] - 2026-09-21
+
+### Fixed
+
+- **Nhà cung cấp chạy qua ứng dụng đã đăng nhập sẵn trên máy nay hiện trong danh sách.** Trang Nhà cung cấp trước đây chỉ dựng thẻ từ những nơi có hồ sơ đăng nhập lưu trong máy, nên Claude dùng qua Claude Code có mô hình chạy được mà vẫn không xuất hiện ở đâu cả. Nay thẻ dựng từ cả danh sách mô hình lõi báo, kèm một câu nói rõ vì sao nhà cung cấp đó không có dòng tài khoản nào.
+- **Dòng tài khoản thôi bịa tên.** Khi lõi đặt mã hồ sơ tự sinh, giao diện từng thay bằng tên nhà cung cấp, nên ba tài khoản OpenAI cùng hiện chữ "openai" và không phân biệt được dòng nào là dòng nào. Nay dòng nói thẳng nó là OAuth hay API key.
+
+### Changed
+
+- **Mô hình mặc định do anh chị chọn, không còn do lõi chọn hộ.** Khi kết nối xong, lõi tự ghi một mô hình làm mặc định cho mọi cuộc trò chuyện mới. Trang Nhà cung cấp nay dẫn đầu bằng một ô chọn, chỉ liệt kê mô hình mà tài khoản của anh chị thật sự dùng được. Mô hình của cuộc trò chuyện đang mở là chuyện riêng, nói ở một dòng khác.
+- Gọi đúng tên **API key** thay vì dịch thành "khoá API".
+
 ## [0.0.5-beta.42] - 2026-09-20
 
 ### Changed

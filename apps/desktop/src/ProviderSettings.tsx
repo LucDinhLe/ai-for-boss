@@ -26,6 +26,8 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
   const [cards, setCards] = useState<ProviderCard[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  /** What every new conversation starts on. The core picks one on activation; this is how the user takes that back. */
+  const [defaultModel, setDefaultModel] = useState<string | null>(null);
   const epoch = useRef(0);
 
   const load = useCallback(async (refresh = false) => {
@@ -33,11 +35,13 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
     const current = ++epoch.current;
     setError(null);
     try {
-      const [status, order] = await Promise.all([
+      const [status, order, current0] = await Promise.all([
         setupCall<{ providers?: AuthProvider[] }>('models.authStatus', { refresh }),
-        manage<Record<string, string[]>>({ action: 'provider-order-read' }).catch(() => ({} as Record<string, string[]>))
+        manage<Record<string, string[]>>({ action: 'provider-order-read' }).catch(() => ({} as Record<string, string[]>)),
+        manage<{ model: string | null }>({ action: 'default-model-read' }).catch(() => ({ model: null }))
       ]);
       if (current !== epoch.current) return;
+      setDefaultModel(current0.model);
       const modelCounts: Record<string, number> = {};
       for (const model of models) if (model.available) modelCounts[model.provider] = (modelCounts[model.provider] ?? 0) + 1;
       setCards(providerCards(status.providers ?? [], { order, modelCounts }));
@@ -61,6 +65,16 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
     finally { setBusy(null); }
   };
 
+  const chooseDefaultModel = async (modelRef: string) => {
+    if (busy) return;
+    setBusy('default-model'); setError(null);
+    try {
+      await manage({ action: 'default-model-set', model: modelRef });
+      await load(false);
+    } catch (cause) { setError(String((cause as Error)?.message ?? cause)); }
+    finally { setBusy(null); }
+  };
+
   const logout = async (card: ProviderCard, profileId: string) => {
     if (busy) return;
     setBusy(profileId); setError(null);
@@ -71,19 +85,36 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
     finally { setBusy(null); }
   };
 
-  const connected = cards?.filter(card => card.accounts.length > 0) ?? [];
-  const rest = cards?.filter(card => card.accounts.length === 0) ?? [];
+  // Only what the core says is available: the shell never invents a model.
+  const selectable = models.filter(model => model.available)
+    .map(model => ({ ref: model.id.startsWith(model.provider + '/') ? model.id : `${model.provider}/${model.id}` }))
+    .filter((entry, index, all) => all.findIndex(other => other.ref === entry.ref) === index);
+  // A provider with models but no stored account is connected too — through an
+  // app on this machine — so it belongs in the list, not in the dim tail.
+  const connected = cards?.filter(card => card.accounts.length > 0 || card.modelCount > 0) ?? [];
+  const rest = cards?.filter(card => card.accounts.length === 0 && card.modelCount === 0) ?? [];
 
   return <>
     <p className="settings-lead">Mỗi nhà cung cấp là một thẻ, dưới thẻ là các tài khoản của anh chị. Tài khoản số 1 được dùng trước; những tài khoản sau là dự phòng khi tài khoản trước hết lượt hoặc hết hạn. Thứ tự này do lõi OpenClaw thực thi. Di chuột lên một biểu tượng để biết nó làm gì.</p>
-    {currentModel && <div className="settings-card provider-default">
+    {/* The core picks a model for you when a connection is activated. This is the
+        one place that choice can be taken back, and it only offers what the
+        account actually provides. */}
+    <div className="settings-card provider-default">
       <div>
-        <p className="provider-default__caption">Cuộc trò chuyện đang mở chạy bằng — đổi ở mục Mô hình, theo từng phiên</p>
-        <p className="provider-default__model">{currentModel}
-          {currentProvider && <span> · qua {cards?.find(card => card.provider === currentProvider)?.label ?? currentProvider}</span>}</p>
+        <p className="provider-default__caption">Mô hình mặc định — cuộc trò chuyện mới nào cũng bắt đầu bằng cái này</p>
+        {selectable.length > 0
+          ? <select aria-label="Mô hình mặc định" className="provider-default__select"
+              value={defaultModel ?? ''} disabled={!ready || Boolean(busy)}
+              onChange={event => void chooseDefaultModel(event.target.value)}>
+              {!defaultModel && <option value="">Chưa chọn</option>}
+              {selectable.map(entry => <option key={entry.ref} value={entry.ref}>{entry.ref}</option>)}
+            </select>
+          : <p className="provider-default__model">{defaultModel ?? 'Chưa có mô hình nào dùng được'}</p>}
+        {currentModel && currentModel !== defaultModel &&
+          <p className="settings-muted">Cuộc trò chuyện đang mở dùng {currentModel} — đổi riêng cho phiên đó ở mục Mô hình.</p>}
       </div>
-      {onChangeModel && <button type="button" onClick={() => onChangeModel()}>Đổi mô hình</button>}
-    </div>}
+      {onChangeModel && <button type="button" onClick={() => onChangeModel()}>Mở mục Mô hình</button>}
+    </div>
     <div className="settings-card">
       <div className="provider-head">
         <h2><WorkbenchIcon name="model" />Tài khoản AI của anh chị</h2>
@@ -92,7 +123,7 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
       </div>
       {!ready ? <p>Bật Gateway để xem tài khoản đã kết nối.</p>
         : cards === null ? <p role="status">Đang đọc danh sách tài khoản…</p>
-        : connected.length === 0 ? <p>Chưa có tài khoản nào. Bấm Thêm nhà cung cấp để đăng nhập hoặc dán khoá API.</p>
+        : connected.length === 0 ? <p>Chưa có tài khoản nào. Bấm Thêm nhà cung cấp để đăng nhập hoặc dán API key.</p>
         : <ul className="provider-cards">{connected.map(card => <li key={card.provider} className="provider-cards__item">
           <div className="provider-cards__head">
             <BrandIcon id={card.provider} label={card.label} />
@@ -108,11 +139,15 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
               title={card.usage ? `Mức dùng theo lõi ghi nhận: ${card.usage}` : 'Lõi chưa báo mức dùng cho nhà cung cấp này'}
               aria-label={`Mức dùng của ${card.label}`}><WorkbenchIcon name="usage" /></button>
           </div>
+          {card.accounts.length === 0 && <p className="settings-muted provider-cards__note">
+            Không có tài khoản lưu ở đây. Mô hình của nhà cung cấp này chạy qua ứng dụng đã đăng nhập sẵn trên máy.</p>}
           <ol className="provider-accounts">{card.accounts.map((account, index) => <li key={account.profileId}>
             <span className="provider-accounts__rank">{index + 1}</span>
-            <span className="provider-accounts__name">{account.name}
+            {/* No readable name from the core means the row leads with what it
+                really is — OAuth or a key — instead of repeating the provider. */}
+            <span className="provider-accounts__name">{account.name ?? account.kind}
               {account.primary && <em className="provider-accounts__primary">Dùng trước</em>}
-              <small>{account.kind}</small>
+              {account.name && <small>{account.kind}</small>}
             </span>
             <span className={`provider-accounts__health provider-accounts__health--${account.health.tone}`}>{account.health.label}</span>
             {/* Four icons, always all four. A button the core will not allow is dimmed
@@ -120,21 +155,21 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
             <span className="provider-accounts__actions">
               <button type="button" className="provider-accounts__icon" disabled={!onConnect || Boolean(busy)}
                 title={onConnect ? 'Đăng nhập lại, làm mới token' : 'Bản này không mở kết nối nhà cung cấp'}
-                aria-label={`Đăng nhập lại ${account.name}`}
+                aria-label={`Đăng nhập lại tài khoản ${index + 1} của ${card.label}`}
                 onClick={() => onConnect?.(card.label)}><WorkbenchIcon name="plug" /></button>
               <button type="button" className="provider-accounts__icon" disabled={!card.canReorder || index === 0 || Boolean(busy)}
                 title={!card.canReorder ? 'Lõi không cho đổi thứ tự ở nhà cung cấp này'
                   : index === 0 ? 'Đã ở trên cùng' : 'Đưa lên trên, cho dùng trước'}
-                aria-label={`Đưa ${account.name} lên trên`}
+                aria-label={`Đưa tài khoản ${index + 1} của ${card.label} lên trên`}
                 onClick={() => void move(card, account.profileId, -1)}>↑</button>
               <button type="button" className="provider-accounts__icon" disabled={!card.canReorder || index === card.accounts.length - 1 || Boolean(busy)}
                 title={!card.canReorder ? 'Lõi không cho đổi thứ tự ở nhà cung cấp này'
                   : index === card.accounts.length - 1 ? 'Đã ở dưới cùng' : 'Hạ xuống, nhường tài khoản dưới dùng trước'}
-                aria-label={`Đưa ${account.name} xuống dưới`}
+                aria-label={`Đưa tài khoản ${index + 1} của ${card.label} xuống dưới`}
                 onClick={() => void move(card, account.profileId, 1)}>↓</button>
               <button type="button" className="provider-accounts__icon provider-accounts__remove" disabled={!account.canLogout || Boolean(busy)}
                 title={account.canLogout ? 'Gỡ tài khoản khỏi máy' : 'Lõi không cho gỡ tài khoản này'}
-                aria-label={`Gỡ tài khoản ${account.name}`}
+                aria-label={`Gỡ tài khoản ${index + 1} của ${card.label}`}
                 onClick={() => void logout(card, account.profileId)}><WorkbenchIcon name="trash" /></button>
             </span>
           </li>)}</ol>

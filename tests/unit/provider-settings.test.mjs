@@ -73,13 +73,14 @@ test('providerCards: order, tones, usage and model counts all come from the core
   assert.equal(anthropic.accounts[0].health.tone, 'warn');
   assert.match(anthropic.accounts[0].health.label, /Sắp hết hạn · còn 2 ngày/);
   assert.equal(anthropic.accounts[0].name, 'ca-nhan');
-  assert.equal(anthropic.accounts[0].kind, 'Đăng nhập tài khoản');
+  assert.equal(anthropic.accounts[0].kind, 'OAuth');
   assert.equal(anthropic.canReorder, true);
   assert.equal(anthropic.modelCount, 2);
   assert.equal(anthropic.usage, 'Max · còn 62% cửa sổ 5 giờ');
   const openai = list.find(card => card.provider === 'openai-codex');
-  assert.equal(openai.accounts[0].name, 'ChatGPT / OpenAI', 'a generated setup id is noise, so the label is shown instead');
-  assert.equal(openai.accounts[0].kind, 'Khoá API');
+  assert.equal(openai.accounts[0].name, null, 'a generated setup id is noise, and so is repeating the provider name');
+  assert.equal(openai.accounts[0].kind, 'API key', 'so the row leads with what the account actually is');
+  assert.equal(openai.accounts[0].kind, 'API key');
   assert.equal(openai.accounts[0].canLogout, false, 'the core did not say this one can be logged out');
   assert.equal(openai.canReorder, false, 'one account has no order to change');
   assert.equal(list.find(card => card.provider === 'google').accounts.length, 0);
@@ -93,8 +94,11 @@ test('projection: a stale stored order never hides a working account, and reorde
   assert.equal(providerAccounts.reorder(['a', 'b'], 'a', -1), null);
   assert.equal(providerAccounts.reorder(['a', 'b'], 'b', 1), null);
   assert.equal(providerAccounts.reorder(['a', 'b'], 'missing', 1), null);
-  assert.equal(providerAccounts.accountName('openai:setup-3c9947ca9182', 'ChatGPT'), 'ChatGPT');
-  assert.equal(providerAccounts.accountName('openai:work@example.com', 'ChatGPT'), 'work@example.com');
+  // A generated id is not a name, and neither is the provider's own name: three
+  // OAuth logins under one provider would then all read the same and the rows
+  // would be indistinguishable. Null means "lead with the kind instead".
+  assert.equal(providerAccounts.accountName('openai:setup-3c9947ca9182'), null);
+  assert.equal(providerAccounts.accountName('openai:work@example.com'), 'work@example.com');
 });
 
 test('the page leads with the running model, then the accounts in the order the core will try them', () => {
@@ -102,9 +106,13 @@ test('the page leads with the running model, then the accounts in the order the 
   const { tree, catalogueMounts } = render({ ready: true, models, currentProvider: 'anthropic', currentModel: 'claude',
     onConnect: query => clicks.push(query ?? 'connect'), onChangeModel: () => clicks.push('change-model') }, { cards: cards() });
   const rendered = text(tree);
-  assert.match(rendered, /Cuộc trò chuyện đang mở chạy bằng/,
-    'the running model is its own line, and says it is per conversation rather than a machine default');
-  assert.match(rendered, /claude · qua Claude \/ Anthropic/);
+  assert.match(rendered, /Mô hình mặc định — cuộc trò chuyện mới nào cũng bắt đầu bằng cái này/,
+    'the model every new conversation starts on is set here, not picked for the user');
+  const picker = walk(tree).find(node => node.type === 'select' && node.props['aria-label'] === 'Mô hình mặc định');
+  assert.deepEqual(picker.props.children[1].map(option => option.props.value),
+    ['openai-codex/gpt', 'anthropic/claude', 'anthropic/claude-2'],
+    'only what the core reports as available, never a model the shell made up');
+  assert.match(rendered, /Cuộc trò chuyện đang mở dùng claude/, 'and the session model is named as the separate thing it is');
   assert.match(rendered, /1ca-nhan/, 'the first account is numbered one');
   assert.match(rendered, /Dùng trước/);
   assert.match(rendered, /Đang dùng claude/, 'the card says which model is live rather than a bare count');
@@ -115,8 +123,24 @@ test('the page leads with the running model, then the accounts in the order the 
   const primary = walk(tree).find(node => node.type === 'button' && node.props.className === 'settings-primary');
   assert.equal(text(primary), 'Thêm nhà cung cấp');
   primary.props.onClick(); assert.deepEqual(clicks, ['connect']);
-  walk(tree).find(node => node.type === 'button' && text(node) === 'Đổi mô hình').props.onClick();
+  walk(tree).find(node => node.type === 'button' && text(node) === 'Mở mục Mô hình').props.onClick();
   assert.deepEqual(clicks, ['connect', 'change-model']);
+});
+
+test('a provider with models but no stored account still shows up', () => {
+  // Claude reached through the Claude Code CLI has models and no auth profile.
+  // Before this, authStatus drove the whole list and such a provider was invisible.
+  const withCli = providerAccounts.providerCards(
+    [{ provider: 'openai-codex', status: 'static', profiles: [{ profileId: 'openai-codex:setup-3c9947ca9182', type: 'api_key', status: 'static' }] }],
+    { modelCounts: { 'openai-codex': 1, anthropic: 2 } });
+  const anthropic = withCli.find(card => card.provider === 'anthropic');
+  assert.ok(anthropic, 'a provider the core has models for is listed even with no credential of its own');
+  assert.equal(anthropic.accounts.length, 0);
+  assert.equal(anthropic.modelCount, 2);
+  const { tree } = render({ ready: true, models, onConnect() {} }, { cards: withCli });
+  assert.match(text(tree), /Không có tài khoản lưu ở đây/, 'and the page says plainly why it has no account rows');
+  assert.doesNotMatch(text(tree), /Lõi còn hỗ trợ, chưa nối tài khoản nào:.*Claude/,
+    'it is connected through an app, so it does not belong in the not-connected tail');
 });
 
 test('usage rides on the card, because the core reports no per-account figure', () => {
@@ -141,13 +165,15 @@ test('every row carries the same four icons, dimmed with a reason where the core
   }
   const up = icons.filter(node => node.props['aria-label']?.startsWith('Đưa') && text(node) === '↑');
   assert.equal(up.length, 3, 'the single-account provider keeps its slot instead of dropping a button');
-  const upFor = name => up.find(node => node.props['aria-label'] === `Đưa ${name} lên trên`);
-  assert.equal(upFor('ca-nhan').props.disabled, true, 'the first account cannot move up');
-  assert.equal(upFor('ca-nhan').props.title, 'Đã ở trên cùng');
-  const alone = up.find(node => node.props['aria-label'] === 'Đưa ChatGPT / OpenAI lên trên');
+  // Rows are addressed by position and provider now, because several accounts
+  // under one provider can share every readable detail.
+  const upFor = (position, provider) => up.find(node => node.props['aria-label'] === `Đưa tài khoản ${position} của ${provider} lên trên`);
+  assert.equal(upFor(1, 'Claude / Anthropic').props.disabled, true, 'the first account cannot move up');
+  assert.equal(upFor(1, 'Claude / Anthropic').props.title, 'Đã ở trên cùng');
+  const alone = upFor(1, 'ChatGPT / OpenAI');
   assert.equal(alone.props.disabled, true);
   assert.equal(alone.props.title, 'Lõi không cho đổi thứ tự ở nhà cung cấp này', 'a blocked button explains itself');
-  await upFor('cong-ty').props.onClick();
+  await upFor(2, 'Claude / Anthropic').props.onClick();
   await new Promise(resolve => setTimeout(resolve, 10));
   assert.equal(JSON.stringify(manageCalls[0]), JSON.stringify({ action: 'provider-order-set', provider: 'anthropic', profileIds: ['anthropic:cong-ty', 'anthropic:ca-nhan'] }),
     'the write is a fixed action carrying the whole new order');

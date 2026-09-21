@@ -598,6 +598,14 @@ function runProviderOrderAction(input) {
     if (Object.keys(input).some(key => !['action', 'provider', 'profileIds'].includes(key))) throw new Error('Yêu cầu thứ tự tài khoản chưa hợp lệ.');
     return channelWorkGuard.run(() => setupChannel.setAuthOrder(input.provider, input.profileIds));
   }
+  if (input.action === 'default-model-read') {
+    if (Object.keys(input).length !== 1) throw new Error('Yêu cầu mô hình mặc định chưa hợp lệ.');
+    return setupChannel.defaultModel();
+  }
+  if (input.action === 'default-model-set') {
+    if (Object.keys(input).some(key => !['action', 'model'].includes(key))) throw new Error('Yêu cầu mô hình mặc định chưa hợp lệ.');
+    return channelWorkGuard.run(() => setupChannel.setDefaultModel(input.model));
+  }
   throw new Error('Thao tác nhà cung cấp chưa được hỗ trợ.');
 }
 

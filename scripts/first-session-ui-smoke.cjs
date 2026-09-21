@@ -274,7 +274,7 @@ app.whenReady().then(async () => {
     }
     if (packet.action === 'model-settings') return { revision: 'fixture', cacheRetention: 'short', catalogRefresh: true };
     if (packet.action === 'model-settings-save') return { ...packet, revision: 'fixture-saved', applied: true };
-    if (packet.action === 'provider-order-read') return { fixture: ['fixture:cong-ty', 'fixture:ca-nhan'] };
+    if (packet.action === 'provider-order-read') return { fixture: ['fixture:cong-ty', 'fixture:setup-3c9947ca9182'] };
     if (packet.action === 'ui-theme') return import('../apps/desktop/electron/ui-theme.mjs').then(({ applyUiTheme }) => applyUiTheme(packet, nativeTheme));
     if (packet.action?.startsWith('web-')) {
       if (browserIntegration) {
@@ -492,7 +492,8 @@ app.whenReady().then(async () => {
       return { providers: [
         { provider: 'fixture', status: 'static', usage: { plan: 'Fixture', summary: 'còn 62% cửa sổ 5 giờ' }, profiles: [
           { profileId: 'fixture:cong-ty', type: 'api_key', status: 'static', logoutSupported: true },
-          { profileId: 'fixture:ca-nhan', type: 'oauth', status: 'expiring', expiry: { label: '2 ngày' } }
+          // A core-generated id: the row must lead with OAuth, not with a made-up name.
+          { profileId: 'fixture:setup-3c9947ca9182', type: 'oauth', status: 'expiring', expiry: { label: '2 ngày' } }
         ] },
         { provider: 'google', status: 'missing', profiles: [] }
       ] };
@@ -701,6 +702,8 @@ app.whenReady().then(async () => {
   assert.equal(await evaluate("Boolean(document.querySelector('.capability-catalog'))"), false,
     'the 84-entry catalogue and its half-minute scan are off this page');
   assert.equal(await evaluate("document.querySelectorAll('.provider-accounts > li').length"), 2, 'both stored accounts are listed');
+  assert.equal(await evaluate("document.querySelectorAll('.provider-accounts__name')[1].textContent.startsWith('OAuth')"), true,
+    'an account the core did not name leads with what it is, not with the provider name repeated');
   assert.equal(await evaluate("document.querySelectorAll('.provider-accounts__icon').length"), 8,
     'four icons on every row, whatever the core allows');
   assert.equal(await evaluate("Array.from(document.querySelectorAll('.provider-accounts__icon, .provider-cards__icon')).every(button => button.title && button.getAttribute('aria-label'))"), true,
@@ -1796,7 +1799,7 @@ app.whenReady().then(async () => {
   await hasText('đã tắt'); await hasText('Dừng rồi Tiếp tục Gateway để áp dụng');
   await click('Bật plugin'); await until(() => Promise.resolve(pluginEnabled === true), 'plugin enabled through narrow management');
   assert.equal(managementRequests.filter(packet => packet.action === 'plugin-toggle').length, 2);
-  await click('Công cụ & khóa API'); await hasText('Quyền của phiên đã được xác nhận'); await hasText('Kiểm tra trạng thái phiên');
+  await click('Công cụ & API key'); await hasText('Quyền của phiên đã được xác nhận'); await hasText('Kiểm tra trạng thái phiên');
   await fill('[aria-label="Tìm công cụ"]', 'tài liệu'); await hasText('Tra cứu tài liệu thử'); await hasText('Bị giới hạn trong phiên');
   assert.equal(await evaluate("document.querySelectorAll('[aria-label=" + JSON.stringify('Công cụ của phiên') + "] .catalog-list > li').length"), 1);
   await capture('tools-effective-1440px.png');
