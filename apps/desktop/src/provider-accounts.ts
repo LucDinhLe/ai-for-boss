@@ -96,7 +96,15 @@ export function providerCards(providers: AuthProvider[], options: {
   order?: Record<string, string[]>;
   modelCounts?: Record<string, number>;
 } = {}): ProviderCard[] {
-  return providers
+  // `models.authStatus` only knows providers that stored a credential. A provider
+  // reached through an app already signed in on the machine — Claude via the
+  // Claude Code CLI, for one — has models and no profile, and used to be invisible
+  // here. Fold those in so the page shows everything the core can actually run.
+  const named = new Set(providers.map(entry => entry.provider));
+  const modelOnly: AuthProvider[] = Object.keys(options.modelCounts ?? {})
+    .filter(provider => !named.has(provider) && (options.modelCounts?.[provider] ?? 0) > 0)
+    .map(provider => ({ provider, status: "static", profiles: [] } as AuthProvider));
+  return [...providers, ...modelOnly]
     .map(entry => {
       const label = entry.displayName?.trim() || providerLabel(entry.provider);
       const ordered = orderProfiles(entry.profiles ?? [], options.order?.[entry.provider]);

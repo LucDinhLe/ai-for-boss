@@ -89,8 +89,10 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
   const selectable = models.filter(model => model.available)
     .map(model => ({ ref: model.id.startsWith(model.provider + '/') ? model.id : `${model.provider}/${model.id}` }))
     .filter((entry, index, all) => all.findIndex(other => other.ref === entry.ref) === index);
-  const connected = cards?.filter(card => card.accounts.length > 0) ?? [];
-  const rest = cards?.filter(card => card.accounts.length === 0) ?? [];
+  // A provider with models but no stored account is connected too — through an
+  // app on this machine — so it belongs in the list, not in the dim tail.
+  const connected = cards?.filter(card => card.accounts.length > 0 || card.modelCount > 0) ?? [];
+  const rest = cards?.filter(card => card.accounts.length === 0 && card.modelCount === 0) ?? [];
 
   return <>
     <p className="settings-lead">Mỗi nhà cung cấp là một thẻ, dưới thẻ là các tài khoản của anh chị. Tài khoản số 1 được dùng trước; những tài khoản sau là dự phòng khi tài khoản trước hết lượt hoặc hết hạn. Thứ tự này do lõi OpenClaw thực thi. Di chuột lên một biểu tượng để biết nó làm gì.</p>
@@ -137,6 +139,8 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
               title={card.usage ? `Mức dùng theo lõi ghi nhận: ${card.usage}` : 'Lõi chưa báo mức dùng cho nhà cung cấp này'}
               aria-label={`Mức dùng của ${card.label}`}><WorkbenchIcon name="usage" /></button>
           </div>
+          {card.accounts.length === 0 && <p className="settings-muted provider-cards__note">
+            Không có tài khoản lưu ở đây. Mô hình của nhà cung cấp này chạy qua ứng dụng đã đăng nhập sẵn trên máy.</p>}
           <ol className="provider-accounts">{card.accounts.map((account, index) => <li key={account.profileId}>
             <span className="provider-accounts__rank">{index + 1}</span>
             {/* No readable name from the core means the row leads with what it

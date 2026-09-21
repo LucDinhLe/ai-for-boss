@@ -127,6 +127,22 @@ test('the page leads with the running model, then the accounts in the order the 
   assert.deepEqual(clicks, ['connect', 'change-model']);
 });
 
+test('a provider with models but no stored account still shows up', () => {
+  // Claude reached through the Claude Code CLI has models and no auth profile.
+  // Before this, authStatus drove the whole list and such a provider was invisible.
+  const withCli = providerAccounts.providerCards(
+    [{ provider: 'openai-codex', status: 'static', profiles: [{ profileId: 'openai-codex:setup-3c9947ca9182', type: 'api_key', status: 'static' }] }],
+    { modelCounts: { 'openai-codex': 1, anthropic: 2 } });
+  const anthropic = withCli.find(card => card.provider === 'anthropic');
+  assert.ok(anthropic, 'a provider the core has models for is listed even with no credential of its own');
+  assert.equal(anthropic.accounts.length, 0);
+  assert.equal(anthropic.modelCount, 2);
+  const { tree } = render({ ready: true, models, onConnect() {} }, { cards: withCli });
+  assert.match(text(tree), /Không có tài khoản lưu ở đây/, 'and the page says plainly why it has no account rows');
+  assert.doesNotMatch(text(tree), /Lõi còn hỗ trợ, chưa nối tài khoản nào:.*Claude/,
+    'it is connected through an app, so it does not belong in the not-connected tail');
+});
+
 test('usage rides on the card, because the core reports no per-account figure', () => {
   const { tree } = render({ ready: true, models, onConnect() {} }, { cards: cards() });
   const meters = walk(tree).filter(node => node.type === 'button' && node.props.className === 'provider-cards__icon');
