@@ -79,8 +79,8 @@ test('providerCards: order, tones, usage and model counts all come from the core
   assert.equal(anthropic.usage, 'Max · còn 62% cửa sổ 5 giờ');
   const openai = list.find(card => card.provider === 'openai-codex');
   assert.equal(openai.accounts[0].name, null, 'a generated setup id is noise, and so is repeating the provider name');
-  assert.equal(openai.accounts[0].kind, 'Khoá API', 'so the row leads with what the account actually is');
-  assert.equal(openai.accounts[0].kind, 'Khoá API');
+  assert.equal(openai.accounts[0].kind, 'API key', 'so the row leads with what the account actually is');
+  assert.equal(openai.accounts[0].kind, 'API key');
   assert.equal(openai.accounts[0].canLogout, false, 'the core did not say this one can be logged out');
   assert.equal(openai.canReorder, false, 'one account has no order to change');
   assert.equal(list.find(card => card.provider === 'google').accounts.length, 0);

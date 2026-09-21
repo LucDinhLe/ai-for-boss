@@ -30,7 +30,7 @@ export type AccountRow = {
   profileId: string;
   /** Null when the core gave no readable name: the row then leads with `kind`. */
   name: string | null;
-  kind: "OAuth" | "Khoá API" | "Ứng dụng trên máy";
+  kind: "OAuth" | "API key" | "Ứng dụng trên máy";
   health: { tone: "ok" | "warn" | "error" | "muted"; label: string };
   primary: boolean;
   canLogout: boolean;
@@ -49,7 +49,7 @@ export type ProviderCard = {
 
 const PROVIDER_TONE: Record<string, { tone: ProviderCard["headline"]["tone"]; label: string }> = {
   ok: { tone: "ok", label: "Đang dùng được" },
-  static: { tone: "ok", label: "Đang dùng được bằng khoá API" },
+  static: { tone: "ok", label: "Đang dùng được bằng API key" },
   expiring: { tone: "warn", label: "Sắp hết hạn, nên đăng nhập lại" },
   expired: { tone: "error", label: "Đã hết hạn, cần đăng nhập lại" },
   missing: { tone: "muted", label: "Chưa kết nối" }
@@ -64,7 +64,7 @@ const PROFILE_TONE: Record<string, { tone: AccountRow["health"]["tone"]; label: 
 const KIND: Record<AuthProfile["type"], AccountRow["kind"]> = {
   oauth: "OAuth",
   token: "Ứng dụng trên máy",
-  api_key: "Khoá API"
+  api_key: "API key"
 };
 
 /**

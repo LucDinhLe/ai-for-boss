@@ -1799,7 +1799,7 @@ app.whenReady().then(async () => {
   await hasText('đã tắt'); await hasText('Dừng rồi Tiếp tục Gateway để áp dụng');
   await click('Bật plugin'); await until(() => Promise.resolve(pluginEnabled === true), 'plugin enabled through narrow management');
   assert.equal(managementRequests.filter(packet => packet.action === 'plugin-toggle').length, 2);
-  await click('Công cụ & khóa API'); await hasText('Quyền của phiên đã được xác nhận'); await hasText('Kiểm tra trạng thái phiên');
+  await click('Công cụ & API key'); await hasText('Quyền của phiên đã được xác nhận'); await hasText('Kiểm tra trạng thái phiên');
   await fill('[aria-label="Tìm công cụ"]', 'tài liệu'); await hasText('Tra cứu tài liệu thử'); await hasText('Bị giới hạn trong phiên');
   assert.equal(await evaluate("document.querySelectorAll('[aria-label=" + JSON.stringify('Công cụ của phiên') + "] .catalog-list > li').length"), 1);
   await capture('tools-effective-1440px.png');

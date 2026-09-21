@@ -657,7 +657,7 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
             aria-label={group.label} onClick={() => { setFamily(group.id); setError(null); }}>
             <strong><BrandIcon id={group.brandId} label={group.label} />{group.label}</strong>
             <small>{group.candidates.length > 0 ? 'Máy này đã đăng nhập sẵn, dùng luôn'
-              : group.signIn.length > 0 ? 'Đăng nhập trên trình duyệt' : 'Dán khoá API'}</small>
+              : group.signIn.length > 0 ? 'Đăng nhập trên trình duyệt' : 'Dán API key'}</small>
           </button>)}
         </div> : null}
         {restFamilies.length > 0 ? <details className="connect__more">
@@ -666,7 +666,7 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
             {restFamilies.map(group => <button key={group.id} type="button" disabled={!ready || busy}
               aria-label={group.label} onClick={() => { setFamily(group.id); setError(null); }}>
               <strong><BrandIcon id={group.brandId} label={group.label} />{group.label}</strong>
-              <small>{group.signIn.length > 0 ? 'Đăng nhập trên trình duyệt' : 'Dán khoá API'}</small>
+              <small>{group.signIn.length > 0 ? 'Đăng nhập trên trình duyệt' : 'Dán API key'}</small>
             </button>)}
           </div>
         </details> : null}

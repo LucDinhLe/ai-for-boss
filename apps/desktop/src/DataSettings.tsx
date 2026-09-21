@@ -27,7 +27,7 @@ export default function DataSettings({ disabled, onLayout }: { disabled: boolean
   const settings = status?.settings;
   return <><p className="settings-lead">Cấu hình và lịch sử nằm ngoài thư mục phiên bản; cài bản mới hoặc gỡ bản cũ giữ nguyên dữ liệu này.</p>
     <section className="settings-card"><h2>Sao lưu và khôi phục</h2>
-      <p>Bản phục hồi gồm cấu hình OpenClaw, thông tin kết nối, dữ liệu do lõi hỗ trợ và giao diện AI for Boss. Khóa API và token được mã hóa trong tệp .aifb, không xuất thành ZIP đọc trực tiếp.</p>
+      <p>Bản phục hồi gồm cấu hình OpenClaw, thông tin kết nối, dữ liệu do lõi hỗ trợ và giao diện AI for Boss. API key và token được mã hóa trong tệp .aifb, không xuất thành ZIP đọc trực tiếp.</p>
       <p>Media trong dữ liệu lõi được giữ theo cơ chế sao lưu OpenClaw. Cookie trình duyệt của ứng dụng và các tệp nhật ký bị lõi loại trừ không nằm trong bản phục hồi.</p>
       <button disabled={locked || !status} onClick={() => void run('data-backup')}>Sao lưu ngay trên máy</button>
       <p>Bản trên máy được khóa theo tài khoản hệ điều hành hiện tại. Để lưu ở nơi khác, dùng bản xuất có mật khẩu. Bản thử khôi phục vào đúng thư mục dữ liệu ban đầu; chưa tự chuyển cấu hình sang máy khác.</p>

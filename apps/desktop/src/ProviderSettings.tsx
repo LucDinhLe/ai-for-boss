@@ -92,7 +92,7 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
       </div>
       {!ready ? <p>Bật Gateway để xem tài khoản đã kết nối.</p>
         : cards === null ? <p role="status">Đang đọc danh sách tài khoản…</p>
-        : connected.length === 0 ? <p>Chưa có tài khoản nào. Bấm Thêm nhà cung cấp để đăng nhập hoặc dán khoá API.</p>
+        : connected.length === 0 ? <p>Chưa có tài khoản nào. Bấm Thêm nhà cung cấp để đăng nhập hoặc dán API key.</p>
         : <ul className="provider-cards">{connected.map(card => <li key={card.provider} className="provider-cards__item">
           <div className="provider-cards__head">
             <BrandIcon id={card.provider} label={card.label} />
