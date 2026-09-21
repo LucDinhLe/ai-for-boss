@@ -46,6 +46,14 @@ export const SETUP_METHODS = Object.freeze([
 /** Longer than the Gateway's own 25-minute provider-login session. */
 export const WIZARD_NEXT_TIMEOUT_MS = 26 * 60_000;
 
+/** Calls whose schema takes an owning agent, and that the core rejects without one. */
+export const OWNED_BY_AGENT = Object.freeze(new Set([
+  "models.authStatus",
+  "models.authLogout",
+  "openclaw.setup.auth.start",
+  "openclaw.setup.activate.start"
+]));
+
 export function isSetupMethod(method) {
   return SETUP_METHODS.includes(method);
 }
@@ -216,7 +224,10 @@ export class SetupChannel {
     if(!Array.isArray(profileIds)||profileIds.length<2||profileIds.length>20
       ||profileIds.some(id=>typeof id!=='string'||!id||id.length>200)
       ||new Set(profileIds).size!==profileIds.length)throw new Error('Thứ tự tài khoản chưa hợp lệ.');
-    const status=await this.#adminRequest('models.authStatus',{refresh:false});
+    // Same owner rule as the renderer path: this one goes straight to the admin
+    // request, so it has to name the agent itself.
+    const owner=await this.#ownerAgentId();
+    const status=await this.#adminRequest('models.authStatus',owner?{refresh:false,agentId:owner}:{refresh:false});
     const known=status?.providers?.find(entry=>entry?.provider===provider)?.profiles?.map(profile=>profile.profileId)??[];
     if(!profileIds.every(id=>known.includes(id))||profileIds.length!==known.length)throw new Error('Danh sách tài khoản đã thay đổi. Hãy tải lại trang.');
     const before=await this.#adminRequest('config.get',{});
@@ -304,11 +315,32 @@ export class SetupChannel {
     return work;
   }
 
+  /**
+   * The core refuses model auth when several agents are configured and nobody
+   * says which one owns it: "Multiple agents are configured, but model auth has
+   * no explicit owner." The renderer has no business knowing agent ids, so the
+   * owner is resolved here, from the system agent the config already names, and
+   * attached to the calls whose schema takes it.
+   */
+  async #ownerAgentId() {
+    const snapshot = await this.#adminRequest('config.get', {});
+    const agents = snapshot?.config?.agents;
+    const entries = agents?.entries && typeof agents.entries === 'object' ? Object.keys(agents.entries) : [];
+    if (entries.length < 2) return null;
+    const named = agents?.defaults?.systemAgent?.agentId;
+    if (typeof named === 'string' && entries.includes(named)) return named;
+    return entries.includes('main') ? 'main' : entries[0];
+  }
+
   async request(method, params) {
     if (isForbiddenOnSetupChannel(method) || !isSetupMethod(method)) {
       throw new Error(`Method not allowed on the setup channel: ${method}`);
     }
     if (!this.#client || !this.#connected) throw new Error("Setup channel is not connected");
+    if (OWNED_BY_AGENT.has(method) && (params === undefined || params === null || params.agentId === undefined)) {
+      const agentId = await this.#ownerAgentId();
+      if (agentId) params = { ...(params ?? {}), agentId };
+    }
     const client = this.#client, generation = this.#generation, epoch = this.#connectionEpoch;
     const assertCurrent = () => {
       if (!this.#connected || client !== this.#client || generation !== this.#generation || epoch !== this.#connectionEpoch) {
