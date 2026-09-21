@@ -9,7 +9,9 @@ test('both pickers receive contiguous provider families in the requested priorit
     provider, id: `m${i}`, name: `M${i}`, available: i !== 6, selectable: i !== 6
   }));
   const result = modelChoices(models, '', '__all', 100);
-  assert.deepEqual(result.models.map(m => m.provider), ['openai', 'openai', 'anthropic', 'claude-cli', 'google', 'xai', 'alibaba']);
+  // One priority list serves both pickers, so the four brands the connect screen
+  // always shows lead here too: ChatGPT, Claude, Grok, Antigravity.
+  assert.deepEqual(result.models.map(m => m.provider), ['openai', 'openai', 'anthropic', 'claude-cli', 'xai', 'google', 'alibaba']);
   assert.equal(modelChoices(models, 'ChatGPT', '__connected', 100).total, 2);
   assert.equal(modelChoices(models, 'Gemini', '__connected', 100).models[0].provider, 'google');
   assert.equal(modelChoices(models, 'Grok', '__connected', 100).models[0].provider, 'xai');

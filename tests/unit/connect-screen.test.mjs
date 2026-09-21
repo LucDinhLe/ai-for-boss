@@ -35,7 +35,7 @@ const copy = (value) => JSON.parse(JSON.stringify(value));
  * tests reading as intent ("start the browser sign-in for this brand") instead of
  * spelling the picker out each time.
  */
-async function enter(h, brand, path = 'Đăng nhập bằng trình duyệt') {
+async function enter(h, brand, path = 'Đăng nhập OAuth') {
   h.button(brand).props.onClick(); await h.flush();
   const target = h.button(path);
   assert.ok(target, `no "${path}" under ${brand}`);
@@ -47,16 +47,18 @@ test('sign-in choices follow account popularity, keep the long tail behind "more
   const h = harness(async method => method === 'openclaw.setup.auth.start' ? { step: { id: 'next', type: 'confirm' } }
     : { candidates: [], manualProviders: [], authOptions });
   await h.flush();
-  // 0063: one card per brand, named by the family. An unknown brand keeps the
-  // name the core gave it, because a raw id is not a name anyone should read.
-  const cards = h.nodes().filter(n => n.type === 'button' && n.props['aria-label'] && !n.props.disabled
-    && n.props.onClick && h.text(n).includes('Đăng nhập')).map(n => n.props['aria-label']);
-  assert.deepEqual(cards.slice(0, 4), ['ChatGPT / OpenAI', 'Claude / Anthropic', 'Gemini / Google', 'OpenRouter'],
-    'popularity outranks the native featured flag');
+  // The first screen always offers the same four, in the same order, whatever a
+  // given machine happens to have routes for.
+  const featured = h.nodes().filter(n => n.type === 'button' && n.props['aria-label'] && n.props.onClick
+    && !h.nodes().some(d => d.type === 'details' && h.text(d).includes(n.props['aria-label'])))
+    .map(n => n.props['aria-label']).slice(0, 4);
+  assert.deepEqual(featured, ['ChatGPT / OpenAI', 'Claude / Anthropic', 'Grok / xAI', 'Antigravity'],
+    'the four the Product Owner asked for, in that order');
   const more = h.nodes().find(n => n.type === 'details' && n.props.className === 'connect__more');
-  assert.match(h.text(more), /Xem toàn bộ danh mục lõi \(2\)/);
-  assert.ok(h.text(more).includes('Grok / xAI') && h.text(more).includes('new-provider login'),
-    'only the tail is folded, and an unknown brand sorts last under the name the core gave it');
+  assert.match(h.text(more), /Xem toàn bộ danh mục lõi \(3\)/);
+  assert.ok(h.text(more).includes('Gemini / Google') && h.text(more).includes('new-provider login'),
+    'everything outside the fixed four is folded, unknown brands last under the core name');
+  assert.ok(!h.text(more).includes('Grok / xAI'), 'a featured brand is never buried in the fold');
   assert.equal(h.requests.length, 1, 'rendering does not authenticate');
   await enter(h, 'ChatGPT / OpenAI');
   assert.equal(h.requests.find(r => r.method === 'openclaw.setup.auth.start').params.authChoice, 'openai-native-auth');
@@ -179,7 +181,7 @@ test("cancelling a pending start prevents late steps and extra polling", async (
     ? new Promise((resolve) => { finish = resolve; }) : Promise.resolve(catalogue));
   await h.flush();
   h.button("Native browser").props.onClick(); h.render();          // pick the brand
-  h.button("Đăng nhập bằng trình duyệt").props.onClick(); h.render(); // then the way in
+  h.button("Đăng nhập OAuth").props.onClick(); h.render(); // then the way in
   assert.ok(h.button("Huỷ"), "a pending request has an enabled cancellation action");
   assert.equal(Boolean(h.button("Huỷ").props.disabled), false);
   h.button("Huỷ").props.onClick(); await h.flush();
@@ -223,7 +225,7 @@ test("a pending wizard is single-flight and unmount clears its poll before anoth
   const h = harness(async (method) => method === "openclaw.setup.auth.start" ? { sessionId: "synthetic-session-1" } : catalogue);
   await h.flush();
   h.button("Native browser").props.onClick(); await h.flush();
-  const start = h.button("Đăng nhập bằng trình duyệt").props.onClick;
+  const start = h.button("Đăng nhập OAuth").props.onClick;
   start(); start(); await h.flush();
   assert.equal(h.requests.filter((call) => call.method === "openclaw.setup.auth.start").length, 1);
   h.dispose(); await h.tick();
@@ -321,7 +323,7 @@ test("failed progress and incomplete terminal receipts never become connected", 
     await h.flush(); await enter(h, 'Native browser'); await h.tick();
     assert.doesNotMatch(h.text(), /Đã kết nối/);
     assert.equal(h.requests.some(call => call.method === 'models.authStatus'), false);
-    assert.equal(h.button('Đăng nhập bằng trình duyệt').props.disabled, false);
+    assert.equal(h.button('Đăng nhập OAuth').props.disabled, false);
     h.dispose();
   }
 });
@@ -346,7 +348,7 @@ test("reconnecting clears stale wizard controls and ignores a late pre-reconnect
   finish({ done: false, status: 'running', step: { id: 'stale', type: 'text', title: 'Stale reconnect prompt' } });
   await h.flush(); await h.tick();
   assert.doesNotMatch(h.text(), /Stale reconnect prompt/);
-  assert.equal(h.button('Đăng nhập bằng trình duyệt').props.disabled, false);
+  assert.equal(h.button('Đăng nhập OAuth').props.disabled, false);
   assert.equal(h.requests.some(call => call.method === 'wizard.next'), false);
   h.dispose();
 });
@@ -393,7 +395,7 @@ test('a slow catalogue refresh cannot hold the completed connection screen busy'
   });
   await h.flush(); await enter(h, 'Native browser'); await h.flush();
   assert.match(h.text(), /Đã kết nối synthetic\/model/);
-  assert.equal(h.button('Đăng nhập bằng trình duyệt').props.disabled, false);
+  assert.equal(h.button('Đăng nhập OAuth').props.disabled, false);
   assert.ok(h.button('Để sau'));
   release(catalogue); await h.flush(); h.dispose();
 });
@@ -474,8 +476,8 @@ test('the API-key picker lists providers by popularity and explains the Google l
   // Brands come in popularity order, and each one owns its own keys (0063).
   const cards = h.nodes().filter(node => node.type === 'button' && node.props['aria-label'] && node.props.onClick
     && h.text(node).includes('Dán API key')).map(node => node.props['aria-label']);
-  assert.deepEqual(cards, ['Claude / Anthropic', 'Gemini / Google', 'Grok / xAI', 'Zzz key'],
-    'popularity order, and an unknown brand sorts last under the name the core gave it');
+  assert.deepEqual(cards, ['Claude / Anthropic', 'Grok / xAI', 'Gemini / Google', 'Zzz key'],
+    'featured brands first in their fixed order, then the rest, unknown last under the core name');
   h.button('Gemini / Google').props.onClick(); await h.flush();
   assert.match(h.text(), /AI Studio key/); assert.match(h.text(), /không mở đăng nhập Gemini CLI mới/);
   assert.equal(h.nodes().some(node => node.type === 'select'), false, 'one key for this brand needs no picker');
@@ -546,7 +548,7 @@ test('a terminal activation receipt survives the Gateway restart that follows ac
   await h.flush(); await h.flush();
   assert.match(h.text(), /Đã kết nối synthetic\/model/, 'the saved route is confirmed even though the flow token moved on');
   assert.equal(h.requests.filter(call => call.method === 'wizard.cancel').length, 0, 'a completed wizard is never cancelled');
-  assert.equal(h.button('Đăng nhập bằng trình duyệt').props.disabled, false);
+  assert.equal(h.button('Đăng nhập OAuth').props.disabled, false);
   h.dispose();
 });
 

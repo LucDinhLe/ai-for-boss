@@ -9,15 +9,24 @@
 const families = [
   { id: 'openai', label: 'ChatGPT / OpenAI', aliases: ['openai', 'openai-codex', 'codex', 'codex-cli', 'chatgpt', 'openai-api-key', 'openai-device-code'] },
   { id: 'anthropic', label: 'Claude / Anthropic', aliases: ['anthropic', 'claude', 'claude-cli', 'anthropic-cli'] },
-  { id: 'google', label: 'Gemini / Google', aliases: ['google', 'gemini', 'gemini-cli', 'google-gemini-cli', 'google-vertex', 'google-antigravity', 'gemini-api-key'] },
+  { id: 'xai', label: 'Grok / xAI', aliases: ['xai', 'grok', 'xai-oauth', 'xai-api-key', 'xai-device-code'] },
+  // Its own brand, not a corner of Google: the Product Owner asks for it by name
+  // on the first screen, and it has no browser sign-in of its own (13/09).
+  { id: 'antigravity', label: 'Antigravity', aliases: ['antigravity', 'google-antigravity'] },
+  { id: 'google', label: 'Gemini / Google', aliases: ['google', 'gemini', 'gemini-cli', 'google-gemini-cli', 'google-vertex', 'gemini-api-key'] },
   { id: 'openrouter', label: 'OpenRouter', aliases: ['openrouter', 'openrouter-oauth', 'openrouter-api-key'] },
   { id: 'github-copilot', label: 'GitHub Copilot', aliases: ['github-copilot', 'copilot', 'copilot-proxy', 'github-copilot-enterprise'] },
-  { id: 'xai', label: 'Grok / xAI', aliases: ['xai', 'grok', 'xai-oauth', 'xai-api-key', 'xai-device-code'] },
   { id: 'deepseek', label: 'DeepSeek', aliases: ['deepseek'] },
   { id: 'minimax', label: 'MiniMax', aliases: ['minimax', 'minimax-portal', 'minimax-global-oauth', 'minimax-cn-oauth', 'minimax-global-api', 'minimax-cn-api'] }
 ];
-/** Families a first-time user should see without expanding "more". */
-export const FEATURED_FAMILY_COUNT = 4;
+/**
+ * The four the first screen always shows, in this order. They are shown even when
+ * this machine has no route for one yet: the person asked for a list that does not
+ * change shape under them. A brand with no route is dimmed and says why; the shell
+ * still never invents an auth path the core does not have (D-0022).
+ */
+export const FEATURED_FAMILIES = Object.freeze(['openai', 'anthropic', 'xai', 'antigravity']);
+export const FEATURED_FAMILY_COUNT = FEATURED_FAMILIES.length;
 export function providerFamily(value: string) {
   const normalized = value.toLowerCase();
   return families.find(family => family.aliases.includes(normalized))?.id ?? value;

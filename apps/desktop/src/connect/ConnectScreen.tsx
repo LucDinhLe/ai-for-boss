@@ -2,7 +2,7 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { CHROME, credentialLabel, localiseStep, type WizardStep } from "./wizard-vi";
 import BrandIcon from '../BrandIcon';
 import { WorkbenchIcon } from '../WorkspaceSidebar';
-import { FEATURED_FAMILY_COUNT, compareProviders, providerFamily, providerLabel } from '../provider-order';
+import { FEATURED_FAMILIES, compareProviders, providerFamily, providerLabel } from '../provider-order';
 import { manage, type NativeCatalogue } from '../workbench-api';
 
 type Candidate = {
@@ -585,8 +585,12 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
     for (const provider of manualProviders) slot(identity(provider), provider.groupLabel || provider.label).keys.push(provider);
     return [...groups.values()].sort((a, b) => compareProviders(a.brandId, b.brandId));
   })();
-  const featuredFamilies = familyGroups.slice(0, FEATURED_FAMILY_COUNT);
-  const restFamilies = familyGroups.slice(FEATURED_FAMILY_COUNT);
+  // The four always show, in a fixed order, even where this machine has no route
+  // yet: a first screen that changes shape per machine cannot be explained to
+  // anyone. A brand with no route is present but not clickable, and says why.
+  const featuredFamilies = FEATURED_FAMILIES.map(id => familyGroups.find(group => group.id === id)
+    ?? { id, label: providerLabel(id), brandId: id, signIn: [], candidates: [], keys: [] });
+  const restFamilies = familyGroups.filter(group => !FEATURED_FAMILIES.includes(group.id));
   const chosen = familyGroups.find(group => group.id === family) ?? null;
   const keyProvider = chosen ? (chosen.keys.find(provider => provider.id === keyChoice) ?? chosen.keys[0] ?? null) : null;
   const keyFamily = keyProvider ? providerFamily(identity(keyProvider)) : '';
@@ -597,7 +601,7 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
   // which of these routes exist on this machine.
   const placeholderMethods = !detect && !error ? (catalogue?.authMethods ?? []).filter(method => method.scopes.includes('text-inference')) : [];
   const placeholderSignIn = placeholderMethods.filter(method => method.guidedAuth || method.guidedSecret)
-    .sort((a, b) => compareProviders(a.provider, b.provider)).slice(0, FEATURED_FAMILY_COUNT);
+    .sort((a, b) => compareProviders(a.provider, b.provider)).slice(0, FEATURED_FAMILIES.length);
   const connectedAccounts = (authStatus ?? []).filter(item => item.status !== 'missing');
   const currentModel = detect?.configuredModel;
   const submitKey = (event: FormEvent) => {
@@ -653,12 +657,17 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
             <strong><BrandIcon id={method.provider} label={method.label} />{method.label}</strong><small>{CHROME.scanning}</small></button>)}
         </div> : null}
         {featuredFamilies.length > 0 ? <div className="connect__options">
-          {featuredFamilies.map(group => <button key={group.id} type="button" disabled={!ready || busy}
-            aria-label={group.label} onClick={() => { setFamily(group.id); setError(null); }}>
-            <strong><BrandIcon id={group.brandId} label={group.label} />{group.label}</strong>
-            <small>{group.candidates.length > 0 ? 'Máy này đã đăng nhập sẵn, dùng luôn'
-              : group.signIn.length > 0 ? 'Đăng nhập trên trình duyệt' : 'Dán API key'}</small>
-          </button>)}
+          {featuredFamilies.map(group => {
+            const routes = group.signIn.length + group.candidates.length + group.keys.length;
+            return <button key={group.id} type="button" disabled={!ready || busy || routes === 0}
+              aria-label={group.label} onClick={() => { setFamily(group.id); setError(null); }}>
+              <strong><BrandIcon id={group.brandId} label={group.label} />{group.label}</strong>
+              <small>{routes === 0 ? 'Bản lõi này chưa mở đường nối nào cho hãng đó'
+                : group.signIn.length > 0 ? 'Đăng nhập OAuth hoặc dán API key'
+                : group.candidates.length > 0 ? 'Chưa có OAuth — dùng ứng dụng đã đăng nhập trên máy'
+                : 'Dán API key'}</small>
+            </button>;
+          })}
         </div> : null}
         {restFamilies.length > 0 ? <details className="connect__more">
           <summary>Xem toàn bộ danh mục lõi ({restFamilies.length})</summary>
@@ -666,7 +675,7 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
             {restFamilies.map(group => <button key={group.id} type="button" disabled={!ready || busy}
               aria-label={group.label} onClick={() => { setFamily(group.id); setError(null); }}>
               <strong><BrandIcon id={group.brandId} label={group.label} />{group.label}</strong>
-              <small>{group.signIn.length > 0 ? 'Đăng nhập trên trình duyệt' : 'Dán API key'}</small>
+              <small>{group.signIn.length > 0 ? 'Đăng nhập OAuth' : group.candidates.length > 0 ? 'Nối qua ứng dụng trên máy' : 'Dán API key'}</small>
             </button>)}
           </div>
         </details> : null}
@@ -682,20 +691,29 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
           <h2><BrandIcon id={chosen.brandId} label={chosen.label} />{chosen.label}</h2>
         </div>
 
+        {/* Two ways in, no more: sign in, or paste a key. Where the core opens no
+            browser sign-in for this brand — Antigravity, for one — the app already
+            signed in on this machine takes that slot instead of leaving a gap. */}
+        <p className="connect__hint">{chosen.signIn.length > 0
+          ? 'Hai cách: đăng nhập OAuth, hoặc dán API key.'
+          : chosen.candidates.length > 0
+            ? 'Hãng này không có đăng nhập OAuth. Dùng ứng dụng đã đăng nhập sẵn trên máy, hoặc dán API key.'
+            : 'Hãng này chỉ nhận API key.'}</p>
+
         {chosen.candidates.length > 0 ? <div className="connect__options">
           {chosen.candidates.map(candidate => <button key={candidate.kind + candidate.modelRef + candidate.label}
             type="button" disabled={!ready || busy} aria-label={`Dùng ${candidate.label} đã đăng nhập trên máy`}
             onClick={() => void startCandidate(candidate)}>
-            <strong><BrandIcon id={candidate.brandId || candidate.kind} label={candidate.label} />Dùng {candidate.label} đã đăng nhập trên máy</strong>
+            <strong><BrandIcon id={candidate.brandId || candidate.kind} label={candidate.label} />{chosen.signIn.length > 0 ? `Dùng ${candidate.label} đã đăng nhập trên máy` : `Nối qua ${candidate.label} trên máy`}</strong>
             <small>{candidate.detail}{candidate.modelRef ? ` · ${candidate.modelRef}` : ''}</small>
           </button>)}
         </div> : null}
 
         {chosen.signIn.length > 0 ? <div className="connect__options">
           {chosen.signIn.map(option => <button key={option.id} type="button" disabled={!ready || busy}
-            aria-label={chosen.signIn.length > 1 ? `Đăng nhập bằng trình duyệt — ${option.label}` : 'Đăng nhập bằng trình duyệt'}
+            aria-label={chosen.signIn.length > 1 ? `Đăng nhập OAuth — ${option.label}` : 'Đăng nhập OAuth'}
             onClick={() => void startGuided(option)}>
-            <strong><BrandIcon id={option.brandId || option.id} label={option.label} />Đăng nhập bằng trình duyệt</strong>
+            <strong><BrandIcon id={option.brandId || option.id} label={option.label} />Đăng nhập OAuth</strong>
             <small>{option.kind === 'device-code' ? 'Mã thiết bị' : 'Mở trang của hãng'}{option.hint ? ` · ${option.hint}` : ''}
               {chosen.signIn.length > 1 ? ` · ${option.label}` : ''}</small>
           </button>)}
