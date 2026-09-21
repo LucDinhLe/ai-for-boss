@@ -106,9 +106,13 @@ test('the page leads with the running model, then the accounts in the order the 
   const { tree, catalogueMounts } = render({ ready: true, models, currentProvider: 'anthropic', currentModel: 'claude',
     onConnect: query => clicks.push(query ?? 'connect'), onChangeModel: () => clicks.push('change-model') }, { cards: cards() });
   const rendered = text(tree);
-  assert.match(rendered, /Cuộc trò chuyện đang mở chạy bằng/,
-    'the running model is its own line, and says it is per conversation rather than a machine default');
-  assert.match(rendered, /claude · qua Claude \/ Anthropic/);
+  assert.match(rendered, /Mô hình mặc định — cuộc trò chuyện mới nào cũng bắt đầu bằng cái này/,
+    'the model every new conversation starts on is set here, not picked for the user');
+  const picker = walk(tree).find(node => node.type === 'select' && node.props['aria-label'] === 'Mô hình mặc định');
+  assert.deepEqual(picker.props.children[1].map(option => option.props.value),
+    ['openai-codex/gpt', 'anthropic/claude', 'anthropic/claude-2'],
+    'only what the core reports as available, never a model the shell made up');
+  assert.match(rendered, /Cuộc trò chuyện đang mở dùng claude/, 'and the session model is named as the separate thing it is');
   assert.match(rendered, /1ca-nhan/, 'the first account is numbered one');
   assert.match(rendered, /Dùng trước/);
   assert.match(rendered, /Đang dùng claude/, 'the card says which model is live rather than a bare count');
@@ -119,7 +123,7 @@ test('the page leads with the running model, then the accounts in the order the 
   const primary = walk(tree).find(node => node.type === 'button' && node.props.className === 'settings-primary');
   assert.equal(text(primary), 'Thêm nhà cung cấp');
   primary.props.onClick(); assert.deepEqual(clicks, ['connect']);
-  walk(tree).find(node => node.type === 'button' && text(node) === 'Đổi mô hình').props.onClick();
+  walk(tree).find(node => node.type === 'button' && text(node) === 'Mở mục Mô hình').props.onClick();
   assert.deepEqual(clicks, ['connect', 'change-model']);
 });
 

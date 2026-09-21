@@ -26,6 +26,8 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
   const [cards, setCards] = useState<ProviderCard[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  /** What every new conversation starts on. The core picks one on activation; this is how the user takes that back. */
+  const [defaultModel, setDefaultModel] = useState<string | null>(null);
   const epoch = useRef(0);
 
   const load = useCallback(async (refresh = false) => {
@@ -33,11 +35,13 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
     const current = ++epoch.current;
     setError(null);
     try {
-      const [status, order] = await Promise.all([
+      const [status, order, current0] = await Promise.all([
         setupCall<{ providers?: AuthProvider[] }>('models.authStatus', { refresh }),
-        manage<Record<string, string[]>>({ action: 'provider-order-read' }).catch(() => ({} as Record<string, string[]>))
+        manage<Record<string, string[]>>({ action: 'provider-order-read' }).catch(() => ({} as Record<string, string[]>)),
+        manage<{ model: string | null }>({ action: 'default-model-read' }).catch(() => ({ model: null }))
       ]);
       if (current !== epoch.current) return;
+      setDefaultModel(current0.model);
       const modelCounts: Record<string, number> = {};
       for (const model of models) if (model.available) modelCounts[model.provider] = (modelCounts[model.provider] ?? 0) + 1;
       setCards(providerCards(status.providers ?? [], { order, modelCounts }));
@@ -61,6 +65,16 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
     finally { setBusy(null); }
   };
 
+  const chooseDefaultModel = async (modelRef: string) => {
+    if (busy) return;
+    setBusy('default-model'); setError(null);
+    try {
+      await manage({ action: 'default-model-set', model: modelRef });
+      await load(false);
+    } catch (cause) { setError(String((cause as Error)?.message ?? cause)); }
+    finally { setBusy(null); }
+  };
+
   const logout = async (card: ProviderCard, profileId: string) => {
     if (busy) return;
     setBusy(profileId); setError(null);
@@ -71,19 +85,34 @@ export default function ProviderSettings({ ready, models, currentProvider, curre
     finally { setBusy(null); }
   };
 
+  // Only what the core says is available: the shell never invents a model.
+  const selectable = models.filter(model => model.available)
+    .map(model => ({ ref: model.id.startsWith(model.provider + '/') ? model.id : `${model.provider}/${model.id}` }))
+    .filter((entry, index, all) => all.findIndex(other => other.ref === entry.ref) === index);
   const connected = cards?.filter(card => card.accounts.length > 0) ?? [];
   const rest = cards?.filter(card => card.accounts.length === 0) ?? [];
 
   return <>
     <p className="settings-lead">Mỗi nhà cung cấp là một thẻ, dưới thẻ là các tài khoản của anh chị. Tài khoản số 1 được dùng trước; những tài khoản sau là dự phòng khi tài khoản trước hết lượt hoặc hết hạn. Thứ tự này do lõi OpenClaw thực thi. Di chuột lên một biểu tượng để biết nó làm gì.</p>
-    {currentModel && <div className="settings-card provider-default">
+    {/* The core picks a model for you when a connection is activated. This is the
+        one place that choice can be taken back, and it only offers what the
+        account actually provides. */}
+    <div className="settings-card provider-default">
       <div>
-        <p className="provider-default__caption">Cuộc trò chuyện đang mở chạy bằng — đổi ở mục Mô hình, theo từng phiên</p>
-        <p className="provider-default__model">{currentModel}
-          {currentProvider && <span> · qua {cards?.find(card => card.provider === currentProvider)?.label ?? currentProvider}</span>}</p>
+        <p className="provider-default__caption">Mô hình mặc định — cuộc trò chuyện mới nào cũng bắt đầu bằng cái này</p>
+        {selectable.length > 0
+          ? <select aria-label="Mô hình mặc định" className="provider-default__select"
+              value={defaultModel ?? ''} disabled={!ready || Boolean(busy)}
+              onChange={event => void chooseDefaultModel(event.target.value)}>
+              {!defaultModel && <option value="">Chưa chọn</option>}
+              {selectable.map(entry => <option key={entry.ref} value={entry.ref}>{entry.ref}</option>)}
+            </select>
+          : <p className="provider-default__model">{defaultModel ?? 'Chưa có mô hình nào dùng được'}</p>}
+        {currentModel && currentModel !== defaultModel &&
+          <p className="settings-muted">Cuộc trò chuyện đang mở dùng {currentModel} — đổi riêng cho phiên đó ở mục Mô hình.</p>}
       </div>
-      {onChangeModel && <button type="button" onClick={() => onChangeModel()}>Đổi mô hình</button>}
-    </div>}
+      {onChangeModel && <button type="button" onClick={() => onChangeModel()}>Mở mục Mô hình</button>}
+    </div>
     <div className="settings-card">
       <div className="provider-head">
         <h2><WorkbenchIcon name="model" />Tài khoản AI của anh chị</h2>

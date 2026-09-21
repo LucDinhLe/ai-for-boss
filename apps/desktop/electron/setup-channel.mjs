@@ -229,6 +229,39 @@ export class SetupChannel {
     if(JSON.stringify(saved)!==JSON.stringify(profileIds))throw new Error('Đã gửi thứ tự nhưng chưa xác nhận được kết quả. Hãy tải lại trang.');
     return {provider,profileIds:[...profileIds]};
   }
+  /**
+   * The model every new session starts on. The core writes `agents.defaults.model`
+   * itself when a connection is activated, picking one on the user's behalf; this
+   * is how the user takes that choice back. Same shape as setAuthOrder: validate
+   * against what the core reports, patch one path, read it back.
+   */
+  async setDefaultModel(modelRef) {
+    if (typeof modelRef !== 'string' || !/^[A-Za-z0-9][\w.:@/-]{0,200}$/u.test(modelRef)) throw new Error('Mô hình chưa hợp lệ.');
+    const listed = await this.#adminRequest('models.list', {});
+    const models = Array.isArray(listed?.models) ? listed.models : [];
+    const match = models.find(entry => {
+      const id = typeof entry?.id === 'string' ? entry.id : '';
+      const provider = typeof entry?.provider === 'string' ? entry.provider : '';
+      const full = id.startsWith(provider + '/') ? id : `${provider}/${id}`;
+      return entry?.available !== false && (full === modelRef || id === modelRef);
+    });
+    if (!match) throw new Error('Mô hình này không nằm trong danh sách lõi báo là dùng được.');
+    const before = await this.#adminRequest('config.get', {});
+    if (before?.valid !== true || typeof before.hash !== 'string' || !before.hash || path.resolve(before.path) !== path.resolve(this.configPath)) throw new Error('Chưa xác nhận cấu hình ứng dụng.');
+    const ack = await this.#adminRequest('config.patch', { baseHash: before.hash, replacePaths: ['agents.defaults.model'], raw: JSON.stringify({ agents: { defaults: { model: modelRef } } }) });
+    if (ack?.ok !== true && ack?.noop !== true) throw new Error('Chưa xác nhận lưu mô hình mặc định.');
+    const after = await this.#adminRequest('config.get', {});
+    if (after?.config?.agents?.defaults?.model !== modelRef) throw new Error('Đã gửi mô hình mặc định nhưng chưa xác nhận được kết quả. Hãy tải lại trang.');
+    return { model: modelRef };
+  }
+
+  /** What every new session starts on, for the provider page to show. */
+  async defaultModel() {
+    const snapshot = await this.#adminRequest('config.get', {});
+    const value = snapshot?.config?.agents?.defaults?.model;
+    return { model: typeof value === 'string' ? value : null };
+  }
+
   /** Read-only projection of the stored order for the provider page. */
   async authOrder() {
     const snapshot=await this.#adminRequest('config.get',{});
