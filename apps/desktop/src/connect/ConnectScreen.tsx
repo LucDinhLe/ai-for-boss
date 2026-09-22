@@ -702,7 +702,9 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
 
         {chosen.candidates.length > 0 ? <div className="connect__options">
           {chosen.candidates.map(candidate => <button key={candidate.kind + candidate.modelRef + candidate.label}
-            type="button" disabled={!ready || busy} aria-label={`Dùng ${candidate.label} đã đăng nhập trên máy`}
+            type="button" disabled={!ready || busy}
+            /* The spoken name must be the name on the button, or the two disagree. */
+            aria-label={chosen.signIn.length > 0 ? `Dùng ${candidate.label} đã đăng nhập trên máy` : `Nối qua ${candidate.label} trên máy`}
             onClick={() => void startCandidate(candidate)}>
             <strong><BrandIcon id={candidate.brandId || candidate.kind} label={candidate.label} />{chosen.signIn.length > 0 ? `Dùng ${candidate.label} đã đăng nhập trên máy` : `Nối qua ${candidate.label} trên máy`}</strong>
             <small>{candidate.detail}{candidate.modelRef ? ` · ${candidate.modelRef}` : ''}</small>

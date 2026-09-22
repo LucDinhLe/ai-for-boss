@@ -493,7 +493,7 @@ test('each kind of detected result gets its own named lid, and an empty kind get
   await h.flush();
   // The lids belong to the brand the person picked, not to the picker.
   h.button('Claude / Anthropic').props.onClick(); await h.flush();
-  assert.ok(h.button('Dùng Claude Code đã đăng nhập trên máy'));
+  assert.ok(h.button('Nối qua Claude Code trên máy'), 'no OAuth for this brand, so the CLI leads and is named that way');
   assert.match(h.text(), /anthropic\/exact-model-64/);
   const lids = h.nodes().filter(node => node.type === 'details');
   assert.equal(lids.length, 2, 'two kinds present, two lids; the old single lid counted three kinds into one number');
@@ -505,6 +505,37 @@ test('each kind of detected result gets its own named lid, and an empty kind get
   assert.match(h.text(prepare), /Install companion first/);
   assert.doesNotMatch(h.text(), /Một phần mềm khác/,
     'suggesting other software to install is not the job of an account dialog');
+  h.dispose();
+});
+
+test('the real shapes: Claude has no OAuth and leads with its CLI, Grok has OAuth', async () => {
+  // Exactly what the core catalogue reports for these two brands: Anthropic has
+  // no browser sign-in at all, only the logged-in CLI plus keys; xAI does have one.
+  const h = harness(async () => ({
+    candidates: [{ kind: 'claude-cli', brandId: 'anthropic', label: 'Claude Code', detail: 'Đã đăng nhập trên máy', modelRef: 'anthropic/claude-sonnet-5', recommended: true }],
+    authOptions: [{ id: 'xai-oauth', brandId: 'xai', label: 'Grok sign-in', kind: 'device-code', featured: false }],
+    manualProviders: [
+      { id: 'apiKey', brandId: 'anthropic', label: 'Anthropic API key', groupLabel: 'Anthropic' },
+      { id: 'setup-token', brandId: 'anthropic', label: 'Setup token' },
+      { id: 'xai-api-key', brandId: 'xai', label: 'xAI API key' }
+    ], setupComplete: false }));
+  await h.flush();
+
+  // Claude: the CLI is the way in, and the screen says so instead of leaving a gap.
+  h.button('Claude / Anthropic').props.onClick(); await h.flush();
+  assert.match(h.text(), /không có đăng nhập OAuth/, 'it says plainly that this brand has none');
+  assert.ok(h.button('Nối qua Claude Code trên máy'), 'the logged-in CLI takes the first slot');
+  assert.equal(h.nodes().some(n => n.type === 'input' && n.props.type === 'password'), true, 'and a key is still offered');
+  assert.equal(h.nodes().filter(n => n.type === 'button' && /Đăng nhập OAuth/.test(n.props['aria-label'] ?? '')).length, 0,
+    'no OAuth button is drawn for a brand that has no OAuth route');
+
+  // Grok: a real browser sign-in, so that leads and the CLI wording never appears.
+  h.button('← Chọn dịch vụ khác').props.onClick(); await h.flush();
+  h.button('Grok / xAI').props.onClick(); await h.flush();
+  assert.match(h.text(), /Hai cách: đăng nhập OAuth, hoặc dán API key/);
+  assert.ok(h.button('Đăng nhập OAuth'));
+  h.button('Đăng nhập OAuth').props.onClick(); await h.flush();
+  assert.equal(h.requests.find(r => r.method === 'openclaw.setup.auth.start').params.authChoice, 'xai-oauth');
   h.dispose();
 });
 
