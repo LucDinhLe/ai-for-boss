@@ -204,6 +204,16 @@ test('shell wiring: the order write is a fixed host call that validates against 
   assert.match(setup, /replacePaths:\[`auth\.order\.\$\{provider\}`\]/, 'only that provider’s order is replaced');
   assert.match(setup, /models\.authStatus/, 'ids are checked against what the core reports');
   assert.match(setup, /Danh sách tài khoản đã thay đổi/);
+  // The core refuses model auth when several agents are configured and no owner
+  // is named. Every call whose schema takes agentId must get one, and the
+  // renderer must not be the one supplying it.
+  for (const method of ['models.authStatus', 'models.authLogout', 'openclaw.setup.auth.start', 'openclaw.setup.activate.start']) {
+    assert.ok(setup.includes(`"${method}"`), `${method} is named in the owner list`);
+  }
+  assert.match(setup, /OWNED_BY_AGENT\.has\(method\)[\s\S]{0,200}#ownerAgentId\(\)/,
+    'the host attaches the owning agent before the call leaves');
+  assert.match(setup, /defaults\?\.systemAgent\?\.agentId/, 'the owner is the system agent the config already names');
+  assert.match(setup, /entries\.length < 2/, 'a single-agent machine is left exactly as it was');
   const forbidden = setup.match(/isForbiddenOnSetupChannel[\s\S]{0,400}/)?.[0] ?? '';
   assert.match(forbidden, /\^\(config\\\./, 'config.* is still blocked as a renderer-reachable method');
   const main = await read('apps/desktop/electron/main.mjs');

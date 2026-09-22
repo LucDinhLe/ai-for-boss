@@ -674,7 +674,7 @@ app.whenReady().then(async () => {
   }
   // Spec 0063: pick the brand, then the one way in that brand offers.
   await click("Tài khoản thử OAuth");
-  await click("Đăng nhập bằng trình duyệt");
+  await click("Đăng nhập OAuth");
   await hasText("ABCD-1234"); await hasText("https://example.invalid/authorize");
   await click("Mở trang đăng nhập"); assert.equal(counts["open-page"], 1);
   await click("Đã đăng nhập xong, tiếp tục");

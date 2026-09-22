@@ -2,6 +2,17 @@
 
 Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng ngôn ngữ người vận hành có thể hiểu.
 
+## [0.0.5-beta.44] - 2026-09-22
+
+### Fixed
+
+- **Kết nối AI dùng được trên máy có nhiều agent.** Máy cấu hình nhiều agent (main, phân tích mô hình kinh doanh, mục tiêu) trước đây báo lỗi "Multiple agents are configured, but model auth has no explicit owner" ở mọi thao tác nhà cung cấp — không xem được tài khoản, không kết nối, không đăng xuất. Nay vỏ tự nói rõ agent nào sở hữu phần xác thực, nên các thao tác chạy lại bình thường. Máy một agent giữ nguyên như cũ.
+
+### Changed
+
+- **Màn hình Thêm nhà cung cấp luôn hiện bốn thẻ cố định:** ChatGPT / OpenAI, Claude / Anthropic, Grok / xAI, Antigravity — theo đúng thứ tự đó, kể cả khi máy chưa có đường nối cho một hãng (thẻ đó mờ và nói rõ lý do).
+- **Mỗi hãng chỉ còn hai lựa chọn:** đăng nhập OAuth, hoặc dán API key. Hãng nào không có OAuth thì thay bằng ứng dụng đã đăng nhập sẵn trên máy — Claude nối qua Claude Code là ví dụ.
+
 ## [0.0.5-beta.43] - 2026-09-21
 
 ### Fixed
