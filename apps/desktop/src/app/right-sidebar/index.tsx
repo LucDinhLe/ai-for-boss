@@ -1,5 +1,5 @@
 import { useStore } from '@nanostores/react'
-import { type ComponentProps, type ReactNode } from 'react'
+import { type ComponentProps, type ReactNode, useState } from 'react'
 
 import { TreeSkeleton } from '@/components/chat/skeletons'
 import { ErrorBoundary } from '@/components/error-boundary'
@@ -15,6 +15,7 @@ import {
   $panesFlipped,
   $rightRailActiveTabId,
   $rightSidebarView,
+  revealFileInTree,
   selectRightRailTab,
   setRightSidebarView
 } from '@/store/layout'
@@ -24,6 +25,7 @@ import { $currentCwd } from '@/store/session'
 
 import { SidebarPanelLabel } from '../shell/sidebar-label'
 
+import { FileQuickSearch } from './files/quick-search'
 import { ProjectTree } from './files/tree'
 import { useProjectTree } from './files/use-project-tree'
 
@@ -234,27 +236,53 @@ function FilesystemTab({
   const { t } = useI18n()
   const r = t.rightSidebar
 
+  // Quick Open query; the tree stays mounted (hidden) while results show, so
+  // clearing the search returns to exactly the folders that were open.
+  const [query, setQuery] = useState('')
+  const [queryCwd, setQueryCwd] = useState(cwd)
+
+  if (queryCwd !== cwd) {
+    setQueryCwd(cwd)
+    setQuery('')
+  }
+
   // No working directory (a bare/detached chat) → no tree, just a terse hint.
   // Switching workspace is a project/worktree action, never a raw folder picker.
   if (!hasWorkspace) {
     return <PaneEmptyState label={r.noProjectOpen} />
   }
 
+  const searching = Boolean(query.trim())
+
   return (
-    <FileTreeBody
-      collapseNonce={collapseNonce}
-      cwd={cwd}
-      data={data}
-      error={error}
-      loading={loading}
-      onActivateFile={onActivateFile}
-      onActivateFolder={onActivateFolder}
-      onLoadChildren={onLoadChildren}
-      onNodeOpenChange={onNodeOpenChange}
-      onPreviewFile={onPreviewFile}
-      onRetry={onRetry}
-      openState={openState}
-    />
+    <>
+      <FileQuickSearch
+        cwd={cwd}
+        onAttachFile={onActivateFile}
+        onOpenFile={path => {
+          onPreviewFile?.(path)
+          revealFileInTree(path)
+        }}
+        onQueryChange={setQuery}
+        query={query}
+      />
+      <div className={cn('min-h-0 flex-1 flex-col', searching ? 'hidden' : 'flex')}>
+        <FileTreeBody
+          collapseNonce={collapseNonce}
+          cwd={cwd}
+          data={data}
+          error={error}
+          loading={loading}
+          onActivateFile={onActivateFile}
+          onActivateFolder={onActivateFolder}
+          onLoadChildren={onLoadChildren}
+          onNodeOpenChange={onNodeOpenChange}
+          onPreviewFile={onPreviewFile}
+          onRetry={onRetry}
+          openState={openState}
+        />
+      </div>
+    </>
   )
 }
 

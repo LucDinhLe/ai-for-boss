@@ -253,6 +253,7 @@ const INPUT_SAFE_ACTIONS = new Set([
   'composer.voice',
   'keybinds.openPanel',
   'nav.commandPalette',
+  'files.quickOpen',
   'session.next',
   'session.prev',
   'view.findInPage'

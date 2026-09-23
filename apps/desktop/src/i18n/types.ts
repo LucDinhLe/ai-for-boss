@@ -167,6 +167,7 @@ export interface Translations {
     copyDetailFailed: string
     backendOutOfDateTitle: string
     backendOutOfDateMessage: string
+    backendOutOfDateBundledMessage: string
     installMethodUnsupportedTitle: string
     updateHermes: string
     updateReadyTitle: string
@@ -2569,6 +2570,12 @@ export interface Translations {
     folderTip: (cwd: string) => string
     openFolder: string
     refreshTree: string
+    fileSearchPlaceholder: string
+    fileSearchLoading: string
+    fileSearchNoResults: string
+    fileSearchUnavailable: string
+    fileSearchTruncated: (count: string) => string
+    fileSearchHint: string
     collapseAll: string
     previewUnavailable: string
     couldNotPreview: (path: string) => string

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { ChatMessage } from '@/lib/chat-messages'
 
-import { lastVisibleMessageIsUser, threadLoadingState } from './thread-loading'
+import { composerStaysMounted, lastVisibleMessageIsUser, threadLoadingState } from './thread-loading'
 
 function message(id: string, role: ChatMessage['role'], hidden = false): ChatMessage {
   return {
@@ -30,5 +30,51 @@ describe('thread loading state', () => {
 
     expect(lastVisibleMessageIsUser(messages)).toBe(false)
     expect(threadLoadingState(false, true, true, lastVisibleMessageIsUser(messages))).toBeUndefined()
+  })
+})
+
+describe('composerStaysMounted (no unmount on transient loaders)', () => {
+  it('shows the composer when nothing is loading', () => {
+    expect(
+      composerStaysMounted({
+        hideComposer: false,
+        loadingSession: false,
+        routedSessionId: 'a',
+        settledRoutedSessionId: null
+      })
+    ).toBe(true)
+  })
+
+  it('keeps it mounted through a transient loader on the same settled route (reconnect resume)', () => {
+    expect(
+      composerStaysMounted({
+        hideComposer: false,
+        loadingSession: true,
+        routedSessionId: 'a',
+        settledRoutedSessionId: 'a'
+      })
+    ).toBe(true)
+  })
+
+  it('hides it while a different, not-yet-settled route loads', () => {
+    expect(
+      composerStaysMounted({
+        hideComposer: false,
+        loadingSession: true,
+        routedSessionId: 'b',
+        settledRoutedSessionId: 'a'
+      })
+    ).toBe(false)
+  })
+
+  it('always hides in the exhausted / watch-window states', () => {
+    expect(
+      composerStaysMounted({
+        hideComposer: true,
+        loadingSession: false,
+        routedSessionId: 'a',
+        settledRoutedSessionId: 'a'
+      })
+    ).toBe(false)
   })
 })

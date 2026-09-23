@@ -131,6 +131,17 @@ const initialState: ProjectTreeState = {
 }
 
 const inflight = new Set<string>()
+// Expanded folders per project root, so a session switch (or a transient empty
+// cwd while a session resumes) and a return to the same root reopens exactly
+// what the user had open instead of a fully collapsed tree.
+const openStateByCwd = new Map<string, Record<string, boolean>>()
+
+function rememberOpenState(state: ProjectTreeState) {
+  if (state.cwd) {
+    openStateByCwd.set(state.cwd, state.openState)
+  }
+}
+
 const $projectTree = atom<ProjectTreeState>(initialState)
 let nextRootRequestId = 0
 let lastConnectionKey = ''
@@ -145,6 +156,7 @@ function setProjectTree(updater: (current: ProjectTreeState) => ProjectTreeState
 }
 
 function clearProjectTree() {
+  rememberOpenState($projectTree.get())
   nextRootRequestId += 1
   inflight.clear()
   $projectTree.set({ ...initialState, requestId: nextRootRequestId })
@@ -175,7 +187,7 @@ async function fallbackRootFor(cwd: string): Promise<string | null> {
   }
 }
 
-async function loadRoot(cwd: string, { force = false }: { force?: boolean } = {}) {
+async function loadRoot(cwd: string, { force = false, reset = false }: { force?: boolean; reset?: boolean } = {}) {
   if (!cwd) {
     clearProjectTree()
 
@@ -196,15 +208,26 @@ async function loadRoot(cwd: string, { force = false }: { force?: boolean } = {}
     clearProjectDirCache(cwd)
   }
 
+  // Re-reading the SAME root (refresh button, error retry, reconnect) probes
+  // underneath what is on screen instead of blanking it. Blanking unmounted
+  // the tree and rebuilt it from the root listing alone, so every expanded
+  // folder came back empty or closed and had to be reopened level by level.
+  // Only a different root, or a different backend (`reset`), starts clean.
+  const keepVisible = current.cwd === cwd && !reset
+
+  if (current.cwd !== cwd) {
+    rememberOpenState(current)
+  }
+
   $projectTree.set({
     collapseNonce: current.collapseNonce,
     cwd,
-    data: [],
+    data: keepVisible ? current.data : [],
     loaded: false,
-    openState: current.cwd === cwd ? current.openState : {},
+    openState: keepVisible ? current.openState : reset ? {} : (openStateByCwd.get(cwd) ?? {}),
     requestId,
-    resolvedCwd: '',
-    rootError: null,
+    resolvedCwd: keepVisible ? current.resolvedCwd : '',
+    rootError: keepVisible ? current.rootError : null,
     rootLoading: true
   })
 
@@ -232,11 +255,105 @@ async function loadRoot(cwd: string, { force = false }: { force?: boolean } = {}
 
     return {
       ...latest,
-      data: error ? [] : entries.map(e => makeNode(e.path, e.name, e.isDirectory)),
+      data: error
+        ? []
+        : keepVisible && latest.data.length
+          ? mergeChildren(latest.data, entries)
+          : entries.map(e => makeNode(e.path, e.name, e.isDirectory)),
       loaded: true,
       resolvedCwd,
       rootError: error || null,
       rootLoading: false
+    }
+  })
+
+  if (error) {
+    return
+  }
+
+  if (keepVisible) {
+    // The root was just re-read; kept subtrees may be stale, so re-read each
+    // loaded folder in place (targeted, merge by path id, never collapses).
+    const loadedDirs = loadedFolderIds($projectTree.get().data)
+
+    if (loadedDirs.length) {
+      await revalidateTree(cwd, { dirs: loadedDirs, full: false })
+    }
+  } else {
+    await restoreOpenFolders(cwd)
+  }
+}
+
+function loadedFolderIds(nodes: TreeNode[], out: string[] = []): string[] {
+  for (const node of nodes) {
+    if (node.isDirectory && node.children && !node.loading) {
+      out.push(node.id)
+      loadedFolderIds(node.children, out)
+    }
+  }
+
+  return out
+}
+
+/** Load children for every folder recorded as open, parents first, so a
+ *  remembered expansion shows real contents instead of empty open rows. */
+async function restoreOpenFolders(cwd: string) {
+  const openIds = Object.entries($projectTree.get().openState)
+    .filter(([, open]) => open)
+    .map(([id]) => id)
+    .sort((a, b) => a.length - b.length)
+
+  for (const id of openIds) {
+    const state = $projectTree.get()
+
+    if (state.cwd !== cwd) {
+      return
+    }
+
+    const node = findNode(state.data, id)
+
+    if (node?.isDirectory && node.children === undefined) {
+      await loadChildrenFor(cwd, id)
+    }
+  }
+}
+
+async function loadChildrenFor(cwd: string, id: string) {
+  if (!cwd || inflight.has(id)) {
+    return
+  }
+
+  inflight.add(id)
+
+  setProjectTree(current => {
+    if (current.cwd !== cwd) {
+      return current
+    }
+
+    return {
+      ...current,
+      data: patchNode(current.data, id, n => ({ ...n, loading: true, children: [placeholderChild(n.id)] }))
+    }
+  })
+
+  const rootPath = $projectTree.get().resolvedCwd || cwd
+  const { entries, error } = await readProjectDir(id, rootPath)
+
+  inflight.delete(id)
+
+  setProjectTree(current => {
+    if (current.cwd !== cwd) {
+      return current
+    }
+
+    return {
+      ...current,
+      data: patchNode(current.data, id, n => ({
+        ...n,
+        loading: false,
+        error: error || undefined,
+        children: error ? [errorChild(n.id, error)] : entries.map(e => makeNode(e.path, e.name, e.isDirectory))
+      }))
     }
   })
 }
@@ -244,6 +361,7 @@ async function loadRoot(cwd: string, { force = false }: { force?: boolean } = {}
 export function resetProjectTreeState() {
   lastConnectionKey = ''
   clearProjectTree()
+  openStateByCwd.clear()
   clearProjectDirCache()
 }
 
@@ -339,7 +457,13 @@ export function useProjectTree(cwd: string): UseProjectTreeResult {
   const state = useStore($projectTree)
   const connection = useStore($connection)
   const workspaceTick = useStore($workspaceChangeTick)
-  const connectionKey = `${connection?.mode || 'local'}:${connection?.profile || ''}:${connection?.baseUrl || ''}`
+
+  // A null connection is a transient gap (a failed getConnection during a
+  // reconnect), not a new backend: treating it as a change wiped the tree
+  // twice per blip. Only a real, different connection resets the tree.
+  const connectionKey = connection
+    ? `${connection.mode || 'local'}:${connection.profile || ''}:${connection.baseUrl || ''}`
+    : null
 
   const refreshRoot = useCallback(() => loadRoot(cwd, { force: true }), [cwd])
 
@@ -375,48 +499,7 @@ export function useProjectTree(cwd: string): UseProjectTreeResult {
     })
   }, [cwd])
 
-  const loadChildren = useCallback(
-    async (id: string) => {
-      if (!cwd || inflight.has(id)) {
-        return
-      }
-
-      inflight.add(id)
-
-      setProjectTree(current => {
-        if (current.cwd !== cwd) {
-          return current
-        }
-
-        return {
-          ...current,
-          data: patchNode(current.data, id, n => ({ ...n, loading: true, children: [placeholderChild(n.id)] }))
-        }
-      })
-
-      const rootPath = $projectTree.get().resolvedCwd || cwd
-      const { entries, error } = await readProjectDir(id, rootPath)
-
-      inflight.delete(id)
-
-      setProjectTree(current => {
-        if (current.cwd !== cwd) {
-          return current
-        }
-
-        return {
-          ...current,
-          data: patchNode(current.data, id, n => ({
-            ...n,
-            loading: false,
-            error: error || undefined,
-            children: error ? [errorChild(n.id, error)] : entries.map(e => makeNode(e.path, e.name, e.isDirectory))
-          }))
-        }
-      })
-    },
-    [cwd]
-  )
+  const loadChildren = useCallback((id: string) => loadChildrenFor(cwd, id), [cwd])
 
   // Live, non-destructive refresh when the agent touches the tree (skip the
   // very first render: tick 0 is the initial value, not a real change).
@@ -427,12 +510,19 @@ export function useProjectTree(cwd: string): UseProjectTreeResult {
   }, [workspaceTick, cwd])
 
   useEffect(() => {
+    if (connectionKey === null) {
+      void loadRoot(cwd)
+
+      return
+    }
+
     const connectionChanged = lastConnectionKey !== '' && lastConnectionKey !== connectionKey
     lastConnectionKey = connectionKey
 
     if (connectionChanged) {
       clearProjectDirCache()
-      void loadRoot(cwd, { force: true })
+      openStateByCwd.clear()
+      void loadRoot(cwd, { force: true, reset: true })
 
       return
     }

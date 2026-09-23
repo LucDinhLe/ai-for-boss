@@ -48,6 +48,7 @@ const {
   applyBackendUpdate,
   $backendUpdateApply,
   reportBackendContract,
+  REQUIRED_BACKEND_CONTRACT,
   applyUpdates,
   $updateApply,
   $updateOverlayOpen,
@@ -69,7 +70,8 @@ const status = (over: Partial<DesktopUpdateStatus> = {}): DesktopUpdateStatus =>
   ...over
 })
 
-const lastToast = () => notifySpy.mock.calls.at(-1)?.[0] as { onDismiss: () => void }
+const lastToast = () =>
+  notifySpy.mock.calls.at(-1)?.[0] as { action?: { label: string }; message: string; onDismiss: () => void }
 
 const setRemote = (on: boolean) =>
   setConnection({
@@ -142,8 +144,38 @@ describe('reportBackendContract', () => {
     vi.useRealTimers()
   })
 
+  it('requires exactly the contract of the pinned engine (v2026.8.31 reports 6)', () => {
+    expect(REQUIRED_BACKEND_CONTRACT).toBe(6)
+  })
+
+  it.each([
+    [undefined, true],
+    [5, true],
+    [6, false],
+    [7, false],
+    [8, false]
+  ])('backend contract %s → warns: %s', (contract, warns) => {
+    reportBackendContract(contract)
+    expect(notifySpy).toHaveBeenCalledTimes(warns ? 1 : 0)
+  })
+
+  it('offers no in-place update action for the bundled (local) backend', () => {
+    setRemote(false)
+    reportBackendContract(1)
+    expect(lastToast().action).toBeUndefined()
+    expect(lastToast().message).toMatch(/Install the latest Hermes Vietnamese release/)
+    expect(updateHermesSpy).not.toHaveBeenCalled()
+  })
+
+  it('keeps the update action for a remote backend', () => {
+    setRemote(true)
+    reportBackendContract(1)
+    expect(lastToast().action?.label).toBeTruthy()
+    setRemote(false)
+  })
+
   it('dismisses the toast when the backend meets the contract', () => {
-    reportBackendContract(7)
+    reportBackendContract(6)
     expect(dismissSpy).toHaveBeenCalledWith('backend-contract-skew')
     expect(notifySpy).not.toHaveBeenCalled()
   })
@@ -183,8 +215,8 @@ describe('reportBackendContract', () => {
     lastToast().onDismiss()
     notifySpy.mockClear()
 
-    reportBackendContract(7) // backend updated → satisfied, snooze cleared
-    reportBackendContract(6) // a later regression must warn immediately
+    reportBackendContract(6) // backend updated → satisfied, snooze cleared
+    reportBackendContract(5) // a later regression must warn immediately
     expect(notifySpy).toHaveBeenCalledTimes(1)
   })
 })

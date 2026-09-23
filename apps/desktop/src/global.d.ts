@@ -315,6 +315,7 @@ declare global {
         componentStack: string
       }) => void
       readDir: (path: string) => Promise<HermesReadDirResult>
+      listFiles?: (rootPath: string) => Promise<HermesListFilesResult>
       gitRoot?: (path: string) => Promise<string | null>
       // Reveal a path in the OS file manager (Finder / Explorer).
       revealPath?: (path: string) => Promise<boolean>
@@ -1329,6 +1330,15 @@ export interface HermesReadDirEntry {
 export interface HermesReadDirResult {
   entries: HermesReadDirEntry[]
   error?: string
+}
+
+export interface HermesListFilesResult {
+  error?: string
+  /** Relative paths ('/' separators) under `root`. */
+  files: string[]
+  root: string
+  source: 'git' | 'none' | 'walk'
+  truncated: boolean
 }
 
 export interface HermesPreviewFileChanged {

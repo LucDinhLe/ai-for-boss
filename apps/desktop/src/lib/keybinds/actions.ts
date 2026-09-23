@@ -104,7 +104,10 @@ export const KEYBIND_ACTIONS: readonly KeybindActionMeta[] = [
   { id: 'workspace.openFolder', category: 'session', defaults: ['mod+o'] },
 
   // ── Navigation ───────────────────────────────────────────────────────────
-  { id: 'nav.commandPalette', category: 'navigation', defaults: ['mod+k', 'mod+p'] },
+  // Hermes Vietnamese: ⌘P / Ctrl+P is Quick Open (find a file by name), as in
+  // VS Code; the palette keeps ⌘K.
+  { id: 'nav.commandPalette', category: 'navigation', defaults: ['mod+k'] },
+  { id: 'files.quickOpen', category: 'navigation', defaults: ['mod+p'] },
   { id: 'nav.commandCenter', category: 'navigation', defaults: ['mod+.'] },
   { id: 'nav.settings', category: 'navigation', defaults: ['mod+,'] },
   { id: 'nav.profiles', category: 'navigation', defaults: [] },

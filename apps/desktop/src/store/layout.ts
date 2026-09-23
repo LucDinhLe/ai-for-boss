@@ -577,6 +577,19 @@ export function revealFileInTree(path: string): void {
   $revealInTreeRequest.set(path)
 }
 
+// Hotkey (files.quickOpen, Ctrl/⌘+P) → open the file panel and focus its search
+// field, VS Code Quick Open style. The field subscribes once mounted.
+export const FILE_SEARCH_FOCUS_EVENT = 'hermes:focus-file-search'
+
+export function requestFileSearchFocus() {
+  setRightSidebarView('files')
+  setFileBrowserOpen(true)
+
+  if (typeof window !== 'undefined') {
+    window.setTimeout(() => window.dispatchEvent(new CustomEvent(FILE_SEARCH_FOCUS_EVENT)), 0)
+  }
+}
+
 // Hotkey → focus the sessions search field. Opens the sidebar first, then lets
 // the field (which only mounts when the sidebar is open) subscribe + focus.
 export const SESSION_SEARCH_FOCUS_EVENT = 'hermes:focus-session-search'

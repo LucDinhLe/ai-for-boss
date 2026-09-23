@@ -125,6 +125,8 @@ export const en: Translations = {
     backendOutOfDateTitle: 'Backend out of date',
     backendOutOfDateMessage:
       'Your Hermes backend is older than this desktop build and may not work correctly. Update to align them.',
+    backendOutOfDateBundledMessage:
+      'The Hermes service bundled with this app does not match this desktop build. Install the latest Hermes Vietnamese release to fix it; updating the service in place is not supported.',
     installMethodUnsupportedTitle: 'Unsupported install method',
     updateHermes: 'Update Hermes',
     updateReadyTitle: 'Update ready',
@@ -238,6 +240,7 @@ export const en: Translations = {
     actions: {
       'keybinds.openPanel': 'Open keyboard shortcuts',
       'nav.commandPalette': 'Open command palette',
+      'files.quickOpen': 'Find a file by name',
       'nav.commandCenter': 'Open command center',
       'nav.settings': 'Open settings',
       'nav.profiles': 'Open profiles',
@@ -638,7 +641,8 @@ export const en: Translations = {
       tapCheck: 'Tap "Check now" to look for updates.',
       updateReady: count => `A new update is ready (${count} change${count === 1 ? '' : 's'} included).`,
       updateReadyUnknown: 'A new update is ready.',
-      notifyOnlyReady: version => `Version ${version} is available. This app does not install updates itself: download the installer, verify its SHA-256, then run it.`,
+      notifyOnlyReady: version =>
+        `Version ${version} is available. This app does not install updates itself: download the installer, verify its SHA-256, then run it.`,
       openDownloadPage: 'Open download page',
       notifyOnlyDesc:
         'Hermes Vietnamese only notifies you about new versions. It never downloads or installs anything by itself; you download the installer from GitHub Releases and verify its checksum.',
@@ -1066,10 +1070,11 @@ export const en: Translations = {
         signingIn: 'Waiting for the browser…',
         connected: 'Connected',
         tierLabel: 'Tier',
-        caveat: 'This uses the same door as Gemini CLI. Google may change or close it; it is not an official Hermes provider.',
-        errorPrefix: 'Google sign-in problem'
-        ,projectPlaceholder: 'Google Cloud project ID (e.g. my-project-123456)'
-        ,projectSave: 'Save project'
+        caveat:
+          'This uses the same door as Gemini CLI. Google may change or close it; it is not an official Hermes provider.',
+        errorPrefix: 'Google sign-in problem',
+        projectPlaceholder: 'Google Cloud project ID (e.g. my-project-123456)',
+        projectSave: 'Save project'
       },
       haveApiKey: 'Have an API key instead?',
       intro:
@@ -3032,6 +3037,12 @@ export const en: Translations = {
     folderTip: cwd => cwd,
     openFolder: 'Open folder',
     refreshTree: 'Refresh tree',
+    fileSearchPlaceholder: 'Search files by name (Ctrl+P)',
+    fileSearchLoading: 'Indexing files…',
+    fileSearchNoResults: 'No matching files',
+    fileSearchUnavailable: 'File search is only available for folders on this computer.',
+    fileSearchTruncated: count => `Showing matches from the first ${count} files`,
+    fileSearchHint: 'Enter to open · Ctrl+Enter to attach to chat · Esc to clear',
     collapseAll: 'Collapse all folders',
     previewUnavailable: 'Preview unavailable',
     couldNotPreview: path => `Could not preview ${path}`,

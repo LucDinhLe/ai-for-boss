@@ -122,6 +122,8 @@ export const zh: Translations = {
     copyDetailFailed: '无法复制通知详情',
     backendOutOfDateTitle: '后端版本过旧',
     backendOutOfDateMessage: '你的 Hermes 后端早于当前桌面构建，可能无法正常工作。请更新以保持一致。',
+    backendOutOfDateBundledMessage:
+      '随应用打包的 Hermes 服务与此桌面版本不匹配。请安装最新的 Hermes Vietnamese 版本；不支持原地更新该服务。',
     installMethodUnsupportedTitle: '不受支持的安装方式',
     updateHermes: '更新 Hermes',
     updateReadyTitle: '有可用更新',
@@ -848,7 +850,8 @@ export const zh: Translations = {
       updateReadyUnknown: '新更新已就绪。',
       notifyOnlyReady: version => `已有版本 ${version}。本应用不会自行安装更新：请下载安装包、核对 SHA-256 后运行。`,
       openDownloadPage: '打开下载页面',
-      notifyOnlyDesc: 'Hermes Vietnamese 只会提醒新版本，不会自行下载或安装；请从 GitHub Releases 下载安装包并核对校验值。',
+      notifyOnlyDesc:
+        'Hermes Vietnamese 只会提醒新版本，不会自行下载或安装；请从 GitHub Releases 下载安装包并核对校验值。',
       checksumLine: (filename, sizeMb, sha256) => `${filename} · ${sizeMb} MB · SHA-256 ${sha256}`,
       lastChecked: age => `上次检查:${age}`,
       justNowSuffix: ' · 刚刚',
@@ -1253,9 +1256,9 @@ export const zh: Translations = {
         connected: '已连接',
         tierLabel: '等级',
         caveat: '与 Gemini CLI 走同一入口。Google 可能更改或关闭它；这不是 Hermes 官方提供商。',
-        errorPrefix: 'Google 登录问题'
-        ,projectPlaceholder: 'Google Cloud 项目 ID（例如 my-project-123456）'
-        ,projectSave: '保存项目'
+        errorPrefix: 'Google 登录问题',
+        projectPlaceholder: 'Google Cloud 项目 ID（例如 my-project-123456）',
+        projectSave: '保存项目'
       },
       haveApiKey: '改用 API 密钥？',
       intro: '使用订阅登录，无需复制 API 密钥。Hermes 会在应用中为你完成浏览器登录。',
@@ -3146,6 +3149,12 @@ export const zh: Translations = {
     folderTip: cwd => cwd,
     openFolder: '打开文件夹',
     refreshTree: '刷新文件树',
+    fileSearchPlaceholder: '按名称搜索文件 (Ctrl+P)',
+    fileSearchLoading: '正在索引文件…',
+    fileSearchNoResults: '没有匹配的文件',
+    fileSearchUnavailable: '文件搜索目前仅支持本机上的文件夹。',
+    fileSearchTruncated: count => `仅在前 ${count} 个文件中搜索`,
+    fileSearchHint: 'Enter 打开 · Ctrl+Enter 添加到聊天 · Esc 清除',
     collapseAll: '折叠所有文件夹',
     previewUnavailable: '预览不可用',
     couldNotPreview: path => `无法预览 ${path}`,
