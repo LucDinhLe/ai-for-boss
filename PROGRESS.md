@@ -1,5 +1,21 @@
 # Tiến độ
 
+## Cập nhật 2026-09-24: nhánh sửa ổn định `fix/2026.9.5-on-dinh` (chưa build)
+
+- Nguồn: `origin/main` 6ed11dce4 (vỏ trùng byte với `v2026.9.4`/dba6096 ở
+  `apps/desktop`, chỉ khác CI và tài liệu). Lõi vẫn `v2026.8.31`, engine-sync đạt.
+- Sửa: contract desktop về 6 cho khớp lõi và thêm cổng kiểm trong
+  `engine-sync check`; bỏ nút "Cập nhật Hermes" với backend đóng kèm và chặn
+  `POST /api/hermes/update` ở Electron main; lớp REST dùng agent keep-alive
+  riêng (socket rảnh 4 s, dưới 5 s của uvicorn) cùng retry an toàn theo verb;
+  ghi log `[api] METHOD path` cho mọi lỗi truyền tải; ô chat không khoá lúc
+  nối lại, không bị gỡ khi có loader thoáng qua, focus bám id phiên ổn định;
+  panel Tệp không xoá cây khi làm mới hoặc khi kết nối chập, nhớ thư mục đang
+  mở theo từng dự án; thêm ô tìm tệp kiểu VS Code (Ctrl+P, bảng lệnh giữ Ctrl+K).
+- Chưa làm: build candidate, packaged smoke, đo bộ nhớ, đo độ trễ ba lớp,
+  SQLite ≥3.50.7 trong Python đóng kèm, feature-detect Advisor khi bật cờ.
+- Kế hoạch và bằng chứng: `KE-HOACH-SUA-ON-DINH-HERMES-2026.9.5.md` trong Mỡ.
+
 ## Cập nhật 2026-09-04: tài liệu Latest 2026.9.2
 
 - Theo phản hồi chủ dự án, phần giới thiệu được viết lại cho người dùng, bỏ

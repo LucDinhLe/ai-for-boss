@@ -143,6 +143,14 @@ chuỗi trên.
 - [ ] Không còn lỗ hổng runtime nghiêm trọng chưa được chấp nhận.
 - [ ] Artifact không chứa secret, hồ sơ, database, log hoặc đường dẫn riêng tư.
 - [ ] Mọi tải xuống cần thiết đều dùng nguồn bất biến và kiểm digest.
+- [ ] `node scripts/engine-sync.mjs check` đạt, gồm cả cổng contract desktop:
+      `REQUIRED_BACKEND_CONTRACT` của vỏ bằng đúng `DESKTOP_BACKEND_CONTRACT`
+      của lõi trong `engine.lock`. Tính năng riêng của fork (Advisor…) không
+      được mượn số nguyên contract của upstream (bài học 2026.9.4).
+- [ ] Tính năng tắt bằng cờ `VITE_VI_FEATURES` không để lại yêu cầu năng lực
+      hay cảnh báo nào trong đường chạy mặc định.
+- [ ] Bản resident không có đường nào gọi `hermes update` tại chỗ; `POST
+      /api/hermes/update` tới backend đóng kèm bị Electron main từ chối.
 
 ### C. Build và cấu trúc native
 
@@ -194,6 +202,14 @@ Chỉ dùng user/hồ sơ cô lập. Không đọc, nhập hoặc khôi phục d
       HTTPS có non-default port: preview chỉ có metadata, import, persistence
       sau restart, revoke cả grant cũ/mới và quét redaction.
 - [ ] Chạy một tool an toàn bằng provider thử hoặc mock phù hợp.
+- [ ] Reconnect khi đang gõ: gõ dở trong ô chat, giết tiến trình backend hoặc
+      WebSocket, chờ nối lại. Ô nhập không biến mất, không mất chữ, không mất
+      focus, không cần bấm lại chuột, không gửi trùng.
+- [ ] Panel Tệp: mở ba tầng thư mục, gây reconnect và bấm làm mới; các tầng
+      vẫn mở và có nội dung. Ô tìm tệp (Ctrl+P) ra tệp nằm sâu bằng tên.
+- [ ] Để app chạy tối thiểu 2 giờ với nhịp gọi đều; `desktop.log` không có
+      `socket hang up`/`ECONNRESET` lọt ra renderer, lỗi `[api]` còn lại đều có
+      method và path.
 - [ ] Khởi động lại và xác nhận giữ trạng thái.
 - [ ] Lưu OS build, kiến trúc, log sạch và ảnh bằng chứng.
 
