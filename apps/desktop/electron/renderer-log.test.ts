@@ -76,3 +76,14 @@ describe('formatRendererBoundaryReport', () => {
     expect(report).not.toContain('\n')
   })
 })
+
+describe('focus forensics passthrough', () => {
+  it('forwards warn-level [focus-forensics] lines but not other warnings', () => {
+    expect(
+      formatRendererConsoleLine('main', { level: 2, lineNumber: 1, message: '[focus-forensics] x', sourceUrl: 'a.js' })
+    ).toBe('[renderer console:main] [focus-forensics] x (a.js:1)')
+    expect(
+      formatRendererConsoleLine('main', { level: 2, lineNumber: 1, message: 'noise', sourceUrl: 'a.js' })
+    ).toBeNull()
+  })
+})
