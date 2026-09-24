@@ -30,6 +30,47 @@ interface RegistryConfig {
 }
 
 // ── Secondary (pool) backends ──────────────────────────────────────────────
+// Hermes Vietnamese 2026.9.5 (mirrors upstream #93892 / #94769): closing a
+// socket that still carries a session runtime detaches that runtime; the
+// backend orphan-reaps it after its 20 s grace (end_reason ws_orphan_reap),
+// the surface re-resumes on a fresh socket, the next idle prune or
+// dispose-after-RPC closes that one too — a ~20 s loop that blanked the chat,
+// remounted the composer mid-typing and spun the model pill. Two guards:
+//  1. a socket with a runtime bound to a live surface is pinned (never
+//     disposed by prune or dispose-after-RPC);
+//  2. a freshly opened socket survives at least SECONDARY_MIN_LIFETIME_MS so a
+//     prune racing an on-demand dial cannot close it before its consumer
+//     registers.
+export const SECONDARY_MIN_LIFETIME_MS = 30_000
+
+interface SecondaryPinCheck {
+  (entry: { connectionId: null | string; profile: string; scope: string }): boolean
+}
+
+let secondaryPinCheck: SecondaryPinCheck = () => false
+
+/** Installed by the gateway boot hook (it can see session state without an
+ *  import cycle). Returns true when a live runtime is bound to the socket. */
+export function setSecondaryPinCheck(check: SecondaryPinCheck | null): void {
+  secondaryPinCheck = check ?? (() => false)
+}
+
+export function bindsSessionRuntime(method: string): boolean {
+  return /^(?:session\.(?:create|resume|activate|branch)|prompt\.)/.test(method)
+}
+
+function secondaryIsYoung(entry: Secondary, now = Date.now()): boolean {
+  return Number.isFinite(entry.lastOpenedAt) && now - (entry.lastOpenedAt as number) < SECONDARY_MIN_LIFETIME_MS
+}
+
+function secondaryIsPinned(entry: Secondary): boolean {
+  try {
+    return secondaryPinCheck(entry)
+  } catch {
+    return false
+  }
+}
+
 interface Secondary {
   /** Scope key from registryBackendScopeKey(connectionId, profile). */
   scope: string
@@ -47,6 +88,8 @@ interface Secondary {
   reconnecting: boolean
   /** True when a foreground/prewarmed consumer owns this entry beyond one RPC. */
   retained: boolean
+  /** Epoch ms of the last successful open (0 = never). See SECONDARY_MIN_LIFETIME_MS. */
+  lastOpenedAt?: number
   // While true the entry auto-reconnects on drop; pruning flips it off so a
   // deliberate close doesn't trigger the backoff loop.
   wantOpen: boolean
@@ -280,6 +323,7 @@ async function openSecondary(entry: Secondary): Promise<void> {
     const wsUrl = await resolveGatewayWsUrl(wsDeps, conn)
 
     await entry.gateway.connect(wsUrl)
+    entry.lastOpenedAt = Date.now()
 
     if (!entry.wantOpen) {
       entry.gateway.close()
@@ -491,7 +535,7 @@ async function routeGatewayForProfile(
       released = true
       entry.activeRequests = Math.max(0, entry.activeRequests - 1)
 
-      if (entry.activeRequests === 0 && !entry.retained && g.activeKey !== entry.scope) {
+      if (entry.activeRequests === 0 && !entry.retained && g.activeKey !== entry.scope && !secondaryIsPinned(entry)) {
         disposeSecondary(entry)
 
         if (g.secondaries.get(entry.scope) === entry) {
@@ -576,6 +620,16 @@ export async function requestGatewayForAgent<T>(
     entry.retained = true
   }
 
+  // A session/prompt RPC binds a runtime to THIS socket (resume, create,
+  // activate, submit). Disposing the socket right after the reply would orphan
+  // that runtime and the backend reaps it 20 s later — the tile then re-resumes
+  // and the cycle repeats (chat blanks, composer remounts, model pill spins).
+  // Hand the socket to the idle pruner instead, which keeps it while a runtime
+  // is bound (setSecondaryPinCheck).
+  if (bindsSessionRuntime(method)) {
+    entry.retained = true
+  }
+
   entry.wantOpen = true
   entry.activeRequests += 1
 
@@ -588,7 +642,7 @@ export async function requestGatewayForAgent<T>(
   } finally {
     entry.activeRequests = Math.max(0, entry.activeRequests - 1)
 
-    if (entry.activeRequests === 0 && !entry.retained && g.activeKey !== entry.scope) {
+    if (entry.activeRequests === 0 && !entry.retained && g.activeKey !== entry.scope && !secondaryIsPinned(entry)) {
       disposeSecondary(entry)
 
       if (g.secondaries.get(entry.scope) === entry) {
@@ -815,7 +869,9 @@ export function pruneSecondaryGateways(keep: Set<string>): void {
       key === g.activeKey ||
       keep.has(key) ||
       (!entry.connectionId && keep.has(entry.profile)) ||
-      entry.activeRequests > 0
+      entry.activeRequests > 0 ||
+      secondaryIsPinned(entry) ||
+      secondaryIsYoung(entry)
     ) {
       continue
     }
