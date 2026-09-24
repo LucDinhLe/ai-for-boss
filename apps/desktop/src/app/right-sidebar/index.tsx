@@ -25,7 +25,7 @@ import { $currentCwd } from '@/store/session'
 
 import { SidebarPanelLabel } from '../shell/sidebar-label'
 
-import { FileQuickSearch } from './files/quick-search'
+import { FileQuickSearch, recordRecentFile } from './files/quick-search'
 import { ProjectTree } from './files/tree'
 import { useProjectTree } from './files/use-project-tree'
 
@@ -277,7 +277,13 @@ function FilesystemTab({
           onActivateFolder={onActivateFolder}
           onLoadChildren={onLoadChildren}
           onNodeOpenChange={onNodeOpenChange}
-          onPreviewFile={onPreviewFile}
+          onPreviewFile={
+            onPreviewFile &&
+            (path => {
+              recordRecentFile(cwd, path)
+              onPreviewFile(path)
+            })
+          }
           onRetry={onRetry}
           openState={openState}
         />

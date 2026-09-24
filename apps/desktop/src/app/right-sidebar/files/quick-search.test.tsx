@@ -4,12 +4,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { $connection } from '@/store/session'
 
-import { absolutePathFor, clearFileSearchIndex, FileQuickSearch } from './quick-search'
+import {
+  absolutePathFor,
+  clearFileSearchIndex,
+  FileQuickSearch,
+  recordRecentFile,
+  relativePathIn
+} from './quick-search'
 
 const listFiles = vi.fn()
 
 beforeEach(() => {
   clearFileSearchIndex()
+  window.localStorage.clear()
   $connection.set(null)
   listFiles.mockReset()
   listFiles.mockResolvedValue({
@@ -104,5 +111,50 @@ describe('FileQuickSearch', () => {
     await waitFor(() => expect(screen.getByText(/only available for folders on this computer/)).toBeTruthy())
     expect(listFiles).not.toHaveBeenCalled()
     $connection.set(null)
+  })
+
+  it('focusing the empty box lists recently opened files, newest first', async () => {
+    recordRecentFile('/p', '/p/README.md')
+    recordRecentFile('/p', '/p/src/tree.tsx')
+    recordRecentFile('/elsewhere', '/elsewhere/x.md')
+    const onOpen = vi.fn()
+    render(<Harness onAttach={vi.fn()} onOpen={onOpen} />)
+
+    fireEvent.focus(screen.getByTestId('file-quick-search'))
+
+    await waitFor(() =>
+      expect(screen.getAllByRole('option').map(o => o.getAttribute('title'))).toEqual(['src/tree.tsx', 'README.md'])
+    )
+    fireEvent.keyDown(screen.getByTestId('file-quick-search'), { key: 'Enter' })
+    expect(onOpen).toHaveBeenCalledWith('/p/src/tree.tsx')
+  })
+
+  it('re-reads the file list on the next focus so new files show up', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+
+    try {
+      render(<Harness onAttach={vi.fn()} onOpen={vi.fn()} />)
+      const input = screen.getByTestId('file-quick-search')
+      fireEvent.focus(input)
+      await waitFor(() => expect(listFiles).toHaveBeenCalledTimes(1))
+      fireEvent.blur(input)
+
+      listFiles.mockResolvedValue({ files: ['moi-tao.md'], root: '/p', source: 'git', truncated: false })
+      vi.advanceTimersByTime(5_000)
+      fireEvent.focus(input)
+      fireEvent.change(input, { target: { value: 'moitao' } })
+
+      await waitFor(() => expect(screen.getByRole('option').getAttribute('title')).toBe('moi-tao.md'))
+      expect(listFiles).toHaveBeenCalledTimes(2)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+})
+
+describe('relativePathIn', () => {
+  it('handles Windows separators and case', () => {
+    expect(relativePathIn('C:\\Users\\AUS-PRO\\Mỡ', 'c:\\users\\aus-pro\\Mỡ\\soma\\a.ts')).toBe('soma/a.ts')
+    expect(relativePathIn('/p', '/other/a.ts')).toBeNull()
   })
 })

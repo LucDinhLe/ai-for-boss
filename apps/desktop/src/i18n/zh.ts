@@ -3154,6 +3154,7 @@ export const zh: Translations = {
     fileSearchNoResults: '没有匹配的文件',
     fileSearchUnavailable: '文件搜索目前仅支持本机上的文件夹。',
     fileSearchTruncated: count => `仅在前 ${count} 个文件中搜索`,
+    fileSearchRecent: '最近打开',
     fileSearchHint: 'Enter 打开 · Ctrl+Enter 添加到聊天 · Esc 清除',
     collapseAll: '折叠所有文件夹',
     previewUnavailable: '预览不可用',

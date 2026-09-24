@@ -3042,6 +3042,7 @@ export const en: Translations = {
     fileSearchNoResults: 'No matching files',
     fileSearchUnavailable: 'File search is only available for folders on this computer.',
     fileSearchTruncated: count => `Showing matches from the first ${count} files`,
+    fileSearchRecent: 'Recently opened',
     fileSearchHint: 'Enter to open · Ctrl+Enter to attach to chat · Esc to clear',
     collapseAll: 'Collapse all folders',
     previewUnavailable: 'Preview unavailable',

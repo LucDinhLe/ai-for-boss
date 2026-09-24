@@ -3067,6 +3067,7 @@ export const vi = defineLocale({
     fileSearchNoResults: 'Không có tệp khớp',
     fileSearchUnavailable: 'Tìm tệp hiện chỉ hỗ trợ thư mục nằm trên máy này.',
     fileSearchTruncated: count => `Đang tìm trong ${count} tệp đầu tiên`,
+    fileSearchRecent: 'Mở gần đây',
     fileSearchHint: 'Enter để mở · Ctrl+Enter để đưa vào ô chat · Esc để xoá',
     collapseAll: 'Thu gọn tất cả các thư mục',
     previewUnavailable: 'Không có bản xem trước',

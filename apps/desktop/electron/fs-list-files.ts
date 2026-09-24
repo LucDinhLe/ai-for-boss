@@ -26,8 +26,15 @@ const WALK_SKIP = new Set([
   'dist',
   'node_modules',
   'target',
-  'venv'
+  'venv',
+  // Windows profile / drive noise when the workspace is a home folder or a drive.
+  '$RECYCLE.BIN',
+  'AppData',
+  'System Volume Information'
 ])
+
+// A walk of a huge folder (a whole home directory) must not hang the search.
+export const WALK_BUDGET_MS = 4_000
 
 export interface ListFilesResult {
   error?: string
@@ -50,21 +57,38 @@ const runGitLsFiles: GitRunner = cwd =>
     )
   })
 
-export function parseGitLsFiles(stdout: string, limit = LIST_FILES_LIMIT): { files: string[]; truncated: boolean } {
+export function parseGitLsFiles(
+  stdout: string,
+  limit = LIST_FILES_LIMIT
+): { files: string[]; nestedDirs: string[]; truncated: boolean } {
   const all = stdout.split('\0').filter(Boolean)
   const unique = [...new Set(all.map(file => file.replace(/\\/g, '/')))]
+  // `git ls-files --others` prints an untracked nested repository (a project
+  // cloned inside the workspace) as one "dir/" entry: it is a folder to index,
+  // never a file to show.
+  const nestedDirs = unique.filter(file => file.endsWith('/')).map(dir => dir.replace(/\/+$/, ''))
+  const files = unique.filter(file => !file.endsWith('/'))
 
-  return { files: unique.slice(0, limit), truncated: unique.length > limit }
+  return { files: files.slice(0, limit), nestedDirs, truncated: files.length > limit }
 }
 
 export async function walkFiles(
   root: string,
-  { fsImpl = fs, limit = LIST_FILES_LIMIT }: { fsImpl?: typeof fs; limit?: number } = {}
+  {
+    budgetMs = WALK_BUDGET_MS,
+    fsImpl = fs,
+    limit = LIST_FILES_LIMIT
+  }: { budgetMs?: number; fsImpl?: typeof fs; limit?: number } = {}
 ): Promise<{ files: string[]; truncated: boolean }> {
   const files: string[] = []
   const queue = ['']
+  const deadline = Date.now() + budgetMs
 
   while (queue.length) {
+    if (Date.now() > deadline) {
+      return { files, truncated: true }
+    }
+
     const rel = queue.shift() as string
     let dirents: fs.Dirent[]
 
@@ -119,10 +143,34 @@ export async function listFilesForIpc(
     }
   }
 
-  const stdout = await (options.git || runGitLsFiles)(resolved)
+  const git = options.git || runGitLsFiles
+  const stdout = await git(resolved)
 
   if (stdout !== null) {
-    return { root: resolved, source: 'git', ...parseGitLsFiles(stdout, limit) }
+    const parsed = parseGitLsFiles(stdout, limit)
+    const files = [...parsed.files]
+    let truncated = parsed.truncated
+
+    for (const dir of parsed.nestedDirs) {
+      if (files.length >= limit) {
+        truncated = true
+
+        break
+      }
+
+      const nestedRoot = path.join(resolved, dir)
+      const nestedOut = await git(nestedRoot)
+
+      const nested =
+        nestedOut !== null
+          ? parseGitLsFiles(nestedOut, limit - files.length)
+          : await walkFiles(nestedRoot, { fsImpl, limit: limit - files.length })
+
+      files.push(...nested.files.map(file => `${dir}/${file}`))
+      truncated ||= nested.truncated
+    }
+
+    return { files, root: resolved, source: 'git', truncated }
   }
 
   return { root: resolved, source: 'walk', ...(await walkFiles(resolved, { fsImpl, limit })) }

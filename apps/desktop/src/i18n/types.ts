@@ -2575,6 +2575,7 @@ export interface Translations {
     fileSearchNoResults: string
     fileSearchUnavailable: string
     fileSearchTruncated: (count: string) => string
+    fileSearchRecent: string
     fileSearchHint: string
     collapseAll: string
     previewUnavailable: string

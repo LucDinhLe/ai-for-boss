@@ -62,4 +62,33 @@ describe('rankFiles', () => {
     expect(ranked[0]?.path).toBe('pkg49/module-1999/index-1999.ts')
     expect(performance.now() - started).toBeLessThan(500)
   })
+
+  it('does not match letters scattered across folder names (VS Code behaviour)', () => {
+    const paths = ['ai-for-boss/repo/data/notes.md', 'scripts/2-DON-DEP.bat']
+
+    expect(rankFiles('bat', paths).map(m => m.path)).toEqual(['scripts/2-DON-DEP.bat'])
+  })
+
+  it('puts an exact file name above longer names that contain it', () => {
+    const ranked = rankFiles('agents', ['docs/agents-guide.md', 'x/y/AGENTS.md', 'AgentPanel.tsx']).map(m => m.path)
+
+    expect(ranked[0]).toBe('x/y/AGENTS.md')
+  })
+
+  it('highlights the best alignment, not the first letters found', () => {
+    // "tree" should light up the word "tree", not t…r…e…e spread over the name.
+    const match = matchFile('tree', 'files/tab-review-tree.ts')
+
+    expect(match?.indices).toEqual([17, 18, 19, 20])
+  })
+
+  it('requires every space-separated word to match', () => {
+    const paths = ['soma/KE-HOACH-SOMA-v2.md', 'ai/KE-HOACH-AI.md']
+
+    expect(rankFiles('ke hoach soma', paths).map(m => m.path)).toEqual(['soma/KE-HOACH-SOMA-v2.md'])
+  })
+
+  it('still finds a piece typed from the middle of a word', () => {
+    expect(matchFile('hoach', 'KEHOACH.md')).not.toBeNull()
+  })
 })

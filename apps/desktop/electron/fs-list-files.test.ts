@@ -29,8 +29,16 @@ afterAll(() => fs.rmSync(root, { force: true, recursive: true }))
 
 describe('parseGitLsFiles', () => {
   it('splits NUL output, normalizes separators, dedupes and caps', () => {
-    expect(parseGitLsFiles('a.ts\0src\\b.ts\0a.ts\0')).toEqual({ files: ['a.ts', 'src/b.ts'], truncated: false })
-    expect(parseGitLsFiles('a\0b\0c\0', 2)).toEqual({ files: ['a', 'b'], truncated: true })
+    expect(parseGitLsFiles('a.ts\0src\\b.ts\0a.ts\0')).toEqual({
+      files: ['a.ts', 'src/b.ts'],
+      nestedDirs: [],
+      truncated: false
+    })
+    expect(parseGitLsFiles('a\0b\0c\0', 2)).toMatchObject({ files: ['a', 'b'], truncated: true })
+  })
+
+  it('treats "dir/" entries (an untracked nested repository) as folders, not files', () => {
+    expect(parseGitLsFiles('a.ts\0soma/\0')).toEqual({ files: ['a.ts'], nestedDirs: ['soma'], truncated: false })
   })
 })
 
@@ -69,5 +77,23 @@ describe('listFilesForIpc', () => {
 
     expect(result.error).toBeTruthy()
     expect(result.files).toEqual([])
+  })
+
+  it('indexes the files of a repository nested inside the workspace', async () => {
+    const git = async (cwd: string) =>
+      cwd === root ? 'README.md\0src/\0' : cwd === path.join(root, 'src') ? 'a/b/c/d/sau-tang.ts\0' : null
+
+    const result = await listFilesForIpc(root, { git })
+
+    expect(result.files.sort()).toEqual(['README.md', 'src/a/b/c/d/sau-tang.ts'])
+    expect(result.files).not.toContain('src/')
+  })
+})
+
+describe('walkFiles budget', () => {
+  it('returns what it has when the time budget runs out', async () => {
+    const { truncated } = await walkFiles(root, { budgetMs: -1 })
+
+    expect(truncated).toBe(true)
   })
 })
