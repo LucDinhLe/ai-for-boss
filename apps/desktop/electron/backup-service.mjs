@@ -34,10 +34,33 @@ async function plain(file) {
     const parent = path.dirname(current); if (parent === current) break; current = parent;
   }
 }
-async function writeJson(file, value) {
+/**
+ * Temp-then-rename. On Windows the rename is refused while another process
+ * (antivirus, the indexer) holds the target for a moment, and the temp file used
+ * to stay behind: 40+ `aifb-layout.json.<uuid>.tmp` on the Product Owner's
+ * machine. Retry the transient refusals briefly, and never leave the temp file.
+ */
+export async function writeJson(file, value, { rename = fs.rename, wait = ms => new Promise(resolve => setTimeout(resolve, ms)) } = {}) {
   const temporary = `${file}.${randomUUID()}.tmp`;
   await fs.writeFile(temporary, JSON.stringify(value), { mode: 0o600, flag: 'wx' });
-  await fs.rename(temporary, file);
+  for (let attempt = 0; ; attempt++) {
+    try { await rename(temporary, file); return; }
+    catch (error) {
+      if (attempt < 4 && ['EPERM', 'EACCES', 'EBUSY'].includes(error?.code)) { await wait(25 * 2 ** attempt); continue; }
+      await fs.unlink(temporary).catch(() => {});
+      throw error;
+    }
+  }
+}
+
+/** Removes temp files an older version left next to `file`; only this exact pattern, never anything else. */
+export async function sweepTemporaries(file) {
+  const directory = path.dirname(file), base = path.basename(file);
+  const pattern = new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.tmp$`, 'u');
+  const names = await fs.readdir(directory).catch(() => []);
+  let removed = 0;
+  for (const name of names) if (pattern.test(name)) { await fs.unlink(path.join(directory, name)).then(() => removed++, () => {}); }
+  return removed;
 }
 export function nativeBackupRunner({ node, entry, state, environment = process.env }) {
   const children = new Set();
@@ -61,6 +84,7 @@ export function nativeBackupRunner({ node, entry, state, environment = process.e
 /** Fixed profile roots, native archive verification and encrypted recovery. No renderer paths. */
 export class BackupService {
   #layoutTail = Promise.resolve();
+  #layoutSwept = null;
   constructor({ root, version, native, protect, unprotect, chooseSave, chooseOpen, confirm, exclusive, pause, onRestored }) {
     Object.assign(this, { root: path.resolve(root), version, native, protect, unprotect, chooseSave, chooseOpen, confirm, exclusive, pause, onRestored });
     this.directory = path.join(this.root, 'backups'); this.state = path.join(this.root, 'openclaw-state');
@@ -84,6 +108,7 @@ export class BackupService {
   describe() { return { settings: this.settings, records: this.records, busy: this.busy, message: this.message, startedAt: this.startedAt, directory: this.directory }; }
   async layout(value) {
     const file = path.join(this.root, 'aifb-layout.json');
+    await (this.#layoutSwept ??= sweepTemporaries(file).catch(() => 0));
     if (value !== undefined) {
       const write = this.#layoutTail.then(() => writeJson(file, cleanLayout(value)));
       this.#layoutTail = write.catch(() => {}); await write;

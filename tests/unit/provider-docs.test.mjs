@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-import { resolveProviderDoc } from '../../apps/desktop/electron/provider-docs.mjs';
+import { resolveHelpPage, resolveProviderDoc } from '../../apps/desktop/electron/provider-docs.mjs';
 
 const catalogue = JSON.parse(readFileSync(new URL('../../apps/desktop/electron/native-catalog.json', import.meta.url), 'utf8'));
 test('every packaged official auth method resolves only to its own OpenClaw docs', () => {
@@ -21,4 +21,12 @@ test('renderer cannot supply a URL, another method or path that escapes official
     assert.throws(() => resolveProviderDoc({ action: 'provider-doc', methodId: 'fake' }, { authMethods: [{ id: 'fake', docsPath }] }));
   }
   assert.throws(() => resolveProviderDoc({ action: 'provider-doc', methodId: 'fake' }, { authMethods: [{ id: 'fake' }, { id: 'fake' }] }));
+});
+
+test('help pages are a fixed pair named by id, never a URL from the renderer (0068)', () => {
+  assert.equal(resolveHelpPage({ action: 'help-page', page: 'claude-code' }), 'https://code.claude.com/docs/en/setup');
+  assert.equal(resolveHelpPage({ action: 'help-page', page: 'ai-studio-key' }), 'https://aistudio.google.com/app/apikey');
+  for (const input of [{ action: 'help-page', page: 'toString' }, { action: 'help-page', page: 'https://evil.test' },
+    { action: 'help-page', page: 'claude-code', url: 'https://evil.test' }, { action: 'help-page' }, null])
+    assert.throws(() => resolveHelpPage(input));
 });

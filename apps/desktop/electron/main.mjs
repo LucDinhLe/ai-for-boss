@@ -23,7 +23,7 @@ import { OptimizerInference } from './optimizer-inference.mjs';
 import { SessionSupervision } from "./session-supervision.mjs";
 import { RuntimeControl } from "./runtime-control.mjs";
 import { UpdateService } from './update-service.mjs';
-import { resolveProviderDoc } from './provider-docs.mjs';
+import { resolveHelpPage, resolveProviderDoc } from './provider-docs.mjs';
 import { ChannelPluginInstaller } from './channel-plugin-installer.mjs';
 import { ChannelWorkGuard } from './channel-work-guard.mjs';
 import {
@@ -667,6 +667,9 @@ ipcMain.handle(MANAGEMENT_REQUEST_CHANNEL, (event, ...args) => {
   if (!smoke && !shuttingDown && args.length === 1 && args[0]?.action === 'provider-doc') {
     const catalogue = JSON.parse(readFileSync(path.join(currentDirectory, 'native-catalog.json'), 'utf8'));
     return shell.openExternal(resolveProviderDoc(args[0], catalogue)).then(() => ({ opened: true }));
+  }
+  if (!smoke && !shuttingDown && args.length === 1 && args[0]?.action === 'help-page') {
+    return shell.openExternal(resolveHelpPage(args[0])).then(() => ({ opened: true }));
   }
   if (!smoke && !shuttingDown && args.length === 1 && /^web-/u.test(args[0]?.action ?? '')) {
     if (!webTabs && args[0].action === 'web-bounds' && args[0].bounds === null) return { tabs: [], active: null };
