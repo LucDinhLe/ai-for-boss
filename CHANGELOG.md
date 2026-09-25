@@ -2,6 +2,19 @@
 
 Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng ngôn ngữ người vận hành có thể hiểu.
 
+## [0.0.5-beta.46] - 2026-09-25
+
+### Changed
+
+- **Nói rõ tài khoản nào dùng được.** Trang Nhà cung cấp có mục "Tài khoản nào dùng được?": ChatGPT và Grok đăng nhập ngay trong app, gói Claude Pro hoặc Max dùng qua Claude Code, Gemini và Antigravity dùng API key Google AI Studio vì từ 18/6/2026 Google không cho gói cá nhân dùng ngoài ứng dụng của Google (spec 0068).
+- **Claude:** nút nối qua Claude Code nay ghi "Đăng nhập bằng gói Claude (qua Claude Code)". Máy chưa có Claude Code thì hộp thoại chỉ cách cài, có nút mở trang hướng dẫn và nút Dò lại.
+- **Gemini:** ô dán key có nút mở thẳng trang tạo API key của AI Studio.
+- **Antigravity** không còn là thẻ mờ: bấm vào thì giải thích vì sao không có đăng nhập và dẫn sang dùng Gemini bằng API key.
+
+### Fixed
+
+- Ứng dụng không còn để lại hàng chục tệp tạm `aifb-layout.json.<mã>.tmp` trong thư mục dữ liệu. Khi Windows tạm khoá tệp lúc lưu bố cục, ứng dụng thử lại, và không bao giờ bỏ lại tệp tạm; các tệp tạm cũ được dọn ở lần mở đầu tiên.
+
 ## [0.0.5-beta.45] - 2026-09-25
 
 ### Changed

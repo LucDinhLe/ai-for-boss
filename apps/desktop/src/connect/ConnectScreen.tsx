@@ -89,6 +89,20 @@ function loginStep(step: WizardStep): boolean {
   return Boolean(step.externalUrl || step.deviceCode);
 }
 
+/** Opens one of the two fixed help pages; the host owns the address (spec 0068). */
+function openHelp(page: "claude-code" | "ai-studio-key") {
+  void manage({ action: "help-page", page }).catch(() => {});
+}
+
+/**
+ * Claude Code is how a Claude Pro or Max plan reaches the app, so the button
+ * names the plan the person pays for rather than the tool in between (0068).
+ */
+function candidateTitle(candidate: Candidate, hasSignIn: boolean): string {
+  if (candidate.kind === "claude-cli") return "Đăng nhập bằng gói Claude (qua Claude Code)";
+  return hasSignIn ? `Dùng ${candidate.label} đã đăng nhập trên máy` : `Nối qua ${candidate.label} trên máy`;
+}
+
 /**
  * The redirect-paste prompt the core raises beside every browser sign-in when it
  * runs behind a Gateway. The core's own callback listener usually finishes the
@@ -624,7 +638,7 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery }: { 
     ?? { id, label: providerLabel(id), brandId: id, signIn: [], candidates: [], keys: [] });
   const restFamilies = familyGroups.filter(group => !FEATURED_FAMILIES.includes(group.id));
   const chosen = familyGroups.find(group => group.id === family)
-    ?? (family && !detect ? { id: family, label: providerLabel(family), brandId: family, signIn: [], candidates: [], keys: [] } : null);
+    ?? (family && (!detect || FEATURED_FAMILIES.includes(family)) ? { id: family, label: providerLabel(family), brandId: family, signIn: [], candidates: [], keys: [] } : null);
   const keyProvider = chosen ? (chosen.keys.find(provider => provider.id === keyChoice) ?? chosen.keys[0] ?? null) : null;
   const keyFamily = keyProvider ? providerFamily(identity(keyProvider)) : '';
   const hasChoices = candidates.length + authOptions.length + manualProviders.length > 0;
@@ -681,11 +695,16 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery }: { 
             // Before the scan answers, a brand this build ships can already be
             // picked: the next step waits for the scan instead of the person.
             const early = !detect && !error && (shipped.size === 0 || shipped.has(group.id));
-            return <button key={group.id} type="button" disabled={!ready || busy || (routes === 0 && !early)}
+            // Antigravity has no sign-in Google allows for a third party; its models
+            // are Gemini's, so the card leads to the Gemini key instead of a dead end.
+            const viaGemini = group.id === 'antigravity' && routes === 0;
+            return <button key={group.id} type="button" disabled={!ready || busy || (routes === 0 && !early && !viaGemini)}
               aria-label={group.label} onClick={() => { setFamily(group.id); setError(null); }}>
               <strong><BrandIcon id={group.brandId} label={group.label} />{group.label}</strong>
-              <small>{routes === 0 ? (early ? CHROME.scanningShort : 'Bản lõi này chưa mở đường nối nào cho hãng đó')
+              <small>{viaGemini ? 'Dùng mô hình Gemini bằng API key AI Studio'
+                : routes === 0 ? (early ? CHROME.scanningShort : 'Bản lõi này chưa mở đường nối nào cho hãng đó')
                 : group.signIn.length > 0 ? 'Đăng nhập bằng trình duyệt hoặc dán API key'
+                : group.id === 'anthropic' ? 'Gói Claude qua Claude Code, hoặc dán API key'
                 : group.candidates.length > 0 ? 'Dùng ứng dụng đã đăng nhập trên máy hoặc dán API key'
                 : 'Dán API key'}</small>
             </button>;
@@ -722,6 +741,20 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery }: { 
             ? 'Hãng này không có đăng nhập OAuth. Dùng ứng dụng đã đăng nhập sẵn trên máy, hoặc dán API key.'
             : chosen.keys.length > 0 ? 'Hãng này chỉ nhận API key.' : 'Bản lõi này chưa mở đường nối nào cho hãng đó.'}</p>}
 
+        {detect && chosen.id === 'antigravity' && chosen.signIn.length + chosen.candidates.length + chosen.keys.length === 0 ? <div className="connect__origin">
+          <p>Google không cho phần mềm bên ngoài đăng nhập bằng tài khoản Antigravity hay gói Gemini cá nhân. Mô hình của
+            Antigravity là Gemini, nên anh chị dùng chúng qua API key của Google AI Studio (có mức dùng miễn phí).</p>
+          <button type="button" onClick={() => { setFamily('google'); setError(null); }}>Dùng Gemini bằng API key</button>
+        </div> : null}
+        {detect && chosen.id === 'anthropic' && chosen.candidates.length === 0 ? <div className="connect__origin">
+          <p>Muốn dùng gói Claude Pro hoặc Max: cài Claude Code, đăng nhập bằng tài khoản Claude một lần, rồi bấm Dò lại.
+            Lượt dùng tính vào hạn mức gói Claude của anh chị.</p>
+          <div className="connect__options connect__options--row">
+            <button type="button" onClick={() => openHelp('claude-code')}>Hướng dẫn cài Claude Code</button>
+            <button type="button" disabled={!ready || busy || detectBusy} onClick={() => void refreshDetect()}>Dò lại</button>
+          </div>
+        </div> : null}
+
         {chosen.signIn.length > 0 ? <div className="connect__options connect__options--primary">
           {chosen.signIn.map(option => <button key={option.id} type="button" disabled={!ready || busy}
             aria-label={chosen.signIn.length > 1 ? `Đăng nhập OAuth — ${option.label}` : 'Đăng nhập OAuth'}
@@ -736,9 +769,9 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery }: { 
           {chosen.candidates.map(candidate => <button key={candidate.kind + candidate.modelRef + candidate.label}
             type="button" disabled={!ready || busy}
             /* The spoken name must be the name on the button, or the two disagree. */
-            aria-label={chosen.signIn.length > 0 ? `Dùng ${candidate.label} đã đăng nhập trên máy` : `Nối qua ${candidate.label} trên máy`}
+            aria-label={candidateTitle(candidate, chosen.signIn.length > 0)}
             onClick={() => void startCandidate(candidate)}>
-            <strong><BrandIcon id={candidate.brandId || candidate.kind} label={candidate.label} />{chosen.signIn.length > 0 ? `Dùng ${candidate.label} đã đăng nhập trên máy` : `Nối qua ${candidate.label} trên máy`}</strong>
+            <strong><BrandIcon id={candidate.brandId || candidate.kind} label={candidate.label} />{candidateTitle(candidate, chosen.signIn.length > 0)}</strong>
             <small>{candidate.detail}{candidate.modelRef ? ` · ${candidate.modelRef}` : ''}</small>
           </button>)}
         </div> : null}
@@ -758,8 +791,10 @@ export default function ConnectScreen({ onDone, ready = true, initialQuery }: { 
             </button>
           </form>
           {keyProvider.hint ? <p className="connect__hint">{keyProvider.hint}</p> : null}
-          {keyFamily === 'google' ? <p className="connect__hint">Gemini dùng API key Google AI Studio hoặc Vertex. Bản lõi này không mở đăng nhập Gemini CLI mới.</p> : null}
-          {keyFamily === 'anthropic' && chosen.candidates.length > 0 ? <p className="connect__hint">Máy đã đăng nhập Claude Code thì dùng cách trên để khỏi trả phí API riêng.</p> : null}
+          {keyFamily === 'google' ? <div className="connect__hint"><p>Từ 18/6/2026 Google không cho gói Gemini cá nhân dùng ngoài
+            ứng dụng của Google, nên Gemini đi bằng API key AI Studio. Tạo key mất khoảng một phút và có mức dùng miễn phí.</p>
+            <button type="button" onClick={() => openHelp('ai-studio-key')}>Mở trang tạo API key</button></div> : null}
+          {keyFamily === 'anthropic' && chosen.candidates.length > 0 ? <p className="connect__hint">Có gói Claude thì dùng cách trên, khỏi trả phí API riêng. API key tính tiền theo lượt dùng.</p> : null}
           <p className="connect__note">{CHROME.pasteKeyHint}</p>
         </> : null}
 

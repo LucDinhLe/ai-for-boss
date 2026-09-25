@@ -529,11 +529,14 @@ test('the API-key picker lists providers by popularity and explains the Google l
   await h.flush();
   // Brands come in popularity order, and each one owns its own keys (0063).
   const cards = h.nodes().filter(node => node.type === 'button' && node.props['aria-label'] && node.props.onClick
-    && h.text(node).includes('Dán API key')).map(node => node.props['aria-label']);
+    && /dán API key/i.test(h.text(node))).map(node => node.props['aria-label']);
   assert.deepEqual(cards, ['Claude / Anthropic', 'Grok / xAI', 'Gemini / Google', 'Zzz key'],
     'featured brands first in their fixed order, then the rest, unknown last under the core name');
   h.button('Gemini / Google').props.onClick(); await h.flush();
-  assert.match(h.text(), /AI Studio key/); assert.match(h.text(), /không mở đăng nhập Gemini CLI mới/);
+  assert.match(h.text(), /AI Studio key/); assert.match(h.text(), /không cho gói Gemini cá nhân/);
+  h.button('Mở trang tạo API key').props.onClick(); await h.flush();
+  assert.deepEqual(h.catalogueRequests.at(-1), { action: 'help-page', page: 'ai-studio-key' },
+    'the page is named by id; the host owns the address');
   assert.equal(h.nodes().some(node => node.type === 'select'), false, 'one key for this brand needs no picker');
   assert.ok(h.requests.every(call => call.method === 'openclaw.setup.detect'), 'choosing a provider never starts a flow');
   h.dispose();
@@ -547,7 +550,7 @@ test('each kind of detected result gets its own named lid, and an empty kind get
   await h.flush();
   // The lids belong to the brand the person picked, not to the picker.
   h.button('Claude / Anthropic').props.onClick(); await h.flush();
-  assert.ok(h.button('Nối qua Claude Code trên máy'), 'no OAuth for this brand, so the CLI leads and is named that way');
+  assert.ok(h.button('Đăng nhập bằng gói Claude (qua Claude Code)'), 'no OAuth for this brand, so the CLI leads and is named that way');
   assert.match(h.text(), /anthropic\/exact-model-64/);
   const lids = h.nodes().filter(node => node.type === 'details');
   assert.equal(lids.length, 2, 'two kinds present, two lids; the old single lid counted three kinds into one number');
@@ -578,7 +581,7 @@ test('the real shapes: Claude has no OAuth and leads with its CLI, Grok has OAut
   // Claude: the CLI is the way in, and the screen says so instead of leaving a gap.
   h.button('Claude / Anthropic').props.onClick(); await h.flush();
   assert.match(h.text(), /không có đăng nhập OAuth/, 'it says plainly that this brand has none');
-  assert.ok(h.button('Nối qua Claude Code trên máy'), 'the logged-in CLI takes the first slot');
+  assert.ok(h.button('Đăng nhập bằng gói Claude (qua Claude Code)'), 'the logged-in CLI takes the first slot');
   assert.equal(h.nodes().some(n => n.type === 'input' && n.props.type === 'password'), true, 'and a key is still offered');
   assert.equal(h.nodes().filter(n => n.type === 'button' && /Đăng nhập OAuth/.test(n.props['aria-label'] ?? '')).length, 0,
     'no OAuth button is drawn for a brand that has no OAuth route');
@@ -590,6 +593,27 @@ test('the real shapes: Claude has no OAuth and leads with its CLI, Grok has OAut
   assert.ok(h.button('Đăng nhập OAuth'));
   h.button('Đăng nhập OAuth').props.onClick(); await h.flush();
   assert.equal(h.requests.find(r => r.method === 'openclaw.setup.auth.start').params.authChoice, 'xai-oauth');
+  h.dispose();
+});
+
+test('Antigravity leads to the Gemini key, and Claude without Claude Code says how to bring the plan in (0068)', async () => {
+  const h = harness(async () => ({ ...catalogue, authOptions: [], candidates: [], manualProviders: [
+    { id: 'gemini-api-key', brandId: 'google', label: 'Gemini API key' },
+    { id: 'apiKey', brandId: 'anthropic', label: 'Anthropic API key' }] }));
+  await h.flush();
+  assert.equal(h.button('Antigravity').props.disabled, false, 'no dead card: it has somewhere honest to go');
+  h.button('Antigravity').props.onClick(); await h.flush();
+  assert.match(h.text(), /Google không cho phần mềm bên ngoài đăng nhập/);
+  h.button('Dùng Gemini bằng API key').props.onClick(); await h.flush();
+  assert.ok(h.nodes().some(n => n.type === 'input' && n.props['aria-label'] === 'API key'), 'straight to the Gemini key box');
+  h.button('← Chọn dịch vụ khác').props.onClick(); await h.flush();
+  h.button('Claude / Anthropic').props.onClick(); await h.flush();
+  assert.match(h.text(), /cài Claude Code, đăng nhập bằng tài khoản Claude một lần/);
+  h.button('Hướng dẫn cài Claude Code').props.onClick(); await h.flush();
+  assert.deepEqual(h.catalogueRequests.at(-1), { action: 'help-page', page: 'claude-code' });
+  const before = h.requests.filter(r => r.method === 'openclaw.setup.detect').length;
+  h.button('Dò lại').props.onClick(); await h.flush();
+  assert.equal(h.requests.filter(r => r.method === 'openclaw.setup.detect').length, before + 1, 'and one click rescans once it is installed');
   h.dispose();
 });
 

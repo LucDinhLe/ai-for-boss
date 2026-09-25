@@ -11,3 +11,19 @@ export function resolveProviderDoc(input, catalogue) {
   if (url.origin !== 'https://docs.openclaw.ai' || url.username || url.password) throw new Error('Đường dẫn tài liệu chưa hợp lệ.');
   return url.href;
 }
+
+/**
+ * Two fixed pages the connect dialog points at (spec 0068): where to install
+ * Claude Code, which carries a Claude plan into the app, and where to make a
+ * Google AI Studio key, the one route Google leaves open for personal accounts.
+ * The renderer names a page by id; it never supplies a URL.
+ */
+export const HELP_PAGES = Object.freeze({
+  'claude-code': 'https://code.claude.com/docs/en/setup',
+  'ai-studio-key': 'https://aistudio.google.com/app/apikey'
+});
+export function resolveHelpPage(input) {
+  if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).length !== 2
+    || input.action !== 'help-page' || !Object.hasOwn(HELP_PAGES, input.page)) throw new Error('Trang hướng dẫn chưa hợp lệ.');
+  return HELP_PAGES[input.page];
+}

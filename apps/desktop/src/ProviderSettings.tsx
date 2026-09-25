@@ -175,6 +175,21 @@ export default function ProviderSettings({ ready, models, onConnect }: {
         <Icon name="plus" />Thêm nhà cung cấp</button>}
     </div>
 
+    {/* Spec 0068: the answer to "which of my accounts work here", in the words a
+        customer asks it. Only routes the providers themselves allow. */}
+    <details className="pset__help">
+      <summary>Tài khoản nào dùng được?</summary>
+      <ul>
+        <li><strong>ChatGPT</strong> (gói Plus, Pro): đăng nhập bằng trình duyệt ngay trong app.</li>
+        <li><strong>Grok</strong>: đăng nhập bằng mã thiết bị ngay trong app.</li>
+        <li><strong>Claude</strong> (gói Pro, Max): cài Claude Code và đăng nhập một lần, app dùng gói qua Claude Code. Lượt dùng tính vào hạn mức gói.</li>
+        <li><strong>GitHub Copilot</strong>: đăng nhập bằng mã thiết bị.</li>
+        <li><strong>Gemini và Antigravity</strong>: từ 18/6/2026 Google không cho gói cá nhân dùng ngoài ứng dụng của Google. Dùng API key Google AI Studio, có mức dùng miễn phí.</li>
+        <li><strong>Các hãng khác</strong>: dán API key của hãng.</li>
+      </ul>
+      <p>AI for Boss chỉ đi đường mà hãng cho phép, để tài khoản của anh chị không bị khoá.</p>
+    </details>
+
     {!ready ? <p className="pset__empty" role="status">Bộ chạy đang khởi động. Danh sách hiện ra ngay khi sẵn sàng.</p>
       : cards === null ? <p className="pset__empty" role="status">Đang đọc danh sách tài khoản…</p>
       : connected.length === 0 ? <p className="pset__empty">Chưa có tài khoản nào. Bấm Thêm nhà cung cấp để đăng nhập hoặc dán API key.</p>
