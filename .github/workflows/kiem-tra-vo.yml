@@ -1,4 +1,4 @@
-name: Kiểm tra vỏ Hermes Vietnamese
+name: Kiểm tra vỏ AI for Boss
 
 # Chạy sau mỗi lần đẩy mã: lõi Nous phải còn nguyên từng byte theo engine.lock,
 # script phát hành và vỏ Electron (apps/desktop) phải qua kiểm thử đơn vị.
@@ -71,3 +71,19 @@ jobs:
         run: npm run --prefix apps/desktop test:desktop:platforms
       - name: Kiểm tra kiểu và lint
         run: npm run --prefix apps/desktop check:lint
+
+  goi-doanh-nghiep:
+    name: Gói doanh nghiệp AI for Boss (edition)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # 8.2.0
+      - name: Cài lõi Hermes và pytest
+        run: |
+          uv venv --python 3.11 .venv
+          uv pip install --python .venv/bin/python -e . pytest
+      - name: Gieo gói vào HERMES_HOME tạm và kiểm lõi nhận đủ
+        run: .venv/bin/python -m pytest -q -p no:cacheprovider apps/desktop/edition/tests

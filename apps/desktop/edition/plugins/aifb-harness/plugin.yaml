@@ -1,0 +1,15 @@
+name: aifb-harness
+version: 1.0.0
+description: "Lớp quản trị AI for Boss: sổ quyết định (QUYET-DINH.md), đọc lại quyết định gần đây mỗi lượt, trần số bước công cụ mỗi lượt, và sổ token từng lượt gọi mô hình để tối ưu chi phí."
+author: "Lê Đình Lực (AI for Boss)"
+kind: standalone
+platforms:
+  - linux
+  - macos
+  - windows
+provides_tools:
+  - aifb_record_decision
+hooks:
+  - pre_llm_call
+  - pre_tool_call
+  - post_api_request

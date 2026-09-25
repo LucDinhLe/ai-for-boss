@@ -63,7 +63,7 @@ test('legacy source descriptor resolves its own candidate independently of curre
   assert.equal(candidate.baseVersion, VI_PRODUCT_RELEASE.technicalVersion)
   assert.equal(candidate.iteration, 1)
   assert.equal(candidate.appVersion, `${VI_PRODUCT_RELEASE.technicalVersion}-vi.1`)
-  assert.equal(candidate.releaseTitle, `Hermes Vietnamese ${VI_PRODUCT_RELEASE.productVersion}`)
+  assert.equal(candidate.releaseTitle, `AI for Boss ${VI_PRODUCT_RELEASE.productVersion}`)
   assert.equal(desktopPackage.version, VI_PRODUCT_RELEASE.technicalVersion)
   assert.equal(runtime.stdout.trim(), VI_PRODUCT_RELEASE.upstreamVersion)
   assert.notEqual(VI_PRODUCT_RELEASE.technicalVersion, VI_PRODUCT_RELEASE.upstreamVersion)

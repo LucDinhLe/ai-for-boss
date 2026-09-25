@@ -1,3 +1,5 @@
+> **Nhánh `nen-hermes` của kho AI for Boss.** Đây là bản thử đưa AI for Boss lên vỏ Hermes Vietnamese 2026.9.5. Phần riêng của AI for Boss (danh tính, 12 kỹ năng doanh nghiệp, bốn vai trò, plugin quản trị, bộ đệm prompt 1 giờ) và cách đồng bộ vỏ nằm trong [docs/ai-for-boss-nen-hermes.md](docs/ai-for-boss-nen-hermes.md). Phần dưới là README gốc của Hermes Vietnamese, giữ nguyên để việc đồng bộ không vướng.
+
 <p align="center">
   <img src="assets/banner.png" alt="Hermes Vietnamese" width="100%">
 </p>

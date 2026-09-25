@@ -203,15 +203,15 @@ jobs:
           mnt="$(hdiutil attach -nobrowse -readonly "$dmg" | awk -F'\t' '/\/Volumes\//{print $NF}' | tail -1)"
           echo "dmg gắn tại: $mnt"
           app="$(ls -d "$mnt"/*.app | head -1)"
-          ditto "$app" "$RUNNER_TEMP/HermesVietnamese.app"
+          ditto "$app" "$RUNNER_TEMP/AIforBoss.app"
           hdiutil detach "$mnt" -quiet || true
-          app="$RUNNER_TEMP/HermesVietnamese.app"
+          app="$RUNNER_TEMP/AIforBoss.app"
           # Gatekeeper trên máy chủ: chữ ký hợp lệ nhưng chưa notarize → spctl từ chối là ĐÚNG mong đợi.
           codesign --verify --deep --strict "$app" && echo "codesign: hợp lệ"
           spctl --assess --type execute -vv "$app" 2>&1 || echo "spctl từ chối như mong đợi với ký ad-hoc (người dùng bấm Open Anyway)"
           export HERMES_VI_HOME="$RUNNER_TEMP/hv-home"
           mkdir -p "$HERMES_VI_HOME"
-          "$app/Contents/MacOS/HermesVietnamese" --disable-gpu > "$RUNNER_TEMP/run.log" 2>&1 &
+          "$app/Contents/MacOS/AIforBoss" --disable-gpu > "$RUNNER_TEMP/run.log" 2>&1 &
           pid=$!
           ok=0
           for i in $(seq 1 60); do
@@ -237,7 +237,7 @@ jobs:
           ( cd "$RUNNER_TEMP" && "$GITHUB_WORKSPACE/$img" --appimage-extract >/dev/null )
           export HERMES_VI_HOME="$RUNNER_TEMP/hv-home"
           mkdir -p "$HERMES_VI_HOME"
-          xvfb-run -a "$RUNNER_TEMP/squashfs-root/HermesVietnamese" --no-sandbox --disable-gpu --disable-dev-shm-usage > "$RUNNER_TEMP/run.log" 2>&1 &
+          xvfb-run -a "$RUNNER_TEMP/squashfs-root/AIforBoss" --no-sandbox --disable-gpu --disable-dev-shm-usage > "$RUNNER_TEMP/run.log" 2>&1 &
           pid=$!
           ok=0
           for i in $(seq 1 60); do
@@ -394,11 +394,11 @@ jobs:
           engine_tag="$(node -e 'console.log(JSON.parse(require("fs").readFileSync("engine.lock","utf8")).engine.tag)')"
           if [ "$CHANNEL" = thunghiem ]; then
             cat > out/NOTES.md <<EOF
-          ## Hermes Vietnamese ${RELEASE_TAG} · bản thử nghiệm
+          ## AI for Boss ${RELEASE_TAG} · bản thử nghiệm (nền Hermes)
 
           Đây là **bản thử nghiệm cộng đồng (pre-release), chưa phải Latest**. Windows chưa ký số; macOS ký ad-hoc; Linux không có cơ chế ký.
 
-          Bản này cài **cạnh** bản Hermes cũ, dùng thư mục dữ liệu riêng và mục gỡ cài đặt riêng. Bản cũ và dữ liệu của nó không bị đụng. Muốn quay lui, gỡ bản thử nghiệm.
+          Bản này cài **cạnh** Hermes Vietnamese và bản AI for Boss trên OpenClaw, dùng thư mục dữ liệu riêng (\`%LOCALAPPDATA%\\ai-for-boss\`) và mục gỡ cài đặt riêng. Hai bản kia và dữ liệu của chúng không bị đụng. Tên tệp cài vẫn bắt đầu bằng \`Hermes-\` vì quy trình đóng gói dùng chung với Hermes Vietnamese; ứng dụng cài ra tên là AI for Boss.
 
           Lõi là Hermes Agent **${engine_tag}** nguyên bản của Nous Research (ghim trong \`engine.lock\`), giao diện Việt giữ nguyên, cập nhật kiểu **chỉ báo**: ứng dụng báo bản mới kèm SHA-256, không tự tải hay tự cài.
 
@@ -409,7 +409,7 @@ jobs:
           | Linux x64 AppImage | \`${{ steps.feed.outputs.linux_file }}\` | ${{ steps.feed.outputs.linux_size }} byte | \`${{ steps.feed.outputs.linux_sha }}\` |
           | Linux x64 deb | \`${{ steps.feed.outputs.deb_file }}\` | ${{ steps.feed.outputs.deb_size }} byte | \`${{ steps.feed.outputs.deb_sha }}\` |
 
-          **macOS:** lần mở đầu bị chặn, vào **System Settings → Privacy & Security**, bấm **Open Anyway** rồi mở lại. Nếu báo "damaged", chạy \`xattr -cr /Applications/HermesVietnamese.app\` trong Terminal.
+          **macOS:** lần mở đầu bị chặn, vào **System Settings → Privacy & Security**, bấm **Open Anyway** rồi mở lại. Nếu báo "damaged", chạy \`xattr -cr /Applications/AIforBoss.app\` trong Terminal.
           **Linux:** cấp quyền chạy cho AppImage (\`chmod +x\`) hoặc cài gói deb bằng \`sudo apt install ./<tệp>.deb\`.
           **Windows:** SmartScreen có thể cảnh báo vì bộ cài chưa ký số. Đối chiếu SHA-256 trước khi chạy.
           EOF
@@ -430,11 +430,11 @@ jobs:
           if [ "$CHANNEL" = thunghiem ]; then
             assets="out/Hermes-* out/SHA256SUMS.txt out/public-release-thunghiem.json"
             flags="--prerelease --latest=false"
-            title="Hermes Vietnamese $RELEASE_TAG (thử nghiệm)"
+            title="AI for Boss $RELEASE_TAG (thử nghiệm, nền Hermes)"
           else
             assets="out/Hermes-* out/SHA256SUMS.txt"
             flags="--latest"
-            title="Hermes Vietnamese ${RELEASE_TAG#v}"
+            title="AI for Boss ${RELEASE_TAG#v}"
           fi
           if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$RELEASE_TAG" $assets --repo "$GITHUB_REPOSITORY" --clobber

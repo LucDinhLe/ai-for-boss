@@ -1,0 +1,71 @@
+# AI for Boss trên nền Hermes (nhánh `nen-hermes`)
+
+Tài liệu này dành cho người và agent làm tiếp nhánh `nen-hermes` trong kho `LucDinhLe/ai-for-boss`. Đọc trước khi sửa bất cứ gì trong nhánh.
+
+## Quyết định gốc
+
+Ngày 25/09/2026 anh Lê Đình Lực đồng ý thử đưa AI for Boss từ lõi OpenClaw sang vỏ Hermes Vietnamese. Lý do chính: vỏ Hermes Vietnamese 2026.9.5 đã có giao diện v32 mà AI for Boss nhắm tới, đã phát hành Latest cho Windows, macOS, Linux, và lõi Hermes có sẵn kỹ năng, hồ sơ, plugin với hơn 30 điểm móc, đủ để làm lớp quản trị mà không sửa lõi.
+
+Bản trên OpenClaw không bị xoá. Khi anh Lực chọn nền Hermes, main cũ được cất ở nhãn `archive/openclaw-beta36` rồi `nen-hermes` mới lên làm main. Nếu anh chọn giữ bản OpenClaw, nhánh này chỉ nằm yên.
+
+## Nhánh này gồm gì
+
+Nhánh bắt đầu từ commit `39e5387` của Hermes Vietnamese (bản phát hành 2026.9.5, lõi Nous v2026.8.31 nguyên bản theo `engine.lock`). Phần riêng của AI for Boss:
+
+- **Danh tính riêng** trong `apps/desktop/product-metadata.json`: appId `vn.lucledinh.ai-for-boss`, tệp chạy `AIforBoss`, giao thức `aiforboss://`, thư mục dữ liệu `%LOCALAPPDATA%\ai-for-boss` hoặc `~/.ai-for-boss`, biến ghi đè `AFB_HOME`. `electron/edition-identity.ts` đọc các giá trị này thay cho chuỗi ghi cứng. `package.json` phần `build` phải khớp tay, `scripts/community-distribution.test.mjs` kiểm sự khớp.
+- **Nhập dữ liệu Hermes Vietnamese** ở lần mở đầu (chỉ sao chép, bản Hermes Vietnamese giữ nguyên), khai trong `edition.importFrom`.
+- **Gói doanh nghiệp** trong `apps/desktop/edition/`, đóng vào bộ cài qua `extraResources`:
+  - `skills/ai-for-boss/`: 12 kỹ năng tiếng Việt chuyển từ plugin OpenClaw, chuẩn SKILL.md của Hermes.
+  - `SOUL.md`: danh tính trợ lý và bảy quy tắc điều hành. Nằm ở phần tĩnh của system prompt nên trúng bộ đệm.
+  - `roles/`: bốn vai trò (bán hàng, điều hành, marketing và nội dung, quản lý dự án), gieo thành `agent.personalities` để đổi vai bằng `/personality <tên>` mà vẫn dùng chung tài khoản nhà cung cấp.
+  - `plugins/aifb-harness/`: sổ quyết định, đọc lại quyết định gần đây mỗi lượt, trần bước công cụ mỗi lượt, sổ token từng lần gọi mô hình.
+  - `seed_edition.py`: gieo tất cả vào HERMES_HOME bằng hàm công khai của lõi.
+- **Bộ đệm prompt 1 giờ** (`prompt_caching.cache_ttl: 1h`) đặt lúc gieo nếu người dùng chưa đặt.
+
+## Gieo gói chạy thế nào
+
+`electron/edition-seed.ts` chạy `seed_edition.py` bằng chính Python của lõi, ngay trước khi backend khởi động, khi `seedVersion` trong `edition/edition.json` mới hơn dấu ở `<HERMES_HOME>/edition-seed.json`. Hỏng thì ghi log `[edition]` và lần mở sau thử lại, không chặn khởi động.
+
+Luật không ghi đè thứ người dùng đã sửa:
+
+- `SOUL.md` chỉ thay khi chưa có, còn là mặc định của Hermes, hoặc đúng bản AI for Boss đã gieo lần trước (so mã băm).
+- `cache_ttl` chỉ đặt khi người dùng chưa đặt.
+- Kỹ năng, plugin và bốn vai trò là phần của gói, được thay bằng bản mới mỗi lần gieo.
+
+Đổi kỹ năng, plugin, SOUL.md hay vai trò thì **tăng `seedVersion`**, nếu không máy đã cài sẽ không nhận.
+
+## Sổ token để đo tối ưu
+
+Plugin ghi mỗi lần gọi mô hình một dòng vào `<HERMES_HOME>/aifb/trace.jsonl`: token vào, ra, đọc bộ đệm, ghi bộ đệm, suy luận, thời gian. Đây là số liệu để so bộ đệm 5 phút với 1 giờ, và sau này đo Advisor có tiết kiệm thật không.
+
+## Chưa có ở nhánh này
+
+- Ba nút hợp đồng tác vụ (Nhanh, Kỹ, Quyết định quan trọng) và trần token theo lượt: cần giao diện trong ô soạn.
+- Advisor tiết kiệm (cổng kế hoạch khi có rủi ro, cổng nghiệm thu, gói tóm tắt dưới 2 nghìn token, trần 1/5 ngân sách phiên) dạng plugin. Không bật MoA có sẵn của lõi vì nó gọi thêm mô hình ở mọi vòng.
+- Kênh Zalo: anh Lực quyết làm sau, dạng plugin kênh qua `register_platform`.
+- Tên tệp cài vẫn bắt đầu bằng `Hermes-` vì quy trình đóng gói (`packaged-layout.mjs`, `packaged-provenance.mjs`, `check-public-docs.mjs`) dùng chung với Hermes Vietnamese. Đổi khi làm kênh phát hành chính của AI for Boss.
+- Các script kênh chính (`render-current-release.mjs`, `check-public-docs.mjs`) còn trỏ kho Hermes Vietnamese; kênh thử nghiệm không dùng chúng.
+
+## Đồng bộ vỏ từ Hermes Vietnamese
+
+Hermes Vietnamese là nguồn gốc (upstream) của vỏ. Khi Hermes Vietnamese sửa lỗi hay nâng lõi:
+
+```
+git remote add hermes https://github.com/LucDinhLe/hermes-agent-vietnamese.git   # một lần
+git fetch hermes main
+git merge hermes/main
+```
+
+Xung đột thường chỉ nằm ở chuỗi hiển thị (`src/i18n/*.ts`), `package.json` phần `build`, và vài dòng trong `build-release.yml`. Giữ bản AI for Boss ở những chỗ đó. Sau khi gộp chạy lại đủ kiểm thử bên dưới.
+
+## Kiểm thử
+
+- `node scripts/engine-sync.mjs check`: lõi phải khớp `engine.lock` từng byte.
+- `npm run --prefix apps/desktop test:desktop:platforms`: tiến trình chính, gồm `electron/edition-seed.test.ts`.
+- `uv pip install -e . pytest` rồi `python -m pytest apps/desktop/edition/tests`: gieo gói vào HERMES_HOME tạm và kiểm lõi thật nhận đủ kỹ năng, vai trò, plugin, bộ đệm 1 giờ, và giữ nguyên chỗ người dùng đã sửa.
+
+Workflow `kiem-tra-vo.yml` chạy cả ba trên mỗi pull request.
+
+## Dựng bản thử nghiệm
+
+Gắn tag dạng `vYYYY.M.D-thunghiem.N` (ví dụ `v2026.9.25-thunghiem.1`) lên commit của nhánh rồi đẩy tag. `build-release.yml` dựng ba nền tảng, tạo pre-release, không đổi Latest của kho, và ghi feed vào nhánh mồ côi `feed/thunghiem`.

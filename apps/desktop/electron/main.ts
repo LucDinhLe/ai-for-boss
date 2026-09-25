@@ -58,6 +58,7 @@ import {
   EDITION_USER_AGENT,
   editionImportCandidates
 } from './edition-identity'
+import { resolveEditionDir, seedEditionIfNeeded } from './edition-seed'
 import {
   isRetryableRemoteBootFailure,
   shouldLatchBackendStartFailure,
@@ -10885,6 +10886,14 @@ async function startHermes() {
     }
 
     const backend = setup.backend
+    // Gói doanh nghiệp AI for Boss (kỹ năng, plugin, SOUL.md, bộ đệm 1 giờ, vai trò):
+    // gieo bằng Python của lõi trước khi backend đọc HERMES_HOME. Hỏng không chặn khởi động.
+    await seedEditionIfNeeded({
+      backend,
+      editionDir: resolveEditionDir(IS_PACKAGED, process.resourcesPath, APP_ROOT),
+      hermesHome: HERMES_HOME,
+      log: rememberLog
+    })
     // Route old runtimes (no `serve`) through the legacy `dashboard --no-open`.
     backend.args = getBackendArgsForRuntime(backend)
     const hermesCwd = resolveHermesCwd()

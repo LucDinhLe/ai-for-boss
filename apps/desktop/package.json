@@ -197,7 +197,7 @@
         ]
       }
     ],
-    "artifactName": "AI-for-Boss-${version}-${os}-${arch}.${ext}",
+    "artifactName": "Hermes-${version}-${os}-${arch}.${ext}",
     "icon": "assets/icon",
     "publish": [
       {
@@ -238,6 +238,16 @@
       {
         "from": "build/hermes-connector-trust.json",
         "to": "hermes-connector-trust.json"
+      },
+      {
+        "from": "edition",
+        "to": "edition",
+        "filter": [
+          "**/*",
+          "!**/__pycache__/**",
+          "!**/*.pyc",
+          "!tests/**"
+        ]
       }
     ],
     "asar": true,
