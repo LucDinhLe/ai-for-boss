@@ -64,6 +64,11 @@ const RULES: Rule[] = [
   { match: /paste .*api key|enter .*api key|api key:/, title: "Nhập API key", message: "Nhập API key do nhà cung cấp cấp cho bạn. API key khác mật khẩu tài khoản; không gửi API key trong ô trò chuyện." },
   { match: /paste .*token|enter .*token|setup-token/, title: "Nhập token xác thực", message: "Nhập token theo hướng dẫn của nhà cung cấp bên dưới. Token khác API key hoặc mật khẩu tài khoản; không gửi token trong ô trò chuyện." },
   {
+    match: /paste .*redirect|redirect url|authorization code/,
+    title: "Đang chờ đăng nhập",
+    message: "Đăng nhập xong trên trình duyệt thì cửa sổ này tự hoàn tất."
+  },
+  {
     match: /open .*browser|sign in with|device code|visit .*to authorize/,
     title: "Đăng nhập trên trình duyệt",
     message: "Làm theo hướng dẫn bên dưới để đăng nhập. Cửa sổ này chờ tới khi bạn xong."
@@ -115,6 +120,7 @@ export const CHROME = {
   moreSignIn: "Thêm cách đăng nhập khác",
   moreDetails: "Ghi chú và cách khác",
   scanning: "Đang dò tài khoản trên máy… có thể mất tới nửa phút.",
+  scanningShort: "Đang dò cách kết nối…",
   loggedInContinue: "Đã đăng nhập xong, tiếp tục",
   waitingLogin: "Đang chờ bạn đăng nhập trên trình duyệt…",
   currentModel: "Đang dùng",

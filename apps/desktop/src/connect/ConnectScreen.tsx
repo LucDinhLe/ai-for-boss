@@ -1,7 +1,6 @@
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { CHROME, credentialLabel, localiseStep, type WizardStep } from "./wizard-vi";
 import BrandIcon from '../BrandIcon';
-import { WorkbenchIcon } from '../WorkspaceSidebar';
 import { FEATURED_FAMILIES, compareProviders, providerFamily, providerLabel } from '../provider-order';
 import { manage, type NativeCatalogue } from '../workbench-api';
 
@@ -90,26 +89,32 @@ function loginStep(step: WizardStep): boolean {
   return Boolean(step.externalUrl || step.deviceCode);
 }
 
-const CONNECTED_STATUSES = ["ok", "static", "expiring"];
-
-function statusLabel(status: string): string {
-  if (status === "expiring") return "sắp hết hạn";
-  if (status === "expired") return "hết hạn, cần đăng nhập lại";
-  if (status === "missing") return "chưa có thông tin đăng nhập";
-  return "";
+/**
+ * The redirect-paste prompt the core raises beside every browser sign-in when it
+ * runs behind a Gateway. The core's own callback listener usually finishes the
+ * sign-in first, so this box is a fallback, never the main road.
+ */
+function redirectPrompt(step: WizardStep): boolean {
+  return step.type === "text" && /redirect url|authorization code|redirect uri/i.test(`${step.title ?? ""} ${step.message ?? ""}`);
 }
 
-export default function ConnectScreen({ onDone, ready = true }: { onDone: () => void; ready?: boolean; initialQuery?: string }) {
+type LoginInfo = { url?: string; code?: string; expiresInMinutes?: number; opened: boolean };
+
+export default function ConnectScreen({ onDone, ready = true, initialQuery }: { onDone: () => void; ready?: boolean; initialQuery?: string }) {
   const [detect, setDetect] = useState<DetectResult | null>(() => cachedDetect);
   const [catalogue, setCatalogue] = useState<NativeCatalogue | null>(null);
-  const [authStatus, setAuthStatus] = useState<AuthStatusProvider[] | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [busy, setBusy] = useState(false);
   /* The Gateway restarts on activation. That pause used to be a blank screen,
      which is where people clicked again and broke a connection that worked. */
   const [restarting, setRestarting] = useState(false);
   /** Which brand the person picked. null means the dialog is still on the picker. */
-  const [family, setFamily] = useState<string | null>(null);
+  // The pencil and the refresh icon on the provider page open the dialog straight
+  // at their provider (spec 0067), so the person never picks it a second time.
+  const [family, setFamily] = useState<string | null>(() => initialQuery ? providerFamily(initialQuery) : null);
+  /** The sign-in page and code of the running login, kept while the core waits on it. */
+  const [login, setLogin] = useState<LoginInfo | null>(null);
+  const [finished, setFinished] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [verdict, setVerdict] = useState<string | null>(null);
   const [answer, setAnswer] = useState("");
@@ -144,15 +149,6 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
   const invalidateDetection = useCallback(() => { ++detectGeneration.current; }, []);
   const invalidateFlow = useCallback(() => { ++generation.current; invalidateDetection(); }, [invalidateDetection]);
 
-  const readAuthStatus = useCallback(async (token: number) => {
-    try {
-      const auth = await setupCall<{ providers?: AuthStatusProvider[] }>("models.authStatus", { refresh: false });
-      if (mounted.current && token === detectGeneration.current) setAuthStatus(auth.providers ?? []);
-    } catch {
-      if (mounted.current && token === detectGeneration.current) setAuthStatus(null);
-    }
-  }, []);
-
   const refreshDetect = useCallback(async () => {
     if (!ready || !mounted.current) return;
     const token = ++detectGeneration.current;
@@ -163,17 +159,15 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
         cachedDetect = result;
         setDetect(result);
         setError(null);
-        // Account state is only meaningful once a route exists; a blank machine
-        // must not spend a second RPC before the user has chosen anything.
-        if (result.setupComplete || result.configuredModel) void readAuthStatus(token);
-        else setAuthStatus(null);
+        // Accounts are listed on the provider page (spec 0067); the dialog does
+        // not spend a second RPC repeating them.
       }
     } catch (caught) {
       if (mounted.current && token === detectGeneration.current) setError(String((caught as Error)?.message ?? caught));
     } finally {
       if (mounted.current && token === detectGeneration.current) setDetectBusy(false);
     }
-  }, [ready, readAuthStatus]);
+  }, [ready]);
 
   useEffect(() => {
     mounted.current = true;
@@ -213,7 +207,7 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
         if (!active) return;
         setSession(null);
         setDetect(null);
-        setAuthStatus(null);
+        setLogin(null);
         setAnswer("");
         setBusy(false);
         setOpeningPage(false);
@@ -222,6 +216,14 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
     }
     return () => { active = false; invalidateDetection(); };
   }, [ready, refreshDetect, invalidateDetection, invalidateFlow, clearPoll]);
+
+  // A clean success closes the dialog by itself once the runner is back, so the
+  // person lands on the provider page and sees the new card (spec 0067).
+  useEffect(() => {
+    if (!finished || !ready) return;
+    const timer = setTimeout(() => { if (mounted.current) onDone(); }, 1500);
+    return () => clearTimeout(timer);
+  }, [finished, ready, onDone]);
 
   /**
    * A terminal activation receipt is a fact about what the Gateway saved, so it
@@ -232,7 +234,8 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
    */
   const showReceipt = useCallback(async (reply: WizardReply) => {
     const modelRef = reply.modelActivation!.modelRef;
-    let receipt = `Đã kết nối ${modelRef}. Bạn có thể bắt đầu trò chuyện; bấm Kiểm tra kết nối nếu muốn chắc chắn mô hình trả lời được.`;
+    let receipt = `Đã kết nối ${modelRef}.`;
+    let ok = true;
     if (reply.modelActivation?.gatewayRestartRequired) setRestarting(true);
     try {
       const auth = await setupCall<{ providers?: AuthStatusProvider[] }>("models.authStatus", { refresh: false });
@@ -240,17 +243,21 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
       const provider = auth.providers?.find((item) => item.provider === modelRef.split("/")[0]);
       if (provider && ["missing", "expired", "error"].includes(provider.status)) {
         receipt = "Thiết lập đã lưu, nhưng tài khoản chưa sẵn sàng. Hãy kiểm tra kết nối hoặc kết nối lại tài khoản.";
+        ok = false;
       }
     } catch {
       if (!mounted.current) return;
       receipt = "Thiết lập đã hoàn tất. Chưa đọc được trạng thái tài khoản; hãy dùng Kiểm tra kết nối trước khi bắt đầu.";
+      ok = false;
     }
     activeSession.current = null;
     setRestarting(false);
     setSession(null);
+    setLogin(null);
     setAnswer("");
     setSecret("");
     setVerdict(receipt);
+    setFinished(ok);
     // Catalogue discovery can be slow; the native activation receipt and
     // credential readback already let the user return to the chat.
     void refreshDetect();
@@ -267,6 +274,7 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
         if (current?.done === true && (current.status === "error" || current.status === "cancelled")) {
           activeSession.current = null;
           setSession(null);
+          setLogin(null);
           setAnswer("");
           setError(current.error ?? (current.status === "cancelled" ? "Đã huỷ trình hướng dẫn." : "Trình hướng dẫn dừng với lỗi."));
           return;
@@ -280,6 +288,28 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
           const initial = Array.isArray(current.step.initialValue) ? current.step.initialValue : [];
           setSelectedOptions((current.step.options ?? []).flatMap((option, index) => initial.some((value) =>
             JSON.stringify(value) === JSON.stringify(option.value)) ? [index] : []));
+          const step: WizardStep = current.step;
+          if (loginStep(step)) {
+            // The person already chose "sign in" with a click, so the page opens by
+            // itself instead of asking for a second click (spec 0067). Only the
+            // session id crosses to the host, which opens only the URL the core sent.
+            let opened = false;
+            if (!acknowledged.has("open:" + step.id)) {
+              acknowledged.add("open:" + step.id);
+              try { opened = Boolean(await window.aiForBoss?.setup.openPage(sessionId)); } catch { opened = false; }
+              if (!isCurrent(token)) return;
+            }
+            setLogin(previous => ({ url: step.externalUrl ?? previous?.url, code: step.deviceCode?.code ?? previous?.code,
+              expiresInMinutes: step.deviceCode?.expiresInMinutes ?? previous?.expiresInMinutes, opened: opened || Boolean(previous?.opened) }));
+            // A login note only waits for "I have seen this". Once the page is open
+            // there is nothing left to see, so the core may go on waiting for the
+            // callback. If the page did not open, the person keeps the manual path.
+            if (opened && (step.type === "note" || step.type === "action") && !acknowledged.has(step.id)) {
+              acknowledged.add(step.id);
+              current = await setupCall<WizardReply>("wizard.next", { sessionId, answer: { stepId: step.id, value: true } });
+              continue;
+            }
+          }
           if (!passiveStep(current.step)) return;
           if (current.step.type === "note" && !acknowledged.has(current.step.id)) {
             // Native informational notes await an acknowledgement; they carry
@@ -329,6 +359,7 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
           setError(String((caught as Error)?.message ?? caught));
           activeSession.current = null;
           setSession(null);
+          setLogin(null);
           setAnswer("");
           void setupCall("wizard.cancel", { sessionId }).catch(() => {});
         }
@@ -391,6 +422,7 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
     setDetectBusy(false);
     setOpeningPage(false);
     setSession(null);
+    setLogin(null);
     setAnswer("");
     setError(null);
     if (sessionId) void setupCall("wizard.cancel", { sessionId }).catch(() => {});
@@ -405,6 +437,14 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
     try {
       const opened = await window.aiForBoss?.setup.openPage(session.sessionId);
       if (isCurrent(token) && !opened) setError("Chưa mở được trang đăng nhập. Bạn có thể sao chép đường dẫn bên dưới vào trình duyệt.");
+      if (isCurrent(token) && opened) {
+        setLogin(previous => previous ? { ...previous, opened: true } : previous);
+        // Same as the automatic path: an open page leaves the login note nothing to wait for.
+        if (session.step.type === "note" || session.step.type === "action") {
+          opening.current = false;
+          void answerStep(true);
+        }
+      }
     } catch {
       if (isCurrent(token)) setError("Chưa mở được trang đăng nhập. Bạn có thể sao chép đường dẫn bên dưới vào trình duyệt.");
     } finally {
@@ -412,59 +452,49 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
     }
   };
 
-  const verify = async () => {
-    if (!ready || inFlight.current) return;
-    const token = ++generation.current;
-    inFlight.current = true;
-    setBusy(true);
-    setVerdict(null);
-    try {
-      const result = await setupCall<{ ok?: boolean; latencyMs?: number; status?: string; error?: string }>(
-        "openclaw.setup.verify",
-        {}
-      );
-      if (!isCurrent(token)) return;
-      setVerdict(
-        result?.ok
-          ? `${CHROME.verified} · ${Math.round(result.latencyMs ?? 0)} ms`
-          : `${CHROME.verifyFailed} · ${result?.status ?? ""} ${result?.error ?? ""}`.trim()
-      );
-      if (result?.ok) onDone();
-    } catch (caught) {
-      if (isCurrent(token)) setVerdict(`${CHROME.verifyFailed} · ${String((caught as Error)?.message ?? caught)}`);
-    } finally {
-      if (isCurrent(token)) { inFlight.current = false; setBusy(false); }
-    }
-  };
-
   if (session) {
     const step = session.step;
     const local = localiseStep(step);
-    const login = loginStep(step);
+    const loginNote = loginStep(step);
+    const fallback = Boolean(login) && redirectPrompt(step);
     const submitText = (event: FormEvent) => {
       event.preventDefault();
       void answerStep(answer);
     };
 
     return (
-      <section className="connect">
+      <div className="connect-modal" role="dialog" aria-modal="true" aria-label={local.title}>
+      <section className="connect connect--dialog">
         <header className="connect__header">
-          <h1>{local.title}</h1>
+          <h1>{login && family ? `Đăng nhập ${providerLabel(family)}` : local.title}</h1>
           <button type="button" onClick={cancel}>
             {CHROME.cancel}
           </button>
         </header>
 
-        {local.recognised ? <p className="connect__lead">{local.message}</p> : null}
+        {login ? <div className="connect__waiting" role="status">
+          <strong>{login.opened ? "Trang đăng nhập đã mở trong trình duyệt" : "Mở trang đăng nhập để tiếp tục"}</strong>
+          <p>{login.opened ? "Đăng nhập xong trên trình duyệt, cửa sổ này tự hoàn tất. Anh chị không cần bấm gì thêm."
+            : "Trình duyệt chưa tự mở. Bấm Mở trang đăng nhập bên dưới."}</p>
+          {login.code ? <p className="connect__code">Mã đăng nhập <span className="connect__code-value">{login.code}</span>
+            {login.expiresInMinutes ? <small>hiệu lực {login.expiresInMinutes} phút</small> : null}</p> : null}
+          {login.url ? <details className="connect__more"><summary>Trình duyệt không tự mở?</summary>
+            <p>Sao chép đường dẫn dưới đây và dán vào trình duyệt.</p><pre>{login.url}</pre></details> : null}
+          {login.opened && !fallback ? <progress aria-label="Đang chờ đăng nhập" /> : null}
+        </div> : null}
 
-        {step.message ? (
+        {!login && local.recognised ? <p className="connect__lead">{local.message}</p> : null}
+        {fallback ? <p className="connect__hint">Chỉ khi trình duyệt báo lỗi sau lúc đăng nhập: sao chép địa chỉ trên thanh
+          trình duyệt rồi dán vào ô dưới.</p> : null}
+
+        {step.message && !login ? (
           <div className={local.recognised ? "connect__origin" : "connect__origin connect__origin--primary"}>
             {local.recognised ? null : <p className="connect__note">{CHROME.unrecognised}</p>}
             <pre>{step.message}</pre>
           </div>
         ) : null}
 
-        {step.externalUrl ? (
+        {step.externalUrl && !login?.opened ? (
           <div className="connect__origin connect__login">
             <button type="button" className="connect__primary" disabled={!ready || busy || openingPage} onClick={() => void openPage()}>
               {CHROME.openSignInPage}
@@ -473,7 +503,7 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
             <pre>{step.externalUrl}</pre>
           </div>
         ) : null}
-        {step.deviceCode ? (
+        {step.deviceCode && !login ? (
           <div className="connect__origin">
             <p>Mã đăng nhập: <strong>{step.deviceCode.code}</strong></p>
             {step.deviceCode.message ? <p>{step.deviceCode.message}</p> : null}
@@ -519,8 +549,9 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
               type={step.sensitive ? "password" : "text"}
               value={answer}
               placeholder={step.placeholder ?? ""}
+              aria-label={fallback ? "Địa chỉ trên thanh trình duyệt" : undefined}
               onChange={(event) => setAnswer(event.target.value)}
-              autoFocus
+              autoFocus={!fallback}
             />
             <button type="submit" disabled={!ready || busy || answer.trim().length === 0}>
               {CHROME.continue}
@@ -539,17 +570,18 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
           </div>
         ) : null}
 
-        {passiveStep(step) ? <p role="status">{step.type === "progress" && !step.message && !local.recognised ? CHROME.waitingLogin : CHROME.working}</p> : null}
-        {(step.type === "note" || step.type === "action") && !passiveStep(step) ? (
+        {passiveStep(step) && !login ? <p role="status">{step.type === "progress" && !step.message && !local.recognised ? CHROME.waitingLogin : CHROME.working}</p> : null}
+        {(step.type === "note" || step.type === "action") && !passiveStep(step) && !login?.opened ? (
           <div className="connect__options connect__options--row">
             <button type="button" disabled={!ready || busy} onClick={() => void answerStep(true)}>
-              {busy ? CHROME.working : login ? CHROME.loggedInContinue : CHROME.continue}
+              {busy ? CHROME.working : loginNote ? CHROME.loggedInContinue : CHROME.continue}
             </button>
           </div>
         ) : null}
 
         {error ? <p className="connect__error">{error}</p> : null}
       </section>
+      </div>
     );
   }
 
@@ -591,19 +623,16 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
   const featuredFamilies = FEATURED_FAMILIES.map(id => familyGroups.find(group => group.id === id)
     ?? { id, label: providerLabel(id), brandId: id, signIn: [], candidates: [], keys: [] });
   const restFamilies = familyGroups.filter(group => !FEATURED_FAMILIES.includes(group.id));
-  const chosen = familyGroups.find(group => group.id === family) ?? null;
+  const chosen = familyGroups.find(group => group.id === family)
+    ?? (family && !detect ? { id: family, label: providerLabel(family), brandId: family, signIn: [], candidates: [], keys: [] } : null);
   const keyProvider = chosen ? (chosen.keys.find(provider => provider.id === keyChoice) ?? chosen.keys[0] ?? null) : null;
   const keyFamily = keyProvider ? providerFamily(identity(keyProvider)) : '';
   const hasChoices = candidates.length + authOptions.length + manualProviders.length > 0;
-  const scanning = detectBusy && !detect;
-  // Before the first scan answers, the shipped package list shapes the layout so
-  // the page is never blank. Nothing here is clickable: only the Gateway decides
-  // which of these routes exist on this machine.
-  const placeholderMethods = !detect && !error ? (catalogue?.authMethods ?? []).filter(method => method.scopes.includes('text-inference')) : [];
-  const placeholderSignIn = placeholderMethods.filter(method => method.guidedAuth || method.guidedSecret)
-    .sort((a, b) => compareProviders(a.provider, b.provider)).slice(0, FEATURED_FAMILIES.length);
-  const connectedAccounts = (authStatus ?? []).filter(item => item.status !== 'missing');
-  const currentModel = detect?.configuredModel;
+  // Before the first scan answers, the shipped package list says which brands
+  // this build knows at all. It never authorizes a flow: only the Gateway decides
+  // which routes exist on this machine, and a picked brand waits for that answer.
+  const shipped = new Set((catalogue?.authMethods ?? []).filter(method => method.scopes.includes('text-inference'))
+    .map(method => providerFamily(method.provider)));
   const submitKey = (event: FormEvent) => {
     event.preventDefault();
     if (keyProvider && secret.trim().length > 0) void startWithKey(keyProvider, secret.trim());
@@ -633,38 +662,31 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
         <progress aria-label="Đang khởi động lại bộ chạy" />
       </div> : null}
 
-      {currentModel || connectedAccounts.length > 0 || verdict ? <div className="connect__status" role="status">
-        {currentModel ? <p><strong><WorkbenchIcon name="model" />{CHROME.currentModel}: {currentModel}</strong></p> : null}
-        {connectedAccounts.length > 0 ? <ul className="connect__accounts">{connectedAccounts.map(item => {
-          const ok = CONNECTED_STATUSES.includes(item.status);
-          const note = statusLabel(item.status);
-          return <li key={item.provider} className={ok ? 'connect__account' : 'connect__account connect__account--warn'}>
-            <BrandIcon id={item.provider} label={item.displayName ?? item.provider} />{item.displayName ?? item.provider}{note ? <small> · {note}</small> : null}
-          </li>;
-        })}</ul> : null}
-        {verdict ? <p className="connect__verdict">{verdict}</p> : null}
-        {currentModel ? <p className="connect__hint">Muốn đổi sang tài khoản khác thì chọn một cách kết nối bên dưới; cách mới sẽ thay cho cách hiện tại.</p> : null}
+      {verdict ? <div className={finished ? "connect__status connect__status--ok" : "connect__status"} role="status">
+        <p className="connect__verdict">{verdict}</p>
+        {finished ? <p className="connect__hint">Cửa sổ này tự đóng, tài khoản mới hiện trong trang Nhà cung cấp.</p> : null}
       </div> : null}
 
-      {error ? <p className="connect__error" role="alert">{error} Bạn có thể bấm Tải lại danh sách để thử lại.</p> : null}
-      {detect && !detectBusy && !hasChoices ? <p className="connect__note" role="status">
-        Bộ chạy chưa trả về cách kết nối AI nào. Bấm Tải lại danh sách; nếu vẫn trống, kiểm tra Gateway trong thanh công cụ.</p> : null}
+      {error ? <div className="connect__error" role="alert"><p>{error}</p>
+        <button type="button" onClick={() => void refreshDetect()} disabled={!ready || busy || detectBusy}>{CHROME.refreshCatalogue}</button></div> : null}
+      {detect && !detectBusy && !hasChoices && !error ? <div className="connect__note" role="status"><p>
+        Bộ chạy chưa trả về cách kết nối AI nào. Bấm Tải lại danh sách; nếu vẫn trống, kiểm tra Gateway trong thanh công cụ.</p>
+        <button type="button" onClick={() => void refreshDetect()} disabled={!ready || busy || detectBusy}>{CHROME.refreshCatalogue}</button></div> : null}
 
       {!chosen ? <section className="connect__pick" aria-label="Chọn nhà cung cấp">
-        <p className="connect__hint">Anh chị đang dùng dịch vụ nào? Chọn một cái, bước sau chỉ còn tối đa hai cách.</p>
-        {scanning && placeholderSignIn.length > 0 ? <div className="connect__options connect__options--pending" aria-hidden="true">
-          {placeholderSignIn.map(method => <button key={method.id} type="button" disabled>
-            <strong><BrandIcon id={method.provider} label={method.label} />{method.label}</strong><small>{CHROME.scanning}</small></button>)}
-        </div> : null}
-        {featuredFamilies.length > 0 ? <div className="connect__options">
+        <p className="connect__hint">Chọn nhà cung cấp anh chị đang dùng.</p>
+        {featuredFamilies.length > 0 ? <div className="connect__options connect__options--brands">
           {featuredFamilies.map(group => {
             const routes = group.signIn.length + group.candidates.length + group.keys.length;
-            return <button key={group.id} type="button" disabled={!ready || busy || routes === 0}
+            // Before the scan answers, a brand this build ships can already be
+            // picked: the next step waits for the scan instead of the person.
+            const early = !detect && !error && (shipped.size === 0 || shipped.has(group.id));
+            return <button key={group.id} type="button" disabled={!ready || busy || (routes === 0 && !early)}
               aria-label={group.label} onClick={() => { setFamily(group.id); setError(null); }}>
               <strong><BrandIcon id={group.brandId} label={group.label} />{group.label}</strong>
-              <small>{routes === 0 ? 'Bản lõi này chưa mở đường nối nào cho hãng đó'
-                : group.signIn.length > 0 ? 'Đăng nhập OAuth hoặc dán API key'
-                : group.candidates.length > 0 ? 'Chưa có OAuth — dùng ứng dụng đã đăng nhập trên máy'
+              <small>{routes === 0 ? (early ? CHROME.scanningShort : 'Bản lõi này chưa mở đường nối nào cho hãng đó')
+                : group.signIn.length > 0 ? 'Đăng nhập bằng trình duyệt hoặc dán API key'
+                : group.candidates.length > 0 ? 'Dùng ứng dụng đã đăng nhập trên máy hoặc dán API key'
                 : 'Dán API key'}</small>
             </button>;
           })}
@@ -679,9 +701,8 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
             </button>)}
           </div>
         </details> : null}
-        {/* The scan can take half a minute; saying so beats an empty box. The
-            placeholder cards already say it, so do not say it twice. */}
-        {detectBusy && placeholderSignIn.length === 0 ? <p className="connect__note" role="status">{CHROME.scanning}</p> : null}
+        {/* The scan can take half a minute; saying so beats an empty box. */}
+        {detectBusy ? <p className="connect__note" role="status">{CHROME.scanning}</p> : null}
         {detect && !detectBusy && !hasChoices ? <p className="connect__note">Bộ chạy chưa trả về nhà cung cấp nào.</p> : null}
       </section> : null}
 
@@ -694,11 +715,22 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
         {/* Two ways in, no more: sign in, or paste a key. Where the core opens no
             browser sign-in for this brand — Antigravity, for one — the app already
             signed in on this machine takes that slot instead of leaving a gap. */}
-        <p className="connect__hint">{chosen.signIn.length > 0
+        {!detect ? <p className="connect__note" role="status">{CHROME.scanning} Cách kết nối hiện ra ngay khi dò xong.</p>
+          : <p className="connect__hint">{chosen.signIn.length > 0
           ? 'Hai cách: đăng nhập OAuth, hoặc dán API key.'
           : chosen.candidates.length > 0
             ? 'Hãng này không có đăng nhập OAuth. Dùng ứng dụng đã đăng nhập sẵn trên máy, hoặc dán API key.'
-            : 'Hãng này chỉ nhận API key.'}</p>
+            : chosen.keys.length > 0 ? 'Hãng này chỉ nhận API key.' : 'Bản lõi này chưa mở đường nối nào cho hãng đó.'}</p>}
+
+        {chosen.signIn.length > 0 ? <div className="connect__options connect__options--primary">
+          {chosen.signIn.map(option => <button key={option.id} type="button" disabled={!ready || busy}
+            aria-label={chosen.signIn.length > 1 ? `Đăng nhập OAuth — ${option.label}` : 'Đăng nhập OAuth'}
+            onClick={() => void startGuided(option)}>
+            <strong><BrandIcon id={option.brandId || option.id} label={option.label} />Đăng nhập OAuth</strong>
+            <small>{option.kind === 'device-code' ? 'Mã thiết bị' : 'Mở trang của hãng'}{option.hint ? ` · ${option.hint}` : ''}
+              {chosen.signIn.length > 1 ? ` · ${option.label}` : ''}</small>
+          </button>)}
+        </div> : null}
 
         {chosen.candidates.length > 0 ? <div className="connect__options">
           {chosen.candidates.map(candidate => <button key={candidate.kind + candidate.modelRef + candidate.label}
@@ -711,17 +743,8 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
           </button>)}
         </div> : null}
 
-        {chosen.signIn.length > 0 ? <div className="connect__options">
-          {chosen.signIn.map(option => <button key={option.id} type="button" disabled={!ready || busy}
-            aria-label={chosen.signIn.length > 1 ? `Đăng nhập OAuth — ${option.label}` : 'Đăng nhập OAuth'}
-            onClick={() => void startGuided(option)}>
-            <strong><BrandIcon id={option.brandId || option.id} label={option.label} />Đăng nhập OAuth</strong>
-            <small>{option.kind === 'device-code' ? 'Mã thiết bị' : 'Mở trang của hãng'}{option.hint ? ` · ${option.hint}` : ''}
-              {chosen.signIn.length > 1 ? ` · ${option.label}` : ''}</small>
-          </button>)}
-        </div> : null}
-
         {chosen.keys.length > 0 && keyProvider ? <>
+          {chosen.signIn.length + chosen.candidates.length > 0 ? <p className="connect__or">Hoặc dán API key</p> : null}
           <form className="connect__form" onSubmit={submitKey}>
             {chosen.keys.length > 1 ? <select aria-label="Cách dán khoá" value={keyProvider.id} disabled={!ready || busy}
               onChange={event => { setKeyChoice(event.target.value); setSecret(''); setError(null); }}>
@@ -759,15 +782,6 @@ export default function ConnectScreen({ onDone, ready = true }: { onDone: () => 
           </div>)}
         </details> : null}
       </section> : null}
-
-      <div className="connect__footer">
-        <button type="button" onClick={() => void refreshDetect()} disabled={!ready || busy || detectBusy}>
-          {CHROME.refreshCatalogue}
-        </button>
-        <button type="button" onClick={verify} disabled={!ready || busy || detectBusy}>
-          {busy ? CHROME.verifying : CHROME.checkNow}
-        </button>
-      </div>
 
     </section>
     </div>

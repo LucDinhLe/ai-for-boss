@@ -34,6 +34,8 @@ export type AccountRow = {
   health: { tone: "ok" | "warn" | "error" | "muted"; label: string };
   primary: boolean;
   canLogout: boolean;
+  /** The sign-in address when the core knows it for certain, shown after the kind. */
+  email: string | null;
 };
 export type ProviderCard = {
   provider: string;
@@ -45,6 +47,11 @@ export type ProviderCard = {
   /** Reordering only means something once a provider has two or more accounts. */
   canReorder: boolean;
   modelCount: number;
+  /**
+   * One pill for the whole card, the way the Product Owner's reference screen
+   * reads: what kind of connection it is, and whether it works right now.
+   */
+  pill: { tone: "ok" | "warn" | "error" | "muted"; label: string };
 };
 
 const PROVIDER_TONE: Record<string, { tone: ProviderCard["headline"]["tone"]; label: string }> = {
@@ -75,7 +82,7 @@ const KIND: Record<AuthProfile["type"], AccountRow["kind"]> = {
  */
 export function accountName(profileId: string): string | null {
   const tail = profileId.includes(":") ? profileId.slice(profileId.indexOf(":") + 1) : profileId;
-  if (!tail || /^setup-[0-9a-f-]{8,}$/i.test(tail) || /^[0-9a-f-]{16,}$/i.test(tail)) return null;
+  if (!tail || tail === "default" || /^setup-[0-9a-f-]{8,}$/i.test(tail) || /^[0-9a-f-]{16,}$/i.test(tail)) return null;
   return tail;
 }
 
@@ -90,6 +97,20 @@ export function orderProfiles(profiles: AuthProfile[], order: string[] | undefin
   const ordered = order.map(id => byId.get(id)).filter((profile): profile is AuthProfile => Boolean(profile));
   const seen = new Set(ordered.map(profile => profile.profileId));
   return [...ordered, ...profiles.filter(profile => !seen.has(profile.profileId))];
+}
+
+const PILL_STATE: Record<string, { tone: ProviderCard["pill"]["tone"]; label: string }> = {
+  ok: { tone: "ok", label: "đang hoạt động" },
+  static: { tone: "ok", label: "đang hoạt động" },
+  expiring: { tone: "warn", label: "sắp hết hạn" },
+  expired: { tone: "error", label: "hết hạn, cần đăng nhập lại" },
+  missing: { tone: "muted", label: "chưa dùng được" }
+};
+
+/** "OAuth đang hoạt động", "API key sắp hết hạn", "Ứng dụng trên máy đang hoạt động". */
+export function providerPill(status: string, kind: AccountRow["kind"]): ProviderCard["pill"] {
+  const state = PILL_STATE[status] ?? { tone: "muted" as const, label: status };
+  return { tone: state.tone, label: `${kind} ${state.label}` };
 }
 
 export function providerCards(providers: AuthProvider[], options: {
@@ -111,6 +132,10 @@ export function providerCards(providers: AuthProvider[], options: {
       const headline = PROVIDER_TONE[entry.status] ?? { tone: "muted" as const, label: entry.status };
       const expiry = entry.expiry?.label;
       const usage = [entry.usage?.plan, entry.usage?.summary].filter(Boolean).join(" · ") || null;
+      // The core's usage email belongs to the provider, so it may only name a row
+      // when there is exactly one row it could belong to.
+      const soleEmail = ordered.length === 1 ? entry.usage?.accountEmail ?? null : null;
+      const leadKind: AccountRow["kind"] = ordered.length ? KIND[ordered[0].type] ?? "OAuth" : "Ứng dụng trên máy";
       return {
         provider: entry.provider,
         label,
@@ -124,12 +149,14 @@ export function providerCards(providers: AuthProvider[], options: {
             kind: KIND[profile.type] ?? "Đăng nhập tài khoản",
             health: { tone: health.tone, label: profile.expiry?.label ? `${health.label} · còn ${profile.expiry.label}` : health.label },
             primary: index === 0,
-            canLogout: profile.logoutSupported === true
+            canLogout: profile.logoutSupported === true,
+            email: accountName(profile.profileId)?.includes("@") ? accountName(profile.profileId) : soleEmail
           };
         }),
         usage,
         canReorder: ordered.length > 1,
-        modelCount: options.modelCounts?.[entry.provider] ?? 0
+        modelCount: options.modelCounts?.[entry.provider] ?? 0,
+        pill: providerPill(entry.status, leadKind)
       };
     })
     .sort((a, b) => compareProviders(a.provider, b.provider));

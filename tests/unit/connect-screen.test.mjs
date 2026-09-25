@@ -69,7 +69,7 @@ const catalogue = { candidates: [], manualProviders: [], authOptions: [
   { id: "synthetic-device", label: "Native device", kind: "device-code", featured: false }
 ], workspace: "synthetic", setupComplete: false };
 
-function harness(request = async () => catalogue, initialProps = {}, readCatalogue = async () => ({ providers: [] })) {
+function harness(request = async () => catalogue, initialProps = {}, readCatalogue = async () => ({ providers: [] }), { pageOpens = true } = {}) {
   const slots = [], effects = [], requests = [], catalogueRequests = [], openedPages = [], timers = new Map();
   let cursor = 0, tree, id = 0, timerId = 0, done = 0;
   let props = { ready: true, onDone: () => { done++; }, ...initialProps };
@@ -111,7 +111,7 @@ function harness(request = async () => catalogue, initialProps = {}, readCatalog
     assert.equal(validators[method]?.(call.params), true, "public protocol rejects " + method);
     requests.push(call);
     return request(method, call.params);
-  }, openPage: async (...args) => { openedPages.push(copy(args)); return true; } } } }, crypto: { randomUUID: () => "synthetic-session-" + ++id },
+  }, openPage: async (...args) => { openedPages.push(copy(args)); return pageOpens; } } } }, crypto: { randomUUID: () => "synthetic-session-" + ++id },
   setTimeout: (callback) => { timers.set(++timerId, callback); return timerId; },
   clearTimeout: (timer) => timers.delete(timer), Date }).default;
   const render = () => { cursor = 0; tree = Component(props); while (effects.length) effects.shift()(); return tree; };
@@ -155,22 +155,25 @@ test("native auth options remain distinct from API-key choices, sensitive text p
   assert.equal(h.requests.some((item) => item.method === "openclaw.setup.verify"), false);
 });
 
-test("device URLs and codes are visible, and a multiselect submits an array only on Continue", async () => {
+test("the sign-in page opens by itself once chosen, its code stays visible, and a multiselect still waits for Continue", async () => {
   const h = harness(async (method) => method === "openclaw.setup.auth.start" ? { step: {
     id: "pick", type: "multiselect", externalUrl: "https://synthetic.example/authorize", deviceCode: { code: "TEST-CODE" },
     initialValue: ["b"], options: [{ label: "First", value: "a" }, { label: "Second", value: "b" }]
   } } : method === "wizard.next" ? { done: true } : catalogue);
-  await h.flush(); await enter(h, 'Native device');
-  assert.match(h.text(), /https:\/\/synthetic\.example\/authorize/);
-  assert.match(h.text(), /TEST-CODE/);
-  assert.equal(h.openedPages.length, 0, "receiving a native URL does not open a browser");
-  h.button("Mở trang đăng nhập").props.onClick(); await h.flush();
-  assert.deepEqual(h.openedPages, [["synthetic-session-1"]], "only the session id crosses the narrow browser handoff");
+  await h.flush();
+  assert.equal(h.openedPages.length, 0, "rendering the dialog opens nothing");
+  await enter(h, 'Native device');
+  // Spec 0067: the person already chose "sign in" with a click; a second click
+  // on "open the page" was the friction. Only the session id crosses to the host.
+  assert.deepEqual(h.openedPages, [["synthetic-session-1"]], "the page opens once, through the narrow handoff");
+  assert.match(h.text(), /Trang đăng nhập đã mở trong trình duyệt/);
+  assert.match(h.text(), /TEST-CODE/, "the code stays on screen while the core waits");
+  assert.match(h.text(), /https:\/\/synthetic\.example\/authorize/, "and the address is there if the browser did not open");
   const boxes = h.nodes().filter((node) => node.type === "input" && node.props.type === "checkbox");
   assert.equal(boxes.length, 2);
   assert.equal(boxes[1].props.checked, true);
   boxes[0].props.onChange(); h.render();
-  assert.equal(h.requests.some((item) => item.method === "wizard.next"), false);
+  assert.equal(h.requests.some((item) => item.method === "wizard.next"), false, "a real question is never answered for the person");
   h.button("Tiếp tục").props.onClick(); await h.flush();
   assert.deepEqual(h.requests.find((item) => item.method === "wizard.next").params.answer.value, ["a", "b"]);
 });
@@ -295,23 +298,52 @@ test("gateway progress advances without Continue or answers and only a terminal 
   assert.equal(h.requests.some(call => call.method === 'openclaw.setup.verify'), false);
 });
 
-test("informational notes acknowledge once while login notes and client actions require the user", async () => {
+test("informational notes acknowledge once, and a login note is acknowledged once its page is open", async () => {
   let next = 0;
+  const login = { id: 'login', type: 'note', executor: 'client', externalUrl: 'https://synthetic.example/login', deviceCode: { code: 'TEST' } };
   const h = harness(async method => {
     if (method === 'openclaw.setup.auth.start') return { done: false, status: 'running', step: { id: 'info', type: 'note', executor: 'client', message: 'Preparing sign-in' } };
     if (method === 'wizard.next') return ++next === 1
       ? { done: false, status: 'running', step: { id: 'info', type: 'note', executor: 'client', message: 'Preparing sign-in' } }
-      : { done: false, status: 'running', step: { id: 'login', type: 'note', executor: 'client', externalUrl: 'https://synthetic.example/login', deviceCode: { code: 'TEST' } } };
+      : next === 2 ? { done: false, status: 'running', step: login }
+      : { done: false, status: 'running', step: { id: 'wait', type: 'progress', executor: 'gateway', message: 'Waiting for callback' } };
     return catalogue;
   });
   await h.flush(); await enter(h, 'Native browser');
-  assert.equal(h.requests.filter(call => call.params.answer).length, 1);
+  assert.equal(h.requests.filter(call => call.params.answer).length, 1, 'the information note is acknowledged once');
   await h.tick(); await h.flush();
-  assert.ok(h.button('Đã đăng nhập xong, tiếp tục'), 'a login note names the action instead of a bare Continue');
-  assert.equal(h.button('Tiếp tục'), undefined);
-  assert.ok(h.button('Mở trang đăng nhập'));
-  assert.equal(h.openedPages.length, 0);
-  assert.equal(h.requests.filter(call => call.params.answer).length, 1);
+  assert.deepEqual(h.openedPages, [['synthetic-session-1']], 'the login page opened by itself');
+  assert.deepEqual(h.requests.filter(call => call.params.answer).map(call => call.params.answer), [
+    { stepId: 'info', value: true }, { stepId: 'login', value: true }], 'and only then was the login note acknowledged, once');
+  assert.match(h.text(), /cửa sổ này tự hoàn tất/, 'the person is told there is nothing left to click');
+  assert.match(h.text(), /TEST/, 'the device code outlives its note');
+  assert.equal(h.button('Đã đăng nhập xong, tiếp tục'), undefined, 'no second click is asked for');
+  h.dispose();
+});
+
+test("when the page cannot open, the login note keeps the manual path and is not acknowledged", async () => {
+  const h = harness(async method => method === 'openclaw.setup.auth.start'
+    ? { done: false, status: 'running', step: { id: 'login', type: 'note', executor: 'client', externalUrl: 'https://synthetic.example/login' } }
+    : catalogue, {}, undefined, { pageOpens: false });
+  await h.flush(); await enter(h, 'Native browser');
+  assert.equal(h.requests.some(call => call.params.answer), false, 'nothing is acknowledged behind a page that never opened');
+  assert.ok(h.button('Mở trang đăng nhập'), 'the manual button is still there');
+  assert.ok(h.button('Đã đăng nhập xong, tiếp tục'));
+  assert.match(h.text(), /Trình duyệt chưa tự mở/);
+  h.dispose();
+});
+
+test("the redirect-paste prompt the core raises beside a browser sign-in is a fallback, not the main road", async () => {
+  const h = harness(async method => method === 'openclaw.setup.auth.start'
+    ? { done: false, status: 'running', step: { id: 'login', type: 'note', executor: 'client', externalUrl: 'https://synthetic.example/login' } }
+    : method === 'wizard.next' ? { done: false, status: 'running', step: { id: 'paste', type: 'text', executor: 'client', message: 'Paste the authorization code (or full redirect URL):' } }
+    : catalogue);
+  await h.flush(); await enter(h, 'Native browser'); await h.flush();
+  const input = h.nodes().find(node => node.type === 'input');
+  assert.equal(input.props['aria-label'], 'Địa chỉ trên thanh trình duyệt');
+  assert.equal(input.props.autoFocus, false, 'the box does not grab focus as if it were required');
+  assert.match(h.text(), /Chỉ khi trình duyệt báo lỗi/);
+  assert.match(h.text(), /cửa sổ này tự hoàn tất/);
   h.dispose();
 });
 
@@ -442,7 +474,7 @@ test('native secret choices distinguish API keys from tokens and never submit on
   }
 });
 
-test('the shipped package list shapes the page before a slow account scan without offering anything clickable', async () => {
+test('a brand this build ships can be picked before the slow scan answers, and the flow waits for the scan', async () => {
   let resolveDetection;
   const methods = [
     { id: 'gemini-api-key', provider: 'google', method: 'api-key', label: 'Gemini API key', hint: '', pluginId: 'google', docsPath: '', guidedSecret: true, guidedAuth: null, discovery: false, manualOnly: false, scopes: ['text-inference'] },
@@ -452,16 +484,38 @@ test('the shipped package list shapes the page before a slow account scan withou
   const h = harness(() => new Promise(resolve => { resolveDetection = resolve; }), {}, async () => ({ version: 'fixture', providers: [], authMethods: methods }));
   await h.flush();
   assert.match(h.text(), /Đang dò tài khoản trên máy/);
-  assert.match(h.text(), /ChatGPT sign-in/); assert.match(h.text(), /Gemini API key/);
-  assert.doesNotMatch(h.text(), /fal image key/, 'non-chat methods never appear');
-  assert.ok(h.nodes().filter(node => node.type === 'button' && !['Để sau', 'Tải lại danh sách', 'Kiểm tra kết nối'].includes(h.text(node)))
-    .every(node => node.props.disabled === true), 'placeholders cannot start a flow');
+  assert.equal(h.button('ChatGPT / OpenAI').props.disabled, false, 'a shipped brand does not wait for the scan to be picked');
+  assert.equal(h.button('Claude / Anthropic').props.disabled, true, 'a brand this build never ships stays dim');
   assert.deepEqual(h.catalogueRequests, [{ action: 'catalog' }]);
-  assert.deepEqual(h.requests.map(call => call.method), ['openclaw.setup.detect']);
-  resolveDetection({ ...catalogue, authOptions: [{ id: 'synthetic-oauth', label: 'Synthetic account', kind: 'oauth', featured: true }] });
+  h.button('ChatGPT / OpenAI').props.onClick(); await h.flush();
+  assert.match(h.text(), /Cách kết nối hiện ra ngay khi dò xong/, 'the picked brand says it is waiting');
+  assert.deepEqual(h.requests.map(call => call.method), ['openclaw.setup.detect'], 'and nothing starts before the core answers');
+  resolveDetection({ ...catalogue, authOptions: [{ id: 'openai-oauth', brandId: 'openai', label: 'ChatGPT', kind: 'oauth', featured: true }] });
   await h.flush();
-  assert.ok(h.button('Synthetic account'));
-  assert.doesNotMatch(h.text(), /ChatGPT sign-in|Đang dò tài khoản/, 'live choices replace the package-only placeholders');
+  assert.ok(h.button('Đăng nhập OAuth'), 'the live route appears in place, no second pick');
+  h.dispose();
+});
+
+test('the provider page can open the dialog straight at a brand', async () => {
+  const h = harness(async () => ({ ...catalogue, authOptions: [{ id: 'xai-oauth', brandId: 'xai', label: 'Grok', kind: 'device-code', featured: true }] }),
+    { initialQuery: 'xai' });
+  await h.flush();
+  assert.ok(h.button('Đăng nhập OAuth'), 'the pencil on a card lands on that card\'s two ways in');
+  assert.match(h.text(), /Grok \/ xAI/);
+  h.dispose();
+});
+
+test('a clean connection closes the dialog by itself once the runner is back', async () => {
+  const h = harness(async method => {
+    if (method === 'openclaw.setup.auth.start') return { done: true, status: 'done', modelActivation: { modelRef: 'synthetic/model' } };
+    if (method === 'models.authStatus') return { providers: [{ provider: 'synthetic', status: 'ok' }] };
+    return catalogue;
+  });
+  await h.flush(); await enter(h, 'Native browser'); await h.flush();
+  assert.match(h.text(), /Đã kết nối synthetic\/model/);
+  assert.equal(h.done(), 0, 'the receipt is shown first');
+  await h.tick();
+  assert.equal(h.done(), 1, 'then the dialog closes without another click');
   h.dispose();
 });
 
@@ -548,16 +602,12 @@ test('an empty kind shows no lid at all (0063)', async () => {
   h.dispose();
 });
 
-test('a configured route shows what is in use, and account health comes from the Gateway', async () => {
-  const h = harness(async method => method === 'models.authStatus'
-    ? { providers: [{ provider: 'openai-codex', displayName: 'OpenAI Codex', status: 'ok' }, { provider: 'anthropic', displayName: 'Anthropic', status: 'expired' }, { provider: 'google', status: 'missing' }] }
-    : { ...catalogue, setupComplete: true, configuredModel: 'openai-codex/gpt-5.4' });
+test('the dialog does not repeat the account list the provider page already shows (0067)', async () => {
+  const h = harness(async () => ({ ...catalogue, setupComplete: true, configuredModel: 'openai-codex/gpt-5.4' }));
   await h.flush(); await h.flush();
-  assert.match(h.text(), /Đang dùng: openai-codex\/gpt-5\.4/);
-  assert.match(h.text(), /OpenAI Codex/); assert.match(h.text(), /Anthropic · hết hạn, cần đăng nhập lại/);
-  assert.doesNotMatch(h.text(), /chưa có thông tin đăng nhập/, 'providers without any credential are not listed as accounts');
+  assert.doesNotMatch(h.text(), /Đang dùng: openai-codex/);
   assert.ok(h.button('Xong'));
-  assert.deepEqual(h.requests.map(call => call.method), ['openclaw.setup.detect', 'models.authStatus']);
+  assert.deepEqual(h.requests.map(call => call.method), ['openclaw.setup.detect'], 'one RPC to open, not two');
   h.dispose();
 });
 
