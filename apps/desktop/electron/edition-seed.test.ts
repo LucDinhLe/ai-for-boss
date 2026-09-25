@@ -22,6 +22,7 @@ function fakeSpawn(code: number, stdout: string) {
     const child: any = new EventEmitter()
     child.stdout = new EventEmitter()
     child.stderr = new EventEmitter()
+
     child.kill = () => {}
     setImmediate(() => {
       child.stdout.emit('data', Buffer.from(stdout))

@@ -48,18 +48,6 @@ import {
 } from './backend-probes'
 import { waitForDashboardPortAnnouncement } from './backend-ready'
 import {
-  EDITION_AUMID,
-  EDITION_DISPLAY_NAME,
-  EDITION_HOME_DIR_POSIX,
-  EDITION_HOME_DIR_WINDOWS,
-  EDITION_HOME_ENV,
-  EDITION_PROTOCOL,
-  EDITION_UPDATE_REPO,
-  EDITION_USER_AGENT,
-  editionImportCandidates
-} from './edition-identity'
-import { resolveEditionDir, seedEditionIfNeeded } from './edition-seed'
-import {
   isRetryableRemoteBootFailure,
   shouldLatchBackendStartFailure,
   shouldLatchRemoteReauthFailure
@@ -155,6 +143,18 @@ import {
   WINDOWS_NSIS_APP_KEY
 } from './desktop-uninstall'
 import { describeDevCdpDecision, resolveDevCdpPort } from './dev-cdp'
+import {
+  EDITION_AUMID,
+  EDITION_DISPLAY_NAME,
+  EDITION_HOME_DIR_POSIX,
+  EDITION_HOME_DIR_WINDOWS,
+  EDITION_HOME_ENV,
+  EDITION_PROTOCOL,
+  EDITION_UPDATE_REPO,
+  EDITION_USER_AGENT,
+  editionImportCandidates
+} from './edition-identity'
+import { resolveEditionDir, seedEditionIfNeeded } from './edition-seed'
 import { installEmbedReferer } from './embed-referer'
 import { createEventDeduper } from './event-dedupe'
 import {
