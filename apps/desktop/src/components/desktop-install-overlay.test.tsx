@@ -99,7 +99,7 @@ describe('DesktopInstallOverlay first-run setup', () => {
 
     render(<DesktopInstallOverlay />)
 
-    expect(await screen.findByText('Set up Hermes Vietnamese')).toBeTruthy()
+    expect(await screen.findByText('Set up AI for Boss')).toBeTruthy()
     expect(screen.getByText('Connect to existing Hermes')).toBeTruthy()
     expect(screen.getByText('Install Hermes locally')).toBeTruthy()
     expect(screen.queryByText(/steps complete/i)).toBeNull()
@@ -118,13 +118,13 @@ describe('DesktopInstallOverlay first-run setup', () => {
     fireEvent.click(await screen.findByText('Install Hermes locally'))
 
     expect(desktop.continueBootstrapLocal).toHaveBeenCalledTimes(1)
-    expect(screen.getByText('Set up Hermes Vietnamese')).toBeTruthy()
+    expect(screen.getByText('Set up AI for Boss')).toBeTruthy()
 
     act(() => {
       desktop.emitBootstrapEvent({ type: 'manifest', protocolVersion: 1, stages: [] })
     })
 
-    await waitFor(() => expect(screen.queryByText('Set up Hermes Vietnamese')).toBeNull())
+    await waitFor(() => expect(screen.queryByText('Set up AI for Boss')).toBeNull())
     expect(screen.getByText(/Fetching installer manifest/i)).toBeTruthy()
   })
 
@@ -142,7 +142,7 @@ describe('DesktopInstallOverlay first-run setup', () => {
     fireEvent.click(install)
 
     expect(
-      await screen.findByText('Local installation could not start. Restart Hermes Vietnamese and try again.')
+      await screen.findByText('Local installation could not start. Restart AI for Boss and try again.')
     ).toBeTruthy()
     expect(install.disabled).toBe(false)
   })
@@ -168,7 +168,7 @@ describe('DesktopInstallOverlay first-run setup', () => {
     })
 
     expect(
-      screen.queryByText('Local installation could not start. Restart Hermes Vietnamese and try again.')
+      screen.queryByText('Local installation could not start. Restart AI for Boss and try again.')
     ).toBeTruthy()
   })
 
@@ -184,7 +184,7 @@ describe('DesktopInstallOverlay first-run setup', () => {
 
     fireEvent.click((await screen.findByText('Install Hermes locally')).closest('button') as HTMLButtonElement)
     expect(
-      await screen.findByText('Local installation could not start. Restart Hermes Vietnamese and try again.')
+      await screen.findByText('Local installation could not start. Restart AI for Boss and try again.')
     ).toBeTruthy()
 
     act(() => {
@@ -197,7 +197,7 @@ describe('DesktopInstallOverlay first-run setup', () => {
     })
 
     expect(
-      screen.queryByText('Local installation could not start. Restart Hermes Vietnamese and try again.')
+      screen.queryByText('Local installation could not start. Restart AI for Boss and try again.')
     ).toBeNull()
   })
 
@@ -231,7 +231,7 @@ describe('DesktopInstallOverlay first-run setup', () => {
 
     fireEvent.click(screen.getByText('Back'))
 
-    expect(await screen.findByText('Set up Hermes Vietnamese')).toBeTruthy()
+    expect(await screen.findByText('Set up AI for Boss')).toBeTruthy()
     expect(screen.getByText('Install Hermes locally')).toBeTruthy()
   })
 

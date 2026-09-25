@@ -163,7 +163,7 @@ describe('reportBackendContract', () => {
     setRemote(false)
     reportBackendContract(1)
     expect(lastToast().action).toBeUndefined()
-    expect(lastToast().message).toMatch(/Install the latest Hermes Vietnamese release/)
+    expect(lastToast().message).toMatch(/Install the latest AI for Boss release/)
     expect(updateHermesSpy).not.toHaveBeenCalled()
   })
 

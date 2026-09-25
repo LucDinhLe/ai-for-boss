@@ -141,7 +141,7 @@ export function waitForLoopbackCode(opts: LoopbackCodeOptions): Promise<{ code: 
         return
       }
 
-      res.end('<p style="font-family:sans-serif">Đã đăng nhập Google cho Hermes Vietnamese. Bạn có thể đóng cửa sổ này và quay lại ứng dụng.</p>')
+      res.end('<p style="font-family:sans-serif">Đã đăng nhập Google cho AI for Boss. Bạn có thể đóng cửa sổ này và quay lại ứng dụng.</p>')
       finish(null, gotCode)
     })
 

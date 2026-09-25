@@ -17,7 +17,7 @@ describe('Intro locale', () => {
 
     expect(
       screen.getByText(
-        'Nhập một nhiệm vụ, câu hỏi hoặc đoạn mã. Hermes Vietnamese ghi nhớ phiên làm việc, dẫn nguồn và sẽ hỏi lại khi chưa chắc chắn.'
+        'Nhập một nhiệm vụ, câu hỏi hoặc đoạn mã. AI for Boss ghi nhớ phiên làm việc, dẫn nguồn và sẽ hỏi lại khi chưa chắc chắn.'
       )
     ).toBeTruthy()
     expect(screen.getByLabelText('HERMES VIETNAMESE')).toBeTruthy()

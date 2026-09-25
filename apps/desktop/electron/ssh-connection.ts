@@ -36,6 +36,8 @@ import net from 'node:net'
 import os from 'node:os'
 import path from 'node:path'
 
+import { EDITION_HOME_DIR_POSIX } from './edition-identity'
+
 const DEFAULT_CONNECT_TIMEOUT_MS = 15_000
 const DEFAULT_EXEC_TIMEOUT_MS = 20_000
 const DEFAULT_FORWARD_TIMEOUT_MS = 15_000
@@ -188,7 +190,7 @@ function defaultControlDir() {
     return path.join(os.tmpdir(), 'hermes-desktop-ssh')
   }
 
-  return path.join(os.homedir(), '.hermes-vietnamese', 'desktop-ssh')
+  return path.join(os.homedir(), EDITION_HOME_DIR_POSIX, 'desktop-ssh')
 }
 
 // Command construction (pure — the unit tests exercise these directly)

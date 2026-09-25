@@ -62,8 +62,8 @@ test('buildReleaseNotice: có bản mới → đủ tên tệp, kích thước, 
   assert.equal(n.updateAvailable, true)
   assert.equal(n.sha256, 'a'.repeat(64))
   assert.equal(n.size, 252000000)
-  assert.equal(n.downloadUrl, 'https://github.com/LucDinhLe/hermes-agent-vietnamese/releases/download/v2026.9.3/Hermes-2026.9.3-win-x64.exe')
-  assert.equal(n.releaseUrl, 'https://github.com/LucDinhLe/hermes-agent-vietnamese/releases/tag/v2026.9.3')
+  assert.equal(n.downloadUrl, 'https://github.com/LucDinhLe/ai-for-boss/releases/download/v2026.9.3/Hermes-2026.9.3-win-x64.exe')
+  assert.equal(n.releaseUrl, 'https://github.com/LucDinhLe/ai-for-boss/releases/tag/v2026.9.3')
   assert.equal(n.targetSha, 'v2026.9.3')
 })
 
@@ -145,7 +145,7 @@ test('buildReleaseNotice: chọn tệp theo máy đang chạy; máy không có t
   assert.equal(none.updateAvailable, true)
   assert.equal(none.filename, null)
   assert.equal(none.downloadUrl, null)
-  assert.equal(none.releaseUrl, 'https://github.com/LucDinhLe/hermes-agent-vietnamese/releases/tag/v2026.9.3')
+  assert.equal(none.releaseUrl, 'https://github.com/LucDinhLe/ai-for-boss/releases/tag/v2026.9.3')
 
   assert.equal(releaseTargetFor('win32', 'x64'), 'windows-x64')
   assert.equal(releaseTargetFor('darwin', 'arm64'), 'macos-arm64')

@@ -48,6 +48,17 @@ import {
 } from './backend-probes'
 import { waitForDashboardPortAnnouncement } from './backend-ready'
 import {
+  EDITION_AUMID,
+  EDITION_DISPLAY_NAME,
+  EDITION_HOME_DIR_POSIX,
+  EDITION_HOME_DIR_WINDOWS,
+  EDITION_HOME_ENV,
+  EDITION_PROTOCOL,
+  EDITION_UPDATE_REPO,
+  EDITION_USER_AGENT,
+  editionImportCandidates
+} from './edition-identity'
+import {
   isRetryableRemoteBootFailure,
   shouldLatchBackendStartFailure,
   shouldLatchRemoteReauthFailure
@@ -715,9 +726,9 @@ if (INSTALL_STAMP) {
 // HERMES_HOME — thư mục dữ liệu của Hermes Vietnamese (bản composite, cài cạnh).
 //
 // Mặc định:
-//   Windows: %LOCALAPPDATA%\hermes-vietnamese
-//   macOS / Linux: ~/.hermes-vietnamese
-// Ghi đè: HERMES_VI_HOME (env hoặc registry User trên Windows).
+//   Windows: %LOCALAPPDATA%\<windowsHermesHomeName> (product-metadata.json)
+//   macOS / Linux: ~/<posixHermesHomeName>
+// Ghi đè: biến homeEnvOverride trong product-metadata.json (env hoặc registry User trên Windows).
 //
 // Không đọc HERMES_HOME và không dùng lại ~/.hermes hay %LOCALAPPDATA%\hermes
 // của bản Hermes cũ: dữ liệu cũ được giữ nguyên để người dùng quay lui; việc
@@ -725,16 +736,17 @@ if (INSTALL_STAMP) {
 //
 // HERMES_DESKTOP_USER_DATA_DIR (test:desktop:fresh) đặt HERMES_HOME sandbox
 // dưới userData tạm để lần chạy fresh-install không đụng dữ liệu thật.
-const HERMES_VI_HOME_DIR_WINDOWS = 'hermes-vietnamese'
-const HERMES_VI_HOME_DIR_POSIX = '.hermes-vietnamese'
+// Tên thư mục và biến ghi đè đọc từ product-metadata.json (edition-identity.ts).
+const HERMES_VI_HOME_DIR_WINDOWS = EDITION_HOME_DIR_WINDOWS
+const HERMES_VI_HOME_DIR_POSIX = EDITION_HOME_DIR_POSIX
 
 function resolveHermesHome() {
   // Hermes Vietnamese dùng thư mục dữ liệu riêng và biến ghi đè riêng
   // (HERMES_VI_HOME) để cài cạnh Hermes gốc/bản cũ mà không đụng dữ liệu của
   // chúng. HERMES_HOME của bản cũ cố ý KHÔNG được đọc ở đây; backend con vẫn
   // nhận HERMES_HOME = giá trị đã giải quyết (bootstrap-runner.ts).
-  if (process.env.HERMES_VI_HOME) {
-    return normalizeHermesHomeRoot(process.env.HERMES_VI_HOME)
+  if (process.env[EDITION_HOME_ENV]) {
+    return normalizeHermesHomeRoot(process.env[EDITION_HOME_ENV])
   }
 
   if (USER_DATA_OVERRIDE) {
@@ -744,7 +756,7 @@ function resolveHermesHome() {
   if (IS_WINDOWS) {
     // GUI app kế thừa môi trường lúc đăng nhập, nên đọc thêm registry User
     // (xem #45471) — nhưng chỉ khoá HERMES_VI_HOME.
-    const fromRegistry = readWindowsUserEnvVar('HERMES_VI_HOME')
+    const fromRegistry = readWindowsUserEnvVar(EDITION_HOME_ENV)
 
     if (fromRegistry) {
       return normalizeHermesHomeRoot(fromRegistry)
@@ -955,7 +967,7 @@ const BOOT_FAKE_STEP_MS = (() => {
   return Math.max(120, raw)
 })()
 
-const APP_NAME = process.env.HERMES_DESKTOP_APP_NAME || 'Hermes Vietnamese'
+const APP_NAME = process.env.HERMES_DESKTOP_APP_NAME || EDITION_DISPLAY_NAME
 const HUD_WINDOW_TITLE = `${APP_NAME} HUD`
 const TITLEBAR_HEIGHT = 40
 const MACOS_TRAFFIC_LIGHTS_HEIGHT = 14
@@ -1323,12 +1335,12 @@ app.setName(APP_NAME)
 // Windows toast notifications silently no-op unless an AppUserModelID is set:
 // `new Notification().show()` returns without error and nothing appears. The
 // AUMID must match the installed Start Menu shortcut's AUMID, which
-// electron-builder derives from the build `appId` (vn.lucledinh.hermes-vietnamese) —
+// electron-builder derives from the build `appId` (product-metadata.json appId) —
 // keep this string in sync with package.json `build.appId`. macOS/Linux don't
 // need this, so gate it on Windows. (Fixes: desktop approval/turn notifications
 // never firing on Windows.)
 if (IS_WINDOWS) {
-  app.setAppUserModelId('vn.lucledinh.hermes-vietnamese')
+  app.setAppUserModelId(EDITION_AUMID)
 }
 
 // Seed the native About panel with the live Hermes version. This is refreshed
@@ -2888,7 +2900,7 @@ async function checkStableChannelUpdates() {
 
   try {
     const response = await electronNet.fetch(
-      'https://api.github.com/repos/LucDinhLe/hermes-agent-vietnamese/releases?per_page=100',
+      `https://api.github.com/repos/${EDITION_UPDATE_REPO}/releases?per_page=100`,
       { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'hermes-desktop-update' } }
     )
 
@@ -2978,7 +2990,7 @@ async function checkReleaseNoticeForApp(force: boolean): Promise<ReleaseNotice> 
     force,
     fetchJson: async url => {
       const response = await electronNet.fetch(url, {
-        headers: { Accept: 'application/json', 'User-Agent': 'hermes-vietnamese-desktop-release-notice' },
+        headers: { Accept: 'application/json', 'User-Agent': `${EDITION_USER_AGENT}-release-notice` },
         cache: 'no-store'
       })
 
@@ -10736,7 +10748,7 @@ async function startHermes() {
   // otherwise SIGTERMs the running instance's live backend (#87295).
   if (!isPrimaryInstance) {
     rememberLog('[boot] non-primary instance: skipping backend machinery')
-    throw new Error('Hermes Vietnamese is already running in another window.')
+    throw new Error(`${EDITION_DISPLAY_NAME} is already running in another window.`)
   }
 
   await reapOrphanedBackendsOnce()
@@ -15630,7 +15642,7 @@ ipcMain.handle('hermes:vscode-theme:search', async (_event, query) => searchMark
 // running app. Three delivery paths: macOS 'open-url',
 // Win/Linux running-app 'second-instance' (argv), Win/Linux cold-start argv.
 // ---------------------------------------------------------------------------
-const HERMES_PROTOCOL = 'hermes-vi'
+const HERMES_PROTOCOL = EDITION_PROTOCOL
 let _pendingDeepLink = null
 let _rendererReadyForDeepLink = false
 
@@ -15765,7 +15777,10 @@ function offerLegacyImport() {
 
   const source = findLegacyImportSource(
     HERMES_HOME,
-    legacyHermesHomeCandidates(process.platform, process.env, app.getPath('home'))
+    [
+      ...editionImportCandidates(process.platform, process.env, app.getPath('home')),
+      ...legacyHermesHomeCandidates(process.platform, process.env, app.getPath('home'))
+    ]
   )
 
   if (!source) {
@@ -15776,8 +15791,8 @@ function offerLegacyImport() {
 
   const choice = dialog.showMessageBoxSync({
     type: 'question',
-    title: 'Hermes Vietnamese',
-    message: 'Nhập dữ liệu từ bản Hermes cũ?',
+    title: EDITION_DISPLAY_NAME,
+    message: 'Nhập dữ liệu từ bản Hermes trên máy?',
     detail:
       `Tìm thấy dữ liệu của bản Hermes trước tại:\n${source}\n\n` +
       `Sao chép sang bản này: ${entries.join(', ') || 'không có gì'}.\n` +
@@ -15802,7 +15817,7 @@ function offerLegacyImport() {
   if (result.failed.length) {
     dialog.showMessageBoxSync({
       type: 'warning',
-      title: 'Hermes Vietnamese',
+      title: EDITION_DISPLAY_NAME,
       message: 'Một số mục không sao chép được',
       detail: result.failed.map(f => `${f.name}: ${f.error}`).join('\n'),
       buttons: ['Tiếp tục']

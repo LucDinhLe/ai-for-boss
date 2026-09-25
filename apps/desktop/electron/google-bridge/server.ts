@@ -107,7 +107,7 @@ export function startGoogleBridgeServer(opts: GoogleBridgeServerOptions): Promis
     }
 
     if (!opts.account.signedIn) {
-      sendError(res, 401, 'Chưa đăng nhập tài khoản Google trong Hermes Vietnamese', 'authentication_error')
+      sendError(res, 401, 'Chưa đăng nhập tài khoản Google trong AI for Boss', 'authentication_error')
 
       return
     }

@@ -292,7 +292,7 @@ export function communityUpdateMetadataName(platform: string, arch: string): str
 
 export function communityReleaseFeedUrl(tag: string): string {
   if (!parseCommunityReleaseTag(tag)) {
-    throw new Error(`Invalid Hermes Vietnamese release tag: ${tag}`)
+    throw new Error(`Invalid AI for Boss release tag: ${tag}`)
   }
 
   return `${COMMUNITY_RELEASE_DOWNLOAD_ROOT}/${tag}`

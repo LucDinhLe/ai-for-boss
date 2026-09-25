@@ -62,7 +62,7 @@ export const zhHant = defineLocale({
   },
 
   boot: {
-    ready: 'Hermes Vietnamese 已就緒',
+    ready: 'AI for Boss 已就緒',
     desktopBootFailedWithMessage: message => `桌面啟動失敗：${message}`,
     steps: {
       connectingGateway: '正在連線桌面閘道',
@@ -70,7 +70,7 @@ export const zhHant = defineLocale({
       loadingSessions: '正在載入最近工作階段',
       retryingRemoteBackend: '正在重新連線遠端 Hermes 後端…',
       startingDesktopConnection: '正在啟動桌面連線',
-      startingHermesDesktop: '正在啟動 Hermes Vietnamese…'
+      startingHermesDesktop: '正在啟動 AI for Boss…'
     },
     errors: {
       backgroundExited: 'Hermes 背景程序已結束。',
@@ -141,7 +141,7 @@ export const zhHant = defineLocale({
       elevenLabsRejectedKey: 'ElevenLabs 拒絕了該 API 金鑰 (401)。',
       diskFull: '磁碟已滿 — 請騰出一些空間後再試。',
       gatewayAuthFailed: '閘道認證失敗 — 請檢查你的 API_SERVER_KEY。',
-      methodNotAllowed: '桌面後端拒絕了該請求 (405 Method Not Allowed)。請嘗試重新啟動 Hermes Vietnamese。',
+      methodNotAllowed: '桌面後端拒絕了該請求 (405 Method Not Allowed)。請嘗試重新啟動 AI for Boss。',
       microphonePermission: '麥克風權限已被拒絕。',
       openaiRejectedApiKey: 'OpenAI 拒絕了該 API 金鑰。',
       openaiRejectedApiKeyWithStatus: status => `OpenAI 拒絕了該 API 金鑰 (${status} invalid_api_key)。`,
@@ -307,7 +307,7 @@ export const zhHant = defineLocale({
         }
       },
       test: '傳送測試通知',
-      testTitle: 'Hermes Vietnamese',
+      testTitle: 'AI for Boss',
       testBody: '通知運作正常。',
       testSent: '測試已傳送。若沒有出現，請檢查系統通知權限與專注模式／勿擾模式。',
       testUnsupported: '此系統不支援原生通知。',
@@ -326,7 +326,7 @@ export const zhHant = defineLocale({
       advanced: '進階'
     },
     searchPlaceholder: {
-      about: '關於 Hermes Vietnamese',
+      about: '關於 AI for Boss',
       config: '搜尋設定…',
       gateway: '閘道連線…',
       keys: '搜尋 API 金鑰…',
@@ -674,7 +674,7 @@ export const zhHant = defineLocale({
       }
     }),
     about: {
-      heading: 'Hermes Vietnamese',
+      heading: 'AI for Boss',
       version: value => `版本 ${value}`,
       versionUnavailable: '版本不可用',
       projectInfo: '專案資訊',
@@ -686,7 +686,7 @@ export const zhHant = defineLocale({
       communityMaintainerValue: 'Lê Đình Lực (LucDinhLe)',
       license: '授權條款',
       licenseValue: 'MIT 授權條款',
-      communityUpdateChannel: 'Hermes Vietnamese 頻道 · GitHub Releases',
+      communityUpdateChannel: 'AI for Boss 頻道 · GitHub Releases',
       bundleOutOfSync: '應用程式建置版本過舊',
       bundleOutOfSyncDesc:
         'Hermes 執行環境已更新,但桌面應用程式本身仍是舊建置——在應用程式更新之前,新的介面功能(如 Agents)不會顯示。請執行下方的更新以重新建置應用程式。如果此警告仍未消除,請從最新的桌面安裝程式重新安裝。',
@@ -706,7 +706,7 @@ export const zhHant = defineLocale({
       updateReadyUnknown: '新更新已就緒。',
       notifyOnlyReady: version => `已有版本 ${version}。本應用不會自行安裝更新：請下載安裝檔、核對 SHA-256 後執行。`,
       openDownloadPage: '開啟下載頁面',
-      notifyOnlyDesc: 'Hermes Vietnamese 只會提醒新版本，不會自行下載或安裝；請從 GitHub Releases 下載安裝檔並核對校驗值。',
+      notifyOnlyDesc: 'AI for Boss 只會提醒新版本，不會自行下載或安裝；請從 GitHub Releases 下載安裝檔並核對校驗值。',
       checksumLine: (filename, sizeMb, sha256) => `${filename} · ${sizeMb} MB · SHA-256 ${sha256}`,
       lastChecked: age => `上次檢查：${age}`,
       justNowSuffix: ' · 剛剛',
@@ -774,7 +774,7 @@ export const zhHant = defineLocale({
       title: '閘道連線',
       envOverride: '環境變數覆寫',
       intro:
-        'Hermes Vietnamese 預設會啟動自己的本機閘道。如果您希望此應用程式控制另一台機器或可信代理後面已執行的 Hermes 後端，請使用遠端閘道。閘道連線屬於本機層級設定；設定檔是從已連線的閘道中探索出來的。',
+        'AI for Boss 預設會啟動自己的本機閘道。如果您希望此應用程式控制另一台機器或可信代理後面已執行的 Hermes 後端，請使用遠端閘道。閘道連線屬於本機層級設定；設定檔是從已連線的閘道中探索出來的。',
       envOverrideTitle: '環境變數正在控制此桌面工作階段。',
       envOverrideDesc: '取消設定 HERMES_DESKTOP_REMOTE_URL 和 HERMES_DESKTOP_REMOTE_TOKEN 後才會使用下方儲存的設定。',
       localTitle: '本機閘道',
@@ -821,7 +821,7 @@ export const zhHant = defineLocale({
       enterUrlFirst: '請先輸入遠端 URL。',
       restartingTitle: '閘道連線正在重新啟動',
       savedTitle: '閘道設定已儲存',
-      restartingMessage: 'Hermes Vietnamese 將使用已儲存的設定重新連線。',
+      restartingMessage: 'AI for Boss 將使用已儲存的設定重新連線。',
       savedMessage: '已儲存，下次重新啟動後生效。',
       connectedTo: (baseUrl, version) => `已連線至 ${baseUrl}${version ? ` · Hermes ${version}` : ''}`,
       reachableTitle: '遠端閘道可連線',
@@ -864,7 +864,7 @@ export const zhHant = defineLocale({
       sshErrHostKey: '自上次連線以來主機金鑰已變更。請確認這是預期的，然後執行 ssh-keygen -R <host> 並重新連線。',
       sshErrNotInstalled:
         '遠端主機上未安裝 Hermes。請在遠端安裝（curl -fsSL https://raw.githubusercontent.com/LucDinhLe/hermes-agent-vietnamese/main/scripts/install.sh | sh）或設定 Hermes 路徑。',
-      sshErrPlatform: '不支援的遠端平台。Hermes Vietnamese 的 SSH 模式支援 Linux、macOS 和 Windows 遠端主機。',
+      sshErrPlatform: '不支援的遠端平台。AI for Boss 的 SSH 模式支援 Linux、macOS 和 Windows 遠端主機。',
       sshErrTimeout: 'SSH 連線逾時。主機可能無法存取或處於睡眠狀態。',
       sshErrUpdateRequired: '使用 Desktop SSH 連線前，請更新遠端主機上的 Hermes。',
       sshErrUnknown: 'SSH 連線失敗。'
@@ -2185,16 +2185,16 @@ export const zhHant = defineLocale({
     viewDocs: '檢視安裝文件',
     installTo: '將安裝至',
     retryAfterRun: '我已執行 -- 重試',
-    setupChoiceTitle: '設定 Hermes Vietnamese',
+    setupChoiceTitle: '設定 AI for Boss',
     setupChoiceDesc: '將此應用程式連線到您已執行的 Hermes 閘道，或在這台電腦上本機安裝 Hermes。',
     connectExistingTitle: '連線到現有 Hermes',
     connectExistingShort: '連線現有環境',
     connectExistingDesc: '使用工作階段權杖或瀏覽器登入連線遠端後端。不會啟動本機安裝。',
     installLocalTitle: '本機安裝 Hermes',
     installLocalDesc: '下載 Hermes、建立 Python 環境，並在這台電腦上執行後端。',
-    localStartUnavailable: '無法啟動本機安裝。請重新啟動 Hermes Vietnamese 後再試一次。',
+    localStartUnavailable: '無法啟動本機安裝。請重新啟動 AI for Boss 後再試一次。',
     remoteSetupTitle: '連線到現有 Hermes',
-    remoteSetupDesc: '輸入閘道 URL。Hermes Vietnamese 會偵測需要權杖還是瀏覽器登入。',
+    remoteSetupDesc: '輸入閘道 URL。AI for Boss 會偵測需要權杖還是瀏覽器登入。',
     remoteUrlTitle: '閘道 URL',
     remoteUrlDesc: '使用 Hermes 閘道的基礎 URL；遠端位址請包含 https://。',
     remoteUrlPlaceholder: 'https://gateway.example.com/hermes',
@@ -2443,7 +2443,7 @@ export const zhHant = defineLocale({
       update: '更新',
       updateInProgress: '更新中',
       commitsBehind: (count, branch) => `落後 ${branch} ${count} 個提交`,
-      desktopVersion: version => `Hermes Vietnamese v${version}`,
+      desktopVersion: version => `AI for Boss v${version}`,
       backendVersion: version => `後端 v${version}`,
       clientLabel: version => `用戶端 v${version}`,
       connectionSsh: host => `SSH: ${host}`,
@@ -2962,8 +2962,8 @@ export const zhHant = defineLocale({
     sessionExportFailed: '無法匯出工作階段',
     imageSaved: '圖片已儲存',
     downloadStarted: '下載已開始',
-    restartToUseSaveImage: '重新啟動 Hermes Vietnamese 後可使用儲存圖片。',
-    restartToSaveImages: '重新啟動 Hermes Vietnamese 以儲存圖片',
+    restartToUseSaveImage: '重新啟動 AI for Boss 後可使用儲存圖片。',
+    restartToSaveImages: '重新啟動 AI for Boss 以儲存圖片',
     imageDownloadFailed: '圖片下載失敗',
     openImage: '開啟圖片',
     downloadImage: '下載圖片',

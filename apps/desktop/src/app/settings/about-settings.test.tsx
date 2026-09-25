@@ -63,12 +63,12 @@ describe('AboutSettings community identity and updater source', () => {
     expect(screen.getByText('Hermes Agent · Nous Research')).toBeTruthy()
     expect(screen.getByText('Lê Đình Lực (LucDinhLe)')).toBeTruthy()
     expect(screen.getByText('Giấy phép MIT')).toBeTruthy()
-    expect(screen.getByText('Kênh Hermes Vietnamese · GitHub Releases')).toBeTruthy()
+    expect(screen.getByText('Kênh AI for Boss · GitHub Releases')).toBeTruthy()
     expect(screen.queryByText(/unknown/i)).toBeNull()
 
     fireEvent.click(screen.getByRole('link', { name: /Giấy phép MIT/ }))
     expect(mocks.openExternal).toHaveBeenCalledWith(
-      'https://github.com/LucDinhLe/hermes-agent-vietnamese/blob/main/LICENSE'
+      'https://github.com/LucDinhLe/ai-for-boss/blob/main/LICENSE'
     )
   })
 })

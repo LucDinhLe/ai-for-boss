@@ -17,9 +17,11 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
+import { EDITION_UPDATE_REPO } from './edition-identity'
+
 export type ReleaseChannel = 'latest' | 'thunghiem'
 
-export const RELEASE_REPO = 'LucDinhLe/hermes-agent-vietnamese'
+export const RELEASE_REPO = EDITION_UPDATE_REPO
 export const RELEASE_FEED_URLS: Record<ReleaseChannel, string> = {
   latest: `https://raw.githubusercontent.com/${RELEASE_REPO}/main/.github/public-release.json`,
   thunghiem: `https://raw.githubusercontent.com/${RELEASE_REPO}/feed/thunghiem/public-release-thunghiem.json`

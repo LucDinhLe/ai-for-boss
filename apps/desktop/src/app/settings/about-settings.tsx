@@ -23,11 +23,12 @@ import productMetadata from '../../../product-metadata.json'
 import { ListRow, SectionHeading, SettingsContent } from './primitives'
 import { UninstallSection } from './uninstall-section'
 
-const RELEASE_NOTES_URL = 'https://github.com/LucDinhLe/hermes-agent-vietnamese/releases'
+const EDITION_REPO_URL = `https://github.com/${productMetadata.updateRepository.owner}/${productMetadata.updateRepository.repo}`
+const RELEASE_NOTES_URL = `${EDITION_REPO_URL}/releases`
 const INSTALLER_URL = RELEASE_NOTES_URL
 const UPSTREAM_URL = 'https://github.com/NousResearch/hermes-agent'
-const COMMUNITY_URL = 'https://github.com/LucDinhLe/hermes-agent-vietnamese'
-const LICENSE_URL = 'https://github.com/LucDinhLe/hermes-agent-vietnamese/blob/main/LICENSE'
+const COMMUNITY_URL = EDITION_REPO_URL
+const LICENSE_URL = productMetadata.license.url
 const PRODUCT_VERSION = productMetadata.productVersion
 const UPSTREAM_VERSION = productMetadata.upstream.version
 

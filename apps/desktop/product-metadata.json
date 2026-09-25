@@ -1,5 +1,5 @@
 {
-  "displayName": "Hermes Vietnamese",
+  "displayName": "AI for Boss",
   "productVersion": "v32.1",
   "technicalVersion": "0.32.1",
   "communityMaintainer": {
@@ -20,22 +20,35 @@
   },
   "license": {
     "spdx": "MIT",
-    "url": "https://github.com/LucDinhLe/hermes-agent-vietnamese/blob/main/LICENSE"
+    "url": "https://github.com/LucDinhLe/ai-for-boss/blob/main/LICENSE"
   },
   "technicalIdentity": {
-    "appId": "vn.lucledinh.hermes-vietnamese",
-    "packageProductName": "Hermes Vietnamese",
-    "executableName": "HermesVietnamese",
-    "protocol": "hermes-vi",
-    "windowsAppUserModelId": "vn.lucledinh.hermes-vietnamese",
-    "windowsHermesHomeName": "hermes-vietnamese",
-    "posixHermesHomeName": ".hermes-vietnamese",
-    "nsisGuid": "f55add5f-6655-5c1d-b8e3-d7252a8a4152",
-    "homeEnvOverride": "HERMES_VI_HOME",
-    "_note": "Chốt 27/08/2026, áp 04/09/2026 (bước 4 kế hoạch composite). Cài cạnh bản Hermes cũ (com.nousresearch.hermes) và bản gốc Nous, không đụng dữ liệu của chúng."
+    "appId": "vn.lucledinh.ai-for-boss",
+    "packageProductName": "AI for Boss",
+    "executableName": "AIforBoss",
+    "protocol": "aiforboss",
+    "windowsAppUserModelId": "vn.lucledinh.ai-for-boss",
+    "windowsHermesHomeName": "ai-for-boss",
+    "posixHermesHomeName": ".ai-for-boss",
+    "nsisGuid": "b8c4dfe2-50c5-51f8-a0d1-da0ef72b3150",
+    "homeEnvOverride": "AFB_HOME",
+    "_note": "Chốt 25/09/2026. Cài cạnh Hermes Vietnamese và bản AI for Boss trên OpenClaw, không đụng dữ liệu của chúng. nsisGuid = uuid v5 của appId theo namespace electron-builder."
   },
   "updateRepository": {
     "owner": "LucDinhLe",
-    "repo": "hermes-agent-vietnamese"
+    "repo": "ai-for-boss"
+  },
+  "edition": {
+    "id": "ai-for-boss",
+    "base": "Hermes Vietnamese",
+    "baseRepository": "LucDinhLe/hermes-agent-vietnamese",
+    "baseCommit": "39e5387ff61a3b4793e98bd6afb09fe4b3d8dc04",
+    "_note": "Nhánh nen-hermes của kho ai-for-boss: vỏ Hermes Vietnamese 2026.9.5 + gói doanh nghiệp trong apps/desktop/edition. Đồng bộ vỏ bằng git merge từ Hermes Vietnamese.",
+    "importFrom": [
+      {
+        "windows": "hermes-vietnamese",
+        "posix": ".hermes-vietnamese"
+      }
+    ]
   }
 }

@@ -123,7 +123,7 @@ export const zh: Translations = {
     backendOutOfDateTitle: '后端版本过旧',
     backendOutOfDateMessage: '你的 Hermes 后端早于当前桌面构建，可能无法正常工作。请更新以保持一致。',
     backendOutOfDateBundledMessage:
-      '随应用打包的 Hermes 服务与此桌面版本不匹配。请安装最新的 Hermes Vietnamese 版本；不支持原地更新该服务。',
+      '随应用打包的 Hermes 服务与此桌面版本不匹配。请安装最新的 AI for Boss 版本；不支持原地更新该服务。',
     installMethodUnsupportedTitle: '不受支持的安装方式',
     updateHermes: '更新 Hermes',
     updateReadyTitle: '有可用更新',
@@ -143,7 +143,7 @@ export const zh: Translations = {
       elevenLabsRejectedKey: 'ElevenLabs 拒绝了该 API key (401)。',
       diskFull: '磁盘已满 — 请腾出一些空间后再试。',
       gatewayAuthFailed: '网关认证失败 — 请检查你的 API_SERVER_KEY。',
-      methodNotAllowed: '桌面后端拒绝了该请求 (405 Method Not Allowed)。请尝试重启 Hermes Vietnamese。',
+      methodNotAllowed: '桌面后端拒绝了该请求 (405 Method Not Allowed)。请尝试重启 AI for Boss。',
       microphonePermission: '麦克风权限已被拒绝。',
       openaiRejectedApiKey: 'OpenAI 拒绝了该 API key。',
       openaiRejectedApiKeyWithStatus: status => `OpenAI 拒绝了该 API key (${status} invalid_api_key)。`,
@@ -451,7 +451,7 @@ export const zh: Translations = {
         }
       },
       test: '发送测试通知',
-      testTitle: 'Hermes Vietnamese',
+      testTitle: 'AI for Boss',
       testBody: '通知工作正常。',
       testSent: '测试已发送。如果没有出现，请检查系统通知权限和专注模式／勿扰模式。',
       testUnsupported: '此系统不支持原生通知。',
@@ -470,7 +470,7 @@ export const zh: Translations = {
       advanced: '高级'
     },
     searchPlaceholder: {
-      about: '关于 Hermes Vietnamese',
+      about: '关于 AI for Boss',
       config: '搜索设置…',
       gateway: '网关连接…',
       keys: '搜索 API 密钥…',
@@ -818,7 +818,7 @@ export const zh: Translations = {
       }
     }),
     about: {
-      heading: 'Hermes Vietnamese',
+      heading: 'AI for Boss',
       version: value => `版本 ${value}`,
       versionUnavailable: '版本不可用',
       projectInfo: '项目信息',
@@ -830,7 +830,7 @@ export const zh: Translations = {
       communityMaintainerValue: 'Lê Đình Lực (LucDinhLe)',
       license: '许可证',
       licenseValue: 'MIT 许可证',
-      communityUpdateChannel: 'Hermes Vietnamese 渠道 · GitHub Releases',
+      communityUpdateChannel: 'AI for Boss 渠道 · GitHub Releases',
       bundleOutOfSync: '应用构建版本过旧',
       bundleOutOfSyncDesc:
         'Hermes 运行时已更新,但桌面应用本身仍是旧构建——在应用更新之前,新的界面功能(如 Agents)不会显示。请运行下方的更新以重新构建应用。如果此警告仍未消除,请从最新的桌面安装程序重新安装。',
@@ -851,7 +851,7 @@ export const zh: Translations = {
       notifyOnlyReady: version => `已有版本 ${version}。本应用不会自行安装更新：请下载安装包、核对 SHA-256 后运行。`,
       openDownloadPage: '打开下载页面',
       notifyOnlyDesc:
-        'Hermes Vietnamese 只会提醒新版本，不会自行下载或安装；请从 GitHub Releases 下载安装包并核对校验值。',
+        'AI for Boss 只会提醒新版本，不会自行下载或安装；请从 GitHub Releases 下载安装包并核对校验值。',
       checksumLine: (filename, sizeMb, sha256) => `${filename} · ${sizeMb} MB · SHA-256 ${sha256}`,
       lastChecked: age => `上次检查:${age}`,
       justNowSuffix: ' · 刚刚',
@@ -983,7 +983,7 @@ export const zh: Translations = {
       title: '网关连接',
       envOverride: '环境变量覆盖',
       intro:
-        'Hermes Vietnamese 默认会启动自己的本地网关。当你希望此应用控制另一台机器上或可信代理后的现有 Hermes 后端时，可以使用远程网关。网关连接属于本机级设置；profile 是从所连接的网关中发现的。',
+        'AI for Boss 默认会启动自己的本地网关。当你希望此应用控制另一台机器上或可信代理后的现有 Hermes 后端时，可以使用远程网关。网关连接属于本机级设置；profile 是从所连接的网关中发现的。',
       envOverrideTitle: '环境变量正在控制此桌面会话。',
       envOverrideDesc: '取消设置 HERMES_DESKTOP_REMOTE_URL 和 HERMES_DESKTOP_REMOTE_TOKEN 后才会使用下面保存的设置。',
       modeTitle: '连接模式',
@@ -1062,7 +1062,7 @@ export const zh: Translations = {
       enterUrlFirst: '请先输入远程 URL。',
       restartingTitle: '网关连接正在重启',
       savedTitle: '网关设置已保存',
-      restartingMessage: 'Hermes Vietnamese 将使用已保存设置重新连接（界面保持打开）。',
+      restartingMessage: 'AI for Boss 将使用已保存设置重新连接（界面保持打开）。',
       savedMessage: '已保存，下一次重启生效。',
       connectedTo: (baseUrl, version) => `已连接到 ${baseUrl}${version ? ` · Hermes ${version}` : ''}`,
       reachableTitle: '远程网关可访问',
@@ -1105,7 +1105,7 @@ export const zh: Translations = {
       sshErrHostKey: '自上次连接以来主机密钥已更改。请确认这是预期的，然后运行 ssh-keygen -R <host> 并重新连接。',
       sshErrNotInstalled:
         '远程主机上未安装 Hermes。请在远程安装（curl -fsSL https://raw.githubusercontent.com/LucDinhLe/hermes-agent-vietnamese/main/scripts/install.sh | sh）或设置 Hermes 路径。',
-      sshErrPlatform: '不支持的远程平台。Hermes Vietnamese 的 SSH 模式支持 Linux、macOS 和 Windows 远程主机。',
+      sshErrPlatform: '不支持的远程平台。AI for Boss 的 SSH 模式支持 Linux、macOS 和 Windows 远程主机。',
       sshErrTimeout: 'SSH 连接超时。主机可能无法访问或处于休眠状态。',
       sshErrUpdateRequired: '使用 Desktop SSH 连接前，请更新远程主机上的 Hermes。',
       sshErrUnknown: 'SSH 连接失败。'
@@ -2759,16 +2759,16 @@ export const zh: Translations = {
     viewDocs: '查看安装文档',
     installTo: '将安装到',
     retryAfterRun: '我已运行 -- 重试',
-    setupChoiceTitle: '设置 Hermes Vietnamese',
+    setupChoiceTitle: '设置 AI for Boss',
     setupChoiceDesc: '将此应用连接到你已运行的 Hermes 网关，或在这台电脑上本地安装 Hermes。',
     connectExistingTitle: '连接到现有 Hermes',
     connectExistingShort: '连接现有环境',
     connectExistingDesc: '使用会话令牌或浏览器登录连接远程后端。不会启动本地安装。',
     installLocalTitle: '本地安装 Hermes',
     installLocalDesc: '下载 Hermes，创建 Python 环境，并在这台电脑上运行后端。',
-    localStartUnavailable: '无法启动本地安装。请重启 Hermes Vietnamese 后重试。',
+    localStartUnavailable: '无法启动本地安装。请重启 AI for Boss 后重试。',
     remoteSetupTitle: '连接到现有 Hermes',
-    remoteSetupDesc: '输入网关 URL。Hermes Vietnamese 会检测需要令牌还是浏览器登录。',
+    remoteSetupDesc: '输入网关 URL。AI for Boss 会检测需要令牌还是浏览器登录。',
     remoteUrlTitle: '网关 URL',
     remoteUrlDesc: '使用 Hermes 网关的基础 URL；远程地址请包含 https://。',
     remoteUrlPlaceholder: 'https://gateway.example.com/hermes',
@@ -3018,7 +3018,7 @@ export const zh: Translations = {
       update: '更新',
       updateInProgress: '正在更新',
       commitsBehind: (count, branch) => `落后 ${branch} ${count} 个提交`,
-      desktopVersion: version => `Hermes Vietnamese v${version}`,
+      desktopVersion: version => `AI for Boss v${version}`,
       backendVersion: version => `后端 v${version}`,
       clientLabel: version => `客户端 v${version}`,
       connectionSsh: host => `SSH: ${host}`,

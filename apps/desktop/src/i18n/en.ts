@@ -62,7 +62,7 @@ export const en: Translations = {
   },
 
   boot: {
-    ready: 'Hermes Vietnamese is ready',
+    ready: 'AI for Boss is ready',
     desktopBootFailedWithMessage: message => `Desktop boot failed: ${message}`,
     steps: {
       connectingGateway: 'Connecting live desktop gateway',
@@ -70,7 +70,7 @@ export const en: Translations = {
       loadingSessions: 'Loading recent sessions',
       retryingRemoteBackend: 'Reconnecting to the remote Hermes backend…',
       startingDesktopConnection: 'Starting desktop connection',
-      startingHermesDesktop: 'Starting Hermes Vietnamese…'
+      startingHermesDesktop: 'Starting AI for Boss…'
     },
     errors: {
       backgroundExited: 'Hermes background process exited.',
@@ -126,7 +126,7 @@ export const en: Translations = {
     backendOutOfDateMessage:
       'Your Hermes backend is older than this desktop build and may not work correctly. Update to align them.',
     backendOutOfDateBundledMessage:
-      'The Hermes service bundled with this app does not match this desktop build. Install the latest Hermes Vietnamese release to fix it; updating the service in place is not supported.',
+      'The Hermes service bundled with this app does not match this desktop build. Install the latest AI for Boss release to fix it; updating the service in place is not supported.',
     installMethodUnsupportedTitle: 'Unsupported install method',
     updateHermes: 'Update Hermes',
     updateReadyTitle: 'Update ready',
@@ -147,7 +147,7 @@ export const en: Translations = {
       diskFull: 'Disk full — free some space, then try again.',
       gatewayAuthFailed: 'Gateway authentication failed — check your API_SERVER_KEY.',
       methodNotAllowed:
-        'The desktop backend rejected that request (405 Method Not Allowed). Try restarting Hermes Vietnamese.',
+        'The desktop backend rejected that request (405 Method Not Allowed). Try restarting AI for Boss.',
       microphonePermission: 'Microphone permission was denied.',
       openaiRejectedApiKey: 'OpenAI rejected the API key.',
       openaiRejectedApiKeyWithStatus: status => `OpenAI rejected the API key (${status} invalid_api_key).`,
@@ -462,7 +462,7 @@ export const en: Translations = {
         }
       },
       test: 'Send test notification',
-      testTitle: 'Hermes Vietnamese',
+      testTitle: 'AI for Boss',
       testBody: 'Notifications are working.',
       testSent: 'Test sent. If nothing appears, check your OS notification permissions and Focus/Do Not Disturb.',
       testUnsupported: 'This system does not support native notifications.',
@@ -481,7 +481,7 @@ export const en: Translations = {
       advanced: 'Advanced'
     },
     searchPlaceholder: {
-      about: 'About Hermes Vietnamese',
+      about: 'About AI for Boss',
       config: 'Search settings...',
       gateway: 'Gateway connection...',
       keys: 'Search API keys...',
@@ -611,7 +611,7 @@ export const en: Translations = {
     fieldLabels: FIELD_LABELS,
     fieldDescriptions: FIELD_DESCRIPTIONS,
     about: {
-      heading: 'Hermes Vietnamese',
+      heading: 'AI for Boss',
       version: value => `Version ${value}`,
       versionUnavailable: 'Version unavailable',
       projectInfo: 'Project information',
@@ -619,11 +619,11 @@ export const en: Translations = {
       upstreamVersion: 'Upstream Hermes Agent version',
       upstreamPublisher: 'Original project and publisher',
       upstreamPublisherValue: 'Hermes Agent · Nous Research',
-      communityMaintainer: 'Hermes Vietnamese publisher and maintainer',
+      communityMaintainer: 'AI for Boss publisher and maintainer',
       communityMaintainerValue: 'Lê Đình Lực (LucDinhLe)',
       license: 'License',
       licenseValue: 'MIT License',
-      communityUpdateChannel: 'Hermes Vietnamese channel · GitHub Releases',
+      communityUpdateChannel: 'AI for Boss channel · GitHub Releases',
       bundleOutOfSync: 'App build out of date',
       bundleOutOfSyncDesc:
         'The Hermes runtime was updated, but the desktop app itself is still an older build — new interface features (like Agents) will be missing until it updates. Run the update below to rebuild the app. If that doesn\u2019t clear this warning, reinstall from the latest desktop installer.',
@@ -645,7 +645,7 @@ export const en: Translations = {
         `Version ${version} is available. This app does not install updates itself: download the installer, verify its SHA-256, then run it.`,
       openDownloadPage: 'Open download page',
       notifyOnlyDesc:
-        'Hermes Vietnamese only notifies you about new versions. It never downloads or installs anything by itself; you download the installer from GitHub Releases and verify its checksum.',
+        'AI for Boss only notifies you about new versions. It never downloads or installs anything by itself; you download the installer from GitHub Releases and verify its checksum.',
       checksumLine: (filename, sizeMb, sha256) => `${filename} · ${sizeMb} MB · SHA-256 ${sha256}`,
       lastChecked: age => `Last checked ${age}`,
       justNowSuffix: ' · just now',
@@ -873,7 +873,7 @@ export const en: Translations = {
       enterUrlFirst: 'Enter a remote URL first.',
       restartingTitle: 'Gateway connection restarting',
       savedTitle: 'Gateway settings saved',
-      restartingMessage: 'Hermes Vietnamese will reconnect using the saved settings — the shell stays open.',
+      restartingMessage: 'AI for Boss will reconnect using the saved settings — the shell stays open.',
       savedMessage: 'Saved for the next restart.',
       connectedTo: (baseUrl, version) => `Connected to ${baseUrl}${version ? ` · Hermes ${version}` : ''}`,
       reachableTitle: 'Remote gateway reachable',
@@ -918,7 +918,7 @@ export const en: Translations = {
       sshErrNotInstalled:
         'Hermes is not installed on the remote host. Install it there (curl -fsSL https://raw.githubusercontent.com/LucDinhLe/hermes-agent-vietnamese/main/scripts/install.sh | sh) or set the Hermes path.',
       sshErrPlatform:
-        'Unsupported remote platform. Hermes Vietnamese SSH mode supports Linux, macOS, and Windows remote hosts.',
+        'Unsupported remote platform. AI for Boss SSH mode supports Linux, macOS, and Windows remote hosts.',
       sshErrTimeout: 'SSH connection timed out. The host may be unreachable or asleep.',
       sshErrUpdateRequired: 'Update Hermes on the remote host before connecting with Desktop SSH.',
       sshErrUnknown: 'SSH connection failed.'
@@ -2632,7 +2632,7 @@ export const en: Translations = {
     viewDocs: 'View install docs',
     installTo: 'Will install to',
     retryAfterRun: 'I’ve run it -- retry',
-    setupChoiceTitle: 'Set up Hermes Vietnamese',
+    setupChoiceTitle: 'Set up AI for Boss',
     setupChoiceDesc:
       'Connect this app to a Hermes gateway you already run, or install Hermes locally on this computer.',
     connectExistingTitle: 'Connect to existing Hermes',
@@ -2640,10 +2640,10 @@ export const en: Translations = {
     connectExistingDesc: 'Use a remote backend with a session token or browser sign-in. No local install will start.',
     installLocalTitle: 'Install Hermes locally',
     installLocalDesc: 'Download Hermes, create its Python environment, and run the backend on this computer.',
-    localStartUnavailable: 'Local installation could not start. Restart Hermes Vietnamese and try again.',
+    localStartUnavailable: 'Local installation could not start. Restart AI for Boss and try again.',
     remoteSetupTitle: 'Connect to existing Hermes',
     remoteSetupDesc:
-      'Enter your gateway URL. Hermes Vietnamese will detect whether it needs a token or browser sign-in.',
+      'Enter your gateway URL. AI for Boss will detect whether it needs a token or browser sign-in.',
     remoteUrlTitle: 'Gateway URL',
     remoteUrlDesc: 'Use the base URL of the Hermes gateway, including https:// when remote.',
     remoteUrlPlaceholder: 'https://gateway.example.com/hermes',
@@ -2905,7 +2905,7 @@ export const en: Translations = {
       update: 'update',
       updateInProgress: 'Update in progress',
       commitsBehind: (count, branch) => `${count} commit${count === 1 ? '' : 's'} behind ${branch}`,
-      desktopVersion: version => `Hermes Vietnamese v${version}`,
+      desktopVersion: version => `AI for Boss v${version}`,
       backendVersion: version => `Backend v${version}`,
       clientLabel: version => `client v${version}`,
       connectionSsh: host => `SSH: ${host}`,
@@ -3546,8 +3546,8 @@ export const en: Translations = {
     sessionExportFailed: 'Could not export session',
     imageSaved: 'Image saved',
     downloadStarted: 'Download started',
-    restartToUseSaveImage: 'Restart Hermes Vietnamese to use Save Image.',
-    restartToSaveImages: 'Restart Hermes Vietnamese to save images',
+    restartToUseSaveImage: 'Restart AI for Boss to use Save Image.',
+    restartToSaveImages: 'Restart AI for Boss to save images',
     imageDownloadFailed: 'Image download failed',
     openImage: 'Open image',
     downloadImage: 'Download image',

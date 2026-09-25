@@ -606,7 +606,7 @@ export async function requestGatewayForAgent<T>(
   }
 
   if (!window.hermesDesktop?.getConnectionFor) {
-    throw new Error('This Desktop build cannot dial registry connections. Update Hermes Vietnamese.')
+    throw new Error('This Desktop build cannot dial registry connections. Update AI for Boss.')
   }
 
   const entry = g.secondaries.get(scope) ?? createSecondary(key, connectionId)
@@ -677,7 +677,7 @@ export async function openGatewayForAgent(connectionId: null | string, profile: 
   }
 
   if (!window.hermesDesktop?.getConnectionFor) {
-    throw new Error('This Desktop build cannot dial registry connections. Update Hermes Vietnamese.')
+    throw new Error('This Desktop build cannot dial registry connections. Update AI for Boss.')
   }
 
   const entry = g.secondaries.get(scope) ?? createSecondary(profile, connectionId)
@@ -699,7 +699,7 @@ export async function ensureGatewayForAgent(connectionId: null | string, profile
   }
 
   if (!window.hermesDesktop?.getConnectionFor) {
-    throw new Error('This Desktop build cannot dial registry connections. Update Hermes Vietnamese.')
+    throw new Error('This Desktop build cannot dial registry connections. Update AI for Boss.')
   }
 
   const activationEpoch = beginGatewayActivation()

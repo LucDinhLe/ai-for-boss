@@ -17,7 +17,7 @@ const stores = vi.hoisted(() => {
     tree: atom<SidebarProjectTree[]>([
       {
         id: 'p_alpha',
-        label: 'Hermes Vietnamese',
+        label: 'AI for Boss',
         path: 'C:/work/hermes',
         repos: [],
         sessionCount: 12,
@@ -98,7 +98,7 @@ afterEach(() => {
   stores.tree.set([
     {
       id: 'p_alpha',
-      label: 'Hermes Vietnamese',
+      label: 'AI for Boss',
       path: 'C:/work/hermes',
       repos: [],
       sessionCount: 12,
@@ -115,7 +115,7 @@ describe('ProjectsView', () => {
       </MemoryRouter>
     )
 
-    expect(screen.getByText('Hermes Vietnamese')).toBeTruthy()
+    expect(screen.getByText('AI for Boss')).toBeTruthy()
     expect(screen.getByText('12 sessions')).toBeTruthy()
     expect(screen.getByText('42k tokens')).toBeTruthy()
 

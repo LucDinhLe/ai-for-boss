@@ -115,7 +115,7 @@ export function UninstallSection() {
         },
         {
           mode: 'full',
-          title: 'Gỡ toàn bộ Hermes Vietnamese',
+          title: 'Gỡ toàn bộ AI for Boss',
           description:
             'Gỡ ứng dụng, AI agent và toàn bộ dữ liệu người dùng gồm cấu hình, cuộc trò chuyện, tác vụ định kỳ, thông tin bí mật và nhật ký.',
           consequence:
@@ -191,7 +191,7 @@ export function UninstallSection() {
         ) : (
           <div className="flex flex-col gap-2">
             <p className="text-sm font-medium">
-              {isVi ? 'Gỡ cài đặt Hermes Vietnamese' : 'Uninstall Hermes Vietnamese'}
+              {isVi ? 'Gỡ cài đặt AI for Boss' : 'Uninstall AI for Boss'}
             </p>
             <p className="text-xs text-muted-foreground">
               {isVi

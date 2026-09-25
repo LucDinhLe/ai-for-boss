@@ -7,8 +7,8 @@ import { zh } from './zh'
 import { zhHant } from './zh-hant'
 
 describe('Vietnamese community interface', () => {
-  it('uses the Hermes Vietnamese product name and factual attribution', () => {
-    expect(vi.settings.about.heading).toBe('Hermes Vietnamese')
+  it('uses the AI for Boss product name and factual attribution', () => {
+    expect(vi.settings.about.heading).toBe('AI for Boss')
     expect(vi.settings.about.upstreamPublisherValue).toBe('Hermes Agent · Nous Research')
     expect(vi.settings.about.communityMaintainer).toContain('Nhà phát hành')
     expect(vi.settings.about.communityMaintainerValue).toBe('Lê Đình Lực (LucDinhLe)')

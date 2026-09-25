@@ -1,9 +1,9 @@
 {
   "name": "hermes",
-  "productName": "Hermes Vietnamese",
+  "productName": "AI for Boss",
   "private": true,
   "version": "0.32.1",
-  "description": "Hermes Vietnamese, the MIT-licensed community desktop distribution of Hermes Agent.",
+  "description": "AI for Boss, a Vietnamese AI assistant for business owners built on the Hermes Vietnamese shell and Hermes Agent (MIT).",
   "author": "Lê Đình Lực (LucDinhLe)",
   "license": "MIT",
   "homepage": "https://github.com/LucDinhLe/hermes-agent-vietnamese",
@@ -186,24 +186,24 @@
   },
   "build": {
     "electronVersion": "42.8.0",
-    "appId": "vn.lucledinh.hermes-vietnamese",
-    "productName": "Hermes Vietnamese",
-    "executableName": "HermesVietnamese",
+    "appId": "vn.lucledinh.ai-for-boss",
+    "productName": "AI for Boss",
+    "executableName": "AIforBoss",
     "protocols": [
       {
-        "name": "Hermes Vietnamese Protocol",
+        "name": "AI for Boss Protocol",
         "schemes": [
-          "hermes-vi"
+          "aiforboss"
         ]
       }
     ],
-    "artifactName": "Hermes-${version}-${os}-${arch}.${ext}",
+    "artifactName": "AI-for-Boss-${version}-${os}-${arch}.${ext}",
     "icon": "assets/icon",
     "publish": [
       {
         "provider": "github",
         "owner": "LucDinhLe",
-        "repo": "hermes-agent-vietnamese"
+        "repo": "ai-for-boss"
       }
     ],
     "directories": {
@@ -253,11 +253,11 @@
       "entitlements": "electron/entitlements.mac.plist",
       "entitlementsInherit": "electron/entitlements.mac.inherit.plist",
       "extendInfo": {
-        "CFBundleDisplayName": "Hermes Vietnamese",
-        "CFBundleExecutable": "HermesVietnamese",
-                "NSAudioCaptureUsageDescription": "Hermes Vietnamese uses audio capture for voice conversations.",
-        "NSCameraUsageDescription": "Hermes Vietnamese uses the camera when a plugin or feature you enable requests it.",
-        "NSMicrophoneUsageDescription": "Hermes Vietnamese uses the microphone for voice input and voice conversations."
+        "CFBundleDisplayName": "AI for Boss",
+        "CFBundleExecutable": "AIforBoss",
+                "NSAudioCaptureUsageDescription": "AI for Boss uses audio capture for voice conversations.",
+        "NSCameraUsageDescription": "AI for Boss uses the camera when a plugin or feature you enable requests it.",
+        "NSMicrophoneUsageDescription": "AI for Boss uses the microphone for voice input and voice conversations."
       },
       "gatekeeperAssess": false,
       "hardenedRuntime": true,
@@ -267,7 +267,7 @@
       ]
     },
     "dmg": {
-      "title": "Install Hermes Vietnamese",
+      "title": "Install AI for Boss",
       "backgroundColor": "#f5f5f7",
       "iconSize": 96,
       "window": {
@@ -289,7 +289,7 @@
       ]
     },
     "win": {
-      "legalTrademarks": "Hermes Vietnamese",
+      "legalTrademarks": "AI for Boss",
       "target": [
         "nsis",
         "msi"
@@ -299,11 +299,11 @@
     "linux": {
       "category": "Development",
       "maintainer": "Lê Đình Lực (LucDinhLe) <LucDinhLe@users.noreply.github.com>",
-      "synopsis": "Hermes Vietnamese, the MIT community desktop distribution of Hermes Agent.",
+      "synopsis": "AI for Boss, a Vietnamese AI assistant for business owners built on Hermes Agent (MIT).",
       "desktop": {
         "entry": {
-          "Name": "Hermes Vietnamese",
-          "StartupWMClass": "HermesVietnamese"
+          "Name": "AI for Boss",
+          "StartupWMClass": "AIforBoss"
         }
       },
       "target": [
@@ -316,10 +316,10 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "perMachine": false,
-      "shortcutName": "Hermes Vietnamese",
-      "uninstallDisplayName": "Hermes Vietnamese",
+      "shortcutName": "AI for Boss",
+      "uninstallDisplayName": "AI for Boss",
       "warningsAsErrors": false,
-      "guid": "f55add5f-6655-5c1d-b8e3-d7252a8a4152"
+      "guid": "b8c4dfe2-50c5-51f8-a0d1-da0ef72b3150"
     }
   }
 }

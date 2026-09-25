@@ -271,7 +271,7 @@ describe('useProjectTree', () => {
   })
 })
 
-describe('useProjectTree keeps expanded folders (Hermes Vietnamese 2026.9.5)', () => {
+describe('useProjectTree keeps expanded folders (AI for Boss 2026.9.5)', () => {
   const fs: Record<string, { name: string; path: string; isDirectory: boolean }[]> = {
     '/p': [
       { name: 'src', path: '/p/src', isDirectory: true },

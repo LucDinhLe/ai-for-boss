@@ -33,8 +33,8 @@ export function residentSelfUpdateRefusal() {
     name: 'hermes-update',
     error: RESIDENT_UPDATE_DISABLED_CODE,
     message:
-      'Hermes Vietnamese đóng kèm dịch vụ nền trong bộ cài nên không cập nhật tại chỗ được. ' +
+      'AI for Boss đóng kèm dịch vụ nền trong bộ cài nên không cập nhật tại chỗ được. ' +
       'Hãy tải bộ cài mới từ trang phát hành.',
-    update_command: 'install the latest Hermes Vietnamese release'
+    update_command: 'install the latest AI for Boss release'
   }
 }

@@ -55,7 +55,7 @@ export const ar = defineLocale({
     pathCopied: 'تم نسخ المسار'
   },
   boot: {
-    ready: 'Hermes Vietnamese جاهز',
+    ready: 'AI for Boss جاهز',
     desktopBootFailedWithMessage: message => `فشل تشغيل سطح المكتب: ${message}`,
     steps: {
       connectingGateway: 'جار الاتصال ببوابة سطح المكتب',
@@ -63,7 +63,7 @@ export const ar = defineLocale({
       loadingSessions: 'جار تحميل الجلسات الأخيرة',
       retryingRemoteBackend: 'جارٍ إعادة الاتصال بخادم Hermes البعيد…',
       startingDesktopConnection: 'جار بدء اتصال سطح المكتب',
-      startingHermesDesktop: 'جار تشغيل Hermes Vietnamese...'
+      startingHermesDesktop: 'جار تشغيل AI for Boss...'
     },
     errors: {
       backgroundExited: 'خرجت عملية Hermes الخلفية.',
@@ -128,7 +128,7 @@ export const ar = defineLocale({
       elevenLabsNeedsKey: 'يتطلب ElevenLabs STT المفتاح ELEVENLABS_API_KEY.',
       elevenLabsRejectedKey: 'رفض ElevenLabs مفتاح API (401).',
       diskFull: 'القرص ممتلئ — حرّر مساحة ثم أعد المحاولة.',
-      methodNotAllowed: 'رفضت خلفية سطح المكتب هذا الطلب (405 Method Not Allowed). جرب إعادة تشغيل Hermes Vietnamese.',
+      methodNotAllowed: 'رفضت خلفية سطح المكتب هذا الطلب (405 Method Not Allowed). جرب إعادة تشغيل AI for Boss.',
       microphonePermission: 'تم رفض إذن الميكروفون.',
       openaiRejectedApiKey: 'رفض OpenAI مفتاح API.',
       openaiRejectedApiKeyWithStatus: status => `رفض OpenAI مفتاح API (${status} invalid_api_key).`,
@@ -388,7 +388,7 @@ export const ar = defineLocale({
         }
       },
       test: 'إرسال إشعار تجريبي',
-      testTitle: 'Hermes Vietnamese',
+      testTitle: 'AI for Boss',
       testBody: 'الإشعارات تعمل.',
       testSent: 'تم إرسال التجربة. إذا لم يظهر شيء، تحقق من أذونات الإشعارات في نظام التشغيل ووضع التركيز/عدم الإزعاج.',
       testUnsupported: 'هذا النظام لا يدعم الإشعارات الأصلية.',
@@ -407,7 +407,7 @@ export const ar = defineLocale({
       advanced: 'متقدم'
     },
     searchPlaceholder: {
-      about: 'حول Hermes Vietnamese',
+      about: 'حول AI for Boss',
       config: 'ابحث في الإعدادات...',
       gateway: 'اتصال البوابة...',
       keys: 'ابحث في مفاتيح API...',
@@ -430,7 +430,7 @@ export const ar = defineLocale({
     },
     appearance: {
       title: 'المظهر',
-      intro: 'خصص مظهر Hermes Vietnamese.',
+      intro: 'خصص مظهر AI for Boss.',
       colorMode: 'نمط الألوان',
       colorModeDesc: 'اختر الوضع الفاتح أو الداكن أو اتبع النظام.',
       toolViewTitle: 'عرض الأدوات',
@@ -657,7 +657,7 @@ export const ar = defineLocale({
       communityMaintainerValue: 'Lê Đình Lực (LucDinhLe)',
       license: 'الترخيص',
       licenseValue: 'ترخيص MIT',
-      communityUpdateChannel: 'قناة Hermes Vietnamese · GitHub Releases',
+      communityUpdateChannel: 'قناة AI for Boss · GitHub Releases',
       bundleOutOfSync: 'إصدار التطبيق قديم',
       bundleOutOfSyncDesc:
         'تم تحديث وقت تشغيل Hermes، لكن تطبيق سطح المكتب نفسه لا يزال إصدارًا قديمًا — لن تظهر ميزات الواجهة الجديدة (مثل Agents) حتى يتم تحديث التطبيق. شغّل التحديث أدناه لإعادة بناء التطبيق. إذا لم يختفِ هذا التحذير، فأعد التثبيت من أحدث مثبّت لسطح المكتب.',
@@ -677,7 +677,7 @@ export const ar = defineLocale({
       updateReadyUnknown: 'تحديث جديد جاهز.',
       notifyOnlyReady: version => `الإصدار ${version} متاح. لا يقوم هذا التطبيق بتثبيت التحديثات بنفسه: نزّل المثبّت وتحقق من SHA-256 ثم شغّله.`,
       openDownloadPage: 'افتح صفحة التنزيل',
-      notifyOnlyDesc: 'يكتفي Hermes Vietnamese بإشعارك بالإصدارات الجديدة ولا ينزّل أو يثبّت شيئًا بنفسه؛ نزّل المثبّت من GitHub Releases وتحقق من قيمة التحقق.',
+      notifyOnlyDesc: 'يكتفي AI for Boss بإشعارك بالإصدارات الجديدة ولا ينزّل أو يثبّت شيئًا بنفسه؛ نزّل المثبّت من GitHub Releases وتحقق من قيمة التحقق.',
       checksumLine: (filename, sizeMb, sha256) => `${filename} · ${sizeMb} MB · SHA-256 ${sha256}`,
       lastChecked: age => `آخر تحقق ${age}`,
       justNowSuffix: 'الآن',
@@ -741,7 +741,7 @@ export const ar = defineLocale({
       title: 'اتصال البوابة',
       envOverride: 'تجاوز من البيئة',
       intro:
-        'يشغّل Hermes Vietnamese بوابة محلية خاصة افتراضياً. استخدم بوابة بعيدة عندما تريد أن يتحكم هذا التطبيق بخلفية Hermes تعمل مسبقاً على جهاز آخر أو خلف وكيل موثوق. اتصالات البوابة إعداد على مستوى الجهاز؛ ويتم اكتشاف الملفات الشخصية من البوابات المتصلة.',
+        'يشغّل AI for Boss بوابة محلية خاصة افتراضياً. استخدم بوابة بعيدة عندما تريد أن يتحكم هذا التطبيق بخلفية Hermes تعمل مسبقاً على جهاز آخر أو خلف وكيل موثوق. اتصالات البوابة إعداد على مستوى الجهاز؛ ويتم اكتشاف الملفات الشخصية من البوابات المتصلة.',
       envOverrideTitle: 'متغيرات البيئة تتحكم في جلسة سطح المكتب هذه.',
       envOverrideDesc: 'أزل HERMES_DESKTOP_REMOTE_URL و HERMES_DESKTOP_REMOTE_TOKEN لاستخدام الإعداد المحفوظ أدناه.',
       localTitle: 'بوابة محلية',
@@ -781,7 +781,7 @@ export const ar = defineLocale({
       enterUrlFirst: 'أدخل رابط البوابة البعيدة أولاً.',
       restartingTitle: 'جار إعادة تشغيل اتصال البوابة',
       savedTitle: 'تم حفظ إعدادات البوابة',
-      restartingMessage: 'سيعيد Hermes Vietnamese الاتصال باستخدام الإعدادات المحفوظة.',
+      restartingMessage: 'سيعيد AI for Boss الاتصال باستخدام الإعدادات المحفوظة.',
       savedMessage: 'تم الحفظ للتشغيل القادم.',
       connectedTo: (baseUrl, version) => `متصل بـ ${baseUrl}${version ? ` · Hermes ${version}` : ''}`,
       reachableTitle: 'البوابة البعيدة قابلة للوصول',
