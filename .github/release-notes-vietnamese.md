@@ -14,22 +14,22 @@
 
 ## Thay đổi
 
-- Sửa tạo phiên bằng dấu cộng, gửi tin đầu tiên, định tuyến model và ngữ cảnh ảnh Advisor từ dòng d14.
-- Đóng kèm Python 3.12.10 và thư viện bắt buộc; không tải install.ps1 để khởi động lõi lần đầu.
-- Giữ phạm vi/thư mục cài khi nâng cấp, sửa trình gỡ Windows với các lựa chọn giữ hoặc xóa dữ liệu.
-- Đánh số năm.tháng.lần cập nhật trong tháng; tiếp theo có thể là 2026.9.3 hoặc 2026.10.1.
+- Hết cảnh báo "Dịch vụ nền đã cũ" lặp lại. Giao diện và lõi đọc cùng một số hợp đồng (6), bản đóng gói sẵn không còn nút cập nhật tại chỗ dễ làm hỏng lõi.
+- Hết nhấp nháy ô chat và nút model xoay tròn. Kết nối phụ đang gắn với một phiên chạy không còn bị lõi đóng sau 20 giây rồi mở lại.
+- Terminal không còn giật con trỏ khỏi ô chat; ô chat giữ nguyên chữ đang gõ khi kết nối lại.
+- Giảm lỗi socket hang up và ECONNRESET. Kết nối giữ sống đóng trước khi lõi đóng, yêu cầu an toàn được thử lại một lần.
+- Cây thư mục không còn tự thu gọn khi nạp lại, các thư mục đang mở được giữ theo từng dự án.
+- Ô tìm tệp kiểu Ctrl+P của VS Code: ưu tiên tên tệp, gõ không dấu vẫn tìm được, có danh sách mở gần đây, Enter để mở, Ctrl+Enter để đưa tệp vào ô chat.
 
 ## Bằng chứng và giới hạn
 
-[Nghiệm thu exact installer](https://github.com/LucDinhLe/hermes-agent-vietnamese/actions/runs/33798311695) đạt cả currentuser/allusers: cài mới, gateway, ba tab bằng dấu cộng, gửi tin, công cụ mô phỏng, giữ lịch sử khi mở lại, nâng cấp từ vi-v0.32.1-18, repair, gỡ giữ dữ liệu, cài lại, rollback và gỡ toàn bộ dữ liệu đã chọn.
+Bộ kiểm thử giao diện đạt toàn bộ, trừ 6 bài ChatView đã hỏng sẵn trên main từ trước. Cùng mã nguồn này đã chạy dưới tên bản thử nghiệm [v2026.9.5-thunghiem.4](https://github.com/LucDinhLe/hermes-agent-vietnamese/releases/tag/v2026.9.5-thunghiem.4) trên máy Windows x64 thật của chủ dự án; nhật ký không còn vòng nạp lại 20 giây và ô tìm tệp chạy đúng. Bộ cài Latest được dựng lại từ tag v2026.9.5 nên khác byte với bản thử nghiệm.
 
-Source bất biến `b51f306eae2370adc774b63f198ab12990bcf063`; harness `d4847fe844b426bfac9ee0b295993e95fbbe80a7`. Bộ cài dựng native Windows x64, kiểm thử trên Windows x64 GitHub. Không nhận đã thử mọi máy Windows hay quyền Luna/Gemini/Claude của mọi tài khoản.
-
-2026.9.2 chưa có macOS, Linux hoặc Windows ARM64. Các gói cũ thuộc bản lịch sử [vi-v0.32.1-18](https://github.com/LucDinhLe/hermes-agent-vietnamese/releases/tag/vi-v0.32.1-18); macOS cũ chưa đạt yêu cầu ký/công chứng cho người dùng thường.
+Đây là community pilot, chưa phải stable. Windows chưa ký số, macOS ký ad-hoc, Linux không có cơ chế ký. macOS và Linux mới được dựng, chưa thử trên máy thật. Chưa đo bộ nhớ khi chạy dài ngày; SQLite đóng kèm chưa nâng lên 3.50.7; tìm tệp chưa hỗ trợ kết nối từ xa.
 
 ## Cài đè và quay lui
 
-Sao lưu, kiểm tra bản sao, chờ công việc xong rồi đóng ứng dụng/gateway nền trước khi cài. Cài đè giữ dữ liệu theo thiết kế; không chọn gỡ toàn bộ để nâng cấp. Kiểm tra lịch sử và kết nối sau cài. Bản quay lui Windows x64 là vi-v0.32.1-18; giữ bản sao dữ liệu mới hơn trước mọi lần khôi phục.
+Sao lưu, kiểm tra bản sao, chờ công việc xong rồi đóng ứng dụng/gateway nền trước khi cài. Cài đè giữ dữ liệu theo thiết kế; không chọn gỡ toàn bộ để nâng cấp. Kiểm tra lịch sử và kết nối sau cài. Bản quay lui là [2026.9.4](https://github.com/LucDinhLe/hermes-agent-vietnamese/releases/tag/v2026.9.4); giữ bản sao dữ liệu mới hơn trước mọi lần khôi phục.
 
 Xem [hướng dẫn cài đặt](https://github.com/LucDinhLe/hermes-agent-vietnamese/blob/main/README.vi.md) và [sao lưu/khôi phục](https://github.com/LucDinhLe/hermes-agent-vietnamese/blob/main/docs/sao-luu-khoi-phuc.md).
 

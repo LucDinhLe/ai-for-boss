@@ -6,6 +6,7 @@ import {
   isPendingDraftPersistCurrent,
   type PendingDraftPersist,
   pickPlaceholder,
+  shouldDisableComposerInput,
   slashArgStage,
   slashChipKindForItem,
   slashCommandToken,
@@ -125,5 +126,19 @@ describe('isPendingDraftPersistCurrent (#54527 integrity guard)', () => {
 
   it('rejects when nothing was ever captured', () => {
     expect(isPendingDraftPersistCurrent(null, null)).toBe(false)
+  })
+})
+
+describe('shouldDisableComposerInput (reconnect keeps the draft editable)', () => {
+  it.each([
+    ['connecting', true, false],
+    ['closed', true, false],
+    ['error', true, false],
+    ['idle', true, false],
+    ['open', true, true],
+    ['open', false, false],
+    ['connecting', false, false]
+  ] as const)('state %s, disabled %s → locked %s', (state, disabled, locked) => {
+    expect(shouldDisableComposerInput(disabled, state)).toBe(locked)
   })
 })

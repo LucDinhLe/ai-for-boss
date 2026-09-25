@@ -26,6 +26,7 @@ import {
   reconnectSecondaryGateways,
   reportPrimaryGatewayState,
   setPrimaryGateway,
+  setSecondaryPinCheck,
   touchSecondaryGateways
 } from '@/store/gateway'
 import { registerGatewayReconnect } from '@/store/gateway-reconnect'
@@ -51,6 +52,7 @@ import {
 import {
   $attentionSessionIds,
   $workingSessionIds,
+  boundSessionTargets,
   liveSessionScopes,
   recordPrimarySessionEventSource,
   recordSessionEventScope,
@@ -573,6 +575,15 @@ export function useGatewayBoot({
 
     // Keep live pool backends alive while this window is open (the main process
     // can't observe the direct renderer↔backend WS). No-op for the primary.
+    // Pin every secondary that still carries a bound runtime (see
+    // setSecondaryPinCheck): an idle prune or dispose-after-RPC must not orphan
+    // a session the user is looking at.
+    setSecondaryPinCheck(entry => {
+      const { profiles, scopes } = boundSessionTargets()
+
+      return scopes.has(entry.scope) || (!entry.connectionId && profiles.has(normalizeProfileKey(entry.profile)))
+    })
+
     const keepaliveTimer = setInterval(() => {
       touchActiveGatewayBackend()
       touchSecondaryGateways()
@@ -784,6 +795,7 @@ export function useGatewayBoot({
       clearReconnectTimer()
       clearBootRetryTimer()
       clearInterval(keepaliveTimer)
+      setSecondaryPinCheck(null)
       offWorking()
       offAttention()
       offActiveProfile()

@@ -76,3 +76,31 @@ export function observeActiveTerminalResize(
     }
   }
 }
+
+/** True when the user is typing in an editable field OUTSIDE this terminal
+ *  (the chat composer, a search box). A terminal mounting or re-activating in
+ *  the background — a new session's cwd, an agent process tab, a status flip —
+ *  must not yank the caret out of that field mid-sentence (Hermes Vietnamese
+ *  2026.9.5: "the chat input flickers and I lose what I was typing"). An
+ *  explicit terminal open comes from a click on a button, which is not an
+ *  editable field, so it still focuses the new shell. */
+export function isEditingOutside(host: Element): boolean {
+  const active = document.activeElement as HTMLElement | null
+
+  if (!active || active === document.body || host.contains(active)) {
+    return false
+  }
+
+  return (
+    active.isContentEditable ||
+    active.getAttribute('contenteditable') === 'true' ||
+    active instanceof HTMLInputElement ||
+    active instanceof HTMLTextAreaElement
+  )
+}
+
+export function focusTerminalIfFree(term: { focus: () => void } | null | undefined, host: Element | null): void {
+  if (term && host && !isEditingOutside(host)) {
+    term.focus()
+  }
+}

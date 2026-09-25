@@ -123,6 +123,7 @@
       "scripts/check-public-docs.test.mjs",
       "scripts/create-v321-pilot-evidence.mjs",
       "scripts/create-v321-pilot-evidence.test.mjs",
+      "scripts/desktop-contract.mjs",
       "scripts/engine-sync.mjs",
       "scripts/engine-sync.test.mjs",
       "scripts/local-candidate-derived-outputs.mjs",

@@ -9,7 +9,7 @@ import { markRightPanePerf } from '@/debug/right-pane-events'
 import { triggerHaptic } from '@/lib/haptics'
 import { useTheme } from '@/themes/context'
 
-import { observeActiveTerminalResize } from './active-resize'
+import { focusTerminalIfFree, observeActiveTerminalResize } from './active-resize'
 import { registerAgentTerminalWriter } from './agent-terminal-stream'
 import { makeTerminalReader, registerTerminalReader } from './buffer'
 import { mirrorSelection, terminalClipboardIntent } from './clipboard'
@@ -215,7 +215,7 @@ export function useAgentTerminal({ active, id, procId }: { active: boolean; id: 
         // Take focus on activation (parity with the user terminal) so the active
         // agent tab holds focus and ⌘W's isFocusWithin('[data-terminal]') routes
         // the close to this tab rather than to a preview.
-        term?.focus()
+        focusTerminalIfFree(term, hostRef.current)
       }
     })
   }, [active])

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { observeActiveTerminalResize } from './active-resize'
+import { focusTerminalIfFree, isEditingOutside, observeActiveTerminalResize } from './active-resize'
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -155,5 +155,48 @@ describe('observeActiveTerminalResize', () => {
 
     expect(onActivate).toHaveBeenCalledOnce()
     expect(onFit).not.toHaveBeenCalled()
+  })
+})
+
+describe('focusTerminalIfFree (never steal the chat caret)', () => {
+  it('does not focus the terminal while the user is typing in the composer', () => {
+    const host = document.createElement('div')
+    const editor = document.createElement('div')
+    editor.setAttribute('contenteditable', 'true')
+    document.body.append(host, editor)
+    editor.focus()
+
+    const term = { focus: vi.fn() }
+    focusTerminalIfFree(term, host)
+
+    expect(term.focus).not.toHaveBeenCalled()
+    expect(isEditingOutside(host)).toBe(true)
+    host.remove()
+    editor.remove()
+  })
+
+  it('focuses the terminal after an explicit open (focus on a button or nowhere)', () => {
+    const host = document.createElement('div')
+    const button = document.createElement('button')
+    document.body.append(host, button)
+    button.focus()
+
+    const term = { focus: vi.fn() }
+    focusTerminalIfFree(term, host)
+
+    expect(term.focus).toHaveBeenCalledTimes(1)
+    host.remove()
+    button.remove()
+  })
+
+  it('keeps focus inside the terminal when it already has it', () => {
+    const host = document.createElement('div')
+    const inner = document.createElement('textarea')
+    host.append(inner)
+    document.body.append(host)
+    inner.focus()
+
+    expect(isEditingOutside(host)).toBe(false)
+    host.remove()
   })
 })

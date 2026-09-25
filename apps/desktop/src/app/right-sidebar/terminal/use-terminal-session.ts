@@ -14,7 +14,7 @@ import { useTheme } from '@/themes/context'
 
 import { $terminalInjection } from '../store'
 
-import { observeActiveTerminalResize } from './active-resize'
+import { focusTerminalIfFree, observeActiveTerminalResize } from './active-resize'
 import { makeTerminalReader, registerTerminalReader } from './buffer'
 import { mirrorSelection, terminalClipboardIntent } from './clipboard'
 import { terminalLinkHandler, terminalWebLinksAddon } from './links'
@@ -896,7 +896,7 @@ export function useTerminalSession({
 
       term.open(host)
       mountedRef.current = true
-      term.focus()
+      focusTerminalIfFree(term, host)
 
       // WebGL renderer matches the dashboard ChatPage path; xterm's default DOM
       // renderer paints SGR via CSS classes that visibly mute against our skins.
@@ -1018,7 +1018,7 @@ export function useTerminalSession({
 
         webglRef.current?.clearTextureAtlas()
         term?.refresh(0, term.rows - 1)
-        term?.focus()
+        focusTerminalIfFree(term, hostRef.current)
       }
     })
   }, [active, status])

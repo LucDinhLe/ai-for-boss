@@ -25,6 +25,7 @@ import { HapticsProvider } from './components/haptics-provider'
 import { RootTooltipProvider } from './components/ui/tooltip'
 import { I18nProvider } from './i18n'
 import { installClipboardShim } from './lib/clipboard'
+import { installFocusForensics } from './lib/focus-forensics'
 import { queryClient } from './lib/query-client'
 import { installRendererAnimationPauseState } from './lib/renderer-loop-pause'
 import { ThemeProvider } from './themes/context'
@@ -62,6 +63,7 @@ if (winParam === 'overlay') {
   // main window's focus/visibility state to :root so decorative infinite
   // animations stop producing frames when nobody can see them.
   installRendererAnimationPauseState()
+  installFocusForensics()
 
   createRoot(document.getElementById('root')!).render(
     <StrictMode>

@@ -99,9 +99,14 @@ function isUpdateToastSnoozed(): boolean {
 // v5: requires raised WebSocket frame size for large one-shot file.attach.
 // v6: requires key-addressed plugins.manage rows (keyless rows render
 //     read-only in Settings → Plugins).
-// v7: requires per-session Advisor state in session.create/session.info and
-//     session-scoped config.set Advisor toggles.
-const REQUIRED_BACKEND_CONTRACT = 7
+//
+// Hermes Vietnamese: this number MUST equal the DESKTOP_BACKEND_CONTRACT of the
+// core pinned in engine.lock (scripts/engine-sync.mjs check enforces it). The
+// fork once set 7 here for its own Advisor RPCs; upstream later assigned 7 to
+// an unrelated capability (JSON-RPC server->client prompts, v2026.9.14), so a
+// fork-only capability must never borrow this integer. Advisor support is
+// feature-detected from session.info.advisor_enabled instead.
+export const REQUIRED_BACKEND_CONTRACT = 6
 const SKEW_TOAST_ID = 'backend-contract-skew'
 // The contract check runs on every session.resume (applyRuntimeInfo), so
 // without a snooze the warning re-popped on every thread the user opened, even
@@ -162,18 +167,28 @@ export function reportBackendContract(contract: number | undefined): void {
     return
   }
 
+  // Only a remote backend can update itself in place. A local backend is the
+  // payload bundled inside this app (Program Files / the .app): running
+  // `hermes update` there fails (read-only install) or, on a per-user install,
+  // overwrites the pinned core. Point the user at a new installer instead.
+  const remote = $connection.get()?.mode === 'remote'
+
   notify({
-    action: {
-      label: translateNow('notifications.updateHermes'),
-      onClick: () => {
-        snoozeSkewToast()
-        void applyBackendUpdate()
-      }
-    },
+    action: remote
+      ? {
+          label: translateNow('notifications.updateHermes'),
+          onClick: () => {
+            snoozeSkewToast()
+            void applyBackendUpdate()
+          }
+        }
+      : undefined,
     durationMs: 0,
     id: SKEW_TOAST_ID,
     kind: 'warning',
-    message: translateNow('notifications.backendOutOfDateMessage'),
+    message: translateNow(
+      remote ? 'notifications.backendOutOfDateMessage' : 'notifications.backendOutOfDateBundledMessage'
+    ),
     onDismiss: () => snoozeSkewToast(),
     title: translateNow('notifications.backendOutOfDateTitle')
   })

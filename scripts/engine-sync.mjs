@@ -10,6 +10,8 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { contractMismatch } from './desktop-contract.mjs'
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const lock = JSON.parse(fs.readFileSync(path.join(ROOT, 'engine.lock'), 'utf8'))
 const mode = process.argv[2] ?? 'check'
@@ -90,6 +92,17 @@ function drift() {
 ensureEngineCommit()
 
 if (mode === 'check') {
+  const contractError = contractMismatch(
+    execFileSync('git', ['show', `${lock.engine.commit}:tui_gateway/server.py`], {
+      cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe']
+    }),
+    fs.readFileSync(path.join(ROOT, 'apps/desktop/src/store/updates.ts'), 'utf8')
+  )
+  if (contractError) {
+    console.error(`[engine-sync] LỆCH CONTRACT DESKTOP: ${contractError}`)
+    console.error('Sửa: đặt REQUIRED_BACKEND_CONTRACT trong apps/desktop/src/store/updates.ts bằng số của lõi.')
+    process.exit(1)
+  }
   const d = drift()
   if (d.length === 0) {
     console.log(`[engine-sync] OK: lõi khớp ${lock.engine.tag} (${lock.engine.commit.slice(0, 12)}), overlay ${overlay.length} mục`)

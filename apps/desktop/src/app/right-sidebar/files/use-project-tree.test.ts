@@ -270,3 +270,87 @@ describe('useProjectTree', () => {
     expect(result.current.data).toEqual([])
   })
 })
+
+describe('useProjectTree keeps expanded folders (Hermes Vietnamese 2026.9.5)', () => {
+  const fs: Record<string, { name: string; path: string; isDirectory: boolean }[]> = {
+    '/p': [
+      { name: 'src', path: '/p/src', isDirectory: true },
+      { name: 'README.md', path: '/p/README.md', isDirectory: false }
+    ],
+    '/p/src': [{ name: 'deep', path: '/p/src/deep', isDirectory: true }],
+    '/p/src/deep': [{ name: 'a.ts', path: '/p/src/deep/a.ts', isDirectory: false }],
+    '/q': [{ name: 'other.md', path: '/q/other.md', isDirectory: false }]
+  }
+
+  beforeEach(() => {
+    readDir.mockImplementation(async path => ok(fs[path] ?? []))
+  })
+
+  async function openTwoLevels(result: { current: ReturnType<typeof useProjectTree> }) {
+    await waitFor(() => expect(result.current.data.length).toBe(2))
+    await act(async () => {
+      result.current.setNodeOpen('/p/src', true)
+      await result.current.loadChildren('/p/src')
+      result.current.setNodeOpen('/p/src/deep', true)
+      await result.current.loadChildren('/p/src/deep')
+    })
+  }
+
+  const deepChildren = (data: ReturnType<typeof useProjectTree>['data']) =>
+    data
+      .find(n => n.id === '/p/src')
+      ?.children?.find(n => n.id === '/p/src/deep')
+      ?.children?.map(n => n.name)
+
+  it('refresh never blanks the tree and keeps loaded subtrees', async () => {
+    const { result } = renderHook(() => useProjectTree('/p'))
+
+    await openTwoLevels(result)
+    expect(deepChildren(result.current.data)).toEqual(['a.ts'])
+
+    const sizes: number[] = []
+
+    await act(async () => {
+      const pending = result.current.refreshRoot()
+      sizes.push(result.current.data.length)
+      await pending
+    })
+
+    expect(sizes.every(size => size > 0)).toBe(true)
+    expect(deepChildren(result.current.data)).toEqual(['a.ts'])
+    expect(result.current.openState).toMatchObject({ '/p/src': true, '/p/src/deep': true })
+  })
+
+  it('a transient null connection does not wipe or reload the tree', async () => {
+    const conn = { mode: 'local', profile: 'default', baseUrl: 'http://127.0.0.1:1' } as never
+
+    $connection.set(conn)
+    const { result } = renderHook(() => useProjectTree('/p'))
+
+    await openTwoLevels(result)
+    const rootReads = readDir.mock.calls.filter(([path]) => path === '/p').length
+
+    await act(async () => {
+      $connection.set(null)
+    })
+    await act(async () => {
+      $connection.set(conn)
+    })
+
+    expect(readDir.mock.calls.filter(([path]) => path === '/p').length).toBe(rootReads)
+    expect(deepChildren(result.current.data)).toEqual(['a.ts'])
+  })
+
+  it('switching to another project and back reopens the same folders', async () => {
+    const { rerender, result } = renderHook(({ cwd }) => useProjectTree(cwd), { initialProps: { cwd: '/p' } })
+
+    await openTwoLevels(result)
+
+    rerender({ cwd: '/q' })
+    await waitFor(() => expect(result.current.data.map(n => n.name)).toEqual(['other.md']))
+
+    rerender({ cwd: '/p' })
+    await waitFor(() => expect(deepChildren(result.current.data)).toEqual(['a.ts']))
+    expect(result.current.openState).toMatchObject({ '/p/src': true, '/p/src/deep': true })
+  })
+})

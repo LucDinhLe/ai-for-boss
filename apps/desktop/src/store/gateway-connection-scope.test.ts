@@ -31,6 +31,7 @@ vi.mock('@/hermes', () => ({
     }
     onEvent = vi.fn(() => () => {})
     onState = vi.fn(() => () => {})
+    request = async (method: string): Promise<unknown> => ({ method })
   }
 }))
 vi.mock('@/store/session', () => ({
@@ -40,11 +41,15 @@ vi.mock('@/store/session', () => ({
 vi.mock('@/store/notify-baseline', () => ({ markNativeNotifyBaseline: vi.fn() }))
 
 const {
+  bindsSessionRuntime,
   closeSecondaryGateways,
   configureGatewayRegistry,
   openGatewayForAgent,
   pruneSecondaryGateways,
-  setPrimaryGateway
+  requestGatewayForAgent,
+  SECONDARY_MIN_LIFETIME_MS,
+  setPrimaryGateway,
+  setSecondaryPinCheck
 } = await import('./gateway')
 
 function installDesktop(): void {
@@ -71,6 +76,7 @@ function installDesktop(): void {
 }
 
 beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] })
   installDesktop()
   configureGatewayRegistry({ onEvent: vi.fn() })
   setPrimaryGateway({ connectionState: 'open' } as never, 'default')
@@ -78,7 +84,9 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  setSecondaryPinCheck(null)
   closeSecondaryGateways()
+  vi.useRealTimers()
   vi.clearAllMocks()
   delete (window as unknown as { hermesDesktop?: unknown }).hermesDesktop
 })
@@ -89,6 +97,7 @@ describe('pruneSecondaryGateways with registry-scoped entries', () => {
     // 'default'). The keep-set carries the bare 'default' profile because the
     // LOCAL source has live work; that must not pin homelab's socket.
     await openGatewayForAgent('homelab', 'default')
+    ageSockets()
 
     pruneSecondaryGateways(new Set(['default']))
 
@@ -110,8 +119,56 @@ describe('pruneSecondaryGateways with registry-scoped entries', () => {
 
     expect(gatewayMocks.closed).toEqual([])
 
+    ageSockets()
     pruneSecondaryGateways(new Set())
 
     expect(gatewayMocks.closed).toHaveLength(1)
   })
+
+  it('never closes a socket opened moments ago (prune/redial race, 20 s orphan-reap loop)', async () => {
+    await openGatewayForAgent('homelab', 'default')
+
+    pruneSecondaryGateways(new Set())
+
+    expect(gatewayMocks.closed).toEqual([])
+  })
+
+  it('never closes a socket that still carries a bound session runtime', async () => {
+    await openGatewayForAgent('homelab', 'default')
+    ageSockets()
+    setSecondaryPinCheck(entry => entry.scope === 'conn:homelab::default')
+
+    pruneSecondaryGateways(new Set())
+    expect(gatewayMocks.closed).toEqual([])
+
+    setSecondaryPinCheck(null)
+    pruneSecondaryGateways(new Set())
+    expect(gatewayMocks.closed).toHaveLength(1)
+  })
 })
+
+describe('session RPCs keep their registry socket', () => {
+  it('does not dispose the socket that a session.resume just bound a runtime to', async () => {
+    await requestGatewayForAgent('local', 'default', 'session.resume', { session_id: 's1' })
+
+    expect(gatewayMocks.closed).toEqual([])
+  })
+
+  it('still disposes a socket used for a one-off read', async () => {
+    await requestGatewayForAgent('homelab', 'default', 'profiles.list', {})
+
+    expect(gatewayMocks.closed).toHaveLength(1)
+  })
+
+  it('classifies runtime-binding methods', () => {
+    expect(bindsSessionRuntime('session.resume')).toBe(true)
+    expect(bindsSessionRuntime('session.create')).toBe(true)
+    expect(bindsSessionRuntime('prompt.submit')).toBe(true)
+    expect(bindsSessionRuntime('session.title')).toBe(false)
+    expect(bindsSessionRuntime('profiles.list')).toBe(false)
+  })
+})
+
+function ageSockets() {
+  vi.setSystemTime(Date.now() + SECONDARY_MIN_LIFETIME_MS + 1_000)
+}

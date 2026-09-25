@@ -343,6 +343,8 @@ export const vi = defineLocale({
     backendOutOfDateTitle: 'Dịch vụ nền đã cũ',
     backendOutOfDateMessage:
       'Dịch vụ nền Hermes cũ hơn ứng dụng Desktop và có thể hoạt động không đúng. Hãy cập nhật để hai phần cùng phiên bản.',
+    backendOutOfDateBundledMessage:
+      'Dịch vụ nền đóng kèm ứng dụng không khớp với bản Desktop này. Hãy cài bản Hermes Vietnamese mới nhất từ trang phát hành; bản đóng gói không hỗ trợ cập nhật dịch vụ nền tại chỗ.',
     installMethodUnsupportedTitle: 'Phương pháp cài đặt không được hỗ trợ',
     updateHermes: 'Cập nhật Hermes',
     updateReadyTitle: 'Đã sẵn sàng cập nhật',
@@ -447,6 +449,7 @@ export const vi = defineLocale({
     actions: {
       'keybinds.openPanel': 'Mở phím tắt',
       'nav.commandPalette': 'Mở bảng lệnh',
+      'files.quickOpen': 'Tìm tệp theo tên',
       'nav.commandCenter': 'Mở trung tâm chỉ huy',
       'nav.settings': 'Mở cài đặt',
       'nav.profiles': 'Mở hồ sơ',
@@ -814,7 +817,8 @@ export const vi = defineLocale({
       cantReach: 'Chúng tôi không thể truy cập máy chủ cập nhật.',
       tapCheck: 'Nhấn vào "Kiểm tra ngay" để tìm kiếm thông tin cập nhật.',
       updateReady: count => `Một bản cập nhật mới đã sẵn sàng (${count} thay đổi bao gồm).`,
-      notifyOnlyReady: version => `Đã có phiên bản ${version}. Ứng dụng không tự cài: bạn tải bộ cài, đối chiếu SHA-256 rồi chạy.`,
+      notifyOnlyReady: version =>
+        `Đã có phiên bản ${version}. Ứng dụng không tự cài: bạn tải bộ cài, đối chiếu SHA-256 rồi chạy.`,
       openDownloadPage: 'Mở trang tải',
       notifyOnlyDesc:
         'Hermes Vietnamese chỉ báo khi có phiên bản mới. Ứng dụng không tự tải hay tự cài; bạn tải bộ cài từ GitHub Releases và kiểm mã tệp trước khi chạy.',
@@ -1151,10 +1155,11 @@ export const vi = defineLocale({
         signingIn: 'Đang chờ trình duyệt…',
         connected: 'Đã kết nối',
         tierLabel: 'Bậc',
-        caveat: 'Dùng chung cửa với Gemini CLI. Google có thể thay đổi hoặc đóng cửa này; đây không phải nhà cung cấp chính thức của Hermes.',
-        errorPrefix: 'Đăng nhập Google gặp lỗi'
-        ,projectPlaceholder: 'Mã dự án Google Cloud (ví dụ my-project-123456)'
-        ,projectSave: 'Lưu dự án'
+        caveat:
+          'Dùng chung cửa với Gemini CLI. Google có thể thay đổi hoặc đóng cửa này; đây không phải nhà cung cấp chính thức của Hermes.',
+        errorPrefix: 'Đăng nhập Google gặp lỗi',
+        projectPlaceholder: 'Mã dự án Google Cloud (ví dụ my-project-123456)',
+        projectSave: 'Lưu dự án'
       },
       haveApiKey: 'Bạn có khóa API không?',
       intro:
@@ -3057,6 +3062,13 @@ export const vi = defineLocale({
     folderTip: cwd => cwd,
     openFolder: 'Mở thư mục',
     refreshTree: 'Làm mới cây thư mục',
+    fileSearchPlaceholder: 'Tìm tệp theo tên (Ctrl+P)',
+    fileSearchLoading: 'Đang lập danh mục tệp…',
+    fileSearchNoResults: 'Không có tệp khớp',
+    fileSearchUnavailable: 'Tìm tệp hiện chỉ hỗ trợ thư mục nằm trên máy này.',
+    fileSearchTruncated: count => `Đang tìm trong ${count} tệp đầu tiên`,
+    fileSearchRecent: 'Mở gần đây',
+    fileSearchHint: 'Enter để mở · Ctrl+Enter để đưa vào ô chat · Esc để xoá',
     collapseAll: 'Thu gọn tất cả các thư mục',
     previewUnavailable: 'Không có bản xem trước',
     couldNotPreview: path => `Không thể xem trước ${path}`,

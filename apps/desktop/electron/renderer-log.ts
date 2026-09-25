@@ -45,12 +45,14 @@ export function formatRendererConsoleLine(
     detailsOrLevel && typeof detailsOrLevel === 'object' ? (detailsOrLevel as ConsoleMessageDetails) : null
 
   const level = details ? details.level : detailsOrLevel
+  const text = details ? details.message : message
 
-  if (level !== 3) {
+  // Error level only, plus the renderer's focus diagnostics (warn level,
+  // content-free) so "input loses focus" reports carry their cause.
+  if (level !== 3 && !String(text ?? '').startsWith('[focus-forensics]')) {
     return null
   }
 
-  const text = details ? details.message : message
   const src = details ? details.sourceUrl : sourceId
   const lineNo = details ? details.lineNumber : line
 

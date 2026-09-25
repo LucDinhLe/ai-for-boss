@@ -451,3 +451,22 @@ Cụm lớn nhất: `agent/turn_budget.py` (mới, 657 dòng — TurnGovernor), 
 | M | `website/package.json` | GREEN | +1/-1 | Cosmetic/đổi tên kho, dịch/rebrand, bump lockfile, hoặc test không đổi hành vi lõi. |
 
 Tổng: 300 tệp = G 67 + Y 212 + R 21
+
+## Vỏ desktop mượn bản sửa upstream (2026.9.5)
+
+Các mảnh dưới đây nằm trong `apps/desktop` (vỏ), không đụng lõi. Chép từ
+upstream `NousResearch/hermes-agent` sau tag lõi đang ghim để sửa lỗi ổn định
+bản 2026.9.4. Điều kiện xoá chung: khi vỏ rebase lên desktop upstream mới hơn
+đã có sẵn các mảnh này.
+
+| Tệp | Nguồn upstream | Lý do | Test |
+|---|---|---|---|
+| `apps/desktop/electron/api-transport.ts` | `v2026.9.7` (#92976), thêm `FREE_SOCKET_TIMEOUT_MS = 4000` | Đua keep-alive 5 s giữa Node và uvicorn gây `socket hang up`/`ECONNRESET`; retry an toàn theo verb | `electron/api-transport.test.ts` |
+| `shouldDisableComposerInput` trong `src/app/chat/composer/composer-utils.ts` | `main` (09/2026) | Ô nhập bị khoá lúc `connecting`, mất focus và nhấp nháy mỗi lần nối lại | `composer-utils.test.ts` |
+| `composerStaysMounted` trong `src/app/chat/thread-loading.ts` | `main` (#117375) | Composer bị gỡ khỏi cây khi có loader thoáng qua | `thread-loading.test.ts` |
+| `keepVisible`/`reset` trong `src/app/right-sidebar/files/use-project-tree.ts` | `main` (ý tưởng), viết lại cho vỏ | Làm mới cây xoá sạch thư mục đang mở | `use-project-tree.test.ts` |
+
+Mã riêng của vỏ thêm trong đợt này: `scripts/desktop-contract.mjs` (cổng
+contract), `electron/resident-update-guard.ts` (chặn `hermes update` với bản
+đóng kèm), `electron/fs-list-files.ts` + `src/lib/fuzzy-file-match.ts` +
+`src/app/right-sidebar/files/quick-search.tsx` (ô tìm tệp kiểu VS Code, Ctrl+P).

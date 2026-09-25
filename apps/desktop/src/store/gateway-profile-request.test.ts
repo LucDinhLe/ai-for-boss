@@ -57,7 +57,8 @@ const {
   pruneSecondaryGateways,
   requestGatewayForAgent,
   requestGatewayForProfile,
-  setPrimaryGateway
+  setPrimaryGateway,
+  setSecondaryPinCheck
 } = await import('./gateway')
 
 function installDesktop(getConnection: ReturnType<typeof vi.fn>): void {
@@ -110,6 +111,22 @@ describe('requestGatewayForProfile', () => {
     )
     expect(secondaryGateways[0].close).toHaveBeenCalledOnce()
     expect($gateway.get()).toBe(primary)
+  })
+
+  it('keeps a pooled socket open after the RPC while a session runtime is bound to it', async () => {
+    const primary = makePrimary()
+    setPrimaryGateway(primary as never, 'default')
+    installDesktop(
+      vi.fn(async (profile: null | string) =>
+        profile ? { port: 5151, profile, token: 'secondary-token' } : { port: 4242, token: 'primary-token' }
+      )
+    )
+    setSecondaryPinCheck(entry => entry.profile === 'worker')
+
+    await requestGatewayForProfile('worker', 'session.resume', { session_id: 's1' })
+
+    expect(secondaryGateways[0].close).not.toHaveBeenCalled()
+    setSecondaryPinCheck(null)
   })
 
   it('uses the primary socket and adds profile scope for a shared global remote route', async () => {

@@ -1,5 +1,6 @@
 import type {
   HermesConnection,
+  HermesListFilesResult,
   HermesReadDirResult,
   HermesReadFileTextResult,
   HermesSelectPathsOptions
@@ -69,6 +70,18 @@ export async function readDesktopDir(path: string): Promise<HermesReadDirResult>
   }
 
   return remoteFsApi<HermesReadDirResult>(fsPath('list', path))
+}
+
+/** Flat file index of a local project root for the file panel search. Remote
+ *  backends have no listing endpoint yet, so they report `remote-unsupported`. */
+export async function listDesktopFiles(root: string): Promise<HermesListFilesResult> {
+  const listFiles = window.hermesDesktop?.listFiles
+
+  if (isDesktopFsRemoteMode() || !listFiles) {
+    return { error: 'remote-unsupported', files: [], root, source: 'none', truncated: false }
+  }
+
+  return listFiles(root)
 }
 
 export async function readDesktopFileText(path: string): Promise<HermesReadFileTextResult> {
