@@ -2,6 +2,17 @@
 
 Mọi thay đổi đáng kể của AI for Boss được ghi tại đây bằng ngôn ngữ người vận hành có thể hiểu.
 
+## [0.0.5-beta.45] - 2026-09-25
+
+### Changed
+
+- **Trang Nhà cung cấp dựng lại theo đúng bố cục mẫu Product Owner đưa.** Mỗi nhà cung cấp là một thẻ: logo, tên, mã lõi, một viên trạng thái xanh ("OAuth đang hoạt động", "API key đang hoạt động"), ngôi sao và cây bút. Dưới thẻ là các tài khoản treo trên một đường dọc, đánh số, tài khoản đầu mang nhãn primary. Mỗi dòng có sáu biểu tượng cố định: mức dùng, đặt nhãn, đăng nhập lại, đưa lên, đưa xuống, gỡ. Nút "Thêm nhà cung cấp" màu xanh nằm cạnh đoạn giải thích đầu trang (spec 0067).
+- **Ngôi sao chọn nhà cung cấp cho cuộc trò chuyện mới**, thay cho ô chọn mô hình mặc định trên đầu trang. Thẻ đang được chọn có viền xanh. Mô hình cụ thể vẫn đổi ở mục Mô hình.
+- **Cây bút và nút đăng nhập lại mở thẳng hộp thoại ở đúng nhà cung cấp đó**, không phải chọn lại hãng.
+- **Đặt nhãn cho từng tài khoản** (ví dụ Công ty, Cá nhân) để phân biệt khi một hãng có nhiều tài khoản. Nhãn chỉ lưu trên máy này, không gửi vào lõi.
+- **Đăng nhập bằng trình duyệt chỉ còn một cú bấm.** Bấm Đăng nhập OAuth là trang của hãng tự mở; đăng nhập xong thì hộp thoại tự hoàn tất rồi tự đóng. Trước đây phải bấm Mở trang đăng nhập, rồi bấm Đã đăng nhập xong, rồi gặp một ô dán đường dẫn mà phần lớn không cần. Ô dán ấy nay chỉ hiện như lối dự phòng khi trình duyệt báo lỗi. Mã thiết bị (Grok, Copilot) hiện to và nằm yên trên màn hình suốt lúc chờ.
+- **Chọn hãng được ngay khi mở hộp thoại**, không phải chờ lượt dò tài khoản nửa phút; bước sau tự hiện khi dò xong. Hộp thoại không còn nhắc lại danh sách tài khoản và bỏ hai nút cuối (Tải lại danh sách chỉ hiện khi có lỗi).
+
 ## [0.0.5-beta.44] - 2026-09-22
 
 ### Fixed

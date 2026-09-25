@@ -19,8 +19,8 @@ const text = node => Array.isArray(node) ? node.map(text).join('') : node && typ
  * the page without a DOM. Spec 0063 took the catalogue off this page, so asking
  * for it here is now a failure, not a fourth slot.
  */
-function render(props, { cards = null, error = null, busy = null, manageCalls = [], setupCalls = [] } = {}) {
-  const exports = {}, catalogueMounts = [], queue = [cards, error, busy];
+function render(props, { cards = null, error = null, busy = null, defaultModel = null, labels = {}, manageCalls = [], setupCalls = [] } = {}) {
+  const exports = {}, catalogueMounts = [], queue = [cards, error, busy, defaultModel, labels, null, '', null, null];
   let index = 0;
   const source = fs.readFileSync(new URL('../../apps/desktop/src/ProviderSettings.tsx', import.meta.url), 'utf8');
   vm.runInNewContext(ts.transpileModule(source, { compilerOptions: {
@@ -101,96 +101,110 @@ test('projection: a stale stored order never hides a working account, and reorde
   assert.equal(providerAccounts.accountName('openai:work@example.com'), 'work@example.com');
 });
 
-test('the page leads with the running model, then the accounts in the order the core will try them', () => {
-  const clicks = [];
-  const { tree, catalogueMounts } = render({ ready: true, models, currentProvider: 'anthropic', currentModel: 'claude',
-    onConnect: query => clicks.push(query ?? 'connect'), onChangeModel: () => clicks.push('change-model') }, { cards: cards() });
+const icons = tree => walk(tree).filter(node => node.type === 'button' && String(node.props.className ?? '').includes('pset__icon'));
+
+test('the page reads like the reference screen: one add button, a card per provider with its pill, star and pencil (0067)', async () => {
+  const clicks = [], manageCalls = [];
+  const { tree, catalogueMounts } = render({ ready: true, models, onConnect: query => clicks.push(query ?? 'connect') },
+    { cards: cards(), defaultModel: 'anthropic/claude', manageCalls });
   const rendered = text(tree);
-  assert.match(rendered, /Mô hình mặc định — cuộc trò chuyện mới nào cũng bắt đầu bằng cái này/,
-    'the model every new conversation starts on is set here, not picked for the user');
-  const picker = walk(tree).find(node => node.type === 'select' && node.props['aria-label'] === 'Mô hình mặc định');
-  assert.deepEqual(picker.props.children[1].map(option => option.props.value),
-    ['openai-codex/gpt', 'anthropic/claude', 'anthropic/claude-2'],
-    'only what the core reports as available, never a model the shell made up');
-  assert.match(rendered, /Cuộc trò chuyện đang mở dùng claude/, 'and the session model is named as the separate thing it is');
-  assert.match(rendered, /1ca-nhan/, 'the first account is numbered one');
-  assert.match(rendered, /Dùng trước/);
-  assert.match(rendered, /Đang dùng claude/, 'the card says which model is live rather than a bare count');
-  assert.match(rendered, /1 mô hình khả dụng/);
-  assert.match(rendered, /Lõi còn hỗ trợ, chưa nối tài khoản nào:.*Gemini \/ Google/,
-    'a provider with no account is one dim line, no longer a card of its own');
-  assert.equal(catalogueMounts.length, 0, 'the full catalogue and its native scan are gone from this page');
-  const primary = walk(tree).find(node => node.type === 'button' && node.props.className === 'settings-primary');
-  assert.equal(text(primary), 'Thêm nhà cung cấp');
-  primary.props.onClick(); assert.deepEqual(clicks, ['connect']);
-  walk(tree).find(node => node.type === 'button' && text(node) === 'Mở mục Mô hình').props.onClick();
-  assert.deepEqual(clicks, ['connect', 'change-model']);
+  assert.match(rendered, /Cấu hình nhà cung cấp mô hình AI và API key/);
+  assert.match(rendered, /Tài khoản primary được dùng trước/, 'the lead explains primary and fallback in one paragraph');
+  assert.equal(catalogueMounts.length, 0, 'the full catalogue and its native scan stay off this page');
+  assert.doesNotMatch(rendered, /Lõi còn hỗ trợ/, 'no dim tail of unconnected providers: the add dialog owns that');
+  const add = walk(tree).find(node => node.type === 'button' && String(node.props.className).includes('pset__add'));
+  assert.equal(text(add), 'Thêm nhà cung cấp');
+  add.props.onClick(); assert.deepEqual(clicks, ['connect']);
+  assert.match(rendered, /OAuth đang hoạt động/, 'one pill per card says what kind of connection and whether it works');
+  assert.match(rendered, /API key đang hoạt động/);
+  assert.match(rendered, /Openai-Codex/, 'the core id sits under the brand name');
+  assert.match(rendered, /1ca-nhanprimary/, 'rows are numbered, and the first carries the primary badge');
+  const cardsOnPage = walk(tree).filter(node => String(node.props?.className ?? '').startsWith('pcard ') || node.props?.className === 'pcard');
+  assert.deepEqual(cardsOnPage.map(node => node.props.className), ['pcard', 'pcard pcard--default'],
+    'the provider behind the default model is the outlined card');
+  const stars = icons(tree).filter(node => node.props['aria-label']?.endsWith('làm nhà cung cấp mặc định'));
+  assert.equal(stars.length, 2, 'every card has its star');
+  const anthropicStar = stars.find(node => node.props['aria-label'].includes('Claude'));
+  assert.equal(anthropicStar.props['aria-pressed'], true);
+  assert.equal(anthropicStar.props.disabled, true, 'the default cannot be chosen again');
+  stars.find(node => node.props['aria-label'].includes('ChatGPT')).props.onClick();
+  await new Promise(resolve => setTimeout(resolve, 10));
+  assert.equal(JSON.stringify(manageCalls[0]), JSON.stringify({ action: 'default-model-set', model: 'openai-codex/gpt' }),
+    'the star picks a model the core reports as available for that provider, through the fixed host action');
+  const pencil = icons(tree).find(node => node.props['aria-label'] === 'Sửa kết nối Claude / Anthropic');
+  pencil.props.onClick(); assert.deepEqual(clicks, ['connect', 'anthropic'], 'the pencil opens the dialog at that provider');
 });
 
 test('a provider with models but no stored account still shows up', () => {
   // Claude reached through the Claude Code CLI has models and no auth profile.
-  // Before this, authStatus drove the whole list and such a provider was invisible.
   const withCli = providerAccounts.providerCards(
     [{ provider: 'openai-codex', status: 'static', profiles: [{ profileId: 'openai-codex:setup-3c9947ca9182', type: 'api_key', status: 'static' }] }],
     { modelCounts: { 'openai-codex': 1, anthropic: 2 } });
   const anthropic = withCli.find(card => card.provider === 'anthropic');
   assert.ok(anthropic, 'a provider the core has models for is listed even with no credential of its own');
   assert.equal(anthropic.accounts.length, 0);
-  assert.equal(anthropic.modelCount, 2);
+  assert.equal(anthropic.pill.label, 'Ứng dụng trên máy đang hoạt động');
   const { tree } = render({ ready: true, models, onConnect() {} }, { cards: withCli });
-  assert.match(text(tree), /Không có tài khoản lưu ở đây/, 'and the page says plainly why it has no account rows');
-  assert.doesNotMatch(text(tree), /Lõi còn hỗ trợ, chưa nối tài khoản nào:.*Claude/,
-    'it is connected through an app, so it does not belong in the not-connected tail');
+  assert.match(text(tree), /Chạy qua ứng dụng đã đăng nhập sẵn trên máy/, 'and the page says plainly why it has no account rows');
 });
 
-test('usage rides on the card, because the core reports no per-account figure', () => {
+test('usage sits on every row, and says it is the provider figure, because the core has no per-account one', () => {
   const { tree } = render({ ready: true, models, onConnect() {} }, { cards: cards() });
-  const meters = walk(tree).filter(node => node.type === 'button' && node.props.className === 'provider-cards__icon');
-  assert.equal(meters.length, 2, 'one per connected provider');
-  const anthropic = meters.find(node => node.props['aria-label'] === 'Mức dùng của Claude / Anthropic');
-  assert.equal(anthropic.props.title, 'Mức dùng theo lõi ghi nhận: Max · còn 62% cửa sổ 5 giờ');
-  const openai = meters.find(node => node.props['aria-label'] === 'Mức dùng của ChatGPT / OpenAI');
+  const meters = icons(tree).filter(node => node.props['aria-label']?.startsWith('Mức dùng'));
+  assert.equal(meters.length, 3, 'one per account row, as on the reference screen');
+  const anthropic = meters.find(node => node.props['aria-label'] === 'Mức dùng của tài khoản 1 của Claude / Anthropic');
+  assert.equal(anthropic.props.title, 'Mức dùng của Claude / Anthropic: Max · còn 62% cửa sổ 5 giờ');
+  const openai = meters.find(node => node.props['aria-label'] === 'Mức dùng của tài khoản 1 của ChatGPT / OpenAI');
   assert.equal(openai.props.disabled, true, 'no figure from the core means a dimmed button, not a missing one');
   assert.match(openai.props.title, /chưa báo mức dùng/);
 });
 
-test('every row carries the same four icons, dimmed with a reason where the core says no', async () => {
+test('every row carries the same six icons, dimmed with a reason where the core says no', async () => {
   const manageCalls = [];
   const { tree } = render({ ready: true, models, onConnect() {} }, { cards: cards(), manageCalls });
-  const icons = walk(tree).filter(node => node.type === 'button' && String(node.props.className ?? '').includes('provider-accounts__icon'));
-  assert.equal(icons.length, 12, 'three accounts, four icons each, whatever the core allows');
-  for (const icon of icons) {
+  const all = icons(tree).filter(node => !node.props['aria-label']?.endsWith('làm nhà cung cấp mặc định') && !node.props['aria-label']?.startsWith('Sửa kết nối'));
+  assert.equal(all.length, 18, 'three accounts, six icons each, whatever the core allows');
+  for (const icon of icons(tree)) {
     assert.ok(icon.props.title?.length, 'an icon with no words on it must say what it does on hover');
     assert.ok(icon.props['aria-label']?.length, 'and must say it to a screen reader');
   }
-  const up = icons.filter(node => node.props['aria-label']?.startsWith('Đưa') && text(node) === '↑');
+  const up = all.filter(node => node.props['aria-label']?.endsWith('lên trên'));
   assert.equal(up.length, 3, 'the single-account provider keeps its slot instead of dropping a button');
-  // Rows are addressed by position and provider now, because several accounts
-  // under one provider can share every readable detail.
   const upFor = (position, provider) => up.find(node => node.props['aria-label'] === `Đưa tài khoản ${position} của ${provider} lên trên`);
   assert.equal(upFor(1, 'Claude / Anthropic').props.disabled, true, 'the first account cannot move up');
   assert.equal(upFor(1, 'Claude / Anthropic').props.title, 'Đã ở trên cùng');
   const alone = upFor(1, 'ChatGPT / OpenAI');
   assert.equal(alone.props.disabled, true);
-  assert.equal(alone.props.title, 'Lõi không cho đổi thứ tự ở nhà cung cấp này', 'a blocked button explains itself');
+  assert.equal(alone.props.title, 'Chỉ có một tài khoản, chưa có gì để đổi thứ tự', 'a blocked button explains itself');
   await upFor(2, 'Claude / Anthropic').props.onClick();
   await new Promise(resolve => setTimeout(resolve, 10));
   assert.equal(JSON.stringify(manageCalls[0]), JSON.stringify({ action: 'provider-order-set', provider: 'anthropic', profileIds: ['anthropic:cong-ty', 'anthropic:ca-nhan'] }),
     'the write is a fixed action carrying the whole new order');
   assert.ok(manageCalls.slice(1).some(call => call.action === 'provider-order-read'), 'and the page rereads what the core stored');
-  const remove = icons.filter(node => node.props['aria-label']?.startsWith('Gỡ tài khoản'));
+  const remove = all.filter(node => node.props['aria-label']?.startsWith('Gỡ tài khoản'));
   assert.equal(remove.length, 3);
   assert.equal(remove.filter(node => !node.props.disabled).length, 2, 'only the two profiles the core marked logoutSupported');
-  const again = icons.filter(node => node.props['aria-label']?.startsWith('Đăng nhập lại'));
-  assert.equal(again.length, 3, 're-login is offered on every account, and routes into the one connect flow');
+  assert.equal(all.filter(node => node.props['aria-label']?.startsWith('Đăng nhập lại')).length, 3, 're-login on every account');
+  assert.equal(all.filter(node => node.props['aria-label']?.startsWith('Đặt nhãn')).length, 3, 'and a label on every account');
+});
+
+test('a label is the shell\'s own note: it names the row and never reaches the core', () => {
+  const manageCalls = [], setupCalls = [];
+  const { tree } = render({ ready: true, models, onConnect() {} },
+    { cards: cards(), labels: { 'anthropic:ca-nhan': 'Công ty' }, manageCalls, setupCalls });
+  assert.match(text(tree), /1Công typrimary/, 'the label replaces the raw profile name');
+  assert.doesNotMatch(text(tree), /ca-nhan/);
+  const tag = icons(tree).find(node => node.props['aria-label'] === 'Đặt nhãn cho tài khoản 1 của Claude / Anthropic');
+  assert.match(tag.props.title, /chỉ lưu trên máy này/, 'and it says where the label lives');
+  assert.equal(manageCalls.length + setupCalls.length, 0);
 });
 
 test('a blank machine gets one clear call to action', () => {
   const blank = render({ ready: true, models: [], onConnect() {} }, { cards: [] });
   assert.match(text(blank.tree), /Chưa có tài khoản nào/);
   const offline = render({ ready: false, models, onConnect() {} }, { cards: null });
-  assert.match(text(offline.tree), /Bật Gateway/);
-  assert.equal(walk(offline.tree).find(node => node.type === 'button' && node.props.className === 'settings-primary').props.disabled, true);
+  assert.match(text(offline.tree), /Bộ chạy đang khởi động/);
+  assert.equal(walk(offline.tree).find(node => node.type === 'button' && String(node.props.className).includes('pset__add')).props.disabled, true);
   const loading = render({ ready: true, models, onConnect() {} }, { cards: null });
   assert.match(text(loading.tree), /Đang đọc danh sách tài khoản/);
   const failed = render({ ready: true, models, onConnect() {} }, { cards: [], error: 'kênh thiết lập chưa sẵn sàng' });

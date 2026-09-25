@@ -616,6 +616,26 @@ label em { min-height: 13px; color: var(--danger); font-size: 9px; font-style: n
 .connect__footer button { padding: 8px 15px; border: 1px solid var(--copper); border-radius: 8px; background: var(--copper-soft); font-size: 12.5px; }
 .connect__verdict { color: var(--muted); font-size: 12.5px; }
 .connect__error { margin: 0; padding: 10px 12px; border: 1px solid var(--danger); border-radius: 8px; color: var(--danger); font-size: 12.5px; line-height: 1.5; word-break: break-word; }
+.connect__error p { margin: 0 0 8px; }
+.connect__error button, .connect__note button { padding: 6px 12px; border: 1px solid var(--hairline); border-radius: 7px; background: var(--paper); color: var(--ink); font-size: 12.5px; }
+/* Spec 0067: the brand picker is a grid of large cards, the reference screen's size. */
+.connect__options--brands { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.connect__options--brands button { padding: 14px 16px; }
+.connect__options--brands strong { font-size: 14px; font-weight: 600; }
+.connect__options--primary button { border-color: var(--pset-blue, #3f5bd9); background: var(--pset-blue-soft, #eef1fd); }
+.connect__options--primary strong { font-weight: 600; }
+.connect__or { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+.connect .connect__paths-head h2 { margin: 0; font-size: 15px; letter-spacing: 0; text-transform: none; color: var(--ink); }
+.connect__paths-head button { padding: 6px 12px; border: 1px solid var(--hairline); border-radius: 7px; background: var(--paper); color: var(--ink); font-size: 12.5px; }
+.connect__waiting { display: flex; flex-direction: column; gap: 8px; max-width: 760px; padding: 16px 18px; border: 1px solid var(--pset-blue, #3f5bd9);
+  border-radius: 12px; background: var(--pset-blue-soft, #eef1fd); }
+.connect__waiting p { margin: 0; font-size: 13px; }
+.connect__waiting progress { width: 100%; height: 6px; }
+.connect__code { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.connect__code-value { font-size: 22px; font-weight: 700; letter-spacing: .12em; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.connect__code small { color: var(--muted); font-size: 12px; }
+.connect__status--ok { border-color: var(--pset-ok, #2f8a45); background: var(--pset-ok-bg, #e5f4e8); }
+@media (max-width: 700px) { .connect__options--brands { grid-template-columns: minmax(0, 1fr); } }
 .workspace__title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: var(--muted); }
 .workspace__topbar .run-pill { font-size: 10px; }
 .composer-options { position: relative; display: flex; align-items: center; gap: 4px; flex: 0 0 auto; margin: 2px 14px 5px; color: var(--muted); font-size: 12px; }
@@ -850,57 +870,86 @@ label em { min-height: 13px; color: var(--danger); font-size: 9px; font-style: n
 .provider-settings__list li { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: center; }
 .provider-settings__list li small { grid-column: 2; color: var(--muted); font-size: 11.5px; }
 
-/* Settings → Nhà cung cấp (spec 0060): one card per provider, its accounts in the
-   order the core will try them. Tones are read from the core's own health words. */
-.provider-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.provider-head h2 { margin: 0; }
-.provider-cards { display: flex; flex-direction: column; gap: 12px; margin: 16px 0 6px; padding: 0; list-style: none; }
-.provider-cards__item { border: 1px solid var(--hairline); border-radius: 10px; padding: 14px 16px; background: var(--paper); }
-.provider-cards__head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 12px; }
-.provider-cards__head svg, .provider-cards__head img { width: 22px; height: 22px; }
-.provider-cards__head strong { display: block; font-size: 14.5px; }
-.provider-cards__health { display: block; font-size: 11.5px; color: var(--muted); }
-.provider-cards__health--ok { color: var(--safe); }
-.provider-cards__health--warn { color: var(--copper); }
-.provider-cards__health--error { color: var(--danger); }
-.provider-cards__count { color: var(--muted); font-size: 12px; text-align: right; }
-.provider-cards__usage { margin: 10px 0 0; color: var(--muted); font-size: 11.5px; }
-.provider-accounts { display: flex; flex-direction: column; gap: 6px; margin: 12px 0 0; padding: 0; list-style: none; counter-reset: none; }
-.provider-accounts li { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto auto; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--hairline); border-radius: 8px; background: var(--surface); }
-.provider-accounts__rank { color: var(--muted); font-size: 12px; text-align: center; }
-.provider-accounts__name { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; min-width: 0; font-size: 13.5px; overflow-wrap: anywhere; }
-.provider-accounts__name small { flex-basis: 100%; color: var(--muted); font-size: 11px; }
-.provider-accounts__primary { padding: 1px 7px; border-radius: 20px; background: var(--copper-soft); color: var(--copper); font-size: 10.5px; font-style: normal; font-weight: 500; }
-.provider-accounts__health { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
-.provider-accounts__health--ok { color: var(--safe); }
-.provider-accounts__health--warn { color: var(--copper); }
-.provider-accounts__health--error { color: var(--danger); }
-.provider-accounts__actions { display: flex; align-items: center; gap: 4px; }
-.settings-body .provider-accounts__actions button { margin: 0; padding: 4px 9px; font-size: 12px; line-height: 1.2; }
-.settings-body .provider-accounts__actions button:disabled { opacity: 0.4; }
-.settings-body .provider-accounts__remove { color: var(--danger); }
-.provider-rest { margin: 14px 2px 0; font-size: 12.5px; line-height: 1.6; color: var(--muted); }
+/* Settings → Nhà cung cấp (spec 0067): the layout of the reference screen the
+   Product Owner signed off on 25/09. A card per provider with one status pill,
+   a star and a pencil; its accounts hang under it on a rail, six icons each. */
+:root {
+  --pset-blue: #3f5bd9; --pset-blue-soft: #eef1fd; --pset-bar: #f6f7f9; --pset-line: #e3e5ea;
+  --pset-ok-bg: #e5f4e8; --pset-ok: #2f8a45; --pset-warn-bg: #fdf1dc; --pset-warn: #c07a12;
+  --pset-err-bg: #fbe7e5; --pset-err: #c9372c; --pset-star: #f2c230; --pset-icon: #4a4f5a; --pset-on-blue: #fff;
+}
+:root[data-theme="dark"] {
+  --pset-blue: #8ea2ff; --pset-blue-soft: rgba(142, 162, 255, 0.12); --pset-bar: rgba(255, 255, 255, 0.04);
+  --pset-line: rgba(239, 233, 223, 0.14); --pset-ok-bg: rgba(94, 190, 120, 0.16); --pset-ok: #8fd6a2;
+  --pset-warn-bg: rgba(240, 180, 80, 0.16); --pset-warn: #f0c070; --pset-err-bg: rgba(230, 110, 100, 0.16);
+  --pset-err: #f2a097; --pset-star: #f2c94c; --pset-icon: #c9c2b6; --pset-on-blue: #10152b;
+}
+.pset { max-width: 1120px; }
+.pset__subtitle { margin: -6px 0 18px; color: var(--muted); font-size: 14px; }
+.pset__intro { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 20px; }
+.pset__intro p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; max-width: 820px; }
+.settings-body .pset button.pset__add:not(.tool-icon):not([role="menuitemradio"]) {
+  flex: none; display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 10px 18px; border-radius: 8px;
+  border: 1px solid var(--pset-blue); background: var(--pset-blue); color: var(--pset-on-blue); font-size: 14px; font-weight: 600; }
+.settings-body .pset button.pset__add:disabled { opacity: 0.5; }
+.pset__list { display: flex; flex-direction: column; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.pset__empty { padding: 18px; border: 1px dashed var(--pset-line); border-radius: 10px; color: var(--muted); }
+.pcard { padding: 20px 22px 18px; border: 1px solid var(--pset-line); border-radius: 10px; background: var(--surface); }
+.pcard--default { border: 2px solid var(--pset-blue); padding: 19px 21px 17px; }
+.pcard__head { display: flex; align-items: center; gap: 14px; }
+.pcard__logo { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; }
+.pcard__logo svg, .pcard__logo img, .pcard__logo .brand-icon { flex-basis: 26px; width: 26px; height: 26px; }
+.pcard__head strong { display: block; font-size: 18px; font-weight: 600; color: var(--ink); }
+.pcard__head small { display: block; margin-top: 4px; color: var(--muted); font-size: 13.5px; }
+.pcard__bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; padding: 10px 14px;
+  border-radius: 8px; background: var(--pset-bar); }
+.pcard__status { display: inline-flex; align-items: center; gap: 10px; }
+.pcard__status > svg { width: 18px; height: 18px; }
+.pcard__pill { padding: 5px 14px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+.pcard__status--ok { color: var(--pset-ok); } .pcard__status--ok .pcard__pill { background: var(--pset-ok-bg); }
+.pcard__status--warn { color: var(--pset-warn); } .pcard__status--warn .pcard__pill { background: var(--pset-warn-bg); }
+.pcard__status--error { color: var(--pset-err); } .pcard__status--error .pcard__pill { background: var(--pset-err-bg); }
+.pcard__status--muted { color: var(--muted); } .pcard__status--muted .pcard__pill { background: var(--pset-bar); }
+.pcard__tools { display: inline-flex; align-items: center; gap: 6px; }
+.paccounts { display: flex; flex-direction: column; gap: 10px; margin: 10px 0 0 34px; padding: 0 0 0 18px;
+  list-style: none; border-left: 2px solid var(--pset-line); }
+.paccount { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; align-items: center; gap: 10px;
+  padding: 14px 16px; border: 1px dashed var(--pset-line); border-radius: 10px; background: var(--surface); }
+.paccount__rank { color: var(--muted); font-size: 14px; text-align: center; }
+.paccount__name { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.paccount__title { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.paccount__title strong { font-size: 16px; font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
+.paccount__primary { padding: 2px 10px; border-radius: 20px; background: var(--pset-warn-bg); color: var(--pset-warn);
+  font-size: 13px; font-style: normal; font-weight: 500; }
+.paccount__detail { color: var(--muted); font-size: 13.5px; }
+.paccount__detail--warn { color: var(--pset-warn); }
+.paccount__detail--error { color: var(--pset-err); }
+.paccount__actions { display: inline-flex; align-items: center; gap: 4px; }
+.paccount__usage { grid-column: 2 / -1; margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+.paccount__label { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.paccount__label input { flex: 1 1 auto; min-width: 0; padding: 6px 10px; border: 1px solid var(--pset-line); border-radius: 6px;
+  background: var(--surface); color: var(--ink); font: inherit; }
+.settings-body .pset .paccount__label button:not(.tool-icon):not([role="menuitemradio"]) { margin: 0; padding: 6px 12px; }
 /* Icon-only actions: the tooltip carries the wording, so keep a real target size. */
-.settings-body .provider-accounts__icon, .settings-body .provider-cards__icon {
-  display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px;
-  margin: 0; padding: 0; border: none; background: none; color: var(--muted); border-radius: 7px; }
-.settings-body .provider-accounts__icon svg, .settings-body .provider-cards__icon svg { width: 16px; height: 16px; }
-.settings-body .provider-accounts__icon:hover:enabled, .settings-body .provider-cards__icon:hover:enabled {
-  background: var(--hover); color: var(--ink); }
-.provider-default { display: flex; align-items: center; gap: 16px; }
-.provider-default__caption { margin: 0 0 3px; font-size: 12px; color: var(--muted); }
-.provider-default__model { margin: 0; font-size: 14.5px; font-weight: 600; }
-.provider-default__select { margin: 0; max-width: 420px; font-size: 14px; }
-.provider-default__model span { font-weight: 400; font-size: 13px; color: var(--muted); }
-.provider-default > div { flex: 1 1 auto; min-width: 0; }
-.provider-error { margin: 12px 0 0; padding: 10px 12px; border: 1px solid var(--danger); border-radius: 8px; color: var(--danger); font-size: 12.5px; line-height: 1.5; }
-.provider-foot { margin-top: 14px; }
-.provider-foot p { margin: 4px 0 0; }
+.settings-body .pset button.pset__icon:not(.tool-icon):not([role="menuitemradio"]) {
+  display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 34px; margin: 0; padding: 0;
+  border: none; border-radius: 7px; background: none; color: var(--pset-icon); }
+.settings-body .pset button.pset__icon:hover:enabled { background: var(--pset-blue-soft); color: var(--ink); }
+.settings-body .pset button.pset__icon:disabled { opacity: 0.35; cursor: default; }
+.settings-body .pset button.pset__icon--star.is-on:not(.tool-icon):not([role="menuitemradio"]) { opacity: 1; color: var(--pset-star); }
+.settings-body .pset button.pset__icon--danger:not(.tool-icon):not([role="menuitemradio"]) { color: var(--pset-err); }
+.pset__note { margin: 8px 0 0 52px; color: var(--muted); font-size: 13px; }
+.pset__error { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; padding: 10px 14px;
+  border: 1px solid var(--pset-err); border-radius: 8px; background: var(--pset-err-bg); color: var(--pset-err); font-size: 13px; }
+.pset__error span { flex: 1 1 240px; }
+.settings-body .pset .pset__error button:not(.tool-icon):not([role="menuitemradio"]) { margin: 0; padding: 5px 12px; }
+.pset__toast { position: fixed; right: 24px; bottom: 24px; z-index: 50; max-width: 420px; padding: 12px 16px; border-radius: 10px;
+  background: var(--ink); color: var(--surface); font-size: 13.5px; line-height: 1.5; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18); }
 @media (max-width: 760px) {
-  .provider-cards__head { grid-template-columns: auto minmax(0, 1fr); }
-  .provider-cards__count { grid-column: 2; text-align: left; }
-  .provider-accounts li { grid-template-columns: 20px minmax(0, 1fr); }
-  .provider-accounts__health, .provider-accounts__actions { grid-column: 2; }
+  .pset__intro { flex-direction: column; }
+  .paccounts { margin-left: 8px; padding-left: 10px; }
+  .paccount { grid-template-columns: 22px minmax(0, 1fr); }
+  .paccount__actions { grid-column: 1 / -1; justify-content: flex-end; flex-wrap: wrap; }
 }
 .settings-body h2 { font-size: 16px; margin: 0 0 14px; font-weight: 600; }
 .settings-card p { margin: 9px 0; }
