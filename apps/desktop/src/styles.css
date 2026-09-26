@@ -3207,3 +3207,41 @@ html:has([data-hud-shell]) [data-slot='popover-content'] {
 [data-hud-shell] [data-slot='composer-bounds'] *::-webkit-scrollbar {
   display: none;
 }
+
+/* Chữ ký AI for Boss (components/chat/intro.tsx). Màu lấy từ vành logo Vành Đơn. */
+.afb-wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+}
+.afb-wordmark-ink {
+  background: linear-gradient(135deg, #38bdf8, #4f46b8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.afb-wordmark-gap {
+  display: inline-block;
+  width: 0.3em;
+}
+.afb-wordmark-ring {
+  position: relative;
+  display: inline-block;
+  width: 0.74em;
+  height: 0.74em;
+  margin: 0 0.05em;
+}
+.afb-wordmark-ring svg {
+  position: absolute;
+  left: 50%;
+  bottom: -0.074em;
+  width: 0.888em;
+  height: 0.888em;
+  transform: translateX(-50%);
+}
+.afb-wordmark-core {
+  fill: #3d7a73;
+}
+.dark .afb-wordmark-core {
+  fill: #4fa69d;
+}

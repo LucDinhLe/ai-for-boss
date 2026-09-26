@@ -1,4 +1,4 @@
-import { type CSSProperties, useState } from 'react'
+import { type CSSProperties, useId, useState } from 'react'
 
 import { useI18n } from '@/i18n'
 import { capitalize, normalize } from '@/lib/text'
@@ -145,7 +145,46 @@ function pickCopy(copies: IntroCopy[], seed = 0): IntroCopy {
   return copies[Math.abs(seed) % copies.length] || FALLBACK_COPY[0]
 }
 
-const WORDMARK = 'AI FOR BOSS'
+// Chữ ký AI for Boss: font Collapse, chữ tô chuyển sắc theo vành logo Vành Đơn
+// (#38BDF8 sang #4F46B8), chữ O thay bằng chính logo có chấm tâm. Duyệt 26/09/2026.
+function BrandRing() {
+  const gradientId = `afb-wordmark-ring-${useId().replace(/:/g, '')}`
+
+  return (
+    <span aria-hidden="true" className="afb-wordmark-ring">
+      <svg viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id={gradientId} x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0" stopColor="#38BDF8" />
+            <stop offset="1" stopColor="#4F46B8" />
+          </linearGradient>
+        </defs>
+        <path
+          d="M50,15 A35,35 0 1 1 16,59"
+          fill="none"
+          stroke={`url(#${gradientId})`}
+          strokeLinecap="round"
+          strokeWidth="13"
+        />
+        <circle className="afb-wordmark-core" cx="50" cy="50" r="17" />
+      </svg>
+    </span>
+  )
+}
+
+function BrandWordmark() {
+  return (
+    <span className="afb-wordmark">
+      <span className="afb-wordmark-ink">AI</span>
+      <span className="afb-wordmark-gap" />
+      <span className="afb-wordmark-ink">FOR</span>
+      <span className="afb-wordmark-gap" />
+      <span className="afb-wordmark-ink">B</span>
+      <BrandRing />
+      <span className="afb-wordmark-ink">SS</span>
+    </span>
+  )
+}
 
 const VIETNAMESE_TAGLINE =
   'Nhập một nhiệm vụ, câu hỏi hoặc đoạn mã. AI for Boss ghi nhớ phiên làm việc, dẫn nguồn và sẽ hỏi lại khi chưa chắc chắn.'
@@ -172,14 +211,18 @@ export function Intro({ personality, seed }: IntroProps) {
     >
       <div className="w-full min-w-0">
         <p
-          aria-label={WORDMARK}
-          className="fit-text mx-auto mb-1 w-[calc(100%-1rem)] font-['Collapse'] font-bold uppercase leading-[0.9] tracking-[0.08em] text-midground mix-blend-plus-lighter dark:text-foreground/90"
+          aria-label="AI for Boss"
+          className="fit-text mx-auto mb-1 w-[calc(100%-1rem)] font-['Collapse'] font-bold uppercase leading-[0.9] tracking-[0.08em]"
           style={{ '--fit-min': '2.75rem' } as CSSProperties}
         >
           <span>
-            <span>{WORDMARK}</span>
+            <span>
+              <BrandWordmark />
+            </span>
           </span>
-          <span aria-hidden="true">{WORDMARK}</span>
+          <span aria-hidden="true">
+            <BrandWordmark />
+          </span>
         </p>
 
         <p className="m-0 text-center leading-normal tracking-tight">
