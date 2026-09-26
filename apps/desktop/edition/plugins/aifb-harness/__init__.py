@@ -12,6 +12,10 @@ sang giao diện plugin của Hermes Agent, không sửa lõi:
 * ``post_api_request`` ghi một dòng JSONL mỗi lần gọi mô hình vào
   ``<HERMES_HOME>/aifb/trace.jsonl``: token vào, ra, đọc và ghi bộ đệm. Đây là số
   liệu để đo prompt caching và Advisor có thật sự tiết kiệm không.
+* Middleware ``llm_request`` xin OpenAI giữ bộ đệm 24 giờ
+  (``prompt_cache_retention: "24h"``) khi gọi thẳng api.openai.com bằng khóa API với
+  dòng model OpenAI hỗ trợ. Lõi chỉ tự bật mức này cho Meta và AWS Bedrock. Đường
+  đăng nhập ChatGPT (chatgpt.com) và các nhà cung cấp khác không bị đụng.
 
 Chưa có ở bản này: ba nút hợp đồng tác vụ (Nhanh, Kỹ, Quyết định quan trọng) và trần
 token theo lượt, vì cần giao diện trong ô soạn.
@@ -223,6 +227,33 @@ def _on_post_api_request(**kw: Any) -> None:
         pass
 
 
+def openai_cache_request(request: Dict[str, Any], base_url: str, model: str) -> Optional[Dict[str, Any]]:
+    """Trả request đã thêm prompt_cache_retention=24h, hoặc None nếu không áp dụng."""
+    if not isinstance(request, dict) or "prompt_cache_retention" in request:
+        return None
+    try:
+        from urllib.parse import urlparse
+
+        host = (urlparse(str(base_url or "")).hostname or "").lower()
+    except ValueError:
+        return None
+    if host != "api.openai.com":
+        return None
+    try:
+        from agent.transports.codex import _EXTENDED_PROMPT_CACHE_MODEL_RE as supported
+    except Exception:  # noqa: BLE001 — lõi đổi tên thì thôi, không đoán
+        return None
+    name = str(request.get("model") or model or "").strip().lower()
+    if not supported.search(name):
+        return None
+    return {**request, "prompt_cache_retention": "24h"}
+
+
+def _on_llm_request(request=None, base_url: str = "", model: str = "", **_kw: Any):
+    updated = openai_cache_request(request, base_url, model)
+    return {"request": updated, "source": "aifb-harness:openai-24h-cache"} if updated else None
+
+
 def register(ctx) -> None:
     ctx.register_tool(
         name="aifb_record_decision",
@@ -235,3 +266,4 @@ def register(ctx) -> None:
     ctx.register_hook("pre_llm_call", _on_pre_llm_call)
     ctx.register_hook("pre_tool_call", _on_pre_tool_call)
     ctx.register_hook("post_api_request", _on_post_api_request)
+    ctx.register_middleware("llm_request", _on_llm_request)

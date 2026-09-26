@@ -120,3 +120,32 @@ def test_trace_row_reads_core_usage_buckets(harness):
                             "usage": {"input_tokens": 10, "output_tokens": 5, "cache_read_tokens": 900,
                                       "cache_write_tokens": 0, "reasoning_tokens": 2}, "api_duration": 1.456})
     assert (row["input"], row["output"], row["cacheRead"], row["reasoning"], row["seconds"]) == (10, 5, 900, 2, 1.46)
+
+
+def test_seed_applies_token_defaults_once_and_respects_user(tmp_path):
+    report = _seed(tmp_path)
+    assert "platform_toolsets.cli" in report["configDefaults"]
+    assert "compression.threshold_tokens" in report["configDefaults"]
+    out = _run(tmp_path, (
+        "import json\nfrom hermes_cli.config import load_config\n"
+        "c = load_config()\n"
+        "print(json.dumps({'tools': c['platform_toolsets']['cli'], 'thr': c['compression']['threshold_tokens'],"
+        " 'fast': c['auxiliary']['title_generation']['prefer_fast_model'], 'read': c['file_read_max_chars']}))\n"
+    ))
+    got = json.loads(out.strip().splitlines()[-1])
+    assert "terminal" not in got["tools"] and "aifb_harness" in got["tools"]
+    assert (got["thr"], got["fast"], got["read"]) == (100000, True, 40000)
+    # Người dùng tự đổi một mặc định: lần gieo sau không được ghi đè.
+    _run(tmp_path, "from hermes_cli.config import set_config_value; set_config_value('file_read_max_chars', '90000')")
+    (tmp_path / "edition-seed.json").unlink()
+    report = _seed(tmp_path)
+    assert "file_read_max_chars" not in report["configDefaults"]
+
+
+def test_openai_24h_cache_only_for_direct_openai_supported_models(harness):
+    module, _ = harness
+    req = {"model": "gpt-5.5", "messages": []}
+    assert module.openai_cache_request(req, "https://api.openai.com/v1", "gpt-5.5")["prompt_cache_retention"] == "24h"
+    assert module.openai_cache_request(req, "https://chatgpt.com/backend-api/codex", "gpt-5.5") is None
+    assert module.openai_cache_request({"model": "gpt-4o"}, "https://api.openai.com/v1", "gpt-4o") is None
+    assert module.openai_cache_request({**req, "prompt_cache_retention": "in_memory"}, "https://api.openai.com/v1", "gpt-5.5") is None

@@ -45,9 +45,33 @@ def role_prompt(role: dict) -> str:
     )
 
 
+def apply_missing_defaults(config: dict, defaults: dict) -> list:
+    """Đặt các khóa chấm (a.b.c) còn thiếu trong config; trả danh sách khóa đã đặt."""
+    applied = []
+    for dotted, value in defaults.items():
+        if dotted.startswith("_"):
+            continue
+        node = config
+        parts = dotted.split(".")
+        for part in parts[:-1]:
+            child = node.get(part)
+            if not isinstance(child, dict):
+                if child is not None:
+                    break  # người dùng đặt kiểu khác ở nhánh này: để yên
+                child = {}
+                node[part] = child
+            node = child
+        else:
+            leaf = parts[-1]
+            if node.get(leaf) in (None, ""):
+                node[leaf] = value
+                applied.append(dotted)
+    return applied
+
+
 def main(edition_dir: Path) -> dict:
     from hermes_constants import get_hermes_home
-    from hermes_cli.config import read_raw_config, set_config_value
+    from hermes_cli.config import read_raw_config, save_config, set_config_value
     from hermes_cli.default_soul import DEFAULT_SOUL_MD, is_legacy_template_soul
 
     home = Path(get_hermes_home())
@@ -97,6 +121,14 @@ def main(edition_dir: Path) -> dict:
         report["cacheTtl"] = "set"
     else:
         report["cacheTtl"] = f"kept:{caching.get('cache_ttl')}"
+    # 5. Mặc định tiết kiệm token (edition.json → configDefaults): chỉ đặt khóa
+    #    người dùng chưa đặt, không bao giờ ghi đè lựa chọn của họ.
+    raw = read_raw_config() or {}
+    applied = apply_missing_defaults(raw, manifest.get("configDefaults") or {})
+    if applied:
+        save_config(raw)
+    report["configDefaults"] = applied
+
     roles = []
     for path in sorted((edition_dir / "roles").glob("*.json")):
         role = json.loads(path.read_text(encoding="utf-8"))

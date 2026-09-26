@@ -34,6 +34,23 @@ Luật không ghi đè thứ người dùng đã sửa:
 
 Đổi kỹ năng, plugin, SOUL.md hay vai trò thì **tăng `seedVersion`**, nếu không máy đã cài sẽ không nhận.
 
+## Mặc định tiết kiệm token (seedVersion 2)
+
+Khai trong `edition/edition.json` → `configDefaults`, gieo một lần và chỉ đặt khóa người dùng chưa đặt:
+
+- `platform_toolsets.cli`: bộ công cụ gọn cho chủ doanh nghiệp (web, tệp, chạy mã, xem ảnh, kỹ năng, việc cần làm, bộ nhớ, tìm phiên cũ, hỏi lại, lịch định kỳ, aifb_harness). Bỏ terminal, trình duyệt, điều khiển máy, giao việc cho agent phụ, đọc thành tiếng. Ứng dụng desktop dùng bộ công cụ của nền tảng `cli`. Đo trên lõi: mô tả công cụ gửi kèm mỗi lượt giảm từ khoảng 9.500 xuống 6.200 token.
+- `compression.threshold_tokens: 100000`: nén phiên khi ngữ cảnh chạm 100 nghìn token, kể cả với model có cửa sổ 1 triệu token.
+- `auxiliary.compression.reasoning_effort: low` và `auxiliary.title_generation.prefer_fast_model: true`: việc phụ bớt suy nghĩ, đặt tên phiên bằng model nhanh cùng nhà cung cấp.
+- `file_read_max_chars: 40000`, `tool_output.max_bytes: 24000`: kết quả công cụ không nhồi quá dài vào ngữ cảnh.
+
+Bộ công cụ theo từng vai trò chưa làm được bằng `agent.personalities` (cùng một hồ sơ dùng chung bộ công cụ). Muốn tách thật thì mỗi vai là một hồ sơ riêng, để sau.
+
+## Bộ đệm 24 giờ cho OpenAI
+
+Plugin đăng ký middleware `llm_request`: khi gọi thẳng `api.openai.com` bằng khóa API với dòng model trong danh sách `_EXTENDED_PROMPT_CACHE_MODELS` của lõi, thêm `prompt_cache_retention: "24h"`. Đường đăng nhập ChatGPT và nhà cung cấp khác không bị đụng.
+
+Giữ bộ đệm ấm (gửi yêu cầu nhỏ định kỳ) chưa làm: Claude đã 1 giờ, OpenAI giờ 24 giờ, DeepSeek tự giữ nhiều giờ, nên phần còn lại chỉ là Gemini. Middleware thực thi của lõi chỉ cho gọi mô hình một lần mỗi lượt, muốn giữ ấm phải tự dựng máy khách riêng. Chờ sổ token cho thấy Gemini trượt bộ đệm nhiều rồi mới làm.
+
 ## Sổ token để đo tối ưu
 
 Plugin ghi mỗi lần gọi mô hình một dòng vào `<HERMES_HOME>/aifb/trace.jsonl`: token vào, ra, đọc bộ đệm, ghi bộ đệm, suy luận, thời gian. Đây là số liệu để so bộ đệm 5 phút với 1 giờ, và sau này đo Advisor có tiết kiệm thật không.
