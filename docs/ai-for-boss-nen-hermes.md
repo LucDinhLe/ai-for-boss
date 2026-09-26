@@ -38,7 +38,8 @@ Luật không ghi đè thứ người dùng đã sửa:
 
 Khai trong `edition/edition.json` → `configDefaults`, gieo một lần và chỉ đặt khóa người dùng chưa đặt:
 
-- `platform_toolsets.cli`: bộ công cụ gọn cho chủ doanh nghiệp (web, tệp, chạy mã, xem ảnh, kỹ năng, việc cần làm, bộ nhớ, tìm phiên cũ, hỏi lại, lịch định kỳ, aifb_harness). Bỏ terminal, trình duyệt, điều khiển máy, giao việc cho agent phụ, đọc thành tiếng. Ứng dụng desktop dùng bộ công cụ của nền tảng `cli`. Đo trên lõi: mô tả công cụ gửi kèm mỗi lượt giảm từ khoảng 9.500 xuống 6.200 token.
+- `platform_toolsets.cli` (seedVersion 3): bộ công cụ cho chủ doanh nghiệp gồm web, tệp, terminal, trình duyệt, chạy mã, xem ảnh, kỹ năng, việc cần làm, bộ nhớ, tìm phiên cũ, hỏi lại, lịch định kỳ, aifb_harness. Bỏ điều khiển máy, giao việc cho agent phụ, đọc thành tiếng, kanban, tạo ảnh. Terminal được bật lại ở bản 3 vì các kỹ năng Excel, Word, PDF, PowerPoint của lõi cài thư viện Python qua terminal. Ứng dụng desktop dùng bộ công cụ của nền tảng `cli`. Máy đã gieo bản 2 mà chưa tự sửa danh sách được nâng qua `configUpgrades`.
+- Giữ toàn bộ kỹ năng của lõi Hermes và kho kỹ năng cộng đồng nhúng trong tab Kỹ năng (anh Lực quyết 26/09/2026); kho được ghi rõ là của Nous Research.
 - `compression.threshold_tokens: 100000`: nén phiên khi ngữ cảnh chạm 100 nghìn token, kể cả với model có cửa sổ 1 triệu token.
 - `auxiliary.compression.reasoning_effort: low` và `auxiliary.title_generation.prefer_fast_model: true`: việc phụ bớt suy nghĩ, đặt tên phiên bằng model nhanh cùng nhà cung cấp.
 - `file_read_max_chars: 40000`, `tool_output.max_bytes: 24000`: kết quả công cụ không nhồi quá dài vào ngữ cảnh.

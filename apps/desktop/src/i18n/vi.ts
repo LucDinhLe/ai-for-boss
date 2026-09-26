@@ -1362,6 +1362,10 @@ export const vi = defineLocale({
     defaultProfile: 'AI for Boss (mặc định)',
     hub: {
       searchPlaceholder: 'Tìm kiếm trung tâm kỹ năng',
+      pickerTitle: 'Kho kỹ năng cộng đồng Hermes Agent (Nous Research)',
+      pickerBrowse: 'Mở toàn bộ kho kỹ năng cộng đồng',
+      pickerHide: 'Ẩn kho kỹ năng cộng đồng',
+      pickerHint: 'Kho do Nous Research duy trì. Bấm "+ Add to this Agent" ở kỹ năng bất kỳ để cài, kỹ năng sẽ hiện trong danh sách phía trên.',
       search: 'Tìm kiếm',
       searching: 'Đang tìm kiếm...',
       connectingHubs: 'Đang kết nối các trung tâm kỹ năng...',

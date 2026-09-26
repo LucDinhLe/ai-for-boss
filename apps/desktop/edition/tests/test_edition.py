@@ -133,7 +133,7 @@ def test_seed_applies_token_defaults_once_and_respects_user(tmp_path):
         " 'fast': c['auxiliary']['title_generation']['prefer_fast_model'], 'read': c['file_read_max_chars']}))\n"
     ))
     got = json.loads(out.strip().splitlines()[-1])
-    assert "terminal" not in got["tools"] and "aifb_harness" in got["tools"]
+    assert "terminal" in got["tools"] and "aifb_harness" in got["tools"]
     assert (got["thr"], got["fast"], got["read"]) == (100000, True, 40000)
     # Người dùng tự đổi một mặc định: lần gieo sau không được ghi đè.
     _run(tmp_path, "from hermes_cli.config import set_config_value; set_config_value('file_read_max_chars', '90000')")
@@ -149,3 +149,22 @@ def test_openai_24h_cache_only_for_direct_openai_supported_models(harness):
     assert module.openai_cache_request(req, "https://chatgpt.com/backend-api/codex", "gpt-5.5") is None
     assert module.openai_cache_request({"model": "gpt-4o"}, "https://api.openai.com/v1", "gpt-4o") is None
     assert module.openai_cache_request({**req, "prompt_cache_retention": "in_memory"}, "https://api.openai.com/v1", "gpt-5.5") is None
+
+
+def test_upgrade_from_v2_toolsets_reenables_terminal_but_respects_user_lists(tmp_path):
+    manifest = json.loads((EDITION / "edition.json").read_text(encoding="utf-8"))
+    old = manifest["configUpgrades"]["platform_toolsets.cli"]["from"]
+    code = ("import json,sys\nfrom hermes_cli.config import read_raw_config, save_config\n"
+            "c = read_raw_config() or {}\nc.setdefault('platform_toolsets', {})['cli'] = json.loads(sys.argv[1])\nsave_config(c)\n")
+    env = {**os.environ, "HERMES_HOME": str(tmp_path), "PYTHONPATH": str(REPO)}
+    # Máy đã gieo bản 2 còn nguyên mặc định cũ → được nâng.
+    subprocess.run([sys.executable, "-c", code, json.dumps(old)], env=env, check=True, timeout=120)
+    report = _seed(tmp_path)
+    assert report["configUpgrades"] == ["platform_toolsets.cli"]
+    tools = json.loads(_run(tmp_path, "import json\nfrom hermes_cli.config import load_config\nprint(json.dumps(load_config()['platform_toolsets']['cli']))").strip().splitlines()[-1])
+    assert "terminal" in tools and "browser" in tools
+    # Người dùng tự đặt danh sách khác → không đụng.
+    custom = ["web", "file"]
+    subprocess.run([sys.executable, "-c", code, json.dumps(custom)], env=env, check=True, timeout=120)
+    (tmp_path / "edition-seed.json").unlink()
+    assert _seed(tmp_path)["configUpgrades"] == []

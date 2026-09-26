@@ -69,6 +69,26 @@ def apply_missing_defaults(config: dict, defaults: dict) -> list:
     return applied
 
 
+def apply_default_upgrades(config: dict, upgrades: dict) -> list:
+    """Đổi khóa từ mặc định cũ sang mặc định mới, chỉ khi người dùng chưa tự sửa."""
+    changed = []
+    for dotted, rule in upgrades.items():
+        if dotted.startswith("_") or not isinstance(rule, dict):
+            continue
+        node = config
+        parts = dotted.split(".")
+        for part in parts[:-1]:
+            node = node.get(part) if isinstance(node, dict) else None
+            if not isinstance(node, dict):
+                break
+        else:
+            leaf = parts[-1]
+            if leaf in node and node[leaf] == rule.get("from"):
+                node[leaf] = rule.get("to")
+                changed.append(dotted)
+    return changed
+
+
 def main(edition_dir: Path) -> dict:
     from hermes_constants import get_hermes_home
     from hermes_cli.config import read_raw_config, save_config, set_config_value
@@ -124,10 +144,12 @@ def main(edition_dir: Path) -> dict:
     # 5. Mặc định tiết kiệm token (edition.json → configDefaults): chỉ đặt khóa
     #    người dùng chưa đặt, không bao giờ ghi đè lựa chọn của họ.
     raw = read_raw_config() or {}
+    upgraded = apply_default_upgrades(raw, manifest.get("configUpgrades") or {})
     applied = apply_missing_defaults(raw, manifest.get("configDefaults") or {})
-    if applied:
+    if applied or upgraded:
         save_config(raw)
     report["configDefaults"] = applied
+    report["configUpgrades"] = upgraded
 
     roles = []
     for path in sorted((edition_dir / "roles").glob("*.json")):

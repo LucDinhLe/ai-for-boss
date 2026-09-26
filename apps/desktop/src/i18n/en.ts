@@ -1319,7 +1319,7 @@ export const en: Translations = {
       actionFailed: 'Skill action failed',
       actionLog: 'Action log',
       alreadyInstalled: (name: string) => `"${name}" is already installed`,
-      pickerTitle: 'Skills Hub',
+      pickerTitle: 'Hermes Agent community skills hub (Nous Research)',
       pickerBrowse: 'Browse the full hub',
       pickerHide: 'Hide the hub browser',
       pickerHint: 'Hit "+ Add to this Agent" on any skill — it installs and appears in the list above.',

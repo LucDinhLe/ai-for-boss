@@ -1,7 +1,7 @@
 {
   "id": "ai-for-boss",
   "displayName": "AI for Boss",
-  "seedVersion": 2,
+  "seedVersion": 3,
   "promptCacheTtl": "1h",
   "_note": "Tăng seedVersion mỗi khi đổi kỹ năng, plugin, SOUL.md, vai trò hoặc configDefaults để vỏ gieo lại ở lần mở kế tiếp.",
   "configDefaults": {
@@ -9,6 +9,8 @@
     "platform_toolsets.cli": [
       "web",
       "file",
+      "terminal",
+      "browser",
       "code_execution",
       "vision",
       "skills",
@@ -24,5 +26,38 @@
     "auxiliary.title_generation.prefer_fast_model": true,
     "file_read_max_chars": 40000,
     "tool_output.max_bytes": 24000
+  },
+  "configUpgrades": {
+    "_note": "Nâng mặc định cũ lên mặc định mới, chỉ khi giá trị trên máy còn đúng y mặc định cũ (người dùng chưa tự sửa).",
+    "platform_toolsets.cli": {
+      "from": [
+        "web",
+        "file",
+        "code_execution",
+        "vision",
+        "skills",
+        "todo",
+        "memory",
+        "session_search",
+        "clarify",
+        "cronjob",
+        "aifb_harness"
+      ],
+      "to": [
+        "web",
+        "file",
+        "terminal",
+        "browser",
+        "code_execution",
+        "vision",
+        "skills",
+        "todo",
+        "memory",
+        "session_search",
+        "clarify",
+        "cronjob",
+        "aifb_harness"
+      ]
+    }
   }
 }
