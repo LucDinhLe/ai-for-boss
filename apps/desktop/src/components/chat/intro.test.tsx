@@ -20,6 +20,6 @@ describe('Intro locale', () => {
         'Nhập một nhiệm vụ, câu hỏi hoặc đoạn mã. AI for Boss ghi nhớ phiên làm việc, dẫn nguồn và sẽ hỏi lại khi chưa chắc chắn.'
       )
     ).toBeTruthy()
-    expect(screen.getByLabelText('HERMES VIETNAMESE')).toBeTruthy()
+    expect(screen.getByLabelText('AI FOR BOSS')).toBeTruthy()
   })
 })

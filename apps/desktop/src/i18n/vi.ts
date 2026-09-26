@@ -142,7 +142,7 @@ const VI_FIELD_LABELS = defineFieldCopy({
 
 const VI_FIELD_DESCRIPTIONS = defineFieldCopy({
   model: 'Dùng cho phiên mới, trừ khi bạn chọn model khác trong khung soạn thảo.',
-  modelContextLength: 'Để 0 để dùng dung lượng ngữ cảnh mà Hermes nhận diện từ model đã chọn.',
+  modelContextLength: 'Để 0 để dùng dung lượng ngữ cảnh mà AI for Boss nhận diện từ model đã chọn.',
   fallbackProviders: 'Các cặp provider:model sẽ được thử lần lượt khi model mặc định gặp lỗi.',
   display: {
     personality: 'Phong cách mặc định của trợ lý trong các phiên mới.',
@@ -156,7 +156,7 @@ const VI_FIELD_DESCRIPTIONS = defineFieldCopy({
   timezone: 'Mã múi giờ IANA. Để trống để dùng múi giờ của hệ thống.',
   agent: {
     imageInputMode: 'Cách gửi hình ảnh đính kèm tới model.',
-    maxTurns: 'Số lượt gọi công cụ tối đa trước khi Hermes dừng một tác vụ.'
+    maxTurns: 'Số lượt gọi công cụ tối đa trước khi AI for Boss dừng một tác vụ.'
   },
   terminal: {
     cwd: 'Thư mục dự án mặc định cho công cụ và dòng lệnh.',
@@ -170,9 +170,9 @@ const VI_FIELD_DESCRIPTIONS = defineFieldCopy({
   codeExecution: {
     mode: 'Mức giới hạn mã được chạy trong phạm vi dự án hiện tại.'
   },
-  fileReadMaxChars: 'Số ký tự tối đa Hermes được đọc trong mỗi yêu cầu đọc tệp.',
+  fileReadMaxChars: 'Số ký tự tối đa AI for Boss được đọc trong mỗi yêu cầu đọc tệp.',
   approvals: {
-    mode: 'Cách Hermes xử lý các lệnh cần bạn phê duyệt rõ ràng.',
+    mode: 'Cách AI for Boss xử lý các lệnh cần bạn phê duyệt rõ ràng.',
     timeout: 'Thời gian yêu cầu phê duyệt chờ trước khi hết hạn.'
   },
   security: {
@@ -285,14 +285,14 @@ export const vi = defineLocale({
     desktopBootFailedWithMessage: message => `Khởi động Desktop không thành công: ${message}`,
     steps: {
       connectingGateway: 'Kết nối cổng Desktop trực tiếp',
-      loadingSettings: 'Đang tải cài đặt Hermes',
+      loadingSettings: 'Đang tải cài đặt AI for Boss',
       loadingSessions: 'Đang tải các phiên gần đây',
       startingDesktopConnection: 'Đang bắt đầu kết nối Desktop',
       startingHermesDesktop: 'Đang bắt đầu AI for Boss…'
     },
     errors: {
-      backgroundExited: 'Tiến trình nền của Hermes đã dừng.',
-      backgroundExitedDuringStartup: 'Tiến trình nền của Hermes đã dừng khi đang khởi động.',
+      backgroundExited: 'Tiến trình nền của AI for Boss đã dừng.',
+      backgroundExitedDuringStartup: 'Tiến trình nền của AI for Boss đã dừng khi đang khởi động.',
       backendStopped: 'Dịch vụ nền đã dừng',
       desktopBootFailed: 'Khởi động Desktop không thành công',
       gatewayConnectionLost: 'Mất kết nối với cổng',
@@ -300,7 +300,7 @@ export const vi = defineLocale({
       ipcBridgeUnavailable: 'Cầu nối IPC dành cho Desktop không khả dụng.'
     },
     failure: {
-      title: 'Hermes không thể bắt đầu',
+      title: 'AI for Boss không thể bắt đầu',
       description:
         'Cổng nền không xuất hiện. Hãy thử một trong các bước khôi phục bên dưới. Không có gì ở đây xóa các cuộc trò chuyện hoặc cài đặt của bạn.',
       remoteTitle: 'Yêu cầu đăng nhập vào cổng từ xa',
@@ -342,11 +342,11 @@ export const vi = defineLocale({
     copyDetailFailed: 'Không thể sao chép chi tiết thông báo',
     backendOutOfDateTitle: 'Dịch vụ nền đã cũ',
     backendOutOfDateMessage:
-      'Dịch vụ nền Hermes cũ hơn ứng dụng Desktop và có thể hoạt động không đúng. Hãy cập nhật để hai phần cùng phiên bản.',
+      'Dịch vụ nền AI for Boss cũ hơn ứng dụng Desktop và có thể hoạt động không đúng. Hãy cập nhật để hai phần cùng phiên bản.',
     backendOutOfDateBundledMessage:
       'Dịch vụ nền đóng kèm ứng dụng không khớp với bản Desktop này. Hãy cài bản AI for Boss mới nhất từ trang phát hành; bản đóng gói không hỗ trợ cập nhật dịch vụ nền tại chỗ.',
     installMethodUnsupportedTitle: 'Phương pháp cài đặt không được hỗ trợ',
-    updateHermes: 'Cập nhật Hermes',
+    updateHermes: 'Cập nhật AI for Boss',
     updateReadyTitle: 'Đã sẵn sàng cập nhật',
     updateReadyMessage: count => `${count} thay đổi mới có sẵn.`,
     seeWhatsNew: 'Xem có gì mới',
@@ -387,8 +387,8 @@ export const vi = defineLocale({
       approveAction: 'Phê duyệt',
       rejectAction: 'Từ chối',
       inputTitle: 'Cần nhập thông tin',
-      inputBody: 'Hermes đang chờ phản hồi của bạn.',
-      turnDoneTitle: 'Hermes đã hoàn thành',
+      inputBody: 'AI for Boss đang chờ phản hồi của bạn.',
+      turnDoneTitle: 'AI for Boss đã hoàn thành',
       turnDoneBody: '',
       turnErrorTitle: 'Lượt xử lý thất bại',
       backgroundDoneTitle: 'Nhiệm vụ nền đã hoàn thành',
@@ -556,7 +556,7 @@ export const vi = defineLocale({
     exportConfig: 'Xuất cấu hình',
     importConfig: 'Nhập cấu hình',
     resetToDefaults: 'Đặt lại về mặc định',
-    resetConfirm: 'Đặt lại tất cả cài đặt về mặc định Hermes?',
+    resetConfirm: 'Đặt lại tất cả cài đặt về mặc định AI for Boss?',
     exportFailed: 'Xuất không thành công',
     resetFailed: 'Đặt lại không thành công',
     nav: {
@@ -579,7 +579,7 @@ export const vi = defineLocale({
     },
     workProfile: {
       title: 'Hồ sơ công việc',
-      intro: 'Chọn cách Đại ca làm việc. Hermes chỉ đưa các Skill đã được cho phép vào phiên mới.',
+      intro: 'Chọn cách Đại ca làm việc. AI for Boss chỉ đưa các Skill đã được cho phép vào phiên mới.',
       commonTasks: 'Công việc thường làm',
       commonTasksHint: 'Mỗi dòng một việc. Gợi ý chỉ dùng catalog Skill cục bộ.',
       commonTasksPlaceholder: 'Viết báo cáo có dẫn nguồn\nLập kế hoạch dự án',
@@ -620,7 +620,7 @@ export const vi = defineLocale({
       agent: {
         title: 'Tiện ích AI agent',
         blurb:
-          'Chạy trong dịch vụ nền Hermes, gồm công cụ, kỹ năng, máy chủ MCP, hook và lệnh bắt đầu bằng dấu /. Plugin dạng gói có thể mang sang máy khác; gói kỹ năng và MCP cũng dùng được với AI agent khác. Thay đổi áp dụng cho phiên mới.',
+          'Chạy trong dịch vụ nền AI for Boss, gồm công cụ, kỹ năng, máy chủ MCP, hook và lệnh bắt đầu bằng dấu /. Plugin dạng gói có thể mang sang máy khác; gói kỹ năng và MCP cũng dùng được với AI agent khác. Thay đổi áp dụng cho phiên mới.',
         empty: 'Chưa cài đặt plugin AI agent nào.',
         loadFailed: 'Không thể tải plugin AI agent',
         portable: 'di động',
@@ -635,7 +635,7 @@ export const vi = defineLocale({
       intro: 'Thông báo hệ điều hành (không phải thông báo chúc mừng trong ứng dụng). Mỗi thiết bị.',
       enableAll: 'Bật thông báo',
       enableAllDesc: 'Khi tắt, toàn bộ thông báo bên dưới cũng bị tắt.',
-      focusedHint: 'Cảnh báo hoàn thành chỉ kích hoạt khi Hermes ở chế độ nền.',
+      focusedHint: 'Cảnh báo hoàn thành chỉ kích hoạt khi AI for Boss ở chế độ nền.',
       kinds: {
         approval: {
           label: 'Cần phê duyệt',
@@ -643,11 +643,11 @@ export const vi = defineLocale({
         },
         input: {
           label: 'Cần nhập thông tin',
-          description: 'Hermes đã đặt câu hỏi hoặc cần mật khẩu hay thông tin bí mật.'
+          description: 'AI for Boss đã đặt câu hỏi hoặc cần mật khẩu hay thông tin bí mật.'
         },
         turnDone: {
           label: 'Đã sẵn sàng phản hồi',
-          description: 'Một lượt kết thúc trong khi Hermes ở chế độ nền.'
+          description: 'Một lượt kết thúc trong khi AI for Boss ở chế độ nền.'
         },
         turnError: {
           label: 'Lượt xử lý thất bại',
@@ -663,7 +663,7 @@ export const vi = defineLocale({
         },
         plugin: {
           label: 'Thông báo plugin',
-          description: 'Một plugin dành cho Desktop đã gửi thông báo trong khi Hermes ở chế độ nền.'
+          description: 'Một plugin dành cho Desktop đã gửi thông báo trong khi AI for Boss ở chế độ nền.'
         }
       },
       test: 'Gửi thông báo kiểm tra',
@@ -703,7 +703,7 @@ export const vi = defineLocale({
       title: 'Giao diện',
       intro: 'Thiết lập riêng cho Desktop. Chế độ điều khiển sáng/tối; chủ đề điều khiển bảng màu giao diện.',
       colorMode: 'Chế độ màu',
-      colorModeDesc: 'Chọn chế độ cố định hoặc để Hermes tuân theo cài đặt hệ thống của bạn.',
+      colorModeDesc: 'Chọn chế độ cố định hoặc để AI for Boss tuân theo cài đặt hệ thống của bạn.',
       toolViewTitle: 'Hiển thị cuộc gọi công cụ',
       toolViewDesc: 'Chế độ gọn ẩn dữ liệu kỹ thuật thô; chế độ kỹ thuật hiển thị đầy đủ đầu vào và đầu ra.',
       uiScaleTitle: 'Tỷ lệ giao diện',
@@ -720,7 +720,7 @@ export const vi = defineLocale({
       backdropTitle: 'Phông nền trò chuyện',
       backdropDesc: 'Hình ảnh bức tượng mờ nhạt đằng sau cuộc trò chuyện.',
       reactionsTitle: 'Cảm xúc tin nhắn',
-      reactionsDesc: 'Gắn biểu tượng cảm xúc vào tin nhắn; Hermes cũng có thể bày tỏ cảm xúc với tin nhắn của bạn.',
+      reactionsDesc: 'Gắn biểu tượng cảm xúc vào tin nhắn; AI for Boss cũng có thể bày tỏ cảm xúc với tin nhắn của bạn.',
       reasoningSummaryTitle: 'Tóm tắt suy luận bằng tiếng Việt',
       reasoningSummaryDesc:
         'Sau khi lượt chạy kết thúc, phần suy luận công khai được gửi qua một model call bổ sung. Thao tác này có thể phát sinh chi phí và độ trễ; bản gốc và câu trả lời không thay đổi.',
@@ -752,9 +752,9 @@ export const vi = defineLocale({
       pet: {
         title: 'Thú cưng',
         intro:
-          'Hiển thị linh vật Petdex trên ứng dụng. Linh vật phản ứng theo hoạt động của Hermes, như chạy khi dùng công cụ, ăn mừng khi thành công và buồn khi gặp lỗi.',
+          'Hiển thị linh vật Petdex trên ứng dụng. Linh vật phản ứng theo hoạt động của AI for Boss, như chạy khi dùng công cụ, ăn mừng khi thành công và buồn khi gặp lỗi.',
         restartHint:
-          'Thú cưng cần khởi động lại nhanh — ứng dụng đang chạy đã khởi động trước khi tính năng này được thêm vào. Thoát và mở lại Hermes, sau đó quay lại đây.',
+          'Thú cưng cần khởi động lại nhanh — ứng dụng đang chạy đã khởi động trước khi tính năng này được thêm vào. Thoát và mở lại AI for Boss, sau đó quay lại đây.',
         on: 'Bật',
         off: 'Tắt',
         scaleTitle: 'Kích thước',
@@ -827,7 +827,7 @@ export const vi = defineLocale({
       justNowSuffix: ' · vừa rồi',
       automaticUpdates: 'Cập nhật tự động',
       automaticUpdatesDesc:
-        'Hermes tự động kiểm tra các bản cập nhật ở chế độ nền và cho bạn biết khi nào bản cập nhật sẵn sàng.',
+        'AI for Boss tự động kiểm tra các bản cập nhật ở chế độ nền và cho bạn biết khi nào bản cập nhật sẵn sàng.',
       branchCommit: (branch, commit) => `Nhánh ${branch} · commit ${commit}`,
       never: 'không bao giờ',
       justNow: 'vừa rồi',
@@ -844,7 +844,7 @@ export const vi = defineLocale({
       searchPlaceholder: 'Tìm kiếm…',
       noResults: 'Không tìm thấy kết quả nào',
       systemDefault: 'Mặc định hệ thống',
-      loading: 'Đang tải cấu hình Hermes...',
+      loading: 'Đang tải cấu hình AI for Boss...',
       emptyTitle: 'Không có gì để cấu hình',
       emptyDesc: 'Phần này không có cài đặt có thể điều chỉnh.',
       failedLoad: 'Không tải được cài đặt',
@@ -862,7 +862,7 @@ export const vi = defineLocale({
     quickEntry: {
       enabledTitle: 'Nhập nhanh',
       enabledDesc:
-        'Mở nhanh khung soạn thảo ở bất cứ đâu bằng phím tắt toàn hệ thống và gửi yêu cầu mà chưa cần mở Hermes.',
+        'Mở nhanh khung soạn thảo ở bất cứ đâu bằng phím tắt toàn hệ thống và gửi yêu cầu mà chưa cần mở AI for Boss.',
       shortcutTitle: 'Phím tắt nhập nhanh',
       shortcutDesc: 'Cần ít nhất một phím bổ trợ, ví dụ CommandOrControl+Shift+Space.',
       active: 'Phím tắt đang hoạt động.',
@@ -870,8 +870,8 @@ export const vi = defineLocale({
       invalidShortcut: 'Phím tắt không hợp lệ. Hãy thêm ít nhất một phím bổ trợ.',
       window: {
         ariaLabel: 'Nhập nhanh',
-        placeholder: 'Yêu cầu Hermes…',
-        disconnectedPlaceholder: 'Chưa kết nối — hãy mở Hermes để kết nối lại',
+        placeholder: 'Yêu cầu AI for Boss…',
+        disconnectedPlaceholder: 'Chưa kết nối — hãy mở AI for Boss để kết nối lại',
         sendTo: 'Gửi đến',
         targetSession: 'Phiên đích',
         currentChat: 'Cuộc trò chuyện hiện tại',
@@ -905,16 +905,16 @@ export const vi = defineLocale({
       title: 'Kết nối cổng',
       envOverride: 'env ghi đè',
       intro:
-        'Mặc định chạy trên máy này. Chọn từ xa khi ứng dụng cần điều khiển dịch vụ nền Hermes ở máy khác. Có thể thiết lập riêng cho từng hồ sơ bên dưới.',
+        'Mặc định chạy trên máy này. Chọn từ xa khi ứng dụng cần điều khiển dịch vụ nền AI for Boss ở máy khác. Có thể thiết lập riêng cho từng hồ sơ bên dưới.',
       envOverrideTitle: 'Các biến môi trường đang kiểm soát phiên Desktop này.',
       envOverrideDesc:
         'Bỏ đặt HERMES_DESKTOP_REMOTE_URL và HERMES_DESKTOP_REMOTE_TOKEN để sử dụng cài đặt đã lưu bên dưới.',
       modeTitle: 'Chế độ kết nối',
       localTitle: 'Cổng trên máy này',
       localDesc:
-        'Khởi động dịch vụ nền Hermes riêng trên localhost. Đây là lựa chọn mặc định và có thể hoạt động ngoại tuyến.',
+        'Khởi động dịch vụ nền AI for Boss riêng trên localhost. Đây là lựa chọn mặc định và có thể hoạt động ngoại tuyến.',
       remoteTitle: 'Cổng từ xa',
-      remoteDesc: 'Kết nối ứng dụng Desktop với dịch vụ nền Hermes từ xa.',
+      remoteDesc: 'Kết nối ứng dụng Desktop với dịch vụ nền AI for Boss từ xa.',
       remoteAuthHint:
         'Cổng được nhà cung cấp vận hành dùng OAuth hoặc tên đăng nhập và mật khẩu; cổng tự vận hành có thể dùng mã phiên.',
       cloudTitle: 'Hermes Cloud',
@@ -996,7 +996,7 @@ export const vi = defineLocale({
       saveFailed: 'Không thể lưu cài đặt cổng',
       sshTitle: 'Kết nối qua SSH',
       sshDesc:
-        'Hermes chạy trên máy từ xa qua SSH và được chuyển tiếp vào ứng dụng này. Máy từ xa không cần mở cổng công khai. Cần quyền SSH bằng khóa đang hoạt động.',
+        'AI for Boss chạy trên máy từ xa qua SSH và được chuyển tiếp vào ứng dụng này. Máy từ xa không cần mở cổng công khai. Cần quyền SSH bằng khóa đang hoạt động.',
       sshTrustHint:
         'Khóa máy chủ ở lần kết nối đầu sẽ được tin cậy và ghi nhớ; nếu khóa thay đổi về sau, kết nối sẽ bị chặn.',
       sshHostTitle: 'Máy chủ',
@@ -1012,17 +1012,17 @@ export const vi = defineLocale({
       sshPortDesc: 'Để trống để dùng cổng 22 hoặc cổng trong ~/.ssh/config.',
       sshKeyTitle: 'Khóa định danh',
       sshKeyDesc: 'Đường dẫn khóa riêng. Trống = ssh-agent hoặc ~/.ssh/config.',
-      sshHermesPathTitle: 'Hermes (tùy chọn)',
-      sshHermesPathDesc: 'Đường dẫn đầy đủ đến nhị phân Hermes từ xa. Trống = tự động phát hiện.',
+      sshHermesPathTitle: 'AI for Boss (tùy chọn)',
+      sshHermesPathDesc: 'Đường dẫn đầy đủ đến nhị phân AI for Boss từ xa. Trống = tự động phát hiện.',
       sshHermesPathPlaceholder: 'tự động phát hiện',
       sshTestConnection: 'Kiểm tra SSH',
       sshConnect: 'Kết nối',
       sshButtonsHint: '“Lưu” áp dụng ở lần khởi động tiếp theo; “Kết nối” sẽ kết nối lại ngay.',
-      sshReachable: (host, platform) => `Có thể truy cập: ${host} (${platform}) — Đã tìm thấy Hermes`,
+      sshReachable: (host, platform) => `Có thể truy cập: ${host} (${platform}) — Đã tìm thấy AI for Boss`,
       sshIncompleteHost: 'Nhập máy chủ SSH trước khi kết nối.',
       sshErrUnreachable: 'Không thể truy cập máy chủ đó qua SSH. Kiểm tra máy chủ, cổng và mạng của bạn.',
       sshErrAuth:
-        'Xác thực SSH không thành công. Tải khóa của bạn vào ssh-agent (ssh-add) hoặc đặt IdentityFile trong ~/.ssh/config - Hermes chạy ssh không tương tác.',
+        'Xác thực SSH không thành công. Tải khóa của bạn vào ssh-agent (ssh-add) hoặc đặt IdentityFile trong ~/.ssh/config - AI for Boss chạy ssh không tương tác.',
       sshErrHostKey:
         'Khóa máy chủ đã THAY ĐỔI từ lần kết nối trước. Hãy xác minh thay đổi này, sau đó chạy ssh-keygen -R <host> và kết nối lại.',
       sshErrNotInstalled:
@@ -1030,7 +1030,7 @@ export const vi = defineLocale({
       sshErrPlatform:
         'Nền tảng từ xa không được hỗ trợ. Chế độ SSH AI for Boss hỗ trợ các máy chủ từ xa Linux, macOS và Windows.',
       sshErrTimeout: 'Kết nối SSH đã hết thời gian chờ. Máy chủ có thể không truy cập được hoặc đang ngủ.',
-      sshErrUpdateRequired: 'Cập nhật Hermes trên máy chủ từ xa trước khi kết nối với Desktop SSH.',
+      sshErrUpdateRequired: 'Cập nhật AI for Boss trên máy chủ từ xa trước khi kết nối với Desktop SSH.',
       sshErrUnknown: 'Kết nối SSH không thành công.'
     },
     keys: {
@@ -1117,7 +1117,7 @@ export const vi = defineLocale({
       defaultsFailed: 'Không lưu được giá trị mặc định của model',
       advisorTitle: 'Giám sát (Advisor)',
       advisorDesc:
-        'Một model độc lập rà soát kế hoạch, lúc đổi hướng hoặc lặp lỗi, và kết quả cuối trước khi Hermes trả lời.',
+        'Một model độc lập rà soát kế hoạch, lúc đổi hướng hoặc lặp lỗi, và kết quả cuối trước khi AI for Boss trả lời.',
       advisorEnabled: 'Bật Giám sát',
       advisorCost: 'Khi bật, mỗi nhịp rà soát tạo thêm model call, độ trễ và chi phí.',
       advisorModel: 'Model Giám sát',
@@ -1130,7 +1130,7 @@ export const vi = defineLocale({
       autoUseMain: 'Tự động · dùng model chính',
       providerDefault: '(mặc định của nhà cung cấp)',
       fallbackAdd: 'Thêm dự phòng',
-      fallbackEmpty: 'Chưa có model dự phòng. Hermes sẽ dùng model mặc định cho đến khi model đó gặp lỗi.',
+      fallbackEmpty: 'Chưa có model dự phòng. AI for Boss sẽ dùng model mặc định cho đến khi model đó gặp lỗi.',
       notInCatalog: 'không có trong danh mục model của nhà cung cấp này; yêu cầu có thể chuyển sang model dự phòng.',
       tasks: {
         vision: { label: 'Thị giác', hint: 'Phân tích hình ảnh' },
@@ -1156,14 +1156,14 @@ export const vi = defineLocale({
         connected: 'Đã kết nối',
         tierLabel: 'Bậc',
         caveat:
-          'Dùng chung cửa với Gemini CLI. Google có thể thay đổi hoặc đóng cửa này; đây không phải nhà cung cấp chính thức của Hermes.',
+          'Dùng chung cửa với Gemini CLI. Google có thể thay đổi hoặc đóng cửa này; đây không phải nhà cung cấp chính thức của AI for Boss.',
         errorPrefix: 'Đăng nhập Google gặp lỗi',
         projectPlaceholder: 'Mã dự án Google Cloud (ví dụ my-project-123456)',
         projectSave: 'Lưu dự án'
       },
       haveApiKey: 'Bạn có khóa API không?',
       intro:
-        'Đăng nhập bằng đăng ký — không có khóa API để sao chép. Hermes chạy tính năng đăng nhập vào trình duyệt cho bạn, ngay trong ứng dụng.',
+        'Đăng nhập bằng đăng ký — không có khóa API để sao chép. AI for Boss chạy tính năng đăng nhập vào trình duyệt cho bạn, ngay trong ứng dụng.',
       connected: 'Đã kết nối',
       collapse: 'Thu gọn',
       connectAnother: 'Kết nối nhà cung cấp khác',
@@ -1174,7 +1174,7 @@ export const vi = defineLocale({
       removeExternalGeneric: provider => `${provider} được quản lý bởi CLI của chính nó — hãy xóa nó ở đó.`,
       removeKeyManaged: provider => `${provider} được định cấu hình từ khóa API. Xóa nó khỏi Khóa API.`,
       removeTerminalConfirm: (provider, command) =>
-        `Ngắt kết nối ${provider}? Hermes sẽ chạy "${command}" trong cửa sổ dòng lệnh để xóa thông tin đăng nhập.`,
+        `Ngắt kết nối ${provider}? AI for Boss sẽ chạy "${command}" trong cửa sổ dòng lệnh để xóa thông tin đăng nhập.`,
       removeTerminalRunning: provider => `Đang chạy lệnh ngắt kết nối ${provider}…`,
       removedTitle: 'Tài khoản đã bị xóa',
       removedMessage: provider => `${provider} đã bị xóa.`,
@@ -1184,7 +1184,7 @@ export const vi = defineLocale({
       noKeysMatch: 'Không có nhà cung cấp nào phù hợp với tìm kiếm của bạn.',
       localEndpoint: {
         title: 'Máy chủ cục bộ hoặc tùy chỉnh',
-        description: 'Kết nối Hermes với máy chủ tương thích OpenAI như Zyphra, vLLM, llama.cpp hoặc Ollama.'
+        description: 'Kết nối AI for Boss với máy chủ tương thích OpenAI như Zyphra, vLLM, llama.cpp hoặc Ollama.'
       },
       loading: 'Đang tải nhà cung cấp...'
     },
@@ -1355,11 +1355,11 @@ export const vi = defineLocale({
     edit: 'Chỉnh sửa',
     archive: 'Lưu trữ',
     skillArchivedTitle: 'Đã lưu trữ kỹ năng',
-    skillArchivedMessage: 'Có thể khôi phục bằng công cụ quản lý kỹ năng của Hermes.',
+    skillArchivedMessage: 'Có thể khôi phục bằng công cụ quản lý kỹ năng của AI for Boss.',
     archiveConfirmTitle: name => `Lưu trữ ${name}?`,
-    archiveDescription: 'Kỹ năng sẽ được lưu trữ và có thể khôi phục bằng công cụ quản lý kỹ năng của Hermes.',
+    archiveDescription: 'Kỹ năng sẽ được lưu trữ và có thể khôi phục bằng công cụ quản lý kỹ năng của AI for Boss.',
     archiveFailed: 'Không thể lưu trữ kỹ năng',
-    defaultProfile: 'Hermes (mặc định)',
+    defaultProfile: 'AI for Boss (mặc định)',
     hub: {
       searchPlaceholder: 'Tìm kiếm trung tâm kỹ năng',
       search: 'Tìm kiếm',
@@ -1422,7 +1422,7 @@ export const vi = defineLocale({
     loadFailed: 'Không thể tải biểu đồ bộ nhớ',
     loading: 'Đang tải…',
     emptyTitle: 'Chưa học được gì',
-    emptyDesc: 'Khi Hermes tạo kỹ năng và bộ nhớ cho công việc của bạn, chúng sẽ xuất hiện tại đây.',
+    emptyDesc: 'Khi AI for Boss tạo kỹ năng và bộ nhớ cho công việc của bạn, chúng sẽ xuất hiện tại đây.',
     share: 'Chia sẻ bản đồ',
     shareHint:
       'Sao chép mã để chia sẻ bản đồ này hoặc dán mã để tải. Mã chỉ chứa bố cục, không chứa bộ nhớ hay nội dung kỹ năng.',
@@ -1442,7 +1442,7 @@ export const vi = defineLocale({
     title: 'Cây AI agent phụ',
     subtitle: 'Tiến độ trực tiếp của các AI agent phụ trong lượt hiện tại.',
     emptyTitle: 'Chưa có AI agent phụ nào đang chạy',
-    emptyDesc: 'Khi Hermes giao việc cho AI agent phụ, tiến độ sẽ xuất hiện tại đây.',
+    emptyDesc: 'Khi AI for Boss giao việc cho AI agent phụ, tiến độ sẽ xuất hiện tại đây.',
     running: 'Đang chạy',
     failed: 'Thất bại',
     done: 'Hoàn tất',
@@ -1492,7 +1492,7 @@ export const vi = defineLocale({
       placeholder: 'Tìm kiếm thú cưng…',
       loading: 'Đang tải thư viện petdex…',
       error: 'Không thể truy cập thư viện petdex.',
-      staleBackend: 'Khởi động lại Hermes để sử dụng thú cưng — dịch vụ nền có trước tính năng này.',
+      staleBackend: 'Khởi động lại AI for Boss để sử dụng thú cưng — dịch vụ nền có trước tính năng này.',
       empty: 'Không có thú cưng phù hợp.',
       turnOff: 'Tắt',
       turnOn: 'Bật',
@@ -1519,12 +1519,12 @@ export const vi = defineLocale({
       hatchComposing: 'Chắp chúng lại với nhau…',
       hatchSaving: 'Sắp xong…',
       namePlaceholder: 'Đặt tên cho thú cưng của bạn',
-      staleBackend: 'Cập nhật Hermes để tạo thú cưng.',
-      backgroundHint: 'Bạn có thể đóng cửa sổ này — Hermes sẽ báo khi hoàn tất.',
+      staleBackend: 'Cập nhật AI for Boss để tạo thú cưng.',
+      backgroundHint: 'Bạn có thể đóng cửa sổ này — AI for Boss sẽ báo khi hoàn tất.',
       slowProviderHint: 'Quá trình này có thể mất vài phút',
       remix: 'Tạo biến thể',
       remixConfirmTitle: 'Tạo biến thể từ diện mạo này?',
-      remixConfirmBody: 'Hermes sẽ tạo một bộ bản nháp mới dựa trên bộ hiện tại. Quá trình có thể mất vài phút.',
+      remixConfirmBody: 'AI for Boss sẽ tạo một bộ bản nháp mới dựa trên bộ hiện tại. Quá trình có thể mất vài phút.',
       genericError: 'Không tạo được — hãy thử lại hoặc chọn một đề xuất.',
       referenceImageTooLarge: 'Hình ảnh tham chiếu quá lớn. Sử dụng một cái dưới 16 MB.',
       referenceImageInvalid: 'Không thể đọc được hình ảnh tham chiếu đó. Hãy thử PNG, JPG, WebP hoặc GIF.',
@@ -1555,7 +1555,7 @@ export const vi = defineLocale({
     },
     nav: {
       newChat: { title: 'Phiên mới', detail: 'Bắt đầu một phiên mới' },
-      settings: { title: 'Cài đặt', detail: 'Định cấu hình Desktop Hermes' },
+      settings: { title: 'Cài đặt', detail: 'Định cấu hình Desktop AI for Boss' },
       skills: { title: 'Kỹ năng', detail: 'Kỹ năng, công cụ và máy chủ MCP' },
       messaging: { title: 'Nhắn tin', detail: 'Thiết lập Telegram, Slack, Discord, v.v.' },
       artifacts: { title: 'Tệp kết quả', detail: 'Duyệt qua kết quả đầu ra được tạo' }
@@ -1577,10 +1577,10 @@ export const vi = defineLocale({
     noSessions: 'Chưa có phiên nào.',
     gatewayRunning: 'Cổng nhắn tin đang chạy',
     gatewayStopped: 'Cổng nhắn tin đã dừng',
-    hermesActiveSessions: (version, count) => `Hermes ${version} · ${count} phiên đang hoạt động`,
+    hermesActiveSessions: (version, count) => `AI for Boss ${version} · ${count} phiên đang hoạt động`,
     restartGateway: 'Khởi động lại cổng',
     gatewayRestartFailed: 'Khởi động lại cổng không thành công.',
-    updateHermes: 'Cập nhật Hermes',
+    updateHermes: 'Cập nhật AI for Boss',
     actionRunning: 'đang chạy',
     actionDone: 'xong',
     actionFailed: 'không thành công',
@@ -1619,10 +1619,10 @@ export const vi = defineLocale({
       backupDesc: 'Nén cấu hình, bộ nhớ, kỹ năng và phiên thành một tệp sao lưu',
       revealBackup: 'Mở vị trí bản sao lưu',
       importBackup: 'Khôi phục bản sao lưu',
-      importBackupDesc: 'Chọn tệp sao lưu Hermes để khôi phục cấu hình, bộ nhớ, kỹ năng và các phiên',
+      importBackupDesc: 'Chọn tệp sao lưu AI for Boss để khôi phục cấu hình, bộ nhớ, kỹ năng và các phiên',
       importBackupConfirm:
-        'Khôi phục bản sao lưu này? Dữ liệu Hermes hiện có cùng tên sẽ được thay thế. Bộ cài và các tệp ứng dụng vẫn được giữ nguyên.',
-      importBackupRestart: 'Khôi phục hoàn tất. Hãy khởi động lại Hermes để tải đầy đủ dữ liệu đã khôi phục.',
+        'Khôi phục bản sao lưu này? Dữ liệu AI for Boss hiện có cùng tên sẽ được thay thế. Bộ cài và các tệp ứng dụng vẫn được giữ nguyên.',
+      importBackupRestart: 'Khôi phục hoàn tất. Hãy khởi động lại AI for Boss để tải đầy đủ dữ liệu đã khôi phục.',
       importBackupFailed: 'Không thể khôi phục bản sao lưu',
       debugShare: 'Chia sẻ gỡ lỗi',
       debugShareDesc: 'Tải lên báo cáo và nhật ký đã ẩn dữ liệu nhạy cảm, rồi nhận liên kết chia sẻ (tự xóa sau 6 giờ)',
@@ -1942,7 +1942,7 @@ export const vi = defineLocale({
     deleteDescMid: ' và xóa nó ',
     deleteDescSuffix: '. Thao tác này không thể hoàn tác.',
     deleting: 'Đang xóa...',
-    createDesc: 'Mỗi hồ sơ là một môi trường Hermes độc lập, có cấu hình, kỹ năng và SOUL.md riêng.',
+    createDesc: 'Mỗi hồ sơ là một môi trường AI for Boss độc lập, có cấu hình, kỹ năng và SOUL.md riêng.',
     nameLabel: 'Tên',
     cloneFrom: 'Sao chép từ',
     cloneFromNone: 'Không có (để trống)',
@@ -2030,7 +2030,7 @@ export const vi = defineLocale({
     topOfHour: 'Vào đầu mỗi giờ',
     everyHourAt: minute => `Mỗi giờ vào phút ${minute}`,
     newCron: 'Cron mới',
-    emptyDescNew: 'Lên lịch bằng biểu thức cron. Hermes sẽ tự chạy yêu cầu và chuyển kết quả đến nơi bạn chọn.',
+    emptyDescNew: 'Lên lịch bằng biểu thức cron. AI for Boss sẽ tự chạy yêu cầu và chuyển kết quả đến nơi bạn chọn.',
     emptyDescSearch: 'Thử truy vấn tìm kiếm rộng hơn.',
     emptyTitleNew: 'Chưa có tác vụ định kỳ',
     emptyTitleSearch: 'Không có kết quả phù hợp',
@@ -2250,7 +2250,7 @@ export const vi = defineLocale({
       ideaLabel: 'Ý tưởng',
       ideaPlaceholder: 'Mô tả mục tiêu và ý tưởng chính của dự án.',
       ideaHint:
-        'Không bắt buộc. Khi tạo dự án, Hermes lưu nội dung này thành IDEA.md trong thư mục chính để agent hiểu mục tiêu.',
+        'Không bắt buộc. Khi tạo dự án, AI for Boss lưu nội dung này thành IDEA.md trong thư mục chính để agent hiểu mục tiêu.',
       ideaSaveFailed: 'Dự án đã được tạo nhưng không thể lưu IDEA.md trong thư mục chính.',
       ideaGenerate: 'Tạo ý tưởng',
       ideaGenerating: 'Đang tạo…',
@@ -2277,9 +2277,9 @@ export const vi = defineLocale({
       removeFromSidebar: 'Ẩn khỏi danh sách dự án',
       createFailed: 'Không thể tạo dự án',
       staleBackend:
-        'Cập nhật dịch vụ nền Hermes để tạo dự án - dịch vụ nền của bạn cũ hơn ứng dụng dành cho Desktop này (Cài đặt → Cập nhật → dịch vụ nền).',
+        'Cập nhật dịch vụ nền AI for Boss để tạo dự án - dịch vụ nền của bạn cũ hơn ứng dụng dành cho Desktop này (Cài đặt → Cập nhật → dịch vụ nền).',
       deleteConfirm:
-        'Thao tác này sẽ xóa dự án đã lưu khỏi Hermes. Các phiên, tập tin, kho git và worktree vẫn không bị ảnh hưởng.',
+        'Thao tác này sẽ xóa dự án đã lưu khỏi AI for Boss. Các phiên, tập tin, kho git và worktree vẫn không bị ảnh hưởng.',
       startWork: 'Worktree mới',
       newWorktreeTitle: 'Worktree mới',
       newWorktreeDesc: 'Đặt tên nhánh cho worktree này.',
@@ -2368,12 +2368,12 @@ export const vi = defineLocale({
   composer: {
     message: 'Tin nhắn',
     wakingProfile: profile => `Đang khởi động hồ sơ ${profile}…`,
-    placeholderStarting: 'Đang khởi động Hermes...',
-    placeholderReconnecting: 'Đang kết nối lại với Hermes…',
+    placeholderStarting: 'Đang khởi động AI for Boss...',
+    placeholderReconnecting: 'Đang kết nối lại với AI for Boss…',
     placeholderFollowUp: 'Nhập yêu cầu tiếp theo',
     newSessionPlaceholders: [
       'Chúng ta đang xây dựng cái gì?',
-      'Giao cho Hermes một nhiệm vụ',
+      'Giao cho AI for Boss một nhiệm vụ',
       'Anh đang nghĩ gì?',
       'Mô tả những gì bạn cần',
       'Chúng ta nên giải quyết vấn đề gì?',
@@ -2427,7 +2427,7 @@ export const vi = defineLocale({
       '/resume': 'tiếp tục phiên trước',
       '/details': 'điều chỉnh mức chi tiết của bản ghi',
       '/copy': 'sao chép lựa chọn hoặc tin nhắn trợ lý cuối cùng',
-      '/quit': 'thoát Hermes'
+      '/quit': 'thoát AI for Boss'
     },
     hotkeyDescs: {
       'composer.mention': 'tham chiếu tệp, thư mục, URL và Git',
@@ -2440,7 +2440,7 @@ export const vi = defineLocale({
       'composer.history': 'chuyển qua gợi ý / lịch sử'
     },
     attachUrlTitle: 'Đính kèm URL',
-    attachUrlDesc: 'Hermes sẽ tìm nạp trang và đưa trang đó làm ngữ cảnh cho lượt này.',
+    attachUrlDesc: 'AI for Boss sẽ tìm nạp trang và đưa trang đó làm ngữ cảnh cho lượt này.',
     urlPlaceholder: 'https://example.com/post',
     urlHintPre: 'Bao gồm URL đầy đủ, ví dụ: ',
     attach: 'Đính kèm',
@@ -2563,7 +2563,7 @@ export const vi = defineLocale({
       createPr: 'Tạo PR',
       openPr: 'PR mở',
       ghMissing: 'Cài đặt GitHub CLI (gh) và đăng nhập để mở PR',
-      agentShip: 'Yêu cầu Hermes mở PR',
+      agentShip: 'Yêu cầu AI for Boss mở PR',
       agentShipPrompt: 'Rà soát các thay đổi hiện tại, commit với thông điệp rõ ràng, đẩy nhánh và mở pull request.',
       newBranch: 'nhánh mới',
       branchOffFrom: base => `nhánh mới từ ${base}`,
@@ -2580,9 +2580,9 @@ export const vi = defineLocale({
       fetch: 'Đang tải xuống…',
       pull: 'Đang tải thay đổi…',
       pydeps: 'Đang hoàn thiện…',
-      update: 'Đang cập nhật Hermes…',
+      update: 'Đang cập nhật AI for Boss…',
       rebuild: 'Đang dựng lại ứng dụng Desktop…',
-      restart: 'Đang khởi động lại Hermes…',
+      restart: 'Đang khởi động lại AI for Boss…',
       done: 'Cập nhật hoàn tất',
       manual: 'Cập nhật từ dòng lệnh',
       guiSkew: 'Cập nhật ứng dụng Desktop',
@@ -2592,23 +2592,23 @@ export const vi = defineLocale({
     checkFailedTitle: 'Không thể kiểm tra cập nhật',
     tryAgain: 'Thử lại',
     notAvailableTitle: 'Không có bản cập nhật',
-    unsupportedMessage: 'Phiên bản Hermes này không thể tự cập nhật từ bên trong ứng dụng.',
+    unsupportedMessage: 'Phiên bản AI for Boss này không thể tự cập nhật từ bên trong ứng dụng.',
     connectionRetry: 'Kiểm tra kết nối của bạn và thử lại.',
     latestBody: 'Bạn đang chạy phiên bản mới nhất.',
     latestBodyBackend: 'Dịch vụ nền đang chạy phiên bản mới nhất.',
     allSetTitle: 'Bạn đã sẵn sàng',
     availableTitle: 'Có bản cập nhật mới',
-    availableBody: 'Phiên bản mới của Hermes đã sẵn sàng để cài đặt.',
+    availableBody: 'Phiên bản mới của AI for Boss đã sẵn sàng để cài đặt.',
     availableTitleBackend: 'Có bản cập nhật dịch vụ nền',
-    availableBodyBackend: 'Dịch vụ nền Hermes đang kết nối có phiên bản mới để cài đặt.',
+    availableBodyBackend: 'Dịch vụ nền AI for Boss đang kết nối có phiên bản mới để cài đặt.',
     availableBodyNoChangelog: 'Một phiên bản mới hơn đã sẵn sàng. Ghi chú phát hành không có sẵn cho loại cài đặt này.',
     updateNow: 'Cập nhật ngay',
     maybeLater: 'Có thể để sau',
     moreChanges: count => `Cùng ${count} thay đổi khác.`,
     manualTitle: 'Cập nhật từ dòng lệnh',
     manualBody:
-      'Bạn đã cài Hermes từ dòng lệnh nên cần cập nhật theo cùng cách. Hãy dán lệnh sau vào cửa sổ dòng lệnh:',
-    manualPickedUp: 'Hermes sẽ nhận phiên bản mới vào lần tiếp theo bạn khởi chạy nó.',
+      'Bạn đã cài AI for Boss từ dòng lệnh nên cần cập nhật theo cùng cách. Hãy dán lệnh sau vào cửa sổ dòng lệnh:',
+    manualPickedUp: 'AI for Boss sẽ nhận phiên bản mới vào lần tiếp theo bạn khởi chạy nó.',
     guiSkewTitle: 'Cập nhật ứng dụng Desktop',
     guiSkewBody:
       'Dịch vụ nền đã cập nhật nhưng gói ứng dụng Desktop chưa đổi. Hãy cập nhật hoặc cài lại AI for Boss (AppImage / .deb / .rpm) để đồng bộ phiên bản.',
@@ -2616,10 +2616,10 @@ export const vi = defineLocale({
     copied: 'Đã sao chép',
     done: 'Hoàn tất',
     applyingBody:
-      'Trình cập nhật Hermes tiếp quản trong cửa sổ riêng của nó và tự động mở lại Hermes khi hoàn tất. Vui lòng không tự mở lại Hermes trong khi nó đang cập nhật.',
+      'Trình cập nhật AI for Boss tiếp quản trong cửa sổ riêng của nó và tự động mở lại AI for Boss khi hoàn tất. Vui lòng không tự mở lại AI for Boss trong khi nó đang cập nhật.',
     applyingBodyBackend:
-      'Dịch vụ nền từ xa đang cập nhật và sẽ khởi động lại. Hermes sẽ tự kết nối lại khi dịch vụ hoạt động.',
-    applyingClose: 'Cửa sổ này sẽ đóng trong khi bản cập nhật chạy, sau đó Hermes sẽ tự mở lại.',
+      'Dịch vụ nền từ xa đang cập nhật và sẽ khởi động lại. AI for Boss sẽ tự kết nối lại khi dịch vụ hoạt động.',
+    applyingClose: 'Cửa sổ này sẽ đóng trong khi bản cập nhật chạy, sau đó AI for Boss sẽ tự mở lại.',
     errorTitle: 'Cập nhật chưa hoàn tất',
     errorBody: 'Đừng lo lắng - không có gì bị mất cả. Bạn có thể thử lại bây giờ.',
     notNow: 'Không phải bây giờ',
@@ -2644,7 +2644,7 @@ export const vi = defineLocale({
     journeySteps: ['Cài đặt', 'Kết nối model', 'Bắt đầu giao việc'],
     chooseLanguage: 'Ngôn ngữ thiết lập',
     noTerminalRequired: 'Không cần mở Terminal, chạy lệnh hay sửa tệp cấu hình để thiết lập.',
-    oneTimeTitle: 'Hermes cần cài đặt một lần',
+    oneTimeTitle: 'AI for Boss cần cài đặt một lần',
     unsupportedDesc: platform =>
       `Phiên thiết lập cũ này chưa khởi động được bộ cài ${platform}. Hãy tải lại để dùng bộ cài tự động hiện tại; bạn không cần mở Terminal hay chạy lệnh.`,
     installCommand: 'Lệnh cài đặt',
@@ -2654,21 +2654,21 @@ export const vi = defineLocale({
     retryAfterRun: 'Tôi đã chạy lệnh — thử lại',
     setupChoiceTitle: 'Thiết lập AI for Boss',
     setupChoiceDesc:
-      'Kết nối ứng dụng này với cổng Hermes mà bạn đã chạy hoặc cài đặt Hermes cục bộ trên máy tính này.',
-    connectExistingTitle: 'Kết nối với Hermes hiện có',
+      'Kết nối ứng dụng này với cổng AI for Boss mà bạn đã chạy hoặc cài đặt AI for Boss cục bộ trên máy tính này.',
+    connectExistingTitle: 'Kết nối với AI for Boss hiện có',
     connectExistingShort: 'Kết nối hiện có',
     connectExistingDesc:
-      'Dùng dịch vụ nền từ xa bằng token phiên hoặc đăng nhập qua trình duyệt. Hermes sẽ không cài thêm dịch vụ cục bộ.',
-    installLocalTitle: 'Cài đặt Hermes cục bộ',
-    installLocalDesc: 'Tải xuống Hermes, tạo môi trường Python và chạy dịch vụ nền trên máy tính này.',
+      'Dùng dịch vụ nền từ xa bằng token phiên hoặc đăng nhập qua trình duyệt. AI for Boss sẽ không cài thêm dịch vụ cục bộ.',
+    installLocalTitle: 'Cài đặt AI for Boss cục bộ',
+    installLocalDesc: 'Tải xuống AI for Boss, tạo môi trường Python và chạy dịch vụ nền trên máy tính này.',
     localStartUnavailable: 'Không thể khởi động cài đặt cục bộ. Khởi động lại AI for Boss và thử lại.',
-    remoteSetupTitle: 'Kết nối với Hermes hiện có',
+    remoteSetupTitle: 'Kết nối với AI for Boss hiện có',
     remoteSetupDesc: 'Nhập URL cổng. AI for Boss sẽ tự phát hiện cổng cần token hay đăng nhập qua trình duyệt.',
     remoteUrlTitle: 'URL cổng kết nối',
     remoteUrlDesc: 'Sử dụng URL cơ sở của cổng Hermes, bao gồm https:// khi ở xa.',
     remoteUrlPlaceholder: 'https://gateway.example.com/hermes',
     probing: 'Đang phát hiện xác thực cổng...',
-    probeError: 'Không thể kết nối với cổng Hermes đó.',
+    probeError: 'Không thể kết nối với cổng AI for Boss đó.',
     identityProvider: 'nhà cung cấp danh tính của bạn',
     authTitle: 'Xác thực',
     authNeedsOauth: provider => `Đăng nhập bằng ${provider} trước khi thử nghiệm cổng này.`,
@@ -2688,12 +2688,12 @@ export const vi = defineLocale({
     applyRemote: 'Áp dụng và kết nối lại',
     backToSetup: 'Quay lại',
     failedTitle: 'Cài đặt không thành công',
-    settingUpTitle: 'Thiết lập Hermes Agent',
+    settingUpTitle: 'Thiết lập AI for Boss',
     finishingTitle: 'Đang hoàn thiện',
     failedDesc:
-      'Một trong các bước cài đặt không thành công. Trên Windows, điều này có thể xảy ra nếu một phiên bản Hermes CLI hoặc Desktop khác đang chạy. Dừng mọi phiên bản Hermes đang chạy rồi thử lại. Kiểm tra các chi tiết bên dưới hoặc nhật ký trên Desktop để có bản ghi đầy đủ.',
+      'Một trong các bước cài đặt không thành công. Trên Windows, điều này có thể xảy ra nếu một phiên bản AI for Boss CLI hoặc Desktop khác đang chạy. Dừng mọi phiên bản AI for Boss đang chạy rồi thử lại. Kiểm tra các chi tiết bên dưới hoặc nhật ký trên Desktop để có bản ghi đầy đủ.',
     activeDesc:
-      'Đây là thiết lập một lần. Trình cài đặt Hermes đang tải xuống các phần phụ thuộc và định cấu hình máy của bạn. Những lần ra mắt tiếp theo sẽ bỏ qua bước này.',
+      'Đây là thiết lập một lần. Trình cài đặt AI for Boss đang tải xuống các phần phụ thuộc và định cấu hình máy của bạn. Những lần ra mắt tiếp theo sẽ bỏ qua bước này.',
     progress: (completed, total) => `${completed} của ${total} bước hoàn tất`,
     currentStage: stage => ` — hiện tại: ${stage}`,
     fetchingManifest: 'Đang tải thông tin trình cài đặt...',
@@ -2711,10 +2711,10 @@ export const vi = defineLocale({
   },
 
   onboarding: {
-    headerTitle: 'Hãy thiết lập Hermes Agent',
+    headerTitle: 'Hãy thiết lập AI for Boss',
     headerDesc: 'Kết nối nhà cung cấp model để bắt đầu trò chuyện. Hầu hết lựa chọn chỉ cần một lần nhấp.',
-    preparingInstall: 'Hermes đang hoàn tất cài đặt. Việc này thường mất chưa đầy một phút trong lần chạy đầu tiên.',
-    starting: 'Đang khởi động Hermes…',
+    preparingInstall: 'AI for Boss đang hoàn tất cài đặt. Việc này thường mất chưa đầy một phút trong lần chạy đầu tiên.',
+    starting: 'Đang khởi động AI for Boss…',
     lookingUpProviders: 'Đang tìm nhà cung cấp...',
     collapse: 'Thu gọn',
     otherProviders: 'Nhà cung cấp khác',
@@ -2722,7 +2722,7 @@ export const vi = defineLocale({
     chooseLater: 'Tôi sẽ chọn nhà cung cấp sau',
     recommended: 'Khuyên dùng',
     connected: 'Đã kết nối',
-    featuredPitch: 'Một gói đăng ký dùng hơn 300 model tiên tiến — lựa chọn được khuyên dùng cho Hermes',
+    featuredPitch: 'Một gói đăng ký dùng hơn 300 model tiên tiến — lựa chọn được khuyên dùng cho AI for Boss',
     fireworksPitch: 'API trực tiếp tới các model tiên tiến do Fireworks lưu trữ',
     openRouterPitch: 'Một khóa dùng hàng trăm model, phù hợp cho lần thiết lập đầu tiên',
     apiKeyOptions: {
@@ -2744,7 +2744,7 @@ export const vi = defineLocale({
       local: {
         short: 'Tự lưu trữ',
         description:
-          'Kết nối Hermes với một endpoint cục bộ hoặc tự lưu trữ tương thích OpenAI như vLLM, llama.cpp hoặc Ollama.'
+          'Kết nối AI for Boss với một endpoint cục bộ hoặc tự lưu trữ tương thích OpenAI như vLLM, llama.cpp hoặc Ollama.'
       }
     },
     backToSignIn: 'Quay lại để đăng nhập',
@@ -2757,7 +2757,7 @@ export const vi = defineLocale({
     update: 'Cập nhật',
     flowSubtitles: {
       pkce: 'Mở trình duyệt để đăng nhập, sau đó tiếp tục tại đây',
-      device_code: 'Mở trang xác minh trong trình duyệt — Hermes sẽ tự kết nối',
+      device_code: 'Mở trang xác minh trong trình duyệt — AI for Boss sẽ tự kết nối',
       external: 'Đăng nhập một lần trong cửa sổ dòng lệnh rồi quay lại trò chuyện'
     },
     startingSignIn: provider => `Bắt đầu đăng nhập cho ${provider}...`,
@@ -2768,12 +2768,12 @@ export const vi = defineLocale({
     pickDifferentProvider: 'Chọn nhà cung cấp khác',
     signInWith: provider => `Đăng nhập bằng ${provider}`,
     openedBrowser: provider => `Đã mở ${provider} trong trình duyệt của bạn.`,
-    authorizeThere: 'Cho phép Hermes tại đó.',
+    authorizeThere: 'Cho phép AI for Boss tại đó.',
     copyAuthCode: 'Sao chép mã xác thực rồi dán vào bên dưới.',
     pasteAuthCode: 'Dán mã ủy quyền',
     reopenAuthPage: 'Mở lại trang ủy quyền',
     autoBrowser: provider =>
-      `Đã mở ${provider} trong trình duyệt của bạn. Cho phép Hermes ở đó và bạn sẽ được kết nối tự động — không cần sao chép hoặc dán.`,
+      `Đã mở ${provider} trong trình duyệt của bạn. Cho phép AI for Boss ở đó và bạn sẽ được kết nối tự động — không cần sao chép hoặc dán.`,
     reopenSignInPage: 'Mở lại trang đăng nhập',
     waitingAuthorize: 'Chờ bạn ủy quyền...',
     externalPending: provider =>
@@ -2792,7 +2792,7 @@ export const vi = defineLocale({
     docs: provider => `Tài liệu ${provider}`,
     workProfile: {
       title: 'Thiết lập công việc',
-      description: 'Chọn loại công việc bạn làm. Hermes sẽ đề xuất một bộ Skill nhỏ từ catalog cục bộ.',
+      description: 'Chọn loại công việc bạn làm. AI for Boss sẽ đề xuất một bộ Skill nhỏ từ catalog cục bộ.',
       areasLabel: 'Lĩnh vực công việc',
       areas: {
         research_learning: 'Nghiên cứu và học tập',
@@ -2936,7 +2936,7 @@ export const vi = defineLocale({
       connectionSsh: host => `SSH: ${host}`,
       connectionRemote: host => `Điều khiển từ xa: ${host}`,
       connectionCloud: host => `Đám mây: ${host}`,
-      connectionCloudTooltip: host => `Hermes Đám mây · ${host}`,
+      connectionCloudTooltip: host => `Hermes Cloud · ${host}`,
       connectionSshTooltip: host => `SSH · ${host}`,
       connectionRemoteTooltip: host => `Điều khiển từ xa · ${host}`,
       backendLabel: version => `backend v${version}`,
@@ -2990,7 +2990,7 @@ export const vi = defineLocale({
           system_prompt: 'chỉ dẫn hệ thống',
           tool_definitions: 'Định nghĩa công cụ'
         },
-        compactAt: (tokens, percent) => `Hermes compact tại ${tokens} (${percent}% giới hạn tuyến hiện tại)`,
+        compactAt: (tokens, percent) => `AI for Boss compact tại ${tokens} (${percent}% giới hạn tuyến hiện tại)`,
         compactNow: 'Đã tới ngưỡng cần compact',
         compactionCount: count => `Số lần compact: ${count}`,
         costActual: amount => `Chi phí phiên do nhà cung cấp báo: ${amount} USD`,
@@ -3023,7 +3023,7 @@ export const vi = defineLocale({
         systemBackground: tokens => `Hệ thống + nền: ${tokens}`,
         title: 'Mức dùng ngữ cảnh',
         tokenSummary: (used, max) => `${used} / ${max} token`,
-        tokensUntilCompact: tokens => `Còn ${tokens} trước khi Hermes compact`,
+        tokensUntilCompact: tokens => `Còn ${tokens} trước khi AI for Boss compact`,
         turnBudgetApiEquivalent: amount => `Tương đương API lượt này: ${amount} · chỉ tham chiếu`,
         turnBudgetCalls: (model, modelLimit, tools, toolLimit) =>
           `Gọi model ${model}/${modelLimit} · gọi công cụ ${tools}/${toolLimit}`,
@@ -3111,7 +3111,7 @@ export const vi = defineLocale({
     binaryTitle: 'Tệp này trông giống như tệp nhị phân',
     binaryBody: label => `Xem trước ${label} có thể hiển thị văn bản không thể đọc được.`,
     largeTitle: 'Tệp này lớn',
-    largeBody: (label, size) => `${label} là ${size}. Hermes sẽ chỉ hiển thị 512 KB đầu tiên.`,
+    largeBody: (label, size) => `${label} là ${size}. AI for Boss sẽ chỉ hiển thị 512 KB đầu tiên.`,
     previewAnyway: 'Vẫn xem trước',
     truncated: 'Hiển thị 512 KB đầu tiên.',
     noInlineTitle: 'Không có bản xem trước nội tuyến',
@@ -3150,26 +3150,26 @@ export const vi = defineLocale({
       serverNotFound: 'Không tìm thấy máy chủ',
       failedToLoad: 'Không tải được bản xem trước',
       tryAgain: 'Thử lại',
-      restarting: 'Hermes đang khởi động lại...',
-      askRestart: 'Yêu cầu Hermes khởi động lại máy chủ',
-      lookingRestart: taskId => `Hermes đang xác định máy chủ xem trước cần khởi động lại (${taskId})`,
+      restarting: 'AI for Boss đang khởi động lại...',
+      askRestart: 'Yêu cầu AI for Boss khởi động lại máy chủ',
+      lookingRestart: taskId => `AI for Boss đang xác định máy chủ xem trước cần khởi động lại (${taskId})`,
       restartingTitle: 'Đang khởi động lại máy chủ xem trước',
-      restartingMessage: 'Hermes đang hoạt động ở chế độ nền. Xem bảng điều khiển xem trước để biết tiến trình.',
+      restartingMessage: 'AI for Boss đang hoạt động ở chế độ nền. Xem bảng điều khiển xem trước để biết tiến trình.',
       startRestartFailed: message => `Không thể khởi động lại máy chủ: ${message}`,
       restartFailed: 'Khởi động lại máy chủ không thành công',
       hideConsole: 'Ẩn bảng điều khiển xem trước',
       showConsole: 'Hiển thị bảng điều khiển xem trước',
       hideDevTools: 'Ẩn bản xem trước DevTools',
       openDevTools: 'Mở bản xem trước DevTools',
-      finishedRestarting: message => `Hermes đã khởi động lại xong máy chủ xem trước${message ? `: ${message}` : ''}`,
+      finishedRestarting: message => `AI for Boss đã khởi động lại xong máy chủ xem trước${message ? `: ${message}` : ''}`,
       failedRestarting: message => `Khởi động lại máy chủ không thành công: ${message}`,
       unknownError: 'lỗi không xác định',
       restartedTitle: 'Máy chủ xem trước đã khởi động lại',
       reloadingNow: 'Đang tải lại bản xem trước.',
       restartFailedTitle: 'Khởi động lại bản xem trước không thành công',
-      restartFailedMessage: 'Hermes không thể khởi động lại máy chủ.',
+      restartFailedMessage: 'AI for Boss không thể khởi động lại máy chủ.',
       stillWorking:
-        'Hermes vẫn hoạt động nhưng chưa có kết quả khởi động lại. Lệnh máy chủ có thể đang chạy ở nền trước.',
+        'AI for Boss vẫn hoạt động nhưng chưa có kết quả khởi động lại. Lệnh máy chủ có thể đang chạy ở nền trước.',
       workspaceReloading: 'Không gian làm việc đã thay đổi, đang tải lại bản xem trước',
       fileChanged: url => `Tệp đã thay đổi, đang tải lại bản xem trước: ${url}`,
       filesChanged: (count, url) => `${count} tệp đã thay đổi, đang tải lại bản xem trước: ${url}`,
@@ -3192,7 +3192,7 @@ export const vi = defineLocale({
       sharedWithAgentHint: 'Bạn và agent đang dùng cùng trang và cùng phiên đăng nhập này.',
       connector: {
         openButton: 'Dùng phiên Chrome hoặc Edge',
-        title: 'Hermes Connector',
+        title: 'AI for Boss Connector',
         description: 'Chuyển cookie của website này từ companion Chrome hoặc Edge chính chủ.',
         loading: 'Đang kiểm tra connector…',
         officialExtension: 'Companion extension chính chủ',
@@ -3206,11 +3206,11 @@ export const vi = defineLocale({
         enableDescription: 'Bật để cho phép ghép nối loopback ngắn hạn. Mỗi website vẫn cần bạn đồng ý.',
         enable: 'Bật',
         disable: 'Tắt',
-        currentSite: 'Website trong Hermes Browser',
+        currentSite: 'Website trong AI for Boss Browser',
         createCode: 'Tạo mã dùng một lần',
         pairingTitle: 'Ghép nối extension trình duyệt',
         pairingInstructions:
-          'Mở Hermes Connector trên cùng website trong Chrome hoặc Edge, xem trước cookie rồi nhập mã này.',
+          'Mở AI for Boss Connector trên cùng website trong Chrome hoặc Edge, xem trước cookie rồi nhập mã này.',
         copy: 'Sao chép',
         expiresAt: time => `Hết hạn lúc ${time}`,
         previewReady: 'Kiểm tra trước khi nhập',
@@ -3221,7 +3221,7 @@ export const vi = defineLocale({
         unsupported: 'Không hỗ trợ',
         expiry: 'Hết hạn muộn nhất',
         sessionOnly: 'Khi đóng phiên',
-        importWarning: 'Import có thể thay cookie cùng định danh trong Hermes Browser. Cookie phân vùng sẽ bị bỏ qua.',
+        importWarning: 'Import có thể thay cookie cùng định danh trong AI for Boss Browser. Cookie phân vùng sẽ bị bỏ qua.',
         confirmImport: (count, hostname) => `Nhập ${count} cookie cho ${hostname}`,
         importing: 'Đang chờ an toàn và nhập…',
         imported: (count, hostname) => `Đã nhập ${count} cookie cho ${hostname}.`,
@@ -3285,7 +3285,7 @@ export const vi = defineLocale({
     thread: {
       loadingSession: 'Đang tải phiên',
       showEarlier: 'Hiển thị các tin nhắn trước đó',
-      loadingResponse: 'Hermes đang tải phản hồi',
+      loadingResponse: 'AI for Boss đang tải phản hồi',
       resumeWhenBackgroundDone: count =>
         count === 1 ? 'Sẽ tiếp tục khi tác vụ nền kết thúc' : `Sẽ tiếp tục khi ${count} nhiệm vụ nền đã hoàn tất`,
       agentMessaging: name => `Đang nhắn cho ${name}…`,
@@ -3331,13 +3331,13 @@ export const vi = defineLocale({
       sendEdited: 'Gửi tin nhắn đã chỉnh sửa',
       attachingFile: 'Đang đính kèm…',
       workProgress: {
-        analyzingAction: 'Hermes đang xác định yêu cầu',
+        analyzingAction: 'AI for Boss đang xác định yêu cầu',
         analyzingReason: 'Để nhận diện mục tiêu, ràng buộc và bước an toàn tiếp theo.',
-        reasoningAction: 'Hermes đang đánh giá bước tiếp theo',
+        reasoningAction: 'AI for Boss đang đánh giá bước tiếp theo',
         reasoningReason: 'Để chọn hành động phù hợp với bằng chứng đã có trong phiên này.',
-        respondingAction: 'Hermes đang chuẩn bị câu trả lời',
+        respondingAction: 'AI for Boss đang chuẩn bị câu trả lời',
         respondingReason: 'Để chuyển phần việc đã kiểm chứng thành kết quả rõ ràng cho người dùng.',
-        compactingAction: 'Hermes đang tóm tắt phiên',
+        compactingAction: 'AI for Boss đang tóm tắt phiên',
         compactingReason: 'Để giữ lại ngữ cảnh quan trọng trước khi tiếp tục trong giới hạn model.',
         toolPreparingAction: name => `Đang chuẩn bị ${name}`,
         toolPreparingReason: 'Để chuyển bước đã chọn thành hành động có thể thực thi.',
@@ -3357,17 +3357,17 @@ export const vi = defineLocale({
         advisorPassedAction: checkpoint => `Advisor đã xác nhận ${checkpoint}`,
         advisorPassedReason: 'Điểm rà soát này phù hợp với mục tiêu người dùng.',
         advisorRevisionAction: checkpoint => `Advisor yêu cầu tinh chỉnh ${checkpoint}`,
-        advisorRevisionReason: 'Hermes sẽ sửa phần liên quan trước khi tiếp tục.',
+        advisorRevisionReason: 'AI for Boss sẽ sửa phần liên quan trước khi tiếp tục.',
         advisorUnavailableAction: 'Chưa gọi được Advisor',
-        advisorUnavailableReason: 'Hermes sẽ áp dụng chính sách dự phòng đã cấu hình cho phiên này.',
+        advisorUnavailableReason: 'AI for Boss sẽ áp dụng chính sách dự phòng đã cấu hình cho phiên này.',
         advisorFailedAction: 'Lượt rà soát Advisor chưa hoàn tất',
         advisorFailedReason: 'Luồng chính sẽ tiếp tục theo phương án dự phòng an toàn đã cấu hình.',
         advisorUnresolvedAction: 'Advisor vẫn còn điểm chưa đạt',
-        advisorUnresolvedReason: 'Hermes sẽ nêu rõ phần còn thiếu thay vì xác nhận hoàn thành khi chưa đủ bằng chứng.'
+        advisorUnresolvedReason: 'AI for Boss sẽ nêu rõ phần còn thiếu thay vì xác nhận hoàn thành khi chưa đủ bằng chứng.'
       }
     },
     approval: {
-      gatewayDisconnected: 'Chưa kết nối cổng Hermes',
+      gatewayDisconnected: 'Chưa kết nối cổng AI for Boss',
       sendFailed: 'Không thể gửi phản hồi phê duyệt',
       run: 'Chạy',
       command: 'Lệnh',
@@ -3378,12 +3378,12 @@ export const vi = defineLocale({
       reject: 'Từ chối',
       alwaysTitle: 'Luôn cho phép lệnh này?',
       alwaysDescription: pattern =>
-        `Mẫu “${pattern}” sẽ được thêm vào danh sách cho phép lâu dài (~/.hermes/config.yaml). Hermes sẽ không hỏi lại với các lệnh tương tự trong phiên này hay các phiên sau.`,
+        `Mẫu “${pattern}” sẽ được thêm vào danh sách cho phép lâu dài (~/.hermes/config.yaml). AI for Boss sẽ không hỏi lại với các lệnh tương tự trong phiên này hay các phiên sau.`,
       alwaysAllow: 'Luôn cho phép'
     },
     clarify: {
       notReady: 'Yêu cầu làm rõ vẫn chưa sẵn sàng',
-      gatewayDisconnected: 'Chưa kết nối cổng Hermes',
+      gatewayDisconnected: 'Chưa kết nối cổng AI for Boss',
       sendFailed: 'Không thể gửi phản hồi làm rõ',
       loadingQuestion: 'Đang tải câu hỏi…',
       other: 'Khác (nhập câu trả lời của bạn)',
@@ -3504,14 +3504,14 @@ export const vi = defineLocale({
   },
 
   prompts: {
-    gatewayDisconnected: 'Chưa kết nối cổng Hermes',
+    gatewayDisconnected: 'Chưa kết nối cổng AI for Boss',
     sudoSendFailed: 'Không thể gửi mật khẩu sudo',
     secretSendFailed: 'Không thể gửi bí mật',
     sudoTitle: 'Mật khẩu quản trị viên',
-    sudoDesc: 'Hermes cần mật khẩu sudo để chạy lệnh đặc quyền. Mật khẩu chỉ được gửi tới AI agent cục bộ.',
+    sudoDesc: 'AI for Boss cần mật khẩu sudo để chạy lệnh đặc quyền. Mật khẩu chỉ được gửi tới AI agent cục bộ.',
     sudoPlaceholder: 'Mật khẩu sudo',
     secretTitle: 'Cần thông tin bí mật',
-    secretDesc: 'Hermes cần có thông tin xác thực để tiếp tục.',
+    secretDesc: 'AI for Boss cần có thông tin xác thực để tiếp tục.',
     secretPlaceholder: 'giá trị bí mật'
   },
 
@@ -3543,7 +3543,7 @@ export const vi = defineLocale({
     resumeFailed: 'Tiếp tục không thành công',
     resumeStrandedTitle: 'Không thể tải phiên này',
     resumeStrandedBody:
-      'Kết nối tới phiên này bị lỗi và hệ thống đã dừng thử lại. Hãy kiểm tra cổng Hermes rồi thử lại.',
+      'Kết nối tới phiên này bị lỗi và hệ thống đã dừng thử lại. Hãy kiểm tra cổng AI for Boss rồi thử lại.',
     resumeRetry: 'Thử lại',
     nothingToBranch: 'Không có gì để phân nhánh',
     branchNeedsChat: 'Bắt đầu hoặc tiếp tục trò chuyện trước khi phân nhánh.',

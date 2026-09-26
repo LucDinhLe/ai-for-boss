@@ -566,7 +566,7 @@ export const host = {
     const gateway = $gateway.get()
 
     if (!gateway) {
-      throw new Error('Hermes gateway unavailable')
+      throw new Error('AI for Boss gateway unavailable')
     }
 
     return gateway.request<T>(method, params)

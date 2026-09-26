@@ -22,22 +22,22 @@ const OPTIONS: ModeOption[] = [
   {
     mode: 'gui',
     title: 'Uninstall Chat GUI only',
-    description: 'Remove this desktop app. The Hermes agent, your config, and chats all stay.',
+    description: 'Remove this desktop app. The AI for Boss agent, your config, and chats all stay.',
     consequence: 'the desktop Chat GUI (this app and its data)',
     needsAgent: false
   },
   {
     mode: 'lite',
     title: 'Uninstall GUI + agent, keep my data',
-    description: 'Remove the app and the Hermes agent, but keep config, chats, and secrets for a future reinstall.',
-    consequence: 'the Chat GUI and the Hermes agent (config, chats, and secrets are kept)',
+    description: 'Remove the app and the AI for Boss agent, but keep config, chats, and secrets for a future reinstall.',
+    consequence: 'the Chat GUI and the AI for Boss agent (config, chats, and secrets are kept)',
     needsAgent: true
   },
   {
     mode: 'full',
     title: 'Uninstall everything',
     description: 'Remove the app, the agent, and all user data — config, chats, scheduled jobs, secrets, logs.',
-    consequence: 'EVERYTHING — the Chat GUI, the Hermes agent, and all of your config, chats, secrets, and logs',
+    consequence: 'EVERYTHING — the Chat GUI, the AI for Boss agent, and all of your config, chats, secrets, and logs',
     // full removes the agent (and user data), so it's an agent-removing option:
     // hide it on a lite client with no local agent, same as lite. A lite client
     // connecting to a remote backend has no local agent OR local user data the
@@ -101,7 +101,7 @@ export function UninstallSection() {
         {
           mode: 'gui',
           title: 'Chỉ gỡ giao diện Chat',
-          description: 'Gỡ ứng dụng Desktop này. AI agent Hermes, cấu hình và các cuộc trò chuyện vẫn được giữ lại.',
+          description: 'Gỡ ứng dụng Desktop này. trợ lý AI for Boss, cấu hình và các cuộc trò chuyện vẫn được giữ lại.',
           consequence: 'giao diện Chat Desktop (ứng dụng này và dữ liệu riêng của ứng dụng)',
           needsAgent: false
         },
@@ -109,8 +109,8 @@ export function UninstallSection() {
           mode: 'lite',
           title: 'Gỡ giao diện và AI agent, giữ dữ liệu',
           description:
-            'Gỡ ứng dụng và AI agent Hermes, nhưng giữ cấu hình, cuộc trò chuyện và thông tin bí mật để cài lại sau.',
-          consequence: 'giao diện Chat và AI agent Hermes (cấu hình, cuộc trò chuyện và thông tin bí mật vẫn được giữ)',
+            'Gỡ ứng dụng và trợ lý AI for Boss, nhưng giữ cấu hình, cuộc trò chuyện và thông tin bí mật để cài lại sau.',
+          consequence: 'giao diện Chat và trợ lý AI for Boss (cấu hình, cuộc trò chuyện và thông tin bí mật vẫn được giữ)',
           needsAgent: true
         },
         {
@@ -119,7 +119,7 @@ export function UninstallSection() {
           description:
             'Gỡ ứng dụng, AI agent và toàn bộ dữ liệu người dùng gồm cấu hình, cuộc trò chuyện, tác vụ định kỳ, thông tin bí mật và nhật ký.',
           consequence:
-            'TOÀN BỘ giao diện Chat, AI agent Hermes, cấu hình, cuộc trò chuyện, thông tin bí mật và nhật ký',
+            'TOÀN BỘ giao diện Chat, trợ lý AI for Boss, cấu hình, cuộc trò chuyện, thông tin bí mật và nhật ký',
           needsAgent: true
         }
       ]

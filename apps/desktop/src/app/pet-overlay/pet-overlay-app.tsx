@@ -449,7 +449,7 @@ export function PetOverlayApp() {
               stopPropagation keeps a click from starting a window drag. */}
           {unread && (
             <button
-              aria-label={locale === 'vi' ? 'Mở trong Hermes' : 'Open in Hermes'}
+              aria-label={locale === 'vi' ? 'Mở trong AI for Boss' : 'Open in AI for Boss'}
               onClick={openApp}
               onPointerDown={e => e.stopPropagation()}
               onPointerUp={e => e.stopPropagation()}
@@ -470,7 +470,7 @@ export function PetOverlayApp() {
                 top: 0,
                 width: 24
               }}
-              title={locale === 'vi' ? 'Mở trong Hermes' : 'Open in Hermes'}
+              title={locale === 'vi' ? 'Mở trong AI for Boss' : 'Open in AI for Boss'}
               type="button"
             >
               <Mail style={{ height: 13, width: 13 }} />

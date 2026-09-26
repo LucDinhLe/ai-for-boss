@@ -334,7 +334,7 @@ async function gatewayRequest<T>(method: string, params: Record<string, unknown>
   }
 
   if (!gateway) {
-    throw new Error('Hermes gateway is not connected')
+    throw new Error('AI for Boss gateway is not connected')
   }
 
   return gateway.request<T>(method, params)
@@ -388,7 +388,7 @@ async function activeProjectsContext(): Promise<ActiveProjectsContext> {
     profile !== normalizeProfileKey($activeGatewayProfile.get()) ||
     !sameProjectTreeOwner(owner, activeProfileProjectTreeOwner(profile))
   ) {
-    throw new Error('Active Hermes profile changed while connecting')
+    throw new Error('Active AI for Boss profile changed while connecting')
   }
 
   return { gateway, owner, profile }

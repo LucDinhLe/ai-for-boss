@@ -160,7 +160,7 @@ export function MaintenancePanel() {
   const restoreBackup = useCallback(async () => {
     const [archive] = await window.hermesDesktop.selectPaths({
       directories: false,
-      filters: [{ extensions: ['zip'], name: 'Hermes backup' }],
+      filters: [{ extensions: ['zip'], name: 'AI for Boss backup' }],
       multiple: false,
       title: mm.importBackup
     })

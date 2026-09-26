@@ -42,7 +42,7 @@ export function SessionContextMeter({
   const requestGateway = useCallback(
     <T = unknown,>(method: string, params?: Record<string, unknown>) => {
       if (!gateway) {
-        return Promise.reject(new Error('Hermes gateway is unavailable'))
+        return Promise.reject(new Error('AI for Boss gateway is unavailable'))
       }
 
       return gateway.request<T>(method, params)

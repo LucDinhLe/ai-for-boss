@@ -212,7 +212,7 @@ export const ReactionBadge: FC<{
           <span
             className="reaction-pop leading-none"
             key={`${reaction.author}-${reaction.emoji}`}
-            title={isVi ? 'Hermes đã bày tỏ cảm xúc' : 'Reacted by Hermes'}
+            title={isVi ? 'AI for Boss đã bày tỏ cảm xúc' : 'Reacted by AI for Boss'}
           >
             {reaction.emoji}
           </span>

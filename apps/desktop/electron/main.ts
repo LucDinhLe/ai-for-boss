@@ -2171,7 +2171,7 @@ async function waitForUpdateToFinish() {
 
       await advanceBootProgress(
         'backend.update-wait',
-        'An update is finishing — Hermes will start automatically when it completes…',
+        `An update is finishing — ${EDITION_DISPLAY_NAME} will start automatically when it completes…`,
         12
       )
     },
@@ -2195,7 +2195,7 @@ async function waitForUpdateToFinish() {
       rememberLog(`[updates] detached update finished with manual action (branch ${result.branch}): ${result.message}`)
       dialog.showMessageBox({
         type: 'warning',
-        title: 'Hermes update',
+        title: `${EDITION_DISPLAY_NAME} update`,
         message: 'The update finished, but needs one more step',
         detail: result.message
       })
@@ -2204,7 +2204,7 @@ async function waitForUpdateToFinish() {
     } else if (result) {
       rememberLog(`[updates] detached update FAILED (exit ${result.exitCode}): ${result.message}`)
       dialog.showErrorBox(
-        'Hermes update did not finish',
+        `${EDITION_DISPLAY_NAME} update did not finish`,
         `${result.message}\n\nDetails: ${path.join(HERMES_HOME, 'logs', 'desktop-update-handoff.log')}`
       )
     }

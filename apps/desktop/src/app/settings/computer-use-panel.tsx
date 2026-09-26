@@ -198,8 +198,8 @@ export function ComputerUsePanel({ connectionId, onConfiguredChange, profile }: 
           {status.can_grant ? (
             <p className="text-[0.72rem] text-muted-foreground">
               {isVi
-                ? 'Quyền được cấp cho định danh riêng của CuaDriver (com.trycua.driver), nên macOS sẽ ghi tên tiến trình điều khiển máy thay vì Hermes.'
-                : "Grants attach to CuaDriver's own identity (com.trycua.driver), not Hermes — so the dialog is attributed to the process that drives your Mac."}
+                ? 'Quyền được cấp cho định danh riêng của CuaDriver (com.trycua.driver), nên macOS sẽ ghi tên tiến trình điều khiển máy thay vì AI for Boss.'
+                : "Grants attach to CuaDriver's own identity (com.trycua.driver), not AI for Boss — so the dialog is attributed to the process that drives your Mac."}
             </p>
           ) : (
             <p className="text-[0.72rem] text-muted-foreground">

@@ -338,7 +338,7 @@ describe('SessionAdvisorBar', () => {
 
     expect(publisherLink.getAttribute('href')).toBe('https://developers.openai.com/api/docs/models/gpt-5.6-sol')
     expect(screen.getByText('Current route limit: 900k · 18.0% used')).toBeTruthy()
-    expect(screen.getByText('288.2k until Hermes compacts')).toBeTruthy()
+    expect(screen.getByText('288.2k until AI for Boss compacts')).toBeTruthy()
   })
 
   it('keeps context readings independent across two chat panels', async () => {

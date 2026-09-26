@@ -99,7 +99,7 @@ describe('PluginsSettings', () => {
     expect(trigger).toBeTruthy()
     fireEvent.pointerMove(trigger!, { pointerType: 'mouse' })
     expect((await screen.findByRole('tooltip')).textContent).toContain(
-      'This bundled Hermes feature is required and stays enabled.'
+      'This bundled AI for Boss feature is required and stays enabled.'
     )
   })
 

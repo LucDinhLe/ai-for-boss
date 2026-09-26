@@ -573,7 +573,7 @@ export async function requestGatewayForProfile<T>(
 
   try {
     if (!route.gateway) {
-      throw new Error(`Hermes gateway unavailable for profile "${route.key}"`)
+      throw new Error(`AI for Boss gateway unavailable for profile "${route.key}"`)
     }
 
     const routedParams = route.scopeProfile ? { ...params, profile: route.key } : params
