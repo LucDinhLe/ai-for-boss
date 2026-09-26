@@ -446,7 +446,8 @@ jobs:
           else
             gh release create "$RELEASE_TAG" $assets --repo "$GITHUB_REPOSITORY" $flags --title "$title" --notes-file out/NOTES.md
           fi
-          latest_tag="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" -q .tag_name)"
+          # Kho chưa có bản Latest nào (mọi bản đều pre-release) thì API trả 404: coi là rỗng.
+          latest_tag="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" -q .tag_name 2>/dev/null || true)"
           echo "Latest hiện tại: $latest_tag"
           if [ "$CHANNEL" = thunghiem ]; then
             test "$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json isPrerelease -q .isPrerelease)" = "true" || { echo "::error::release không phải pre-release"; exit 1; }
