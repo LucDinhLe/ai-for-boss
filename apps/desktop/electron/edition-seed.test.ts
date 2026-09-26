@@ -35,15 +35,21 @@ function fakeSpawn(code: number, stdout: string) {
   return { calls, impl }
 }
 
-test('gói edition thật có đủ phần vỏ cần: manifest, script, SOUL, 12 kỹ năng, plugin, 4 vai trò', () => {
+test('gói edition thật có đủ phần vỏ cần: manifest, script, SOUL, 47 kỹ năng, plugin, 4 vai trò', () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(REAL_EDITION, 'edition.json'), 'utf8'))
   assert.equal(manifest.id, 'ai-for-boss')
   assert.ok(manifest.seedVersion >= 1)
   assert.ok(fs.existsSync(path.join(REAL_EDITION, 'seed_edition.py')))
   assert.match(fs.readFileSync(path.join(REAL_EDITION, 'SOUL.md'), 'utf8'), /^<!-- ai-for-boss-soul/)
 
-  const skills = fs.readdirSync(path.join(REAL_EDITION, 'skills', 'ai-for-boss'))
-  assert.equal(skills.length, 12)
+  const skills = fs
+    .readdirSync(path.join(REAL_EDITION, 'skills', 'ai-for-boss'), { withFileTypes: true })
+    .filter(entry => entry.isDirectory())
+    .map(entry => entry.name)
+
+  assert.equal(skills.length, 47)
+  assert.ok(fs.existsSync(path.join(REAL_EDITION, 'skills', 'ai-for-boss', 'DESCRIPTION.md')))
+  assert.ok(fs.existsSync(path.join(REAL_EDITION, 'NOTICE.md')))
 
   for (const skill of skills) {
     const text = fs.readFileSync(path.join(REAL_EDITION, 'skills', 'ai-for-boss', skill, 'SKILL.md'), 'utf8')

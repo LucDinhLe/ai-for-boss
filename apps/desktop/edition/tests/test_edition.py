@@ -39,7 +39,9 @@ def test_seed_fresh_home_then_core_sees_everything(tmp_path):
     report = _seed(tmp_path)
     assert report["soul"] == "written"
     assert report["cacheTtl"] == "set"
-    assert len(report["skills"]) == 12
+    manifest = json.loads((EDITION / "edition.json").read_text(encoding="utf-8"))
+    assert len(report["skills"]) == 47
+    assert set(manifest["optionalSkills"]) <= set(report["skills"])
     assert report["roles"] == ["ban-hang", "dieu-hanh", "marketing-noi-dung", "quan-ly-du-an"]
     assert json.loads((tmp_path / "edition-seed.json").read_text(encoding="utf-8"))["seedVersion"] >= 1
 
@@ -168,3 +170,51 @@ def test_upgrade_from_v2_toolsets_reenables_terminal_but_respects_user_lists(tmp
     subprocess.run([sys.executable, "-c", code, json.dumps(custom)], env=env, check=True, timeout=120)
     (tmp_path / "edition-seed.json").unlink()
     assert _seed(tmp_path)["configUpgrades"] == []
+
+
+def test_business_skills_are_valid_and_cross_references_resolve():
+    sys.path.insert(0, str(REPO))
+    from agent.skill_utils import parse_frontmatter
+
+    root = EDITION / "skills" / "ai-for-boss"
+    names = {p.name for p in root.iterdir() if p.is_dir()}
+    for skill in sorted(names):
+        text = (root / skill / "SKILL.md").read_text(encoding="utf-8")
+        fm, body = parse_frontmatter(text)
+        assert fm["name"] == skill
+        assert 0 < len(fm["description"]) <= 260, skill
+        assert "—" not in text and "–" not in text, f"{skill}: gạch ngang dài"
+        assert "composio" not in text.lower(), skill
+    manifest = json.loads((EDITION / "edition.json").read_text(encoding="utf-8"))
+    assert set(manifest["optionalSkills"]) <= names
+    for role in (EDITION / "roles").glob("*.json"):
+        missing = set(json.loads(role.read_text(encoding="utf-8"))["skills"]) - names
+        assert not missing, f"{role.name} trỏ tới kỹ năng không có: {missing}"
+
+
+def test_optional_skills_start_disabled_and_stay_enabled_once_user_turns_them_on(tmp_path):
+    manifest = json.loads((EDITION / "edition.json").read_text(encoding="utf-8"))
+    optional = manifest["optionalSkills"]
+    report = _seed(tmp_path)
+    assert report["optionalDisabled"] == optional
+    read = ("import json\nfrom hermes_cli.config import load_config\n"
+            "print(json.dumps(load_config().get('skills', {}).get('disabled', [])))\n")
+    disabled = json.loads(_run(tmp_path, read).strip().splitlines()[-1])
+    assert set(optional) <= set(disabled)
+    # Người dùng bật lại một kỹ năng trong tab Kỹ năng: lần gieo sau không tắt lại.
+    code = ("from hermes_cli.config import read_raw_config, save_config\n"
+            "c = read_raw_config(); c['skills']['disabled'] = [n for n in c['skills']['disabled'] if n != 'xuat-khau-b2b']\n"
+            "save_config(c)\n")
+    _run(tmp_path, code)
+    marker = tmp_path / "edition-seed.json"
+    data = json.loads(marker.read_text(encoding="utf-8"))
+    data["seedVersion"] = 0
+    marker.write_text(json.dumps(data), encoding="utf-8")
+    assert _seed(tmp_path)["optionalDisabled"] == []
+    disabled = json.loads(_run(tmp_path, read).strip().splitlines()[-1])
+    assert "xuat-khau-b2b" not in disabled
+    # Kỹ năng mặc định không bị ẩn khỏi mục lục của lõi.
+    out = _run(tmp_path, ("from agent.prompt_builder import build_skills_system_prompt\n"
+                          "print(build_skills_system_prompt())\n"))
+    assert "du-bao-dong-tien" in out and "hoi-dong-co-van" in out
+    assert "quang-cao-tra-phi" not in out

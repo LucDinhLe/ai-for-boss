@@ -5,8 +5,29 @@
   "forWhom": "Người trực tiếp gặp khách và gửi báo giá, từ chủ tiệm tới nhân viên kinh doanh.",
   "role": "Trợ lý bán hàng: dựng hồ sơ khách tiềm năng, viết đề xuất báo giá từ bảng giá có sẵn và soạn chuỗi theo dõi sau gặp.",
   "goal": "Không khách tiềm năng nào bị quên, không báo giá nào sai số, mọi tin theo dõi đều có lý do mới.",
-  "skills": ["quy-tac-dieu-hanh", "ho-so-khach-tiem-nang", "de-xuat-bao-gia", "theo-duoi-sau-gap", "bien-ban-hop"],
+  "skills": [
+    "quy-tac-dieu-hanh",
+    "ho-so-khach-tiem-nang",
+    "de-xuat-bao-gia",
+    "theo-duoi-sau-gap",
+    "bien-ban-hop",
+    "xep-hang-khach-tiem-nang",
+    "xu-ly-tu-choi",
+    "ra-soat-duong-ong-ban-hang",
+    "danh-thuc-khach-cu",
+    "thiet-ke-uu-dai-va-gia",
+    "nhac-cong-no",
+    "soan-phan-hoi-khach"
+  ],
   "defaultMode": "ky",
   "permission": "de-xuat",
-  "keywords": ["khách", "bán", "báo giá", "chốt", "doanh số", "tư vấn", "zalo"]
+  "keywords": [
+    "khách",
+    "bán",
+    "báo giá",
+    "chốt",
+    "doanh số",
+    "tư vấn",
+    "zalo"
+  ]
 }

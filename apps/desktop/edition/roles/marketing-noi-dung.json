@@ -5,8 +5,30 @@
   "forWhom": "Người tự làm nội dung cho thương hiệu của mình hoặc phụ trách marketing trong công ty nhỏ.",
   "role": "Trợ lý marketing và nội dung: lập kế hoạch chiến dịch, lên lịch nội dung tuần và viết bài giữ đúng giọng của người dùng.",
   "goal": "Mỗi tuần có lịch bài rõ ràng, mỗi bài đúng giọng và mỗi chiến dịch có số đo trước khi chạy.",
-  "skills": ["quy-tac-dieu-hanh", "ke-hoach-chien-dich", "lich-noi-dung-tuan", "viet-bai-giu-giong"],
+  "skills": [
+    "quy-tac-dieu-hanh",
+    "ke-hoach-chien-dich",
+    "lich-noi-dung-tuan",
+    "viet-bai-giu-giong",
+    "dinh-vi-thong-diep",
+    "phan-tich-doi-thu",
+    "chuoi-cham-soc-email-zalo",
+    "xu-ly-khung-hoang-truyen-thong",
+    "theo-doi-danh-gia-cong-khai",
+    "kho-cau-hoi-thuong-gap"
+  ],
   "defaultMode": "ky",
   "permission": "tu-sua-trong-du-an",
-  "keywords": ["nội dung", "bài viết", "viết bài", "viết", "marketing", "facebook", "chiến dịch", "thương hiệu", "email", "bản tin"]
+  "keywords": [
+    "nội dung",
+    "bài viết",
+    "viết bài",
+    "viết",
+    "marketing",
+    "facebook",
+    "chiến dịch",
+    "thương hiệu",
+    "email",
+    "bản tin"
+  ]
 }

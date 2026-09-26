@@ -15,12 +15,25 @@ Nhánh bắt đầu từ commit `39e5387` của Hermes Vietnamese (bản phát h
 - **Danh tính riêng** trong `apps/desktop/product-metadata.json`: appId `vn.lucledinh.ai-for-boss`, tệp chạy `AIforBoss`, giao thức `aiforboss://`, thư mục dữ liệu `%LOCALAPPDATA%\ai-for-boss` hoặc `~/.ai-for-boss`, biến ghi đè `AFB_HOME`. `electron/edition-identity.ts` đọc các giá trị này thay cho chuỗi ghi cứng. `package.json` phần `build` phải khớp tay, `scripts/community-distribution.test.mjs` kiểm sự khớp.
 - **Nhập dữ liệu Hermes Vietnamese** ở lần mở đầu (chỉ sao chép, bản Hermes Vietnamese giữ nguyên), khai trong `edition.importFrom`.
 - **Gói doanh nghiệp** trong `apps/desktop/edition/`, đóng vào bộ cài qua `extraResources`:
-  - `skills/ai-for-boss/`: 12 kỹ năng tiếng Việt chuyển từ plugin OpenClaw, chuẩn SKILL.md của Hermes.
+  - `skills/ai-for-boss/`: 47 kỹ năng tiếng Việt chuẩn SKILL.md của Hermes (xem mục "Bộ kỹ năng doanh nghiệp").
   - `SOUL.md`: danh tính trợ lý và bảy quy tắc điều hành. Nằm ở phần tĩnh của system prompt nên trúng bộ đệm.
   - `roles/`: bốn vai trò (bán hàng, điều hành, marketing và nội dung, quản lý dự án), gieo thành `agent.personalities` để đổi vai bằng `/personality <tên>` mà vẫn dùng chung tài khoản nhà cung cấp.
   - `plugins/aifb-harness/`: sổ quyết định, đọc lại quyết định gần đây mỗi lượt, trần bước công cụ mỗi lượt, sổ token từng lần gọi mô hình.
   - `seed_edition.py`: gieo tất cả vào HERMES_HOME bằng hàm công khai của lõi.
 - **Bộ đệm prompt 1 giờ** (`prompt_caching.cache_ttl: 1h`) đặt lúc gieo nếu người dùng chưa đặt.
+
+## Bộ kỹ năng doanh nghiệp (seedVersion 4)
+
+Ngày 26/09/2026 anh Lực duyệt bộ kỹ năng sau khi rà 12 kho kỹ năng kinh doanh trên GitHub. Không cài nguyên bản các kho tiếng Anh vì cả 44 kỹ năng Small Business của anthropics/knowledge-work-plugins gắn với QuickBooks, HubSpot, PayPal, Stripe và thuế Mỹ; openaccountant cần ứng dụng riêng; composio support-skills không có giấy phép; hai kho tiếng Việt có khung tốt nhưng trộn Anh Việt hoặc viết không dấu. Vì vậy mỗi kỹ năng được viết lại tiếng Việt, chạy với Excel, Google Sheets, email, tệp xuất MISA, KiotViet, Sapo và báo cáo sàn. Ghi công nguồn ở `edition/NOTICE.md` và mục "Nguồn" của từng kỹ năng.
+
+- 12 kỹ năng gốc từ plugin OpenClaw.
+- 28 kỹ năng mặc định gồm điều hành (5), bán hàng (4), marketing và truyền thông (5), chăm sóc khách hàng (4), tài chính (4), nhân sự và pháp lý (3), quản trị agent (3).
+- 7 kỹ năng cài khi cần (`optionalSkills` trong `edition.json`): SEO và AI, quảng cáo trả phí, bán hàng sàn và livestream, KOC và KOL, xuất khẩu B2B, đánh giá hiệu suất, kiểm tra tuân thủ. Chúng được chép vào máy nhưng thêm vào `skills.disabled` ở lần gieo đầu tiên của từng kỹ năng, nên không vào mục lục. Người dùng bật trong tab Kỹ năng thì các lần gieo sau không tắt lại (marker ghi `optionalOffered`).
+- `DESCRIPTION.md` của nhóm `ai-for-boss` bảo mô hình ưu tiên kỹ năng doanh nghiệp.
+
+Mục lục 40 kỹ năng đang bật dài khoảng 1.250 token, nằm ở phần tĩnh nên trúng bộ đệm. Công cụ `delegate_task` (khoảng 930 token mỗi lượt) vẫn tắt theo mặc định; anh Lực quyết chỉ bật cùng nút Quyết định quan trọng khi làm màn chào mới. Kỹ năng `hoi-dong-co-van` và `giao-viec-cho-tro-ly-phu` tự chạy tuần tự khi công cụ này không có.
+
+Viết thêm kỹ năng thì theo mẫu `de-xuat-bao-gia` (sáu mục, ba ca mẫu) và luật văn phong của anh Lực; `tests/test_edition.py` kiểm tên, mô tả, gạch ngang dài và vai trò trỏ đúng kỹ năng.
 
 ## Gieo gói chạy thế nào
 

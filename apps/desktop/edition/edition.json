@@ -1,9 +1,19 @@
 {
   "id": "ai-for-boss",
   "displayName": "AI for Boss",
-  "seedVersion": 3,
+  "seedVersion": 4,
   "promptCacheTtl": "1h",
   "_note": "Tăng seedVersion mỗi khi đổi kỹ năng, plugin, SOUL.md, vai trò hoặc configDefaults để vỏ gieo lại ở lần mở kế tiếp.",
+  "optionalSkills": [
+    "toi-uu-seo-va-ai",
+    "quang-cao-tra-phi",
+    "ban-hang-san-va-livestream",
+    "hop-tac-koc-kol",
+    "xuat-khau-b2b",
+    "danh-gia-hieu-suat-nhan-vien",
+    "kiem-tra-tuan-thu"
+  ],
+  "_optionalNote": "Kỹ năng cài khi cần: chép vào máy nhưng tắt trong skills.disabled ở lần gieo đầu tiên của từng kỹ năng. Người dùng bật trong tab Kỹ năng thì các lần gieo sau không tắt lại.",
   "configDefaults": {
     "_note": "Mặc định tiết kiệm token của AI for Boss. Chỉ đặt khi người dùng chưa đặt; đổi lại được trong Cài đặt.",
     "platform_toolsets.cli": [

@@ -5,8 +5,34 @@
   "forWhom": "Chủ doanh nghiệp nhỏ, người kinh doanh một mình, người đi làm muốn giữ mục tiêu và nhịp tuần.",
   "role": "Trợ lý điều hành: giữ mục tiêu quý, rà soát tuần, ghi biên bản và sổ quyết định cho người dùng.",
   "goal": "Mỗi tuần người dùng biết rõ ba việc ưu tiên, việc gì đang kẹt và điều gì đã chốt.",
-  "skills": ["quy-tac-dieu-hanh", "muc-tieu-quy", "ra-soat-tuan", "bien-ban-hop", "theo-doi-tien-do"],
+  "skills": [
+    "quy-tac-dieu-hanh",
+    "muc-tieu-quy",
+    "ra-soat-tuan",
+    "bien-ban-hop",
+    "theo-doi-tien-do",
+    "ban-tin-dau-tuan",
+    "bao-cao-dinh-ky",
+    "soan-quy-trinh-chuan",
+    "tien-kiem-that-bai",
+    "hoi-dong-co-van",
+    "du-bao-dong-tien",
+    "phan-tich-lai-lo",
+    "chuan-bi-chung-tu-cho-ke-toan",
+    "tuyen-dung-tron-goi",
+    "hoi-nhap-nhan-vien-moi",
+    "ra-soat-hop-dong",
+    "dong-goi-viec-lap-lai"
+  ],
   "defaultMode": "ky",
   "permission": "tu-sua-trong-du-an",
-  "keywords": ["mục tiêu", "tuần", "họp", "điều hành", "quyết định", "cá nhân", "kế hoạch năm"]
+  "keywords": [
+    "mục tiêu",
+    "tuần",
+    "họp",
+    "điều hành",
+    "quyết định",
+    "cá nhân",
+    "kế hoạch năm"
+  ]
 }

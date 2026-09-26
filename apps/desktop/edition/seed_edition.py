@@ -89,6 +89,31 @@ def apply_default_upgrades(config: dict, upgrades: dict) -> list:
     return changed
 
 
+def disable_new_optional(config: dict, optional: list, offered: list) -> list:
+    """Tắt kỹ năng cài khi cần ở lần gieo đầu tiên của từng kỹ năng; trả tên vừa tắt.
+
+    Kỹ năng đã từng được gieo (có trong ``offered``) thì để yên, kể cả khi người dùng
+    đã bật lại trong tab Kỹ năng.
+    """
+    fresh = [name for name in optional if name not in set(offered)]
+    if not fresh:
+        return []
+    skills_cfg = config.get("skills")
+    if not isinstance(skills_cfg, dict):
+        if skills_cfg is not None:
+            return []  # người dùng đặt kiểu khác: để yên
+        skills_cfg = {}
+        config["skills"] = skills_cfg
+    disabled = skills_cfg.get("disabled")
+    if disabled is None:
+        disabled = []
+    if not isinstance(disabled, list):
+        return []
+    added = [name for name in fresh if name not in disabled]
+    skills_cfg["disabled"] = disabled + added
+    return added
+
+
 def main(edition_dir: Path) -> dict:
     from hermes_constants import get_hermes_home
     from hermes_cli.config import read_raw_config, save_config, set_config_value
@@ -146,10 +171,15 @@ def main(edition_dir: Path) -> dict:
     raw = read_raw_config() or {}
     upgraded = apply_default_upgrades(raw, manifest.get("configUpgrades") or {})
     applied = apply_missing_defaults(raw, manifest.get("configDefaults") or {})
-    if applied or upgraded:
+    # 6. Kỹ năng cài khi cần: có trong máy nhưng tắt, người dùng bật trong tab Kỹ năng.
+    optional = list(manifest.get("optionalSkills") or [])
+    offered = list(previous.get("optionalOffered") or [])
+    turned_off = disable_new_optional(raw, optional, offered)
+    if applied or upgraded or turned_off:
         save_config(raw)
     report["configDefaults"] = applied
     report["configUpgrades"] = upgraded
+    report["optionalDisabled"] = turned_off
 
     roles = []
     for path in sorted((edition_dir / "roles").glob("*.json")):
@@ -159,7 +189,8 @@ def main(edition_dir: Path) -> dict:
     report["roles"] = roles
 
     marker_path.write_text(
-        json.dumps({"edition": manifest["id"], "seedVersion": manifest["seedVersion"], "soulSha": soul_sha},
+        json.dumps({"edition": manifest["id"], "seedVersion": manifest["seedVersion"], "soulSha": soul_sha,
+                    "optionalOffered": sorted(set(offered) | set(optional))},
                    ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )

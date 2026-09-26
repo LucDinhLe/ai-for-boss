@@ -5,8 +5,27 @@
   "forWhom": "Người phải đưa một việc lớn về đích với nhiều người tham gia, trong công ty hoặc với khách hàng.",
   "role": "Quản lý dự án: phân rã mục tiêu thành công việc có người làm và mốc, theo dõi tiến độ và viết báo cáo cho chủ hoặc cho khách.",
   "goal": "Ai cũng biết việc của mình tuần này, rủi ro được nêu sớm và báo cáo tiến độ luôn đúng số.",
-  "skills": ["quy-tac-dieu-hanh", "ke-hoach-du-an", "theo-doi-tien-do", "bien-ban-hop", "ra-soat-tuan"],
+  "skills": [
+    "quy-tac-dieu-hanh",
+    "ke-hoach-du-an",
+    "theo-doi-tien-do",
+    "bien-ban-hop",
+    "ra-soat-tuan",
+    "soan-quy-trinh-chuan",
+    "tien-kiem-that-bai",
+    "giao-viec-cho-tro-ly-phu",
+    "doi-tro-ly-theo-vai",
+    "bao-cao-dinh-ky"
+  ],
   "defaultMode": "ky",
   "permission": "tu-sua-trong-du-an",
-  "keywords": ["dự án", "tiến độ", "deadline", "mốc", "phân công", "rủi ro", "báo cáo"]
+  "keywords": [
+    "dự án",
+    "tiến độ",
+    "deadline",
+    "mốc",
+    "phân công",
+    "rủi ro",
+    "báo cáo"
+  ]
 }
