@@ -74,6 +74,11 @@ test('packaged upgrades retain the installed identity and disclose the MIT licen
   assert.match(main, /app\.setAppUserModelId\(EDITION_AUMID\)/)
   assert.equal(metadata.technicalIdentity.windowsAppUserModelId, metadata.technicalIdentity.appId)
   assert.equal(pkg.build.nsis.guid, metadata.technicalIdentity.nsisGuid)
+  // Bước chạy thử bộ cài trong build-release.yml phải ghim đúng biến thư mục dữ liệu của bản này,
+  // nếu không app ghi log ra thư mục mặc định và bước chạy thử báo hỏng oan.
+  const buildRelease = readFileSync(resolve(repoRoot, '.github/workflows/build-release.yml'), 'utf8')
+  assert.match(buildRelease, new RegExp(`export ${metadata.technicalIdentity.homeEnvOverride}=`))
+  assert.match(buildRelease, new RegExp(`MacOS/${metadata.technicalIdentity.executableName}"`))
   assert.doesNotMatch(main, /title: 'Hermes'/)
   assert.match(exeIdentity, /product-metadata\.json/)
   assert.match(exeIdentity, /ProductName: displayName/)
